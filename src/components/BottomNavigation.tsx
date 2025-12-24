@@ -1,9 +1,7 @@
-import { Home, BookOpen, ScrollText, Calendar, Settings } from "lucide-react";
 import { useState } from "react";
 
 interface NavItem {
-  icon: React.ReactNode;
-  activeIcon: React.ReactNode;
+  icon: string;
   label: string;
   id: string;
 }
@@ -11,32 +9,27 @@ interface NavItem {
 const navItems: NavItem[] = [
   { 
     id: "home",
-    icon: <Home size={24} />, 
-    activeIcon: <Home size={24} fill="currentColor" />,
+    icon: "🏠",
     label: "Home" 
   },
   { 
     id: "quran",
-    icon: <BookOpen size={24} />, 
-    activeIcon: <BookOpen size={24} strokeWidth={2.5} />,
+    icon: "📖",
     label: "Quran" 
   },
   { 
     id: "hadith",
-    icon: <ScrollText size={24} />, 
-    activeIcon: <ScrollText size={24} strokeWidth={2.5} />,
+    icon: "📜",
     label: "Hadith" 
   },
   { 
     id: "calendar",
-    icon: <Calendar size={24} />, 
-    activeIcon: <Calendar size={24} strokeWidth={2.5} />,
+    icon: "🗓️",
     label: "Calendar" 
   },
   { 
     id: "settings",
-    icon: <Settings size={24} />, 
-    activeIcon: <Settings size={24} strokeWidth={2.5} />,
+    icon: "⚙️",
     label: "Settings" 
   },
 ];
@@ -53,8 +46,8 @@ const BottomNavigation = () => {
             onClick={() => setActiveTab(item.id)}
             className={`bottom-nav-item ${activeTab === item.id ? "active" : ""}`}
           >
-            <div className={`transition-transform ${activeTab === item.id ? "scale-110" : ""}`}>
-              {activeTab === item.id ? item.activeIcon : item.icon}
+            <div className={`transition-transform text-2xl ${activeTab === item.id ? "scale-110" : ""}`}>
+              {item.icon}
             </div>
             <span className={`text-xs font-medium ${
               activeTab === item.id ? "text-primary" : "text-muted-foreground"
