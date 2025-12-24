@@ -11,6 +11,8 @@ interface QuranAudioPlayerProps {
   hasPrevious?: boolean;
 }
 
+const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
 const QuranAudioPlayer = ({
   audioUrl,
   ayahNumber,
@@ -23,15 +25,16 @@ const QuranAudioPlayer = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [speed, setSpeed] = useState(1);
 
   useEffect(() => {
     if (audioRef.current && audioUrl) {
       audioRef.current.pause();
       audioRef.current.src = audioUrl;
+      audioRef.current.playbackRate = speed;
       audioRef.current.load();
       setProgress(0);
       
-      // Auto play when new audio is loaded
       audioRef.current.play()
         .then(() => setIsPlaying(true))
         .catch((err) => {
@@ -40,6 +43,12 @@ const QuranAudioPlayer = ({
         });
     }
   }, [audioUrl]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+    }
+  }, [speed]);
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -57,6 +66,12 @@ const QuranAudioPlayer = ({
       audioRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
+  };
+
+  const cycleSpeed = () => {
+    const currentIndex = SPEED_OPTIONS.indexOf(speed);
+    const nextIndex = (currentIndex + 1) % SPEED_OPTIONS.length;
+    setSpeed(SPEED_OPTIONS[nextIndex]);
   };
 
   const handleTimeUpdate = () => {
@@ -98,9 +113,15 @@ const QuranAudioPlayer = ({
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">আয়াত {ayahNumber}</span>
+        {/* Speed Control */}
+        <button
+          onClick={cycleSpeed}
+          className="px-2 py-1 rounded-lg bg-muted text-xs font-bold min-w-[40px] hover:bg-muted/80 transition-colors"
+        >
+          {speed}x
+        </button>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={onPrevious}
             disabled={!hasPrevious}
@@ -139,6 +160,11 @@ const QuranAudioPlayer = ({
             <Volume2 className="w-5 h-5" />
           )}
         </button>
+      </div>
+
+      {/* Ayah Number */}
+      <div className="text-center mt-2">
+        <span className="text-xs text-muted-foreground">আয়াত {ayahNumber}</span>
       </div>
     </motion.div>
   );
