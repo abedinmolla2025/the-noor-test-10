@@ -158,22 +158,22 @@ const DailyHadith = () => {
             <BookOpen size={26} className="text-primary-foreground" />
           </motion.div>
           <div>
-            <h3 className="text-primary-foreground font-bold text-2xl font-arabic">হাদীস টুডে</h3>
-            <p className="text-primary-foreground/70 text-sm font-medium">Daily Hadith</p>
+            <h3 className="text-primary-foreground font-bold text-xl tracking-wide">হাদীস টুডে</h3>
+            <p className="text-primary-foreground/80 text-sm">Daily Hadith</p>
           </div>
         </div>
 
         {/* Hadith Text */}
         <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-5 mb-5 border border-primary-foreground/20">
-          <p className={`text-xl font-semibold text-primary-foreground leading-relaxed ${
-            selectedLang === "arabic" || selectedLang === "urdu" ? "text-right font-arabic" : ""
-          } ${selectedLang === "bengali" ? "font-arabic" : ""}`}>
-            "{dailyHadith.translations[selectedLang]}"
+          <p className={`text-lg text-primary-foreground leading-loose tracking-wide ${
+            selectedLang === "arabic" || selectedLang === "urdu" ? "text-right" : ""
+          }`}>
+            {dailyHadith.translations[selectedLang]}
           </p>
 
           {/* Arabic Original */}
           {selectedLang !== "arabic" && (
-            <p className="text-right text-primary-foreground/60 font-arabic text-lg leading-relaxed mt-4 pt-4 border-t border-primary-foreground/20" dir="rtl">
+            <p className="text-right text-primary-foreground/70 text-base leading-loose mt-4 pt-4 border-t border-primary-foreground/20" dir="rtl">
               {dailyHadith.arabicOriginal}
             </p>
           )}
