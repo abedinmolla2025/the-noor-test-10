@@ -805,6 +805,7 @@ const BukhariPage = () => {
   const [language, setLanguage] = useState<Language>("bn");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHadith, setSelectedHadith] = useState<Hadith | null>(null);
+  const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<"chapters" | "hadiths">("hadiths");
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
@@ -813,12 +814,19 @@ const BukhariPage = () => {
 
   const filteredHadiths = hadiths.filter((hadith) => {
     const searchLower = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = 
       hadith.translations[language].toLowerCase().includes(searchLower) ||
       hadith.arabic.includes(searchQuery) ||
       hadith.number.includes(searchQuery) ||
-      hadith.narrator[language].toLowerCase().includes(searchLower)
-    );
+      hadith.narrator[language].toLowerCase().includes(searchLower);
+    
+    // Filter by chapter if selected
+    if (selectedChapter !== null) {
+      const chapterName = chapters.find(c => c.id === selectedChapter)?.name[language];
+      return matchesSearch && hadith.chapter[language] === chapterName;
+    }
+    
+    return matchesSearch;
   });
 
   return (
@@ -835,14 +843,30 @@ const BukhariPage = () => {
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => selectedHadith ? setSelectedHadith(null) : navigate("/")}
+              onClick={() => {
+                if (selectedHadith) {
+                  setSelectedHadith(null);
+                } else if (selectedChapter !== null) {
+                  setSelectedChapter(null);
+                } else {
+                  navigate("/");
+                }
+              }}
               className="p-2 -ml-2 text-amber-100/80 hover:text-white hover:bg-white/10 rounded-full transition-colors"
             >
               <ArrowLeft className="w-5 h-5" style={{ transform: isRtl ? "scaleX(-1)" : "none" }} />
             </button>
             <div>
-              <h1 className="text-lg font-bold text-white">{t.title}</h1>
-              <p className="text-xs text-amber-200/70">{t.subtitle}</p>
+              <h1 className="text-lg font-bold text-white">
+                {selectedChapter !== null 
+                  ? chapters.find(c => c.id === selectedChapter)?.name[language] 
+                  : t.title}
+              </h1>
+              <p className="text-xs text-amber-200/70">
+                {selectedChapter !== null 
+                  ? `${filteredHadiths.length} ${t.hadiths}` 
+                  : t.subtitle}
+              </p>
             </div>
           </div>
 
@@ -1028,28 +1052,39 @@ const BukhariPage = () => {
             ) : (
               // Chapters List
               <div className="space-y-3">
-                {chapters.map((chapter, index) => (
-                  <motion.div
-                    key={chapter.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="bg-white/10 backdrop-blur-sm rounded-2xl p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center">
-                          <span className="text-amber-900 font-bold text-sm">{chapter.id}</span>
+                {chapters.map((chapter, index) => {
+                  // Count hadiths in this chapter
+                  const chapterHadithCount = hadiths.filter(
+                    h => h.chapter[language] === chapter.name[language]
+                  ).length;
+                  
+                  return (
+                    <motion.button
+                      key={chapter.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => {
+                        setSelectedChapter(chapter.id);
+                        setActiveTab("hadiths");
+                      }}
+                      className="w-full text-left bg-white/10 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/15 transition-all active:scale-[0.98]"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center">
+                            <span className="text-amber-900 font-bold text-sm">{chapter.id}</span>
+                          </div>
+                          <div>
+                            <p className="text-white font-medium">{chapter.name[language]}</p>
+                            <p className="text-amber-200/60 text-sm">{chapterHadithCount} {t.hadiths}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-white font-medium">{chapter.name[language]}</p>
-                          <p className="text-amber-200/60 text-sm">{chapter.count} {t.hadiths}</p>
-                        </div>
+                        <ChevronRight className="text-amber-300/50" size={20} />
                       </div>
-                      <ChevronRight className="text-amber-300/50" size={20} />
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.button>
+                  );
+                })}
               </div>
             )}
           </motion.div>
