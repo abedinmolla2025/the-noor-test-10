@@ -159,7 +159,7 @@ const SurahReader = ({ surahNumber, surahName, arabicName }: SurahReaderProps) =
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-white/80 leading-relaxed text-base md:text-lg border-l-2 border-[hsl(45,93%,58%)]/40 pl-4"
+                className="text-white/90 leading-relaxed text-lg md:text-xl border-l-2 border-[hsl(45,93%,58%)]/40 pl-4"
               >
                 {translationData.ayahs[index].text}
               </motion.p>
