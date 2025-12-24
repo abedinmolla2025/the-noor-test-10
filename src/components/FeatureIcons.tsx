@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, TargetAndTransition } from "framer-motion";
 import QiblaCompass from "./QiblaCompass";
 import TasbihCounter from "./TasbihCounter";
 import DuaCollection from "./DuaCollection";
-import BabyNames from "./BabyNames";
 
 interface FeatureItem {
   emoji: string;
@@ -71,10 +71,10 @@ const features: FeatureItem[] = [
 ];
 
 const FeatureIcons = () => {
+  const navigate = useNavigate();
   const [qiblaOpen, setQiblaOpen] = useState(false);
   const [tasbihOpen, setTasbihOpen] = useState(false);
   const [duaOpen, setDuaOpen] = useState(false);
-  const [namesOpen, setNamesOpen] = useState(false);
 
   const handleFeatureClick = (action?: string) => {
     switch (action) {
@@ -88,7 +88,7 @@ const FeatureIcons = () => {
         setDuaOpen(true);
         break;
       case "names":
-        setNamesOpen(true);
+        navigate("/baby-names");
         break;
       default:
         break;
@@ -119,7 +119,6 @@ const FeatureIcons = () => {
       <QiblaCompass open={qiblaOpen} onOpenChange={setQiblaOpen} />
       <TasbihCounter open={tasbihOpen} onOpenChange={setTasbihOpen} />
       <DuaCollection open={duaOpen} onOpenChange={setDuaOpen} />
-      <BabyNames open={namesOpen} onOpenChange={setNamesOpen} />
     </>
   );
 };
