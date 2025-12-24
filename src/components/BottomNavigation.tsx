@@ -47,18 +47,18 @@ const BottomNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border shadow-lg z-50">
-      <div className="max-w-lg mx-auto flex justify-around items-center py-2 px-4">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border shadow-lg z-50 safe-area-bottom">
+      <div className="w-full max-w-lg mx-auto flex justify-around items-center py-2 px-2 sm:px-4">
         {navItems.map((item) => (
           <button
             key={item.id}
             onClick={() => navigate(item.path)}
             className={`bottom-nav-item ${isActive(item.path) ? "active" : ""}`}
           >
-            <div className={`transition-transform text-2xl ${isActive(item.path) ? "scale-110" : ""}`}>
+            <div className={`transition-transform text-xl sm:text-2xl ${isActive(item.path) ? "scale-110" : ""}`}>
               {item.icon}
             </div>
-            <span className={`text-xs font-medium ${
+            <span className={`text-[10px] sm:text-xs font-medium ${
               isActive(item.path) ? "text-primary" : "text-muted-foreground"
             }`}>
               {item.label}
@@ -67,7 +67,7 @@ const BottomNavigation = () => {
         ))}
       </div>
       {/* Safe area for mobile devices */}
-      <div className="h-safe-area-inset-bottom bg-card" />
+      <div className="pb-[env(safe-area-inset-bottom)]" />
     </nav>
   );
 };
