@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BookOpen, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface HadithTranslation {
   bengali: string;
@@ -40,7 +41,8 @@ const languages: { key: Language; label: string }[] = [
 ];
 
 const DailyHadith = () => {
-  const [selectedLang, setSelectedLang] = useState<Language>("english");
+  const navigate = useNavigate();
+  const [selectedLang, setSelectedLang] = useState<Language>("bengali");
 
   return (
     <div className="rounded-2xl overflow-hidden shadow-card bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/50">
@@ -101,7 +103,10 @@ const DailyHadith = () => {
             <p className="font-bold text-amber-900">{dailyHadith.source}</p>
             <p className="text-sm text-amber-600">{dailyHadith.chapter}</p>
           </div>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-100 to-yellow-100 hover:from-amber-200 hover:to-yellow-200 text-amber-800 font-semibold rounded-full shadow-sm transition-all duration-200 hover:shadow-md">
+          <button 
+            onClick={() => navigate("/bukhari")}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-100 to-yellow-100 hover:from-amber-200 hover:to-yellow-200 text-amber-800 font-semibold rounded-full shadow-sm transition-all duration-200 hover:shadow-md"
+          >
             Read More
             <ChevronRight size={18} />
           </button>
