@@ -18,15 +18,15 @@ interface Hadith {
 
 const dailyHadith: Hadith = {
   translations: {
-    bengali: "জ্ঞান অন্বেষণ করা প্রতিটি মুসলিমের জন্য বাধ্যতামূলক।",
-    english: "Seeking knowledge is an obligation upon every Muslim.",
-    arabic: "طلب العلم فريضة على كل مسلم",
-    urdu: "علم حاصل کرنا ہر مسلمان پر فرض ہے۔",
-    turkish: "İlim öğrenmek her Müslümana farzdır.",
+    bengali: "যে ব্যক্তি আল্লাহ ও শেষ দিবসে বিশ্বাস করে, সে যেন তার প্রতিবেশীকে কষ্ট না দেয়। যে ব্যক্তি আল্লাহ ও শেষ দিবসে বিশ্বাস করে, সে যেন তার মেহমানকে সম্মান করে। যে ব্যক্তি আল্লাহ ও শেষ দিবসে বিশ্বাস করে, সে যেন ভালো কথা বলে অথবা চুপ থাকে।",
+    english: "Whoever believes in Allah and the Last Day should not harm his neighbor. Whoever believes in Allah and the Last Day should honor his guest. Whoever believes in Allah and the Last Day should speak good or remain silent.",
+    arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلاَ يُؤْذِ جَارَهُ، وَمَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيُكْرِمْ ضَيْفَهُ، وَمَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ",
+    urdu: "جو شخص اللہ اور یوم آخرت پر ایمان رکھتا ہے وہ اپنے پڑوسی کو تکلیف نہ دے۔ جو شخص اللہ اور یوم آخرت پر ایمان رکھتا ہے وہ اپنے مہمان کی عزت کرے۔ جو شخص اللہ اور یوم آخرت پر ایمان رکھتا ہے وہ اچھی بات کہے یا خاموش رہے۔",
+    turkish: "Allah'a ve ahiret gününe iman eden komşusuna eziyet etmesin. Allah'a ve ahiret gününe iman eden misafirine ikram etsin. Allah'a ve ahiret gününe iman eden ya hayır söylesin ya da sussun.",
   },
-  arabicOriginal: "طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ",
-  source: "Ibn Majah",
-  chapter: "Knowledge",
+  arabicOriginal: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ",
+  source: "সহি বুখারী শরীফ",
+  chapter: "Hadith 6018",
 };
 
 type Language = "bengali" | "english" | "arabic" | "urdu" | "turkish";
