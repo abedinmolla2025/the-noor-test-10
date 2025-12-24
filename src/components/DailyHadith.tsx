@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface HadithTranslation {
   bengali: string;
@@ -145,12 +146,30 @@ const DailyHadith = () => {
               <p className="font-bold text-amber-900 text-lg">{dailyHadith.source}</p>
               <p className="text-amber-600 font-medium">{dailyHadith.chapter}</p>
             </div>
-            <button 
+            <motion.button 
               onClick={() => navigate("/bukhari")}
-              className="px-6 py-3 bg-gradient-to-r from-amber-100 to-yellow-100 hover:from-amber-200 hover:to-yellow-200 text-amber-700 font-bold rounded-full shadow-md transition-all duration-200 hover:shadow-lg border-2 border-amber-200"
+              className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-100 to-yellow-100 hover:from-amber-200 hover:to-yellow-200 text-amber-700 font-bold rounded-full shadow-md transition-colors duration-200 hover:shadow-lg border-2 border-amber-200 overflow-hidden relative"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              Read More
-            </button>
+              {/* Shimmer effect */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
+                initial={{ x: "-100%" }}
+                whileHover={{ x: "100%" }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+              />
+              <span className="relative z-10">Read More</span>
+              <motion.span
+                className="relative z-10"
+                initial={{ x: 0 }}
+                whileHover={{ x: 3 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                <ChevronRight size={18} className="group-hover:text-amber-800 transition-colors" />
+              </motion.span>
+            </motion.button>
           </div>
         </div>
       </div>
