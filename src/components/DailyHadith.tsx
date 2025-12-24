@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface HadithTranslation {
@@ -19,15 +19,15 @@ interface Hadith {
 
 const dailyHadith: Hadith = {
   translations: {
-    bengali: "যে ব্যক্তি আল্লাহ ও শেষ দিবসে বিশ্বাস করে, সে যেন তার প্রতিবেশীকে কষ্ট না দেয়। যে ব্যক্তি আল্লাহ ও শেষ দিবসে বিশ্বাস করে, সে যেন তার মেহমানকে সম্মান করে। যে ব্যক্তি আল্লাহ ও শেষ দিবসে বিশ্বাস করে, সে যেন ভালো কথা বলে অথবা চুপ থাকে।",
-    english: "Whoever believes in Allah and the Last Day should not harm his neighbor. Whoever believes in Allah and the Last Day should honor his guest. Whoever believes in Allah and the Last Day should speak good or remain silent.",
-    arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلاَ يُؤْذِ جَارَهُ، وَمَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيُكْرِمْ ضَيْفَهُ، وَمَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ",
-    urdu: "جو شخص اللہ اور یوم آخرت پر ایمان رکھتا ہے وہ اپنے پڑوسی کو تکلیف نہ دے۔ جو شخص اللہ اور یوم آخرت پر ایمان رکھتا ہے وہ اپنے مہمان کی عزت کرے۔ جو شخص اللہ اور یوم آخرت پر ایمان رکھتا ہے وہ اچھی بات کہے یا خاموش رہے۔",
-    turkish: "Allah'a ve ahiret gününe iman eden komşusuna eziyet etmesin. Allah'a ve ahiret gününe iman eden misafirine ikram etsin. Allah'a ve ahiret gününe iman eden ya hayır söylesin ya da sussun.",
+    bengali: "জ্ঞান অনুন্ধান করা প্রতিটি মুসলিমের জন্য বাধ্যতামূলক।",
+    english: "Seeking knowledge is an obligation upon every Muslim.",
+    arabic: "طلب العلم فريضة على كل مسلم",
+    urdu: "علم حاصل کرنا ہر مسلمان پر فرض ہے۔",
+    turkish: "İlim öğrenmek her Müslümana farzdır.",
   },
-  arabicOriginal: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ",
-  source: "সহি বুখারী শরীফ",
-  chapter: "Hadith 6018",
+  arabicOriginal: "طلب العلم فريضة على كل مسلم",
+  source: "Ibn Majah",
+  chapter: "Knowledge",
 };
 
 type Language = "bengali" | "english" | "arabic" | "urdu" | "turkish";
@@ -45,71 +45,113 @@ const DailyHadith = () => {
   const [selectedLang, setSelectedLang] = useState<Language>("bengali");
 
   return (
-    <div className="rounded-2xl overflow-hidden shadow-card bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/50">
-      {/* Golden Header */}
-      <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 p-4 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute right-0 top-0 w-32 h-32 bg-yellow-300/30 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute right-8 top-4 w-16 h-16 bg-amber-300/40 rounded-full" />
-        
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
-            <BookOpen size={24} className="text-white" />
+    <div className="rounded-3xl overflow-hidden shadow-xl relative">
+      {/* Outer golden border frame */}
+      <div className="absolute inset-0 rounded-3xl border-4 border-amber-400/60 pointer-events-none z-20" />
+      
+      {/* Golden Header with curved bottom */}
+      <div className="relative">
+        {/* Main golden gradient header */}
+        <div className="bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 pt-4 pb-12 px-5 relative overflow-hidden">
+          {/* Decorative golden frame lines */}
+          <div className="absolute inset-x-2 top-2 bottom-8 border-2 border-amber-500/40 rounded-2xl" />
+          
+          {/* Decorative moon/circle with sparkles */}
+          <div className="absolute right-8 top-4 w-20 h-20">
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-200/80 to-amber-300/60 rounded-full blur-sm" />
+            <div className="absolute inset-2 bg-gradient-to-br from-yellow-100/90 to-amber-200/70 rounded-full" />
+            {/* Sparkle dots */}
+            <div className="absolute -left-4 top-2 w-1 h-1 bg-white rounded-full animate-pulse" />
+            <div className="absolute -left-2 top-8 w-1.5 h-1.5 bg-yellow-100 rounded-full animate-pulse" style={{ animationDelay: "0.5s" }} />
+            <div className="absolute left-0 bottom-0 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: "1s" }} />
           </div>
-          <div>
-            <h3 className="text-amber-900 font-bold text-lg font-arabic">হাদীস তত্ত্ব</h3>
-            <p className="text-amber-800/80 text-sm font-medium">Hadith Today</p>
+          
+          {/* Header content */}
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-amber-500 rounded-2xl flex items-center justify-center shadow-lg border-2 border-white/50">
+              <BookOpen size={28} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-amber-900 font-bold text-2xl font-arabic tracking-wide">হাদীস টুডে</h3>
+              <p className="text-amber-800/90 text-sm font-semibold">Hadith Today</p>
+            </div>
           </div>
         </div>
         
-        {/* Golden border decoration */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-600/20 via-yellow-500 to-amber-600/20" />
+        {/* Curved bottom edge */}
+        <div className="absolute bottom-0 left-0 right-0 h-8 overflow-hidden">
+          <svg viewBox="0 0 400 30" preserveAspectRatio="none" className="w-full h-full">
+            <path 
+              d="M0,0 L0,20 Q200,35 400,20 L400,0 Z" 
+              fill="url(#goldGradient)"
+            />
+            <defs>
+              <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#fbbf24" />
+                <stop offset="50%" stopColor="#fde047" />
+                <stop offset="100%" stopColor="#fbbf24" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="p-5 space-y-4">
-        {/* Translation Text */}
-        <p className={`text-xl font-semibold text-amber-900 leading-relaxed ${
-          selectedLang === "arabic" || selectedLang === "urdu" ? "text-right font-arabic" : ""
-        } ${selectedLang === "bengali" ? "font-arabic" : ""}`}>
-          {dailyHadith.translations[selectedLang]}
-        </p>
+      {/* Content area with cream/beige background */}
+      <div className="bg-gradient-to-b from-amber-50 via-orange-50/50 to-amber-100/80 px-5 pt-6 pb-5 relative">
+        {/* Subtle Islamic geometric pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b45309' fill-opacity='1'%3E%3Cpath d='M30 30l15-15v30L30 30zM30 30L15 15v30l15-15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '40px 40px'
+          }}
+        />
+        
+        <div className="relative z-10 space-y-5">
+          {/* Translation Text */}
+          <p className={`text-2xl font-bold text-amber-900 leading-relaxed ${
+            selectedLang === "arabic" || selectedLang === "urdu" ? "text-right font-arabic" : ""
+          } ${selectedLang === "bengali" ? "font-arabic" : ""}`}>
+            {dailyHadith.translations[selectedLang]}
+          </p>
 
-        {/* Arabic Original */}
-        <p className="text-right text-amber-700 font-arabic text-lg leading-relaxed" dir="rtl">
-          {dailyHadith.arabicOriginal}
-        </p>
+          {/* Arabic Original - always shown */}
+          {selectedLang !== "arabic" && (
+            <p className="text-right text-amber-600 font-arabic text-xl leading-relaxed" dir="rtl">
+              {dailyHadith.arabicOriginal}
+            </p>
+          )}
 
-        {/* Language Selector */}
-        <div className="flex flex-wrap gap-2 pt-2">
-          {languages.map((lang) => (
-            <button
-              key={lang.key}
-              onClick={() => setSelectedLang(lang.key)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                selectedLang === lang.key
-                  ? "bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-900 shadow-md"
-                  : "bg-amber-100/80 text-amber-700 hover:bg-amber-200/80"
-              }`}
-            >
-              {lang.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-amber-200/50">
-          <div>
-            <p className="font-bold text-amber-900">{dailyHadith.source}</p>
-            <p className="text-sm text-amber-600">{dailyHadith.chapter}</p>
+          {/* Language Selector Buttons */}
+          <div className="flex flex-wrap gap-2 pt-2">
+            {languages.map((lang) => (
+              <button
+                key={lang.key}
+                onClick={() => setSelectedLang(lang.key)}
+                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border-2 ${
+                  selectedLang === lang.key
+                    ? "bg-gradient-to-r from-amber-300 to-yellow-300 text-amber-900 border-amber-400 shadow-md"
+                    : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:border-amber-300"
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
           </div>
-          <button 
-            onClick={() => navigate("/bukhari")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-100 to-yellow-100 hover:from-amber-200 hover:to-yellow-200 text-amber-800 font-semibold rounded-full shadow-sm transition-all duration-200 hover:shadow-md"
-          >
-            Read More
-            <ChevronRight size={18} />
-          </button>
+
+          {/* Footer with source and Read More button */}
+          <div className="flex items-end justify-between pt-4">
+            <div>
+              <p className="font-bold text-amber-900 text-lg">{dailyHadith.source}</p>
+              <p className="text-amber-600 font-medium">{dailyHadith.chapter}</p>
+            </div>
+            <button 
+              onClick={() => navigate("/bukhari")}
+              className="px-6 py-3 bg-gradient-to-r from-amber-100 to-yellow-100 hover:from-amber-200 hover:to-yellow-200 text-amber-700 font-bold rounded-full shadow-md transition-all duration-200 hover:shadow-lg border-2 border-amber-200"
+            >
+              Read More
+            </button>
+          </div>
         </div>
       </div>
     </div>
