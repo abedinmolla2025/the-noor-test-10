@@ -698,6 +698,708 @@ const babyNames: BabyName[] = [
     gender: "girl", 
     origin: "Hebrew/Arabic" 
   },
+  // Additional Boys Names
+  { 
+    id: 41, 
+    name: "Anas", 
+    arabic: "أَنَس", 
+    meanings: {
+      bn: "বন্ধুত্বপূর্ণ, স্নেহময়",
+      en: "Friendly, affectionate",
+      ar: "الأنيس، الودود",
+      hi: "मिलनसार, स्नेही",
+      ur: "دوستانہ، محبت کرنے والا"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 42, 
+    name: "Usman", 
+    arabic: "عُثْمَان", 
+    meanings: {
+      bn: "শিশু সাপ, বিশ্বস্ত",
+      en: "Baby snake, devoted",
+      ar: "الحية الصغيرة، المخلص",
+      hi: "छोटा सांप, समर्पित",
+      ur: "چھوٹا سانپ، وفادار"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 43, 
+    name: "Salman", 
+    arabic: "سَلْمَان", 
+    meanings: {
+      bn: "নিরাপদ, শান্তিপূর্ণ",
+      en: "Safe, peaceful",
+      ar: "السالم، المسالم",
+      hi: "सुरक्षित, शांतिपूर्ण",
+      ur: "محفوظ، پرامن"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 44, 
+    name: "Saad", 
+    arabic: "سَعْد", 
+    meanings: {
+      bn: "সৌভাগ্য, আনন্দ",
+      en: "Good fortune, happiness",
+      ar: "السعد، السعادة",
+      hi: "सौभाग्य, खुशी",
+      ur: "خوش قسمتی، خوشی"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 45, 
+    name: "Muaz", 
+    arabic: "مُعَاذ", 
+    meanings: {
+      bn: "সুরক্ষিত, আশ্রিত",
+      en: "Protected, sheltered",
+      ar: "المحمي، المعاذ",
+      hi: "संरक्षित, आश्रित",
+      ur: "محفوظ، پناہ دیا گیا"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 46, 
+    name: "Sulaiman", 
+    arabic: "سُلَيْمَان", 
+    meanings: {
+      bn: "শান্তিপূর্ণ, নিরাপদ",
+      en: "Peaceful, safe",
+      ar: "السلام، الأمان",
+      hi: "शांतिपूर्ण, सुरक्षित",
+      ur: "پرسکون، محفوظ"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 47, 
+    name: "Dawud", 
+    arabic: "دَاوُود", 
+    meanings: {
+      bn: "প্রিয়, ভালোবাসা",
+      en: "Beloved, loved one",
+      ar: "المحبوب، الحبيب",
+      hi: "प्रिय, प्यारा",
+      ur: "محبوب، پیارا"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 48, 
+    name: "Ismail", 
+    arabic: "إِسْمَاعِيل", 
+    meanings: {
+      bn: "আল্লাহ শোনেন",
+      en: "God hears",
+      ar: "الله يسمع",
+      hi: "भगवान सुनते हैं",
+      ur: "اللہ سنتا ہے"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 49, 
+    name: "Ishaq", 
+    arabic: "إِسْحَاق", 
+    meanings: {
+      bn: "হাস্য, আনন্দ",
+      en: "Laughter, joy",
+      ar: "الضحك، الفرح",
+      hi: "हंसी, खुशी",
+      ur: "ہنسی، خوشی"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 50, 
+    name: "Musa", 
+    arabic: "مُوسَى", 
+    meanings: {
+      bn: "পানি থেকে উদ্ধার",
+      en: "Saved from water",
+      ar: "المنقذ من الماء",
+      hi: "पानी से बचाया गया",
+      ur: "پانی سے بچایا گیا"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 51, 
+    name: "Isa", 
+    arabic: "عِيسَى", 
+    meanings: {
+      bn: "ত্রাণকর্তা",
+      en: "The Savior",
+      ar: "المخلص",
+      hi: "उद्धारकर्ता",
+      ur: "نجات دہندہ"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 52, 
+    name: "Nuh", 
+    arabic: "نُوح", 
+    meanings: {
+      bn: "বিশ্রাম, শান্তি",
+      en: "Rest, peace",
+      ar: "الراحة، السلام",
+      hi: "आराम, शांति",
+      ur: "آرام، سکون"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 53, 
+    name: "Yahya", 
+    arabic: "يَحْيَى", 
+    meanings: {
+      bn: "আল্লাহ করুণাময়",
+      en: "God is gracious",
+      ar: "الله كريم",
+      hi: "भगवान दयालु है",
+      ur: "اللہ مہربان ہے"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 54, 
+    name: "Zakaria", 
+    arabic: "زَكَرِيَّا", 
+    meanings: {
+      bn: "আল্লাহ স্মরণ করেন",
+      en: "God remembers",
+      ar: "الله يذكر",
+      hi: "भगवान याद करते हैं",
+      ur: "اللہ یاد کرتا ہے"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 55, 
+    name: "Haroon", 
+    arabic: "هَارُون", 
+    meanings: {
+      bn: "উচ্চ পর্বত, আলোকিত",
+      en: "High mountain, enlightened",
+      ar: "الجبل العالي، المستنير",
+      hi: "ऊंचा पहाड़, प्रबुद्ध",
+      ur: "اونچا پہاڑ، روشن"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 56, 
+    name: "Ayub", 
+    arabic: "أَيُّوب", 
+    meanings: {
+      bn: "ধৈর্যশীল, অনুতপ্ত",
+      en: "Patient, repentant",
+      ar: "الصابر، التائب",
+      hi: "धैर्यवान, पश्चातापी",
+      ur: "صبر کرنے والا، توبہ کرنے والا"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 57, 
+    name: "Yunus", 
+    arabic: "يُونُس", 
+    meanings: {
+      bn: "কবুতর",
+      en: "Dove",
+      ar: "الحمامة",
+      hi: "कबूतर",
+      ur: "کبوتر"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 58, 
+    name: "Shoaib", 
+    arabic: "شُعَيْب", 
+    meanings: {
+      bn: "যে সঠিক পথ দেখায়",
+      en: "One who shows the right path",
+      ar: "من يرشد إلى الطريق الصحيح",
+      hi: "जो सही रास्ता दिखाता है",
+      ur: "جو صحیح راستہ دکھائے"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 59, 
+    name: "Luqman", 
+    arabic: "لُقْمَان", 
+    meanings: {
+      bn: "জ্ঞানী, বুদ্ধিমান",
+      en: "Wise, intelligent",
+      ar: "الحكيم، الذكي",
+      hi: "बुद्धिमान, समझदार",
+      ur: "عقلمند، دانا"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 60, 
+    name: "Uzair", 
+    arabic: "عُزَيْر", 
+    meanings: {
+      bn: "সাহায্যকারী, শক্তিশালী",
+      en: "Helper, strong",
+      ar: "المساعد، القوي",
+      hi: "सहायक, मजबूत",
+      ur: "مددگار، مضبوط"
+    },
+    gender: "boy", 
+    origin: "Hebrew/Arabic" 
+  },
+  { 
+    id: 61, 
+    name: "Arham", 
+    arabic: "أَرْحَم", 
+    meanings: {
+      bn: "সবচেয়ে দয়ালু",
+      en: "Most merciful",
+      ar: "الأكثر رحمة",
+      hi: "सबसे दयालु",
+      ur: "سب سے زیادہ رحم کرنے والا"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 62, 
+    name: "Aryan", 
+    arabic: "آرْيَان", 
+    meanings: {
+      bn: "সম্মানিত, যোদ্ধা",
+      en: "Noble, warrior",
+      ar: "النبيل، المحارب",
+      hi: "कुलीन, योद्धा",
+      ur: "نجیب، جنگجو"
+    },
+    gender: "boy", 
+    origin: "Sanskrit/Persian" 
+  },
+  { 
+    id: 63, 
+    name: "Rehan", 
+    arabic: "رَيْحَان", 
+    meanings: {
+      bn: "সুগন্ধি, জান্নাতের গাছ",
+      en: "Sweet basil, heavenly flower",
+      ar: "الريحان، زهرة الجنة",
+      hi: "तुलसी, स्वर्गीय फूल",
+      ur: "خوشبودار پودا، جنت کا پھول"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 64, 
+    name: "Fahad", 
+    arabic: "فَهَد", 
+    meanings: {
+      bn: "চিতা, সাহসী",
+      en: "Leopard, courageous",
+      ar: "الفهد، الشجاع",
+      hi: "चीता, साहसी",
+      ur: "چیتا، بہادر"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 65, 
+    name: "Nabeel", 
+    arabic: "نَبِيل", 
+    meanings: {
+      bn: "মহান, সম্মানিত",
+      en: "Noble, generous",
+      ar: "النبيل، الكريم",
+      hi: "महान, उदार",
+      ur: "عظیم، سخی"
+    },
+    gender: "boy", 
+    origin: "Arabic" 
+  },
+  // Additional Girls Names
+  { 
+    id: 66, 
+    name: "Rabia", 
+    arabic: "رَابِعَة", 
+    meanings: {
+      bn: "বসন্ত, চতুর্থ",
+      en: "Spring, fourth",
+      ar: "الربيع، الرابعة",
+      hi: "वसंत, चौथी",
+      ur: "بہار، چوتھی"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 67, 
+    name: "Lubna", 
+    arabic: "لُبْنَى", 
+    meanings: {
+      bn: "স্টোরাক্স গাছ",
+      en: "Storax tree",
+      ar: "شجرة اللبان",
+      hi: "स्टोरैक्स का पेड़",
+      ur: "لبان کا درخت"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 68, 
+    name: "Sana", 
+    arabic: "سَنَا", 
+    meanings: {
+      bn: "উজ্জ্বলতা, দীপ্তি",
+      en: "Brilliance, radiance",
+      ar: "اللمعان، الإشراق",
+      hi: "चमक, दीप्ति",
+      ur: "چمک، روشنی"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 69, 
+    name: "Hiba", 
+    arabic: "هِبَة", 
+    meanings: {
+      bn: "উপহার, দান",
+      en: "Gift, blessing",
+      ar: "الهبة، النعمة",
+      hi: "उपहार, आशीर्वाद",
+      ur: "تحفہ، نعمت"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 70, 
+    name: "Rania", 
+    arabic: "رَانِيَا", 
+    meanings: {
+      bn: "রানী, তাকানো",
+      en: "Queen, gazing",
+      ar: "الملكة، الناظرة",
+      hi: "रानी, देखने वाली",
+      ur: "ملکہ، دیکھنے والی"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 71, 
+    name: "Dania", 
+    arabic: "دَانِيَة", 
+    meanings: {
+      bn: "কাছের, নিকটবর্তী",
+      en: "Close, near",
+      ar: "القريبة، الدانية",
+      hi: "करीब, नजदीक",
+      ur: "قریب، نزدیک"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 72, 
+    name: "Malika", 
+    arabic: "مَلِكَة", 
+    meanings: {
+      bn: "রানী, শাসক",
+      en: "Queen, ruler",
+      ar: "الملكة، الحاكمة",
+      hi: "रानी, शासक",
+      ur: "ملکہ، حکمران"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 73, 
+    name: "Naima", 
+    arabic: "نَعِيمَة", 
+    meanings: {
+      bn: "আরামদায়ক, সুখী",
+      en: "Comfortable, blissful",
+      ar: "المنعمة، السعيدة",
+      hi: "आरामदायक, सुखी",
+      ur: "آرام دہ، خوشحال"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 74, 
+    name: "Jannah", 
+    arabic: "جَنَّة", 
+    meanings: {
+      bn: "জান্নাত, বাগান",
+      en: "Paradise, garden",
+      ar: "الجنة، الحديقة",
+      hi: "स्वर्ग, बगीचा",
+      ur: "جنت، باغ"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 75, 
+    name: "Samira", 
+    arabic: "سَمِيرَة", 
+    meanings: {
+      bn: "রাতের সঙ্গী, গল্পকারী",
+      en: "Night companion, storyteller",
+      ar: "سمير الليل، الراوية",
+      hi: "रात की साथी, कहानीकार",
+      ur: "رات کی ساتھی، قصہ گو"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 76, 
+    name: "Farah", 
+    arabic: "فَرَح", 
+    meanings: {
+      bn: "আনন্দ, খুশি",
+      en: "Joy, happiness",
+      ar: "الفرح، السعادة",
+      hi: "खुशी, आनंद",
+      ur: "خوشی، مسرت"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 77, 
+    name: "Amara", 
+    arabic: "عَمَارَة", 
+    meanings: {
+      bn: "চিরস্থায়ী, অমর",
+      en: "Eternal, everlasting",
+      ar: "الأبدية، الخالدة",
+      hi: "शाश्वत, अमर",
+      ur: "دائمی، لازوال"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 78, 
+    name: "Reem", 
+    arabic: "رِيم", 
+    meanings: {
+      bn: "সাদা হরিণ",
+      en: "White antelope",
+      ar: "الظبي الأبيض",
+      hi: "सफेद हिरण",
+      ur: "سفید ہرن"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 79, 
+    name: "Salma", 
+    arabic: "سَلْمَى", 
+    meanings: {
+      bn: "শান্তিপূর্ণ, নিরাপদ",
+      en: "Peaceful, safe",
+      ar: "السالمة، الآمنة",
+      hi: "शांतिपूर्ण, सुरक्षित",
+      ur: "پرامن، محفوظ"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 80, 
+    name: "Inaya", 
+    arabic: "عِنَايَة", 
+    meanings: {
+      bn: "যত্ন, উদ্বেগ",
+      en: "Care, concern",
+      ar: "العناية، الاهتمام",
+      hi: "देखभाल, चिंता",
+      ur: "دیکھ بھال، خیال"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 81, 
+    name: "Manal", 
+    arabic: "مَنَال", 
+    meanings: {
+      bn: "অর্জন, সাফল্য",
+      en: "Achievement, attainment",
+      ar: "الإنجاز، التحقيق",
+      hi: "उपलब्धि, सफलता",
+      ur: "حصول، کامیابی"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 82, 
+    name: "Nabila", 
+    arabic: "نَبِيلَة", 
+    meanings: {
+      bn: "মহান, সম্মানিত",
+      en: "Noble, honorable",
+      ar: "النبيلة، الشريفة",
+      hi: "महान, सम्माननीय",
+      ur: "عظیم، معزز"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 83, 
+    name: "Rahma", 
+    arabic: "رَحْمَة", 
+    meanings: {
+      bn: "দয়া, করুণা",
+      en: "Mercy, compassion",
+      ar: "الرحمة، الشفقة",
+      hi: "दया, करुणा",
+      ur: "رحم، شفقت"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 84, 
+    name: "Shifa", 
+    arabic: "شِفَاء", 
+    meanings: {
+      bn: "নিরাময়, আরোগ্য",
+      en: "Healing, cure",
+      ar: "الشفاء، العلاج",
+      hi: "उपचार, इलाज",
+      ur: "شفا، علاج"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 85, 
+    name: "Tasneem", 
+    arabic: "تَسْنِيم", 
+    meanings: {
+      bn: "জান্নাতের ঝর্ণা",
+      en: "Fountain of Paradise",
+      ar: "نبع في الجنة",
+      hi: "स्वर्ग का झरना",
+      ur: "جنت کا چشمہ"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 86, 
+    name: "Warda", 
+    arabic: "وَرْدَة", 
+    meanings: {
+      bn: "গোলাপ",
+      en: "Rose",
+      ar: "الوردة",
+      hi: "गुलाब",
+      ur: "گلاب"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 87, 
+    name: "Zara", 
+    arabic: "زَارَا", 
+    meanings: {
+      bn: "রাজকন্যা, ফুল",
+      en: "Princess, flower",
+      ar: "الأميرة، الزهرة",
+      hi: "राजकुमारी, फूल",
+      ur: "شہزادی، پھول"
+    },
+    gender: "girl", 
+    origin: "Arabic/Hebrew" 
+  },
+  { 
+    id: 88, 
+    name: "Ayesha", 
+    arabic: "عَائِشَة", 
+    meanings: {
+      bn: "জীবন্ত, সমৃদ্ধ",
+      en: "Alive, living well",
+      ar: "الحية، المعيشة الطيبة",
+      hi: "जीवित, अच्छी तरह रहना",
+      ur: "زندہ، اچھی زندگی"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 89, 
+    name: "Bushra", 
+    arabic: "بُشْرَى", 
+    meanings: {
+      bn: "সুসংবাদ",
+      en: "Good news, glad tidings",
+      ar: "البشرى، الأخبار السارة",
+      hi: "शुभ समाचार",
+      ur: "خوشخبری"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
+  { 
+    id: 90, 
+    name: "Duha", 
+    arabic: "ضُحَى", 
+    meanings: {
+      bn: "সকালের আলো",
+      en: "Morning light",
+      ar: "ضوء الصباح",
+      hi: "सुबह की रोशनी",
+      ur: "صبح کی روشنی"
+    },
+    gender: "girl", 
+    origin: "Arabic" 
+  },
 ];
 
 const BabyNamesPage = () => {
