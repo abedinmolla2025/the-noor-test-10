@@ -21,19 +21,19 @@ const Index = () => {
           <FeatureLabels />
         </section>
 
-        {/* Daily Hadith */}
-        <section className="animate-fade-in" style={{ animationDelay: "150ms" }}>
-          <DailyHadith />
-        </section>
-
         {/* Audio Recitation Card */}
-        <section className="animate-fade-in" style={{ animationDelay: "200ms" }}>
+        <section className="animate-fade-in" style={{ animationDelay: "150ms" }}>
           <AudioRecitationCard />
         </section>
 
         {/* Prayer Times List */}
-        <section className="animate-fade-in" style={{ animationDelay: "300ms" }}>
+        <section className="animate-fade-in" style={{ animationDelay: "200ms" }}>
           <PrayerTimesList />
+        </section>
+
+        {/* Daily Hadith */}
+        <section className="animate-fade-in" style={{ animationDelay: "300ms" }}>
+          <DailyHadith />
         </section>
       </main>
 
