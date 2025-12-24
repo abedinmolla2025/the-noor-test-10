@@ -3,6 +3,7 @@ import { motion, TargetAndTransition } from "framer-motion";
 import QiblaCompass from "./QiblaCompass";
 import TasbihCounter from "./TasbihCounter";
 import DuaCollection from "./DuaCollection";
+import BabyNames from "./BabyNames";
 
 interface FeatureItem {
   emoji: string;
@@ -33,6 +34,7 @@ const features: FeatureItem[] = [
   { 
     emoji: "👶", 
     label: "Names",
+    action: "names",
     animation: {
       rotate: [-5, 5, -5],
       transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" as const }
@@ -72,6 +74,7 @@ const FeatureIcons = () => {
   const [qiblaOpen, setQiblaOpen] = useState(false);
   const [tasbihOpen, setTasbihOpen] = useState(false);
   const [duaOpen, setDuaOpen] = useState(false);
+  const [namesOpen, setNamesOpen] = useState(false);
 
   const handleFeatureClick = (action?: string) => {
     switch (action) {
@@ -83,6 +86,9 @@ const FeatureIcons = () => {
         break;
       case "dua":
         setDuaOpen(true);
+        break;
+      case "names":
+        setNamesOpen(true);
         break;
       default:
         break;
@@ -113,6 +119,7 @@ const FeatureIcons = () => {
       <QiblaCompass open={qiblaOpen} onOpenChange={setQiblaOpen} />
       <TasbihCounter open={tasbihOpen} onOpenChange={setTasbihOpen} />
       <DuaCollection open={duaOpen} onOpenChange={setDuaOpen} />
+      <BabyNames open={namesOpen} onOpenChange={setNamesOpen} />
     </>
   );
 };
