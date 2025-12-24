@@ -75,15 +75,17 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
     const nowMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
     const nowSeconds = currentTime.getSeconds();
 
-    let diffMinutes = nextMinutes - nowMinutes;
-    if (diffMinutes < 0) diffMinutes += 24 * 60;
+    // Calculate total seconds until next prayer
+    let diffTotalSeconds = (nextMinutes - nowMinutes) * 60 - nowSeconds;
+    
+    // If negative, it means next prayer is tomorrow (Fajr after Isha)
+    if (diffTotalSeconds < 0) {
+      diffTotalSeconds += 24 * 60 * 60; // Add 24 hours in seconds
+    }
 
-    const diffSeconds = 60 - nowSeconds;
-    if (diffSeconds < 60) diffMinutes -= 1;
-
-    const h = Math.floor(diffMinutes / 60);
-    const m = diffMinutes % 60;
-    const s = diffSeconds === 60 ? 0 : diffSeconds;
+    const h = Math.floor(diffTotalSeconds / 3600);
+    const m = Math.floor((diffTotalSeconds % 3600) / 60);
+    const s = diffTotalSeconds % 60;
 
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
