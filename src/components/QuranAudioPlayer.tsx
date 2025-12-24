@@ -93,7 +93,7 @@ const QuranAudioPlayer = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-20 left-0 right-0 mx-3 bg-card/95 backdrop-blur-lg rounded-2xl shadow-lg border border-border p-4"
+      className="fixed bottom-20 left-0 right-0 mx-3 bg-card/98 backdrop-blur-lg rounded-2xl shadow-lg border border-primary/30 p-4"
     >
       <audio
         ref={audioRef}
@@ -104,19 +104,19 @@ const QuranAudioPlayer = ({
         onPause={() => setIsPlaying(false)}
       />
 
-      {/* Progress Bar */}
-      <div className="w-full h-1 bg-muted rounded-full mb-3 overflow-hidden">
+      {/* Progress Bar with Gold */}
+      <div className="w-full h-1.5 bg-muted rounded-full mb-3 overflow-hidden">
         <div
-          className="h-full bg-primary rounded-full transition-all duration-200"
+          className="h-full bg-primary rounded-full transition-all duration-200 shadow-glow"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       <div className="flex items-center justify-between">
-        {/* Speed Control */}
+        {/* Speed Control with Gold */}
         <button
           onClick={cycleSpeed}
-          className="px-2 py-1 rounded-lg bg-muted text-xs font-bold min-w-[40px] hover:bg-muted/80 transition-colors"
+          className="px-3 py-1.5 rounded-lg bg-primary/20 text-primary text-xs font-bold min-w-[45px] hover:bg-primary/30 transition-colors border border-primary/30"
         >
           {speed}x
         </button>
@@ -132,7 +132,7 @@ const QuranAudioPlayer = ({
 
           <button
             onClick={togglePlay}
-            className="p-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="p-4 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-glow"
           >
             {isPlaying ? (
               <Pause className="w-6 h-6" />
@@ -157,14 +157,14 @@ const QuranAudioPlayer = ({
           {isMuted ? (
             <VolumeX className="w-5 h-5 text-muted-foreground" />
           ) : (
-            <Volume2 className="w-5 h-5" />
+            <Volume2 className="w-5 h-5 text-primary" />
           )}
         </button>
       </div>
 
-      {/* Ayah Number */}
+      {/* Ayah Number with Gold */}
       <div className="text-center mt-2">
-        <span className="text-xs text-muted-foreground">আয়াত {ayahNumber}</span>
+        <span className="text-xs text-primary font-medium">আয়াত {ayahNumber}</span>
       </div>
     </motion.div>
   );

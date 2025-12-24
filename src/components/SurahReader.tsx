@@ -87,8 +87,8 @@ const SurahReader = ({ surahNumber, surahName, arabicName }: SurahReaderProps) =
         </motion.div>
       )}
 
-      {/* Language Selector */}
-      <div className="sticky top-[52px] z-40 bg-background/95 backdrop-blur-lg py-3 px-4 border-b border-border shadow-sm">
+      {/* Language Selector with Gold Active */}
+      <div className="sticky top-[52px] z-40 bg-card/95 backdrop-blur-lg py-3 px-4 border-b border-border shadow-sm">
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {(Object.keys(LANGUAGE_LABELS) as Language[]).map((lang) => (
             <button
@@ -96,7 +96,7 @@ const SurahReader = ({ surahNumber, surahName, arabicName }: SurahReaderProps) =
               onClick={() => setLanguage(lang)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 language === lang
-                  ? "bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-md"
+                  ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
@@ -123,25 +123,25 @@ const SurahReader = ({ surahNumber, surahName, arabicName }: SurahReaderProps) =
           >
             {/* Ayah Header */}
             <div className="flex items-center justify-between mb-4">
-              {/* Ayah Number with decorative frame */}
+              {/* Ayah Number with Gold decorative frame */}
               <div className="flex items-center gap-3">
                 <div className="relative w-10 h-10">
-                  <div className="absolute inset-0 rotate-45 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20" />
+                  <div className="absolute inset-0 rotate-45 rounded-lg bg-gradient-to-br from-primary/40 to-primary/20 border border-primary/30" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-sm font-bold text-primary">{ayah.numberInSurah}</span>
                   </div>
                 </div>
               </div>
               
-              {/* Play Button */}
+              {/* Play Button with Gold */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handlePlayAyah(index)}
                 className={`p-2.5 rounded-full transition-all shadow-sm ${
                   currentAyah === index
-                    ? "bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-md"
-                    : "bg-muted hover:bg-primary/20"
+                    ? "bg-primary text-primary-foreground shadow-glow"
+                    : "bg-muted hover:bg-primary/30 hover:text-primary"
                 }`}
               >
                 <Play className="w-4 h-4" />
@@ -151,7 +151,7 @@ const SurahReader = ({ surahNumber, surahName, arabicName }: SurahReaderProps) =
             {/* Arabic Text */}
             <p className="text-2xl md:text-3xl font-arabic text-foreground leading-[2.5] text-right mb-4 selection:bg-primary/20">
               {ayah.text}
-              <span className="inline-block mx-2 text-primary opacity-50">۝</span>
+              <span className="inline-block mx-2 text-primary">۝</span>
             </p>
 
             {/* Translation */}
@@ -159,7 +159,7 @@ const SurahReader = ({ surahNumber, surahName, arabicName }: SurahReaderProps) =
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-muted-foreground leading-relaxed text-sm md:text-base border-l-2 border-primary/20 pl-4"
+                className="text-muted-foreground leading-relaxed text-sm md:text-base border-l-2 border-primary/40 pl-4"
               >
                 {translationData.ayahs[index].text}
               </motion.p>
