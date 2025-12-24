@@ -1,18 +1,22 @@
-import { Moon, Sun, Sunrise, Sunset, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Moon, Sun, Sunrise, Sunset, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PrayerTime {
   name: string;
+  nameBn: string;
   time: string;
   icon: React.ReactNode;
 }
 
 const PrayerTimesList = () => {
   const { prayerTimes, isLoading } = usePrayerTimes();
+  const [showAll, setShowAll] = useState(false);
 
-  const today = new Date().toLocaleDateString("en-US", {
+  const today = new Date().toLocaleDateString("bn-BD", {
     weekday: "long",
-    month: "short",
+    month: "long",
     day: "numeric",
   });
 
@@ -25,25 +29,25 @@ const PrayerTimesList = () => {
 
   const prayerTimesList: PrayerTime[] = prayerTimes
     ? [
-        { name: "Fajr", time: formatTo12Hour(prayerTimes.Fajr), icon: <Moon size={20} className="text-indigo-500" /> },
-        { name: "Sunrise", time: formatTo12Hour(prayerTimes.Sunrise), icon: <Sunrise size={20} className="text-amber-500" /> },
-        { name: "Dhuhr", time: formatTo12Hour(prayerTimes.Dhuhr), icon: <Sun size={20} className="text-yellow-500" /> },
-        { name: "Asr", time: formatTo12Hour(prayerTimes.Asr), icon: <Sun size={20} className="text-orange-500" /> },
-        { name: "Maghrib", time: formatTo12Hour(prayerTimes.Maghrib), icon: <Sunset size={20} className="text-rose-500" /> },
-        { name: "Isha", time: formatTo12Hour(prayerTimes.Isha), icon: <Moon size={20} className="text-purple-500" /> },
+        { name: "Fajr", nameBn: "ফজর", time: formatTo12Hour(prayerTimes.Fajr), icon: <Moon size={20} className="text-indigo-400" /> },
+        { name: "Sunrise", nameBn: "সূর্যোদয়", time: formatTo12Hour(prayerTimes.Sunrise), icon: <Sunrise size={20} className="text-amber-400" /> },
+        { name: "Dhuhr", nameBn: "যোহর", time: formatTo12Hour(prayerTimes.Dhuhr), icon: <Sun size={20} className="text-yellow-400" /> },
+        { name: "Asr", nameBn: "আসর", time: formatTo12Hour(prayerTimes.Asr), icon: <Sun size={20} className="text-orange-400" /> },
+        { name: "Maghrib", nameBn: "মাগরিব", time: formatTo12Hour(prayerTimes.Maghrib), icon: <Sunset size={20} className="text-rose-400" /> },
+        { name: "Isha", nameBn: "ইশা", time: formatTo12Hour(prayerTimes.Isha), icon: <Moon size={20} className="text-purple-400" /> },
       ]
     : [
-        { name: "Fajr", time: "05:00 AM", icon: <Moon size={20} className="text-indigo-500" /> },
-        { name: "Sunrise", time: "06:15 AM", icon: <Sunrise size={20} className="text-amber-500" /> },
-        { name: "Dhuhr", time: "12:30 PM", icon: <Sun size={20} className="text-yellow-500" /> },
-        { name: "Asr", time: "03:30 PM", icon: <Sun size={20} className="text-orange-500" /> },
-        { name: "Maghrib", time: "06:00 PM", icon: <Sunset size={20} className="text-rose-500" /> },
-        { name: "Isha", time: "07:30 PM", icon: <Moon size={20} className="text-purple-500" /> },
+        { name: "Fajr", nameBn: "ফজর", time: "05:00 AM", icon: <Moon size={20} className="text-indigo-400" /> },
+        { name: "Sunrise", nameBn: "সূর্যোদয়", time: "06:15 AM", icon: <Sunrise size={20} className="text-amber-400" /> },
+        { name: "Dhuhr", nameBn: "যোহর", time: "12:30 PM", icon: <Sun size={20} className="text-yellow-400" /> },
+        { name: "Asr", nameBn: "আসর", time: "03:30 PM", icon: <Sun size={20} className="text-orange-400" /> },
+        { name: "Maghrib", nameBn: "মাগরিব", time: "06:00 PM", icon: <Sunset size={20} className="text-rose-400" /> },
+        { name: "Isha", nameBn: "ইশা", time: "07:30 PM", icon: <Moon size={20} className="text-purple-400" /> },
       ];
 
-  // Determine current prayer for highlighting
-  const getCurrentPrayerIndex = () => {
-    if (!prayerTimes) return -1;
+  // Get next prayer index
+  const getNextPrayerIndex = () => {
+    if (!prayerTimes) return 0;
     
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -60,66 +64,145 @@ const PrayerTimesList = () => {
       return hours * 60 + minutes;
     });
 
-    for (let i = times.length - 1; i >= 0; i--) {
-      if (currentMinutes >= times[i]) {
+    for (let i = 0; i < times.length; i++) {
+      if (currentMinutes < times[i]) {
         return i;
       }
     }
-    return 5; // Isha from previous day
+    return 0; // Fajr next day
   };
 
-  const currentIndex = getCurrentPrayerIndex();
+  const nextPrayerIndex = getNextPrayerIndex();
+  const nextPrayer = prayerTimesList[nextPrayerIndex];
+
+  // Calculate time remaining
+  const getTimeRemaining = () => {
+    if (!prayerTimes) return "";
+    
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    const times = [
+      prayerTimes.Fajr,
+      prayerTimes.Sunrise,
+      prayerTimes.Dhuhr,
+      prayerTimes.Asr,
+      prayerTimes.Maghrib,
+      prayerTimes.Isha,
+    ].map((time) => {
+      const [hours, minutes] = time.split(":").map(Number);
+      return hours * 60 + minutes;
+    });
+
+    let diff = times[nextPrayerIndex] - currentMinutes;
+    if (diff < 0) diff += 24 * 60; // Next day
+
+    const hours = Math.floor(diff / 60);
+    const mins = diff % 60;
+
+    if (hours > 0) {
+      return `${hours} ঘণ্টা ${mins} মিনিট বাকি`;
+    }
+    return `${mins} মিনিট বাকি`;
+  };
 
   if (isLoading) {
     return (
-      <div className="bg-card rounded-2xl p-5 shadow-soft">
+      <div className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-2xl p-5 shadow-lg">
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          <span className="ml-2 text-muted-foreground">Loading prayer times...</span>
+          <Loader2 className="w-6 h-6 animate-spin text-emerald-300" />
+          <span className="ml-2 text-emerald-200">নামাজের সময় লোড হচ্ছে...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-card rounded-2xl p-5 shadow-soft">
+    <div className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-2xl p-5 shadow-lg">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-card-foreground">Today's Prayer Times</h3>
-        <span className="text-sm text-muted-foreground">{today}</span>
+        <h3 className="text-lg font-semibold text-white">আজকের নামাজের সময়</h3>
+        <span className="text-sm text-emerald-200">{today}</span>
       </div>
 
-      <div className="space-y-1">
-        {prayerTimesList.map((prayer, index) => (
-          <div
-            key={prayer.name}
-            className={`prayer-time-row ${
-              index === currentIndex
-                ? "bg-secondary/50 -mx-2 px-2 rounded-xl"
-                : ""
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-                {prayer.icon}
-              </div>
-              <span
-                className={`font-medium ${
-                  index === currentIndex ? "text-primary" : "text-card-foreground"
-                }`}
-              >
-                {prayer.name}
-              </span>
+      {/* Next Prayer Highlight */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-4 mb-4"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+              {nextPrayer.icon}
             </div>
-            <span
-              className={`font-semibold ${
-                index === currentIndex ? "text-primary" : "text-card-foreground"
-              }`}
-            >
-              {prayer.time}
-            </span>
+            <div>
+              <p className="text-amber-100 text-xs">পরবর্তী নামাজ</p>
+              <p className="text-white font-bold text-lg">{nextPrayer.nameBn}</p>
+            </div>
           </div>
-        ))}
-      </div>
+          <div className="text-right">
+            <p className="text-white font-bold text-xl">{nextPrayer.time}</p>
+            <p className="text-amber-100 text-xs">{getTimeRemaining()}</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Show More Button */}
+      <button
+        onClick={() => setShowAll(!showAll)}
+        className="w-full flex items-center justify-center gap-2 py-2 text-emerald-200 hover:text-white transition-colors"
+      >
+        <span className="text-sm">{showAll ? "সংক্ষিপ্ত করুন" : "সব সময় দেখুন"}</span>
+        {showAll ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+      </button>
+
+      {/* All Prayer Times */}
+      <AnimatePresence>
+        {showAll && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-2 pt-3 border-t border-white/10 mt-3">
+              {prayerTimesList.map((prayer, index) => (
+                <motion.div
+                  key={prayer.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`flex items-center justify-between py-2 px-3 rounded-xl transition-colors ${
+                    index === nextPrayerIndex
+                      ? "bg-amber-500/20"
+                      : "hover:bg-white/5"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+                      {prayer.icon}
+                    </div>
+                    <div>
+                      <span className={`font-medium ${
+                        index === nextPrayerIndex ? "text-amber-300" : "text-white"
+                      }`}>
+                        {prayer.nameBn}
+                      </span>
+                      <span className="text-xs text-white/50 ml-2">{prayer.name}</span>
+                    </div>
+                  </div>
+                  <span className={`font-semibold ${
+                    index === nextPrayerIndex ? "text-amber-300" : "text-white"
+                  }`}>
+                    {prayer.time}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
