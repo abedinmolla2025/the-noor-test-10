@@ -3,6 +3,7 @@ import FeatureIcons, { FeatureLabels } from "@/components/FeatureIcons";
 import AudioRecitationCard from "@/components/AudioRecitationCard";
 import PrayerTimesList from "@/components/PrayerTimesList";
 import BottomNavigation from "@/components/BottomNavigation";
+import DailyHadith from "@/components/DailyHadith";
 
 const Index = () => {
   return (
@@ -18,6 +19,11 @@ const Index = () => {
         <section className="animate-fade-in" style={{ animationDelay: "100ms" }}>
           <FeatureIcons />
           <FeatureLabels />
+        </section>
+
+        {/* Daily Hadith */}
+        <section className="animate-fade-in" style={{ animationDelay: "150ms" }}>
+          <DailyHadith />
         </section>
 
         {/* Audio Recitation Card */}
