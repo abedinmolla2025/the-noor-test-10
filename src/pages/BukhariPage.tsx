@@ -857,7 +857,7 @@ const BukhariPage = () => {
               <ArrowLeft className="w-5 h-5" style={{ transform: isRtl ? "scaleX(-1)" : "none" }} />
             </button>
             <div>
-              <h1 className="text-lg font-bold text-white">
+              <h1 className="text-xl font-display font-bold text-white tracking-wide">
                 {selectedChapter !== null 
                   ? chapters.find(c => c.id === selectedChapter)?.name[language] 
                   : t.title}
@@ -940,8 +940,8 @@ const BukhariPage = () => {
           >
             {/* Hadith Number Badge */}
             <div className="flex justify-center">
-              <div className="bg-gradient-to-r from-emerald-400 to-teal-400 px-6 py-2 rounded-full shadow-lg">
-                <span className="text-emerald-900 font-bold">{t.hadithNo} {selectedHadith.number}</span>
+              <div className="bg-white/20 backdrop-blur-sm border border-white/30 px-8 py-3 rounded-full shadow-lg">
+                <span className="text-white font-display font-bold text-lg tracking-wide">{t.hadithNo} {selectedHadith.number}</span>
               </div>
             </div>
 
@@ -950,9 +950,9 @@ const BukhariPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl"
+              className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl"
             >
-              <p className="text-2xl font-arabic text-emerald-800 leading-loose text-right" dir="rtl">
+              <p className="text-3xl font-arabic text-white leading-[2.2] text-right drop-shadow-sm" dir="rtl">
                 {selectedHadith.arabic}
               </p>
             </motion.div>
@@ -962,9 +962,9 @@ const BukhariPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl"
+              className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl"
             >
-              <p className={`text-lg text-emerald-900 leading-relaxed ${isRtl ? "text-right" : ""}`}>
+              <p className={`text-lg text-white leading-relaxed font-medium ${isRtl ? "text-right font-arabic" : ""}`}>
                 {selectedHadith.translations[language]}
               </p>
             </motion.div>
@@ -974,15 +974,15 @@ const BukhariPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="grid grid-cols-2 gap-3"
+              className="grid grid-cols-2 gap-4"
             >
-              <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                <p className="text-emerald-600 text-sm mb-1 font-medium">{t.narrator}</p>
-                <p className="text-emerald-900 font-semibold">{selectedHadith.narrator[language]}</p>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 shadow-xl">
+                <p className="text-white/70 text-sm mb-2 font-medium uppercase tracking-wider">{t.narrator}</p>
+                <p className="text-white font-semibold text-base">{selectedHadith.narrator[language]}</p>
               </div>
-              <div className="bg-white/95 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                <p className="text-emerald-600 text-sm mb-1 font-medium">{t.chapter}</p>
-                <p className="text-emerald-900 font-semibold">{selectedHadith.chapter[language]}</p>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 shadow-xl">
+                <p className="text-white/70 text-sm mb-2 font-medium uppercase tracking-wider">{t.chapter}</p>
+                <p className="text-white font-semibold text-base">{selectedHadith.chapter[language]}</p>
               </div>
             </motion.div>
           </motion.div>
@@ -996,23 +996,23 @@ const BukhariPage = () => {
             className="p-4"
           >
             {/* Tabs */}
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-3 mb-6">
               <button
                 onClick={() => setActiveTab("hadiths")}
-                className={`flex-1 py-3 rounded-xl font-medium transition-all shadow-lg ${
+                className={`flex-1 py-4 rounded-2xl font-display font-semibold tracking-wide transition-all shadow-xl ${
                   activeTab === "hadiths"
-                    ? "bg-white text-emerald-800"
-                    : "bg-white/15 text-white"
+                    ? "bg-white/20 text-white border border-white/30 backdrop-blur-sm"
+                    : "bg-white/5 text-white/70 border border-white/10"
                 }`}
               >
                 {t.allHadiths}
               </button>
               <button
                 onClick={() => setActiveTab("chapters")}
-                className={`flex-1 py-3 rounded-xl font-medium transition-all shadow-lg ${
+                className={`flex-1 py-4 rounded-2xl font-display font-semibold tracking-wide transition-all shadow-xl ${
                   activeTab === "chapters"
-                    ? "bg-white text-emerald-800"
-                    : "bg-white/15 text-white"
+                    ? "bg-white/20 text-white border border-white/30 backdrop-blur-sm"
+                    : "bg-white/5 text-white/70 border border-white/10"
                 }`}
               >
                 {t.chapters}
@@ -1021,37 +1021,37 @@ const BukhariPage = () => {
 
             {activeTab === "hadiths" ? (
               // Hadiths List
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {filteredHadiths.map((hadith, index) => (
                   <motion.button
                     key={hadith.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: index * 0.03 }}
                     onClick={() => setSelectedHadith(hadith)}
-                    className="w-full text-left bg-white/95 backdrop-blur-sm rounded-2xl p-4 hover:bg-white transition-all active:scale-[0.98] shadow-lg"
+                    className="w-full text-left bg-white/10 backdrop-blur-md rounded-2xl p-5 hover:bg-white/15 transition-all active:scale-[0.98] shadow-xl border border-white/20"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                        <span className="text-white font-bold text-sm">{hadith.number}</span>
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 border border-white/30">
+                        <span className="text-white font-display font-bold">{hadith.number}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-emerald-900 line-clamp-2 mb-2 font-medium">
+                        <p className="text-white line-clamp-2 mb-2 font-medium leading-relaxed">
                           {hadith.translations[language]}
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-emerald-600">
-                          <BookOpen size={12} />
+                        <div className="flex items-center gap-2 text-sm text-white/60">
+                          <BookOpen size={14} />
                           <span>{hadith.narrator[language]}</span>
                         </div>
                       </div>
-                      <ChevronRight className="text-emerald-400 flex-shrink-0" size={20} />
+                      <ChevronRight className="text-white/50 flex-shrink-0 mt-1" size={22} />
                     </div>
                   </motion.button>
                 ))}
               </div>
             ) : (
               // Chapters List
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {chapters.map((chapter, index) => {
                   // Count hadiths in this chapter
                   const chapterHadithCount = hadiths.filter(
@@ -1063,24 +1063,24 @@ const BukhariPage = () => {
                       key={chapter.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
+                      transition={{ delay: index * 0.03 }}
                       onClick={() => {
                         setSelectedChapter(chapter.id);
                         setActiveTab("hadiths");
                       }}
-                      className="w-full text-left bg-white/95 backdrop-blur-sm rounded-2xl p-4 hover:bg-white transition-all active:scale-[0.98] shadow-lg"
+                      className="w-full text-left bg-white/10 backdrop-blur-md rounded-2xl p-5 hover:bg-white/15 transition-all active:scale-[0.98] shadow-xl border border-white/20"
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-md">
-                            <span className="text-white font-bold text-sm">{chapter.id}</span>
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+                            <span className="text-white font-display font-bold">{chapter.id}</span>
                           </div>
                           <div>
-                            <p className="text-emerald-900 font-semibold">{chapter.name[language]}</p>
-                            <p className="text-emerald-600 text-sm">{chapterHadithCount} {t.hadiths}</p>
+                            <p className="text-white font-semibold text-base">{chapter.name[language]}</p>
+                            <p className="text-white/60 text-sm">{chapterHadithCount} {t.hadiths}</p>
                           </div>
                         </div>
-                        <ChevronRight className="text-emerald-400" size={20} />
+                        <ChevronRight className="text-white/50" size={22} />
                       </div>
                     </motion.button>
                   );
