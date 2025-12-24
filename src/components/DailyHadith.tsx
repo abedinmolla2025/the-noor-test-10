@@ -135,85 +135,68 @@ const DailyHadith = () => {
 
   return (
     <motion.div 
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-accent shadow-lg"
+      className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-2xl p-5 shadow-lg"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-primary-foreground/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary-foreground/15 rounded-full blur-2xl" />
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
+          <BookOpen size={24} className="text-emerald-300" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">হাদীস টুডে</h3>
+          <p className="text-sm text-emerald-200">Daily Hadith</p>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 p-6">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-5">
-          <motion.div 
-            className="w-14 h-14 bg-primary-foreground/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-primary-foreground/30"
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <BookOpen size={26} className="text-primary-foreground" />
-          </motion.div>
-          <div>
-            <h3 className="text-primary-foreground font-bold text-xl tracking-wide">হাদীস টুডে</h3>
-            <p className="text-primary-foreground/80 text-sm">Daily Hadith</p>
-          </div>
-        </div>
+      {/* Hadith Text */}
+      <div className="bg-white/10 rounded-xl p-4 mb-4">
+        <p className={`text-white font-medium leading-relaxed ${
+          selectedLang === "arabic" || selectedLang === "urdu" ? "text-right" : ""
+        }`}>
+          {dailyHadith.translations[selectedLang]}
+        </p>
 
-        {/* Hadith Text */}
-        <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-5 mb-5 border border-primary-foreground/20">
-          <p className={`text-lg text-primary-foreground leading-loose tracking-wide ${
-            selectedLang === "arabic" || selectedLang === "urdu" ? "text-right" : ""
-          }`}>
-            {dailyHadith.translations[selectedLang]}
+        {/* Arabic Original */}
+        {selectedLang !== "arabic" && (
+          <p className="text-right text-emerald-200 text-sm leading-relaxed mt-3 pt-3 border-t border-white/10" dir="rtl">
+            {dailyHadith.arabicOriginal}
           </p>
+        )}
+      </div>
 
-          {/* Arabic Original */}
-          {selectedLang !== "arabic" && (
-            <p className="text-right text-primary-foreground/70 text-base leading-loose mt-4 pt-4 border-t border-primary-foreground/20" dir="rtl">
-              {dailyHadith.arabicOriginal}
-            </p>
-          )}
-        </div>
-
-        {/* Language Selector */}
-        <div className="flex flex-wrap gap-2 mb-5">
-          {languages.map((lang) => (
-            <motion.button
-              key={lang.key}
-              onClick={() => setSelectedLang(lang.key)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                selectedLang === lang.key
-                  ? "bg-primary-foreground text-primary shadow-md"
-                  : "bg-primary-foreground/15 text-primary-foreground/90 hover:bg-primary-foreground/25 border border-primary-foreground/30"
-              }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {lang.label}
-            </motion.button>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-primary-foreground/20">
-          <div>
-            <p className="font-bold text-primary-foreground text-lg">{dailyHadith.source}</p>
-            <p className="text-primary-foreground/60 text-sm">{dailyHadith.chapter}</p>
-          </div>
-          <motion.button 
-            onClick={() => navigate("/bukhari")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-primary-foreground text-primary font-semibold rounded-full shadow-md hover:shadow-lg transition-all duration-200"
-            whileHover={{ scale: 1.03, x: 3 }}
-            whileTap={{ scale: 0.97 }}
+      {/* Language Selector */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {languages.map((lang) => (
+          <button
+            key={lang.key}
+            onClick={() => setSelectedLang(lang.key)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+              selectedLang === lang.key
+                ? "bg-white text-emerald-800"
+                : "bg-white/10 text-white hover:bg-white/20"
+            }`}
           >
-            <span>Read More</span>
-            <ChevronRight size={18} />
-          </motion.button>
+            {lang.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+        <div>
+          <p className="font-semibold text-white">{dailyHadith.source}</p>
+          <p className="text-emerald-200 text-sm">{dailyHadith.chapter}</p>
         </div>
+        <button 
+          onClick={() => navigate("/bukhari")}
+          className="flex items-center gap-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium rounded-full transition-colors"
+        >
+          <span>Read More</span>
+          <ChevronRight size={16} />
+        </button>
       </div>
     </motion.div>
   );
