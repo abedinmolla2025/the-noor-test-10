@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { MapPin, Clock, Loader2, ChevronRight } from "lucide-react";
+import { MapPin, Clock, Loader2, ChevronRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import prayingMan from "@/assets/praying-man.webp";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
@@ -74,21 +75,16 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
     const next = getNextPrayer();
     const { hours, minutes } = formatTo24Hour(next.time);
     
-    // Convert next prayer time to total seconds from midnight
     const nextTotalSeconds = hours * 3600 + minutes * 60;
-    
-    // Convert current time to total seconds from midnight
     const nowTotalSeconds = 
       currentTime.getHours() * 3600 + 
       currentTime.getMinutes() * 60 + 
       currentTime.getSeconds();
 
-    // Calculate difference
     let diffTotalSeconds = nextTotalSeconds - nowTotalSeconds;
     
-    // If negative, it means next prayer is tomorrow (Fajr after Isha)
     if (diffTotalSeconds <= 0) {
-      diffTotalSeconds += 24 * 60 * 60; // Add 24 hours in seconds
+      diffTotalSeconds += 24 * 60 * 60;
     }
 
     const h = Math.floor(diffTotalSeconds / 3600);
@@ -115,61 +111,108 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
   const locationStr = location?.city || "Loading...";
 
   return (
-    <div 
-      className="islamic-card min-h-[200px] cursor-pointer hover:shadow-xl transition-shadow"
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative min-h-[200px] cursor-pointer group"
       onClick={() => navigate("/prayer-times")}
     >
-      {/* Decorative circles */}
-      <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-primary-foreground/5" />
-      <div className="absolute -right-5 top-20 w-24 h-24 rounded-full bg-primary-foreground/5" />
+      {/* Premium Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(158,64%,22%)] via-[hsl(168,55%,25%)] to-[hsl(158,50%,20%)] rounded-3xl overflow-hidden">
+        {/* Decorative patterns */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-72 h-72 bg-[hsl(45,93%,58%)] rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-[hsl(158,64%,40%)] rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
+        </div>
+        
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
+          backgroundSize: '20px 20px'
+        }} />
+      </div>
 
-      <div className="relative z-10 flex justify-between items-start">
+      {/* Border glow effect */}
+      <div className="absolute inset-0 rounded-3xl border border-[hsl(45,93%,58%)]/20 group-hover:border-[hsl(45,93%,58%)]/40 transition-colors" />
+
+      <div className="relative z-10 p-6 flex justify-between items-start">
         <div className="flex-1">
-          {/* Location and Date */}
-          <div className="flex items-center gap-4 text-sm opacity-90 mb-4">
-            <div className="flex items-center gap-1.5">
+          {/* Location and Date with gold accent */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex items-center gap-4 text-sm mb-4"
+          >
+            <div className="flex items-center gap-1.5 text-white/80">
               {isLoading ? (
-                <Loader2 size={14} className="animate-spin" />
+                <Loader2 size={14} className="animate-spin text-[hsl(45,93%,58%)]" />
               ) : (
-                <MapPin size={14} />
+                <MapPin size={14} className="text-[hsl(45,93%,58%)]" />
               )}
               <span>{locationStr}</span>
             </div>
-            <span>•</span>
-            <span className="font-arabic">{hijriDateStr}</span>
-          </div>
+            <span className="text-white/40">•</span>
+            <span className="font-arabic text-white/80">{hijriDateStr}</span>
+          </motion.div>
 
-          {/* Current Prayer */}
-          <h2 className="text-3xl font-bold mb-1 transition-all duration-500">
-            {getCurrentPrayer()}
-          </h2>
+          {/* Current Prayer with premium styling */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles size={16} className="text-[hsl(45,93%,58%)]" />
+              <span className="text-xs text-[hsl(45,93%,58%)] uppercase tracking-wider font-medium">Current Prayer</span>
+            </div>
+            <h2 className="text-4xl font-bold text-white mb-2 transition-all duration-500">
+              {getCurrentPrayer()}
+            </h2>
+          </motion.div>
 
-          {/* Time */}
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-5xl font-bold tracking-tight">
+          {/* Time with gold highlight */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex items-baseline gap-2 mb-4"
+          >
+            <span className="text-5xl font-bold tracking-tight text-white">
               {formatTime(currentTime)}
             </span>
-            <span className="text-xl font-medium opacity-80">{period}</span>
-          </div>
+            <span className="text-xl font-medium text-[hsl(45,93%,58%)]">{period}</span>
+          </motion.div>
 
-          {/* Countdown */}
-          <div className="inline-flex items-center gap-2 bg-primary-foreground/15 rounded-full px-4 py-2">
-            <Clock size={16} className="animate-pulse-soft" />
-            <span className="text-sm font-medium">Next in {getCountdown()}</span>
-            <ChevronRight size={16} className="ml-1" />
-          </div>
+          {/* Countdown with premium badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(45,93%,58%)]/20 to-[hsl(45,93%,58%)]/10 border border-[hsl(45,93%,58%)]/30 rounded-full px-4 py-2 backdrop-blur-sm group-hover:border-[hsl(45,93%,58%)]/50 transition-all"
+          >
+            <Clock size={16} className="text-[hsl(45,93%,58%)] animate-pulse" />
+            <span className="text-sm font-medium text-white">Next in {getCountdown()}</span>
+            <ChevronRight size={16} className="text-[hsl(45,93%,58%)] ml-1 group-hover:translate-x-1 transition-transform" />
+          </motion.div>
         </div>
 
-        {/* Praying Person Image */}
-        <div className="hidden sm:block animate-float">
+        {/* Praying Person Image with glow */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="hidden sm:block relative"
+        >
+          <div className="absolute inset-0 bg-[hsl(45,93%,58%)]/20 rounded-full blur-3xl scale-75" />
           <img
             src={prayingMan}
             alt="Person praying"
-            className="w-48 h-48 object-contain drop-shadow-lg -scale-x-100"
+            className="w-48 h-48 object-contain drop-shadow-2xl -scale-x-100 relative z-10"
           />
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

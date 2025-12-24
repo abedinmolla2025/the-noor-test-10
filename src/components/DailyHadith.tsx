@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -135,24 +135,40 @@ const DailyHadith = () => {
 
   return (
     <motion.div 
-      className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-2xl p-5 shadow-lg"
+      className="relative bg-gradient-to-br from-[hsl(158,64%,22%)] via-[hsl(168,55%,25%)] to-[hsl(158,50%,20%)] rounded-2xl p-5 shadow-xl overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(45,93%,58%)]/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+      <div className="absolute bottom-0 left-0 w-24 h-24 bg-[hsl(158,64%,40%)]/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
+      
+      {/* Border accent */}
+      <div className="absolute inset-0 rounded-2xl border border-[hsl(45,93%,58%)]/10" />
+
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-          <BookOpen size={24} className="text-emerald-300" />
-        </div>
+      <div className="relative z-10 flex items-center gap-3 mb-4">
+        <motion.div 
+          animate={{ 
+            boxShadow: ['0 0 10px hsl(45,93%,58%,0.2)', '0 0 20px hsl(45,93%,58%,0.4)', '0 0 10px hsl(45,93%,58%,0.2)']
+          }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-12 h-12 bg-gradient-to-br from-[hsl(45,93%,58%)]/20 to-[hsl(45,93%,58%)]/10 border border-[hsl(45,93%,58%)]/30 rounded-xl flex items-center justify-center"
+        >
+          <BookOpen size={24} className="text-[hsl(45,93%,58%)]" />
+        </motion.div>
         <div>
-          <h3 className="text-lg font-semibold text-white">হাদীস টুডে</h3>
-          <p className="text-sm text-emerald-200">Daily Hadith</p>
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-white">হাদীস টুডে</h3>
+            <Sparkles size={14} className="text-[hsl(45,93%,58%)]" />
+          </div>
+          <p className="text-sm text-white/60">Daily Hadith</p>
         </div>
       </div>
 
       {/* Hadith Text */}
-      <div className="bg-white/10 rounded-xl p-4 mb-4">
+      <div className="relative z-10 bg-white/5 border border-white/10 rounded-xl p-4 mb-4 backdrop-blur-sm">
         <p className={`text-white font-medium leading-relaxed ${
           selectedLang === "arabic" || selectedLang === "urdu" ? "text-right" : ""
         }`}>
@@ -161,42 +177,45 @@ const DailyHadith = () => {
 
         {/* Arabic Original */}
         {selectedLang !== "arabic" && (
-          <p className="text-right text-emerald-200 text-sm leading-relaxed mt-3 pt-3 border-t border-white/10" dir="rtl">
+          <p className="text-right text-[hsl(45,93%,58%)]/80 text-sm leading-relaxed mt-3 pt-3 border-t border-white/10" dir="rtl">
             {dailyHadith.arabicOriginal}
           </p>
         )}
       </div>
 
       {/* Language Selector */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="relative z-10 flex flex-wrap gap-2 mb-4">
         {languages.map((lang) => (
-          <button
+          <motion.button
             key={lang.key}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setSelectedLang(lang.key)}
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
               selectedLang === lang.key
-                ? "bg-white text-emerald-800"
-                : "bg-white/10 text-white hover:bg-white/20"
+                ? "bg-gradient-to-r from-[hsl(45,93%,58%)] to-[hsl(45,93%,48%)] text-[hsl(158,64%,15%)] shadow-lg"
+                : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
             }`}
           >
             {lang.label}
-          </button>
+          </motion.button>
         ))}
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+      <div className="relative z-10 flex items-center justify-between pt-3 border-t border-white/10">
         <div>
-          <p className="font-semibold text-white">{dailyHadith.source}</p>
-          <p className="text-emerald-200 text-sm">{dailyHadith.chapter}</p>
+          <p className="font-semibold text-[hsl(45,93%,58%)]">{dailyHadith.source}</p>
+          <p className="text-white/60 text-sm">{dailyHadith.chapter}</p>
         </div>
-        <button 
+        <motion.button 
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => navigate("/bukhari")}
-          className="flex items-center gap-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium rounded-full transition-colors"
+          className="flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-[hsl(45,93%,58%)]/20 to-[hsl(45,93%,58%)]/10 border border-[hsl(45,93%,58%)]/30 hover:border-[hsl(45,93%,58%)]/50 text-white font-medium rounded-full transition-all"
         >
           <span>Read More</span>
-          <ChevronRight size={16} />
-        </button>
+          <ChevronRight size={16} className="text-[hsl(45,93%,58%)]" />
+        </motion.button>
       </div>
     </motion.div>
   );
