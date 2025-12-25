@@ -117,18 +117,9 @@ export const usePrayerTimes = (): UsePrayerTimesReturn => {
           await fetchPrayerTimes(latitude, longitude);
           setIsLoading(false);
         },
-        async (err) => {
+        (err) => {
           console.error("Geolocation error:", err);
-          // Use default location (Dhaka, Bangladesh) as fallback
-          const defaultLat = 23.8103;
-          const defaultLng = 90.4125;
-          setLocation({ 
-            city: "Dhaka (Default)", 
-            country: "Bangladesh", 
-            latitude: defaultLat, 
-            longitude: defaultLng 
-          });
-          await fetchPrayerTimes(defaultLat, defaultLng);
+          setError("Location access denied");
           setIsLoading(false);
         },
         { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
