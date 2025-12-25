@@ -281,7 +281,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                         </motion.div>
                       ))}
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col ml-2">
                       <span className="text-xl font-bold text-white tracking-wide">NOOR</span>
                       <span className="text-[10px] text-white/60 uppercase tracking-widest">Islamic App</span>
                     </div>
