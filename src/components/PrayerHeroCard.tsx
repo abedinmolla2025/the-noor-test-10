@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { MapPin, Clock, Loader2, ChevronRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import prayingMan from "@/assets/praying-man-new.png";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
 interface PrayerHeroCardProps {
@@ -229,50 +228,6 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
               </motion.div>
             </div>
 
-            {/* Right Section - Prayer Times Quick View */}
-            {/* Centered Praying Man - Background Element */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
-            >
-              <div className="relative">
-                {/* Multi-layer Glow Effect */}
-                <motion.div 
-                  animate={{ opacity: [0.2, 0.4, 0.2] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -inset-16 bg-gradient-to-tr from-[hsl(45,93%,58%)]/25 via-[hsl(45,93%,70%)]/15 to-transparent rounded-full blur-[60px]"
-                />
-                <motion.div 
-                  animate={{ opacity: [0.15, 0.3, 0.15], scale: [1, 1.1, 1] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute -inset-12 bg-gradient-to-bl from-[hsl(158,64%,40%)]/15 via-transparent to-[hsl(45,93%,58%)]/10 rounded-full blur-[40px]"
-                />
-                
-                {/* Floating Ring Effect */}
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                  className="absolute -inset-8 border border-[hsl(45,93%,58%)]/10 rounded-full"
-                />
-                
-                {/* Image Container */}
-                <div className="relative">
-                  {/* Bottom Fade for Illusion */}
-                  <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[hsl(158,64%,18%)] via-[hsl(158,64%,18%)]/70 to-transparent z-10" />
-                  
-                  <img
-                    src={prayingMan}
-                    alt="Person praying"
-                    className="w-48 h-56 md:w-72 md:h-80 lg:w-96 lg:h-[26rem] object-contain opacity-40 md:opacity-50 drop-shadow-[0_0_60px_rgba(212,175,55,0.3)] -scale-x-100 relative z-0"
-                  />
-                  
-                  {/* Subtle overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[hsl(45,93%,58%)]/3 to-[hsl(45,93%,58%)]/5 mix-blend-overlay z-5" />
-                </div>
-              </div>
-            </motion.div>
           </div>
 
           {/* Bottom Quick Stats - Mobile Friendly */}
