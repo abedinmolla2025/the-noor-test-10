@@ -1,6 +1,6 @@
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, Float } from "@react-three/drei";
+import { Environment, Float } from "@react-three/drei";
 import * as THREE from "three";
 
 interface BeadProps {
@@ -176,13 +176,26 @@ interface TasbihBeads3DProps {
 }
 
 const TasbihBeads3D = ({ count, totalBeads = 33 }: TasbihBeads3DProps) => {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    // Force re-mount on navigation
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
-    <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none" key="tasbih-canvas">
       <Canvas
         camera={{ position: [0, 5.5, 10.5], fov: 34 }}
         shadows
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent', overflow: 'visible' }}
+        gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
+        style={{ background: 'transparent' }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
+        }}
       >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} castShadow />
