@@ -234,17 +234,41 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 }}
-              className="absolute right-4 top-4 md:relative md:right-auto md:top-auto"
+              className="absolute right-2 -top-2 md:right-4 md:-top-4 lg:relative lg:right-auto lg:top-auto"
             >
               <div className="relative">
-                {/* Praying Person with Premium Glow */}
-                <div className="absolute -inset-4 md:-inset-8 bg-gradient-to-tr from-[hsl(45,93%,58%)]/20 via-transparent to-[hsl(158,64%,40%)]/10 rounded-full blur-2xl" />
-                <div className="relative bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm rounded-2xl md:rounded-3xl p-2 md:p-4 border border-white/10">
+                {/* Multi-layer Glow Effect */}
+                <motion.div 
+                  animate={{ opacity: [0.3, 0.5, 0.3] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -inset-6 md:-inset-10 bg-gradient-to-tr from-[hsl(45,93%,58%)]/30 via-[hsl(45,93%,70%)]/20 to-transparent rounded-full blur-3xl"
+                />
+                <motion.div 
+                  animate={{ opacity: [0.2, 0.4, 0.2], scale: [1, 1.1, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                  className="absolute -inset-4 md:-inset-8 bg-gradient-to-bl from-[hsl(158,64%,40%)]/20 via-transparent to-[hsl(45,93%,58%)]/15 rounded-full blur-2xl"
+                />
+                
+                {/* Floating Ring Effect */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 md:-inset-4 border border-[hsl(45,93%,58%)]/20 rounded-full"
+                />
+                
+                {/* Image Container with Glass Effect */}
+                <div className="relative overflow-hidden">
+                  {/* Bottom Fade for Illusion */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[hsl(158,64%,18%)] via-[hsl(158,64%,18%)]/50 to-transparent z-10" />
+                  
                   <img
                     src={prayingMan}
                     alt="Person praying"
-                    className="w-16 h-16 md:w-36 md:h-36 lg:w-44 lg:h-44 object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.3)] -scale-x-100"
+                    className="w-24 h-28 md:w-44 md:h-52 lg:w-56 lg:h-64 object-contain drop-shadow-[0_0_40px_rgba(212,175,55,0.4)] -scale-x-100 relative z-0"
                   />
+                  
+                  {/* Subtle inner glow */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[hsl(45,93%,58%)]/5 to-[hsl(45,93%,58%)]/10 mix-blend-overlay" />
                 </div>
               </div>
             </motion.div>
