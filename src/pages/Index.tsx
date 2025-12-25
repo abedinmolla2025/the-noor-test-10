@@ -54,54 +54,6 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="w-full px-3 py-4 space-y-4">
-        {/* NOOR Branding Card */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-5 shadow-xl"
-        >
-          {/* Background Effects */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-cyan-400/20 rounded-full blur-3xl" />
-          
-          <div className="relative z-10 flex items-center justify-center gap-4">
-            {/* Logo Icon */}
-            <div className="relative">
-              <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-lg">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="w-8 h-8 text-amber-300"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path
-                    d="M12 3C7.5 3 4 7 4 12c0 3 1.5 5.5 4 7l1-2c-2-1-3-3-3-5 0-3.5 2.5-6 6-6s6 2.5 6 6c0 2-1 4-3 5l1 2c2.5-1.5 4-4 4-7 0-5-3.5-9-8-9z"
-                    fill="currentColor"
-                  />
-                  <circle cx="12" cy="12" r="3" fill="currentColor" />
-                  <path
-                    d="M12 2v2M12 20v2M2 12h2M20 12h2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-              {/* Glow effect */}
-              <div className="absolute inset-0 w-14 h-14 rounded-2xl bg-amber-400 blur-xl opacity-30 -z-10" />
-            </div>
-            
-            {/* Brand Name */}
-            <div className="flex flex-col">
-              <h1 className="text-3xl font-bold tracking-wide text-white">
-                NOOR
-              </h1>
-              <span className="text-xs text-white/70 tracking-[0.15em] uppercase">
-                Islamic Companion
-              </span>
-            </div>
-          </div>
-        </motion.div>
         {/* Prayer Hero Card */}
         <section className="animate-fade-in" style={{ animationDelay: "0ms" }}>
           <PrayerHeroCard 
