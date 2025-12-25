@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BellRing } from "lucide-react";
 import { motion } from "framer-motion";
 import PrayerHeroCard from "@/components/PrayerHeroCard";
-import FeatureIcons, { FeatureLabels } from "@/components/FeatureIcons";
+import FeatureIcons from "@/components/FeatureIcons";
 import AudioRecitationCard from "@/components/AudioRecitationCard";
 import PrayerTimesList from "@/components/PrayerTimesList";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -68,7 +68,6 @@ const Index = () => {
         {/* Feature Icons */}
         <section className="animate-fade-in" style={{ animationDelay: "100ms" }}>
           <FeatureIcons />
-          <FeatureLabels />
         </section>
 
         {/* Audio Recitation Card */}
