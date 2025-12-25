@@ -179,97 +179,88 @@ const TasbihPage = () => {
           </div>
         </motion.div>
 
-        {/* 3D Tasbih Mala Visualization */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.15 }}
-          className="w-full max-w-sm mt-6"
-        >
-          <Suspense fallback={
-            <div className="w-full h-64 md:h-80 rounded-3xl bg-white/5 flex items-center justify-center">
-              <div className="w-10 h-10 border-4 border-amber-400/30 border-t-amber-400 rounded-full animate-spin" />
-            </div>
-          }>
-            <TasbihBeads3D count={count} totalBeads={currentDhikr.target > 50 ? 33 : currentDhikr.target} />
-          </Suspense>
-          <p className="text-center text-white/40 text-xs mt-2">ড্র্যাগ করে ঘুরান • Drag to rotate</p>
-        </motion.div>
-
-        {/* Main Counter Button */}
+        {/* Main Counter Button with 3D Mala */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.2, stiffness: 200, damping: 20 }}
-          className="relative mt-8"
+          className="relative mt-8 w-72 h-72 md:w-80 md:h-80"
         >
-          {/* Outer glow ring */}
-          <div className={`absolute inset-0 rounded-full transition-all duration-300 ${
-            isComplete 
-              ? "bg-gradient-to-br from-amber-400/30 to-amber-500/30 animate-pulse" 
-              : "bg-gradient-to-br from-emerald-400/20 to-teal-400/20"
-          }`} style={{ transform: "scale(1.15)" }} />
+          {/* 3D Tasbih Mala - Background */}
+          <Suspense fallback={null}>
+            <TasbihBeads3D count={count} totalBeads={currentDhikr.target > 50 ? 33 : currentDhikr.target} />
+          </Suspense>
           
-          {/* Progress ring */}
-          <svg className="absolute inset-0 w-52 h-52 -rotate-90" viewBox="0 0 208 208">
-            <circle
-              cx="104"
-              cy="104"
-              r="96"
-              fill="none"
-              stroke="rgba(255,255,255,0.1)"
-              strokeWidth="8"
-            />
-            <motion.circle
-              cx="104"
-              cy="104"
-              r="96"
-              fill="none"
-              stroke={isComplete ? "#fbbf24" : "#34d399"}
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={603}
-              initial={{ strokeDashoffset: 603 }}
-              animate={{ strokeDashoffset: 603 - (progress / 100) * 603 }}
-              transition={{ type: "spring", stiffness: 50 }}
-            />
-          </svg>
+          {/* Center Counter Button */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Outer glow ring */}
+            <div className={`absolute w-52 h-52 rounded-full transition-all duration-300 ${
+              isComplete 
+                ? "bg-gradient-to-br from-amber-400/30 to-amber-500/30 animate-pulse" 
+                : "bg-gradient-to-br from-emerald-400/20 to-teal-400/20"
+            }`} style={{ transform: "scale(1.15)" }} />
+            
+            {/* Progress ring */}
+            <svg className="absolute w-52 h-52 -rotate-90" viewBox="0 0 208 208">
+              <circle
+                cx="104"
+                cy="104"
+                r="96"
+                fill="none"
+                stroke="rgba(255,255,255,0.1)"
+                strokeWidth="8"
+              />
+              <motion.circle
+                cx="104"
+                cy="104"
+                r="96"
+                fill="none"
+                stroke={isComplete ? "#fbbf24" : "#34d399"}
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={603}
+                initial={{ strokeDashoffset: 603 }}
+                animate={{ strokeDashoffset: 603 - (progress / 100) * 603 }}
+                transition={{ type: "spring", stiffness: 50 }}
+              />
+            </svg>
 
-          {/* Main button */}
-          <motion.button
-            onClick={handleCount}
-            whileTap={{ scale: 0.92 }}
-            animate={{ scale: isPressed ? 0.95 : 1 }}
-            className={`relative w-52 h-52 rounded-full shadow-2xl transition-all flex flex-col items-center justify-center ${
-              isComplete
-                ? "bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600"
-                : "bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600"
-            }`}
-          >
-            <motion.span 
-              key={count}
-              initial={{ scale: 1.3, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-6xl font-bold text-white"
+            {/* Main button */}
+            <motion.button
+              onClick={handleCount}
+              whileTap={{ scale: 0.92 }}
+              animate={{ scale: isPressed ? 0.95 : 1 }}
+              className={`relative w-52 h-52 rounded-full shadow-2xl transition-all flex flex-col items-center justify-center z-10 ${
+                isComplete
+                  ? "bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600"
+                  : "bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600"
+              }`}
             >
-              {count}
-            </motion.span>
-            <span className="text-white/70 text-sm mt-1">/ {currentDhikr.target}</span>
-          </motion.button>
-
-          {/* Celebration effect */}
-          <AnimatePresence>
-            {showCelebration && (
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1.5, opacity: 1 }}
-                exit={{ scale: 2, opacity: 0 }}
-                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              <motion.span 
+                key={count}
+                initial={{ scale: 1.3, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-6xl font-bold text-white"
               >
-                <span className="text-6xl">🎉</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {count}
+              </motion.span>
+              <span className="text-white/70 text-sm mt-1">/ {currentDhikr.target}</span>
+            </motion.button>
+
+            {/* Celebration effect */}
+            <AnimatePresence>
+              {showCelebration && (
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1.5, opacity: 1 }}
+                  exit={{ scale: 2, opacity: 0 }}
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
+                >
+                  <span className="text-6xl">🎉</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
 
         {/* Progress info */}

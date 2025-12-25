@@ -177,20 +177,21 @@ interface TasbihBeads3DProps {
 
 const TasbihBeads3D = ({ count, totalBeads = 33 }: TasbihBeads3DProps) => {
   return (
-    <div className="w-full h-64 md:h-80 rounded-3xl overflow-hidden bg-gradient-to-b from-emerald-950 to-teal-950">
+    <div className="absolute inset-0 pointer-events-none">
       <Canvas
-        camera={{ position: [0, 4, 8], fov: 45 }}
+        camera={{ position: [0, 5, 10], fov: 40 }}
         shadows
-        gl={{ antialias: true }}
+        gl={{ antialias: true, alpha: true }}
+        style={{ background: 'transparent' }}
       >
-        <ambientLight intensity={0.4} />
+        <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} castShadow />
-        <pointLight position={[-10, -10, -10]} intensity={0.5} color="#a78bfa" />
+        <pointLight position={[-10, -10, -10]} intensity={0.4} color="#a78bfa" />
         <spotLight
           position={[0, 10, 0]}
           angle={0.3}
           penumbra={1}
-          intensity={1}
+          intensity={0.8}
           castShadow
           color="#fbbf24"
         />
@@ -198,12 +199,6 @@ const TasbihBeads3D = ({ count, totalBeads = 33 }: TasbihBeads3DProps) => {
         <TasbihMala count={count} totalBeads={totalBeads} />
         
         <Environment preset="city" />
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          maxPolarAngle={Math.PI / 2}
-          minPolarAngle={Math.PI / 4}
-        />
       </Canvas>
     </div>
   );
