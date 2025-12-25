@@ -282,8 +282,18 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                       ))}
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-xl font-bold text-white tracking-wide">NOOR</span>
-                      <span className="text-[10px] text-white/60 uppercase tracking-widest">Islamic App</span>
+                      <motion.span 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-2xl font-extrabold tracking-wider bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent drop-shadow-lg"
+                        style={{
+                          textShadow: '0 0 20px rgba(251, 191, 36, 0.4), 0 0 40px rgba(251, 191, 36, 0.2)',
+                          filter: 'drop-shadow(0 0 8px rgba(251, 191, 36, 0.3))'
+                        }}
+                      >
+                        NOOR
+                      </motion.span>
+                      <span className="text-[10px] text-amber-300/80 uppercase tracking-[0.2em] font-medium">Islamic App</span>
                     </div>
                   </div>
                 </div>
