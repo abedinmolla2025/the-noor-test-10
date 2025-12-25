@@ -122,7 +122,7 @@ export const FeatureLabels = () => {
           className="w-16 flex-shrink-0 text-center"
         >
           <span className="text-xs text-muted-foreground font-medium">
-            {feature.labelBn}
+            {feature.label}
           </span>
         </motion.div>
       ))}
