@@ -133,25 +133,25 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
     >
       {/* Premium Glass Card */}
       <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-xl">
-        {/* Dynamic Gradient Background - Matching PrayerTimesPage */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-700 via-teal-700 to-cyan-800" />
+        {/* Dynamic Gradient Background - Solid Emerald Green */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700" />
         
-        {/* Animated Orbs */}
+        {/* Subtle Animated Orbs - reduced opacity */}
         <motion.div 
           animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.35, 0.2]
+            scale: [1, 1.1, 1],
+            opacity: [0.08, 0.12, 0.08]
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full blur-[80px]"
+          className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full blur-[80px]"
         />
         <motion.div 
           animate={{ 
-            scale: [1, 1.3, 1],
-            opacity: [0.15, 0.25, 0.15]
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.15, 0.1]
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-tr from-teal-400 to-cyan-500 rounded-full blur-[60px]"
+          className="absolute -bottom-20 -left-20 w-48 h-48 bg-gradient-to-tr from-teal-500 to-cyan-500 rounded-full blur-[60px]"
         />
         
         {/* Mesh Pattern */}
