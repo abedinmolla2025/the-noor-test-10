@@ -118,19 +118,20 @@ const QiblaPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-800 via-emerald-700 to-teal-900 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }} />
+    <div className="min-h-screen bg-gradient-to-b from-teal-600 via-teal-700 to-teal-900 relative overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-10 left-10 w-20 h-20 border border-white/10 rotate-45" />
+        <div className="absolute top-32 right-16 w-16 h-16 border border-white/10 rotate-12" />
+        <div className="absolute bottom-40 left-8 w-12 h-12 border border-white/10 -rotate-12" />
+        <div className="absolute bottom-20 right-20 w-24 h-24 border border-white/10 rotate-45" />
       </div>
 
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-50 bg-emerald-800/50 backdrop-blur-lg"
+        className="sticky top-0 z-50 bg-teal-700/50 backdrop-blur-lg"
       >
         <div className="flex items-center gap-3 px-4 py-4">
           <button
@@ -143,7 +144,7 @@ const QiblaPage = () => {
         </div>
       </motion.header>
 
-      <div className="relative z-10 flex flex-col items-center justify-center px-4 py-8">
+      <div className="relative z-10 flex flex-col items-center justify-center px-4 py-6">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24">
             <Loader2 className="w-12 h-12 animate-spin text-white" />
@@ -155,47 +156,49 @@ const QiblaPage = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-8"
+              className="text-center mb-6"
             >
-              <h2 className="text-2xl font-bold text-white mb-2">Exquisite compass that</h2>
-              <h2 className="text-2xl font-bold text-white">points to Kaaba</h2>
+              <h2 className="text-xl font-semibold text-white/90 mb-1">Exquisite compass that</h2>
+              <h2 className="text-xl font-semibold text-white/90">points to Kaaba</h2>
             </motion.div>
 
-            {/* Main Compass */}
+            {/* Main Compass Container */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ type: "spring", delay: 0.2 }}
-              className="relative w-[340px] h-[340px] mb-8"
+              className="relative w-[320px] h-[320px] mb-6"
             >
-              {/* Outer Metallic Ring */}
-              <div className="absolute inset-0 z-0 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-amber-300 shadow-[0_0_60px_rgba(251,191,36,0.3)]">
-                <div className="absolute inset-1 rounded-full bg-gradient-to-br from-amber-600 via-amber-500 to-amber-700 shadow-inner" />
-                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-amber-300" />
-              </div>
-              
-              {/* Compass Face */}
-              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 shadow-[inset_0_4px_20px_rgba(0,0,0,0.15)]">
-                {/* Decorative inner rings */}
-                <div className="absolute inset-2 rounded-full border border-emerald-800/20" />
-                <div className="absolute inset-6 rounded-full border border-emerald-800/10" />
+              {/* Outer Golden Ring with 3D Effect */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.5)]">
+                {/* Inner shadow ring */}
+                <div className="absolute inset-[3px] rounded-full bg-gradient-to-b from-amber-500 to-amber-700 shadow-[inset_0_4px_8px_rgba(0,0,0,0.3)]" />
+                {/* Highlight ring */}
+                <div className="absolute inset-[6px] rounded-full bg-gradient-to-b from-amber-200 via-amber-300 to-amber-400" />
               </div>
 
-              {/* Degree Markers - 360 degrees */}
-              <div className="absolute inset-6">
+              {/* Compass Face - Cream/Beige */}
+              <div className="absolute inset-[10px] rounded-full bg-gradient-to-br from-[#f5f0e3] via-[#ebe4d3] to-[#e0d8c5] shadow-[inset_0_4px_20px_rgba(0,0,0,0.1)]">
+                {/* Decorative rings */}
+                <div className="absolute inset-4 rounded-full border border-amber-600/30" />
+                <div className="absolute inset-8 rounded-full border border-amber-600/20" />
+              </div>
+
+              {/* Degree Tick Marks */}
+              <div className="absolute inset-[16px] rounded-full">
                 {[...Array(72)].map((_, i) => (
                   <div
                     key={i}
-                    className="absolute top-0 left-1/2 origin-bottom h-full w-px"
+                    className="absolute top-0 left-1/2 origin-bottom h-1/2 w-px -translate-x-1/2"
                     style={{ transform: `translateX(-50%) rotate(${i * 5}deg)` }}
                   >
                     <div
                       className={`${
-                        i % 18 === 0 
-                          ? "w-1 h-5 bg-emerald-900" 
+                        i % 18 === 0
+                          ? "w-1 h-4 bg-amber-800"
                           : i % 6 === 0
-                          ? "w-0.5 h-4 bg-emerald-800/80"
-                          : "w-0.5 h-2 bg-emerald-700/40"
+                          ? "w-0.5 h-3 bg-amber-700/80"
+                          : "w-0.5 h-2 bg-amber-600/50"
                       }`}
                     />
                   </div>
@@ -209,141 +212,135 @@ const QiblaPage = () => {
                   className="absolute inset-0 flex justify-center"
                   style={{ transform: `rotate(${deg}deg)` }}
                 >
-                  <span 
-                    className="text-[10px] font-medium text-emerald-800/70 mt-8"
+                  <span
+                    className="text-[9px] font-semibold text-amber-900/60 mt-[26px]"
                     style={{ transform: `rotate(-${deg}deg)` }}
                   >
-                    {deg}
+                    {deg}°
                   </span>
                 </div>
               ))}
 
-              {/* Cardinal Directions with decorative styling */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="absolute top-[52px] flex flex-col items-center">
-                  <span className="text-2xl font-bold text-red-600 drop-shadow-sm">N</span>
+              {/* Cardinal Directions */}
+              <div className="absolute inset-0">
+                {/* North - Red Triangle */}
+                <div className="absolute top-[42px] left-1/2 -translate-x-1/2 flex flex-col items-center">
+                  <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-red-600 mb-0.5" />
+                  <span className="text-lg font-bold text-red-600">N</span>
                 </div>
-                <div className="absolute bottom-[52px] flex flex-col items-center">
-                  <span className="text-xl font-bold text-emerald-800">S</span>
+                {/* South */}
+                <div className="absolute bottom-[42px] left-1/2 -translate-x-1/2">
+                  <span className="text-base font-bold text-amber-800">S</span>
                 </div>
-                <div className="absolute left-[52px]">
-                  <span className="text-xl font-bold text-emerald-800">W</span>
+                {/* East */}
+                <div className="absolute right-[42px] top-1/2 -translate-y-1/2">
+                  <span className="text-base font-bold text-amber-800">E</span>
                 </div>
-                <div className="absolute right-[52px]">
-                  <span className="text-xl font-bold text-emerald-800">E</span>
+                {/* West */}
+                <div className="absolute left-[42px] top-1/2 -translate-y-1/2">
+                  <span className="text-base font-bold text-amber-800">W</span>
                 </div>
               </div>
 
-              {/* Inner Decorative Circle */}
-              <div className="absolute inset-[85px] rounded-full bg-gradient-to-br from-[#f8f5ef] to-[#e8e2d6] shadow-[inset_0_2px_10px_rgba(0,0,0,0.1)] border border-amber-300/50" />
+              {/* Inner Circle with Gradient */}
+              <div className="absolute inset-[75px] rounded-full bg-gradient-to-br from-[#f8f5ed] to-[#e8e2d4] shadow-[inset_0_2px_8px_rgba(0,0,0,0.1)] border-2 border-amber-400/40" />
 
-              {/* Qibla Direction Needle with Kaaba */}
+              {/* Rotating Needle with Kaaba */}
               <motion.div
-                className="absolute inset-0 z-50 flex items-center justify-center"
+                className="absolute inset-0"
                 animate={{ rotate: getCompassRotation() }}
                 transition={{ type: "spring", stiffness: 50, damping: 20 }}
               >
-                <div className="relative h-full w-full flex items-center justify-center">
-                  {/* Main Needle Body */}
-                  <div className="absolute top-[30px] left-1/2 -translate-x-1/2 w-3 h-[110px]">
-                    {/* Needle shaft with metallic effect */}
-                    <div className="absolute inset-x-0 top-8 bottom-0 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 rounded-full shadow-lg" />
-                    <div className="absolute left-1/2 -translate-x-1/2 top-8 bottom-0 w-0.5 bg-amber-300/50" />
+                {/* Needle pointing to Qibla */}
+                <div className="absolute top-[20px] left-1/2 -translate-x-1/2 flex flex-col items-center">
+                  {/* Kaaba Icon at top of needle */}
+                  <div className="relative mb-1">
+                    {/* Glow effect */}
+                    <div className="absolute -inset-4 bg-amber-400/40 rounded-full blur-lg animate-pulse" />
                     
-                    {/* Kaaba at the tip */}
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.5, type: "spring" }}
-                        className="relative"
-                      >
-                        {/* Glowing background */}
-                        <div className="absolute -inset-3 bg-amber-400/30 rounded-full blur-md animate-pulse" />
+                    {/* Kaaba Container */}
+                    <div className="relative w-14 h-14 bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 rounded-2xl shadow-[0_6px_20px_rgba(0,0,0,0.25)] border-2 border-amber-200 flex items-center justify-center">
+                      {/* 3D Kaaba SVG */}
+                      <svg viewBox="0 0 48 52" className="w-10 h-10">
+                        {/* Shadow base */}
+                        <ellipse cx="24" cy="50" rx="18" ry="2" fill="rgba(0,0,0,0.2)" />
                         
-                        {/* Kaaba container */}
-                        <div className="relative w-12 h-12 bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 rounded-xl shadow-[0_4px_15px_rgba(251,191,36,0.5)] flex items-center justify-center border-2 border-amber-200">
-                          {/* 3D Kaaba Design */}
-                          <svg viewBox="0 0 40 44" className="w-9 h-9">
-                            {/* Kaaba body - main face */}
-                            <rect x="6" y="8" width="28" height="32" fill="url(#kaabaGradient)" rx="1" />
-                            
-                            {/* Left face (3D effect) */}
-                            <polygon points="6,8 6,40 2,36 2,12" fill="#1a1a1a" />
-                            
-                            {/* Top face (3D effect) */}
-                            <polygon points="6,8 34,8 38,4 10,4" fill="#2d2d2d" />
-                            
-                            {/* Kiswah gold band - Hizam */}
-                            <rect x="6" y="14" width="28" height="4" fill="url(#goldBand)" />
-                            <rect x="2" y="17" width="4" height="3" fill="url(#goldBand)" opacity="0.7" />
-                            
-                            {/* Arabic calligraphy pattern on band */}
-                            <rect x="8" y="15" width="2" height="2" fill="#b8860b" rx="0.3" />
-                            <rect x="12" y="15" width="3" height="2" fill="#b8860b" rx="0.3" />
-                            <rect x="17" y="15" width="2" height="2" fill="#b8860b" rx="0.3" />
-                            <rect x="21" y="15" width="3" height="2" fill="#b8860b" rx="0.3" />
-                            <rect x="26" y="15" width="2" height="2" fill="#b8860b" rx="0.3" />
-                            <rect x="30" y="15" width="2" height="2" fill="#b8860b" rx="0.3" />
-                            
-                            {/* Door - Bab */}
-                            <rect x="16" y="24" width="8" height="14" fill="url(#doorGradient)" rx="1" />
-                            <rect x="17" y="25" width="6" height="12" fill="url(#doorInner)" rx="0.5" />
-                            {/* Door frame decoration */}
-                            <rect x="18" y="26" width="4" height="2" fill="#ffd700" opacity="0.6" rx="0.3" />
-                            
-                            {/* Maqam Ibrahim hint */}
-                            <circle cx="20" cy="42" r="1.5" fill="#d4af37" opacity="0.5" />
-                            
-                            {/* Gradients */}
-                            <defs>
-                              <linearGradient id="kaabaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#1a1a1a" />
-                                <stop offset="50%" stopColor="#0d0d0d" />
-                                <stop offset="100%" stopColor="#1a1a1a" />
-                              </linearGradient>
-                              <linearGradient id="goldBand" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#d4af37" />
-                                <stop offset="25%" stopColor="#ffd700" />
-                                <stop offset="50%" stopColor="#d4af37" />
-                                <stop offset="75%" stopColor="#ffd700" />
-                                <stop offset="100%" stopColor="#d4af37" />
-                              </linearGradient>
-                              <linearGradient id="doorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#b8860b" />
-                                <stop offset="50%" stopColor="#daa520" />
-                                <stop offset="100%" stopColor="#b8860b" />
-                              </linearGradient>
-                              <linearGradient id="doorInner" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stopColor="#8b7355" />
-                                <stop offset="100%" stopColor="#654321" />
-                              </linearGradient>
-                            </defs>
-                          </svg>
-                        </div>
-                      </motion.div>
+                        {/* Kaaba main body */}
+                        <rect x="8" y="10" width="32" height="38" fill="#1a1a1a" rx="1" />
+                        
+                        {/* 3D Left face */}
+                        <polygon points="8,10 8,48 4,44 4,14" fill="#0d0d0d" />
+                        
+                        {/* 3D Top face */}
+                        <polygon points="8,10 40,10 44,6 12,6" fill="#2d2d2d" />
+                        
+                        {/* 3D Right edge highlight */}
+                        <line x1="40" y1="10" x2="40" y2="48" stroke="#333" strokeWidth="1" />
+                        
+                        {/* Gold band - Hizam */}
+                        <rect x="8" y="16" width="32" height="5" fill="url(#goldBandNew)" />
+                        <rect x="4" y="19" width="4" height="4" fill="url(#goldBandNew)" opacity="0.8" />
+                        
+                        {/* Calligraphy pattern on band */}
+                        <rect x="10" y="17.5" width="4" height="2" fill="#c9a227" rx="0.5" />
+                        <rect x="16" y="17.5" width="3" height="2" fill="#c9a227" rx="0.5" />
+                        <rect x="21" y="17.5" width="6" height="2" fill="#c9a227" rx="0.5" />
+                        <rect x="29" y="17.5" width="3" height="2" fill="#c9a227" rx="0.5" />
+                        <rect x="34" y="17.5" width="4" height="2" fill="#c9a227" rx="0.5" />
+                        
+                        {/* Door */}
+                        <rect x="18" y="28" width="12" height="18" fill="url(#doorGoldNew)" rx="1" />
+                        <rect x="19.5" y="29.5" width="9" height="15" fill="#654321" rx="0.5" />
+                        {/* Door decoration */}
+                        <rect x="21" y="31" width="6" height="3" fill="#b8860b" opacity="0.6" rx="0.5" />
+                        <circle cx="24" cy="40" r="1" fill="#d4af37" />
+                        
+                        <defs>
+                          <linearGradient id="goldBandNew" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#d4af37" />
+                            <stop offset="30%" stopColor="#ffd700" />
+                            <stop offset="50%" stopColor="#f0c14b" />
+                            <stop offset="70%" stopColor="#ffd700" />
+                            <stop offset="100%" stopColor="#d4af37" />
+                          </linearGradient>
+                          <linearGradient id="doorGoldNew" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#c9a227" />
+                            <stop offset="50%" stopColor="#daa520" />
+                            <stop offset="100%" stopColor="#b8860b" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
                     </div>
                   </div>
                   
-                  {/* Opposite end of needle (red/south indicator) */}
-                  <div className="absolute bottom-[30px] left-1/2 -translate-x-1/2 w-2 h-[100px]">
-                    <div className="absolute inset-x-0 top-0 h-full bg-gradient-to-b from-gray-400 via-gray-500 to-gray-600 rounded-full shadow-lg" />
-                    <div className="absolute left-1/2 -translate-x-1/2 top-0 h-full w-0.5 bg-gray-300/50" />
+                  {/* Needle shaft */}
+                  <div className="w-3 h-[85px] bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 rounded-full shadow-md relative">
+                    <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-amber-300/60" />
                   </div>
+                </div>
+                
+                {/* Opposite needle (bottom) */}
+                <div className="absolute bottom-[20px] left-1/2 -translate-x-1/2">
+                  <div className="w-2.5 h-[85px] bg-gradient-to-t from-gray-400 via-gray-500 to-gray-600 rounded-full shadow-md relative">
+                    <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gray-300/60" />
+                  </div>
+                  {/* Arrow tip */}
+                  <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[12px] border-t-gray-500 -mt-1 ml-[-3px]" />
                 </div>
               </motion.div>
 
-              {/* Center Pivot with metallic effect */}
-              <div className="absolute inset-0 z-60 flex items-center justify-center pointer-events-none">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-200 via-amber-300 to-amber-500 shadow-[0_2px_10px_rgba(0,0,0,0.3)] border-2 border-amber-100">
+              {/* Center Pivot */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-200 via-amber-300 to-amber-500 shadow-[0_4px_15px_rgba(0,0,0,0.3)] border-2 border-amber-100">
                   <div className="absolute inset-1 rounded-full bg-gradient-to-br from-amber-400 to-amber-600" />
                   <div className="absolute inset-2 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shadow-inner" />
+                  <div className="absolute inset-3 rounded-full bg-gradient-to-br from-amber-200 to-amber-400" />
                 </div>
               </div>
 
-              {/* Glass reflection effect */}
-              <div className="absolute inset-4 z-70 rounded-full overflow-hidden pointer-events-none">
-                <div className="absolute -top-1/2 -left-1/4 w-3/4 h-full bg-gradient-to-br from-white/20 to-transparent rotate-12" />
+              {/* Glass Reflection */}
+              <div className="absolute inset-[10px] rounded-full overflow-hidden pointer-events-none">
+                <div className="absolute -top-1/2 -left-1/4 w-3/4 h-full bg-gradient-to-br from-white/15 to-transparent rotate-12" />
               </div>
             </motion.div>
 
@@ -352,22 +349,22 @@ const QiblaPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="flex items-center gap-2 text-white/90 mb-4"
+              className="flex items-center gap-2 text-white/90 mb-3"
             >
               <MapPin className="w-5 h-5" />
               <span className="text-lg">{location?.city || "Your Location"}</span>
             </motion.div>
 
-            {/* Distance to Mecca */}
+            {/* Distance Card */}
             {distance && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-4 mb-6"
+                className="bg-white/10 backdrop-blur-md rounded-2xl px-8 py-4 mb-4 border border-white/10"
               >
-                <p className="text-white/70 text-sm text-center mb-1">Distance to Mecca</p>
-                <p className="text-white text-2xl font-bold text-center">
+                <p className="text-white/60 text-sm text-center mb-1">Distance to Mecca</p>
+                <p className="text-white text-3xl font-bold text-center">
                   {distance.toFixed(0)} km
                 </p>
               </motion.div>
