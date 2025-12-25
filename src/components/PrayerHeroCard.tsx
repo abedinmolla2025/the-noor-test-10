@@ -197,7 +197,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                       <img 
                         src={noorLogo} 
                         alt="NOOR Logo" 
-                        className="w-14 h-14 rounded-full object-cover shadow-lg border-2 border-white/50 relative z-10"
+                        className="w-16 h-16 rounded-full object-cover relative z-10"
                         style={{ 
                           boxShadow: '0 0 15px 3px rgba(255, 255, 255, 0.35), 0 0 30px 6px rgba(255, 255, 255, 0.15)' 
                         }}
