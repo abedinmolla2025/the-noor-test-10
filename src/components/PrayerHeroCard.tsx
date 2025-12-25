@@ -269,7 +269,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                   <img 
                     src={prayingMan3D} 
                     alt="Praying Man" 
-                    className="w-16 h-16 object-contain drop-shadow-lg"
+                    className="w-24 h-24 object-contain drop-shadow-lg -scale-x-100"
                   />
                 </motion.div>
 
