@@ -54,21 +54,25 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="w-full px-3 py-4 space-y-4">
-        {/* NOOR Header/Branding */}
-        <motion.header
+        {/* NOOR Branding Card */}
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-center py-2"
+          className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-5 shadow-xl"
         >
-          <div className="flex items-center gap-3">
+          {/* Background Effects */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-cyan-400/20 rounded-full blur-3xl" />
+          
+          <div className="relative z-10 flex items-center justify-center gap-4">
             {/* Logo Icon */}
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-lg">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="w-6 h-6 text-white"
+                  className="w-8 h-8 text-amber-300"
                   stroke="currentColor"
                   strokeWidth="1.5"
                 >
@@ -84,20 +88,20 @@ const Index = () => {
                 </svg>
               </div>
               {/* Glow effect */}
-              <div className="absolute inset-0 w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 blur-lg opacity-40 -z-10" />
+              <div className="absolute inset-0 w-14 h-14 rounded-2xl bg-amber-400 blur-xl opacity-30 -z-10" />
             </div>
             
             {/* Brand Name */}
             <div className="flex flex-col">
-              <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-500 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold tracking-wide text-white">
                 NOOR
               </h1>
-              <span className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase -mt-0.5">
+              <span className="text-xs text-white/70 tracking-[0.15em] uppercase">
                 Islamic Companion
               </span>
             </div>
           </div>
-        </motion.header>
+        </motion.div>
         {/* Prayer Hero Card */}
         <section className="animate-fade-in" style={{ animationDelay: "0ms" }}>
           <PrayerHeroCard 
