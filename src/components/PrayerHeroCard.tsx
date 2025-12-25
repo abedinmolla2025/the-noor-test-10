@@ -234,16 +234,16 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 }}
-              className="hidden md:block"
+              className="absolute right-4 top-4 md:relative md:right-auto md:top-auto"
             >
               <div className="relative">
                 {/* Praying Person with Premium Glow */}
-                <div className="absolute -inset-8 bg-gradient-to-tr from-[hsl(45,93%,58%)]/20 via-transparent to-[hsl(158,64%,40%)]/10 rounded-full blur-2xl" />
-                <div className="relative bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm rounded-3xl p-4 border border-white/10">
+                <div className="absolute -inset-4 md:-inset-8 bg-gradient-to-tr from-[hsl(45,93%,58%)]/20 via-transparent to-[hsl(158,64%,40%)]/10 rounded-full blur-2xl" />
+                <div className="relative bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm rounded-2xl md:rounded-3xl p-2 md:p-4 border border-white/10">
                   <img
                     src={prayingMan}
                     alt="Person praying"
-                    className="w-36 h-36 lg:w-44 lg:h-44 object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.3)] -scale-x-100"
+                    className="w-16 h-16 md:w-36 md:h-36 lg:w-44 lg:h-44 object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.3)] -scale-x-100"
                   />
                 </div>
               </div>
