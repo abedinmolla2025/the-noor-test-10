@@ -261,20 +261,10 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
 
                 {/* Praying Man 3D Image - Fixed Position */}
                 <div className="absolute right-40 top-1/2 -translate-y-1/2">
-                  {/* Light Ray Effect */}
-                  <div 
-                    className="absolute -top-16 left-1/2 -translate-x-1/2 w-16 h-24 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(180deg, rgba(255, 215, 0, 0.6) 0%, rgba(255, 255, 255, 0.4) 30%, rgba(255, 255, 255, 0.1) 70%, transparent 100%)',
-                      clipPath: 'polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%)',
-                      filter: 'blur(3px)',
-                      animation: 'pulse 3s ease-in-out infinite'
-                    }}
-                  />
                   <img 
                     src={prayingMan3D} 
                     alt="Praying Man" 
-                    className="w-20 h-20 object-contain -scale-x-100 relative z-10"
+                    className="w-20 h-20 object-contain -scale-x-100"
                     style={{
                       filter: 'drop-shadow(0 0 12px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 24px rgba(16, 185, 129, 0.4))'
                     }}
