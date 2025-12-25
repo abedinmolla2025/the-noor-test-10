@@ -351,6 +351,16 @@ const NamesOfAllahPage = () => {
                   {/* Card Background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white via-amber-50/80 to-yellow-50 group-hover:from-amber-100 group-hover:via-yellow-100 group-hover:to-orange-50 transition-all duration-500" />
                   
+                  {/* Gold Shimmer Effect */}
+                  <div 
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{
+                      background: 'linear-gradient(105deg, transparent 20%, rgba(255,215,0,0.15) 35%, rgba(255,215,0,0.35) 50%, rgba(255,215,0,0.15) 65%, transparent 80%)',
+                      backgroundSize: '200% 100%',
+                      animation: 'shimmer 1.5s infinite linear',
+                    }}
+                  />
+                  
                   {/* Gold border */}
                   <div className="absolute inset-0 border-2 border-amber-200/60 group-hover:border-amber-400/80 rounded-2xl transition-colors duration-300" />
                   
