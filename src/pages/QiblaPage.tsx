@@ -61,16 +61,21 @@ const QiblaPage = () => {
 
   useEffect(() => {
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (event.alpha !== null) {
-        setCompassSupported(true);
-        setDeviceHeading(event.alpha);
-      }
+      const anyEvent = event as any;
+      const heading =
+        typeof anyEvent.webkitCompassHeading === "number"
+          ? (anyEvent.webkitCompassHeading as number)
+          : event.alpha === null
+            ? null
+            : (360 - event.alpha + 360) % 360;
+
+      if (heading === null) return;
+      setCompassSupported(true);
+      setDeviceHeading(heading);
     };
 
     if (typeof DeviceOrientationEvent !== "undefined") {
-      if (
-        typeof (DeviceOrientationEvent as any).requestPermission !== "function"
-      ) {
+      if (typeof (DeviceOrientationEvent as any).requestPermission !== "function") {
         window.addEventListener("deviceorientation", handleOrientation);
         setCompassSupported(true);
       }
@@ -83,15 +88,20 @@ const QiblaPage = () => {
 
   const requestCompassPermission = async () => {
     try {
-      const permission = await (
-        DeviceOrientationEvent as any
-      ).requestPermission();
+      const permission = await (DeviceOrientationEvent as any).requestPermission();
       if (permission === "granted") {
         window.addEventListener("deviceorientation", (event) => {
-          if (event.alpha !== null) {
-            setDeviceHeading(event.alpha);
-            setCompassSupported(true);
-          }
+          const anyEvent = event as any;
+          const heading =
+            typeof anyEvent.webkitCompassHeading === "number"
+              ? (anyEvent.webkitCompassHeading as number)
+              : event.alpha === null
+                ? null
+                : (360 - event.alpha + 360) % 360;
+
+          if (heading === null) return;
+          setDeviceHeading(heading);
+          setCompassSupported(true);
         });
       }
     } catch (error) {
@@ -159,13 +169,13 @@ const QiblaPage = () => {
               className="relative w-[340px] h-[340px] mb-8"
             >
               {/* Outer Metallic Ring */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-amber-300 shadow-[0_0_60px_rgba(251,191,36,0.3)]">
+              <div className="absolute inset-0 z-0 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-amber-300 shadow-[0_0_60px_rgba(251,191,36,0.3)]">
                 <div className="absolute inset-1 rounded-full bg-gradient-to-br from-amber-600 via-amber-500 to-amber-700 shadow-inner" />
                 <div className="absolute inset-2 rounded-full bg-gradient-to-br from-amber-200 via-amber-100 to-amber-300" />
               </div>
               
               {/* Compass Face */}
-              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-[#f5f0e6] via-[#faf8f3] to-[#ebe5d8] shadow-[inset_0_4px_20px_rgba(0,0,0,0.15)]">
+              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 shadow-[inset_0_4px_20px_rgba(0,0,0,0.15)]">
                 {/* Decorative inner rings */}
                 <div className="absolute inset-2 rounded-full border border-emerald-800/20" />
                 <div className="absolute inset-6 rounded-full border border-emerald-800/10" />
@@ -229,7 +239,7 @@ const QiblaPage = () => {
 
               {/* Qibla Direction Needle with Kaaba */}
               <motion.div
-                className="absolute inset-0 flex items-center justify-center"
+                className="absolute inset-0 z-50 flex items-center justify-center"
                 animate={{ rotate: getCompassRotation() }}
                 transition={{ type: "spring", stiffness: 50, damping: 20 }}
               >
@@ -324,7 +334,7 @@ const QiblaPage = () => {
               </motion.div>
 
               {/* Center Pivot with metallic effect */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="absolute inset-0 z-60 flex items-center justify-center pointer-events-none">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-200 via-amber-300 to-amber-500 shadow-[0_2px_10px_rgba(0,0,0,0.3)] border-2 border-amber-100">
                   <div className="absolute inset-1 rounded-full bg-gradient-to-br from-amber-400 to-amber-600" />
                   <div className="absolute inset-2 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 shadow-inner" />
@@ -332,7 +342,7 @@ const QiblaPage = () => {
               </div>
 
               {/* Glass reflection effect */}
-              <div className="absolute inset-4 rounded-full overflow-hidden pointer-events-none">
+              <div className="absolute inset-4 z-70 rounded-full overflow-hidden pointer-events-none">
                 <div className="absolute -top-1/2 -left-1/4 w-3/4 h-full bg-gradient-to-br from-white/20 to-transparent rotate-12" />
               </div>
             </motion.div>
