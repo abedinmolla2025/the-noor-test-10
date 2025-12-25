@@ -137,23 +137,9 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
         {/* Dynamic Gradient Background - Solid Emerald Green */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700" />
         
-        {/* Subtle Animated Orbs - reduced opacity */}
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.1, 1],
-            opacity: [0.08, 0.12, 0.08]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full blur-[80px]"
-        />
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.15, 0.1]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute -bottom-20 -left-20 w-48 h-48 bg-gradient-to-tr from-teal-500 to-cyan-500 rounded-full blur-[60px]"
-        />
+        {/* Subtle Static Orbs - no animation for performance */}
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full blur-[80px] opacity-10" />
+        <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-gradient-to-tr from-teal-500 to-cyan-500 rounded-full blur-[60px] opacity-10" />
         
         {/* Mesh Pattern */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
@@ -261,69 +247,30 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
 
                 {/* Praying Man 3D Image - Fixed Position with Light Rays */}
                 <div className="absolute right-32 top-1/2 -translate-y-1/2">
-                  {/* Light Rays from Above */}
+                  {/* Light Rays from Above - CSS Animation for better performance */}
                   <div className="absolute -top-16 left-1/4 -translate-x-1/2 w-32 h-24 overflow-visible pointer-events-none">
-                    {/* Main Light Beam */}
-                    <motion.div
-                      animate={{
-                        opacity: [0.4, 0.8, 0.4],
-                        scaleY: [1, 1.1, 1],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-28"
+                    {/* Main Light Beam - CSS animation */}
+                    <div
+                      className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-28 animate-pulse"
                       style={{
                         background: 'linear-gradient(180deg, rgba(251, 191, 36, 0.6) 0%, rgba(251, 191, 36, 0.3) 40%, rgba(255, 255, 255, 0.1) 100%)',
                         clipPath: 'polygon(35% 0%, 65% 0%, 100% 100%, 0% 100%)',
                         filter: 'blur(4px)',
+                        willChange: 'opacity',
                       }}
                     />
                     
-                    {/* Shimmer Particles */}
-                    {[...Array(8)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        animate={{
-                          y: [0, 60, 80],
-                          opacity: [0, 1, 0],
-                          scale: [0.5, 1, 0.3],
-                        }}
-                        transition={{
-                          duration: 1.5 + Math.random() * 1,
-                          repeat: Infinity,
-                          delay: i * 0.2,
-                          ease: "easeOut",
-                        }}
-                        className="absolute rounded-full"
-                        style={{
-                          left: `${35 + Math.random() * 30}%`,
-                          top: 0,
-                          width: 3 + Math.random() * 3,
-                          height: 3 + Math.random() * 3,
-                          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(251, 191, 36, 0.6) 100%)',
-                          boxShadow: '0 0 6px 2px rgba(251, 191, 36, 0.5)',
-                        }}
-                      />
-                    ))}
-                    
-                    {/* Side Light Rays */}
-                    <motion.div
-                      animate={{
-                        opacity: [0.2, 0.5, 0.2],
-                      }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                      className="absolute top-0 left-1/2 -translate-x-[70%] w-10 h-24"
+                    {/* Side Light Rays - static for performance */}
+                    <div
+                      className="absolute top-0 left-1/2 -translate-x-[70%] w-10 h-24 opacity-40"
                       style={{
                         background: 'linear-gradient(180deg, rgba(251, 191, 36, 0.4) 0%, transparent 100%)',
                         clipPath: 'polygon(60% 0%, 100% 0%, 100% 100%, 0% 100%)',
                         filter: 'blur(3px)',
                       }}
                     />
-                    <motion.div
-                      animate={{
-                        opacity: [0.2, 0.5, 0.2],
-                      }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                      className="absolute top-0 left-1/2 -translate-x-[30%] w-10 h-24"
+                    <div
+                      className="absolute top-0 left-1/2 -translate-x-[30%] w-10 h-24 opacity-40"
                       style={{
                         background: 'linear-gradient(180deg, rgba(251, 191, 36, 0.4) 0%, transparent 100%)',
                         clipPath: 'polygon(0% 0%, 40% 0%, 100% 100%, 0% 100%)',
@@ -332,14 +279,9 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                     />
                   </div>
                   
-                  {/* Glow on Hands */}
-                  <motion.div
-                    animate={{
-                      opacity: [0.3, 0.6, 0.3],
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-8 rounded-full"
+                  {/* Glow on Hands - static for performance */}
+                  <div
+                    className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-8 rounded-full opacity-50"
                     style={{
                       background: 'radial-gradient(ellipse, rgba(251, 191, 36, 0.5) 0%, transparent 70%)',
                       filter: 'blur(6px)',
