@@ -184,10 +184,12 @@ const TasbihPage = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.2, stiffness: 200, damping: 20 }}
-          className="relative mt-8 w-[min(420px,92vw)] h-[min(420px,92vw)] md:w-[min(520px,80vw)] md:h-[min(520px,80vw)] overflow-visible"
+          className="relative mt-8 w-72 h-72 md:w-80 md:h-80"
         >
           {/* 3D Tasbih Mala - Background */}
-          <TasbihBeads3D count={count} totalBeads={currentDhikr.target > 50 ? 33 : currentDhikr.target} />
+          <Suspense fallback={null}>
+            <TasbihBeads3D count={count} totalBeads={currentDhikr.target > 50 ? 33 : currentDhikr.target} />
+          </Suspense>
           
           {/* Center Counter Button */}
           <div className="absolute inset-0 flex items-center justify-center">
