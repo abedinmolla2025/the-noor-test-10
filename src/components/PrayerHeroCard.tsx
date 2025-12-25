@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import noorLogo from "@/assets/noor-logo.png";
+import prayingMan3D from "@/assets/praying-man-3d.png";
 interface AthanSettings {
   enabled: boolean;
   isPlaying: boolean;
@@ -238,10 +239,10 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                 </div>
               </div>
 
-              {/* Current Prayer & Next Prayer - Side by Side */}
-              <div className="flex items-center justify-between gap-3">
+              {/* Current Prayer & Next Prayer - Side by Side with Praying Man Image */}
+              <div className="flex items-center justify-between gap-2">
                 {/* Current Prayer */}
-                <div>
+                <div className="flex-1">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <Sparkles size={10} className="text-amber-400" />
                     <span className="text-[9px] text-amber-400 uppercase tracking-[0.1em] font-semibold">
@@ -257,6 +258,20 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                     </span>
                   </div>
                 </div>
+
+                {/* Praying Man 3D Image */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="flex-shrink-0"
+                >
+                  <img 
+                    src={prayingMan3D} 
+                    alt="Praying Man" 
+                    className="w-16 h-16 object-contain drop-shadow-lg"
+                  />
+                </motion.div>
 
                 {/* Next Prayer Countdown */}
                 <div className="flex items-center gap-1.5 bg-amber-400/15 border border-amber-400/25 rounded-lg px-2 py-1.5">
