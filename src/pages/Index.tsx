@@ -134,33 +134,6 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="w-full px-3 py-4 space-y-5 relative z-10">
-        {/* Welcome Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center pt-2 pb-1"
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 mb-2"
-          >
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">আস্সালামু আলাইকুম</span>
-            <Sparkles className="w-4 h-4 text-amber-500" />
-          </motion.div>
-          <motion.h1
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-2xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent"
-          >
-            ইসলামিক গাইড
-          </motion.h1>
-        </motion.div>
-
         {/* Prayer Hero Card */}
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
