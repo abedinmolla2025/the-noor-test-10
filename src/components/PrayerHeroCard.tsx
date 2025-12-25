@@ -181,13 +181,41 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                       <img 
                         src={noorLogo} 
                         alt="NOOR Logo" 
-                        className="w-14 h-14 rounded-full object-cover shadow-lg shadow-amber-500/40 border-2 border-amber-400/60"
+                        className="w-14 h-14 rounded-full object-cover shadow-lg shadow-amber-500/40 border-2 border-amber-400/60 relative z-10"
                       />
                       <motion.div 
                         animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
                         transition={{ duration: 2, repeat: Infinity }}
                         className="absolute inset-0 bg-amber-400 rounded-full blur-md -z-10"
                       />
+                      {/* Falling Light Particles */}
+                      {[...Array(8)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ 
+                            opacity: 0, 
+                            y: 0, 
+                            x: Math.random() * 40 - 20,
+                            scale: Math.random() * 0.5 + 0.5
+                          }}
+                          animate={{ 
+                            opacity: [0, 1, 1, 0], 
+                            y: [0, 30, 50, 70],
+                            x: Math.random() * 30 - 15
+                          }}
+                          transition={{ 
+                            duration: 2 + Math.random() * 1.5, 
+                            repeat: Infinity, 
+                            delay: i * 0.3,
+                            ease: "easeOut"
+                          }}
+                          className="absolute top-8 left-1/2 w-1 h-1 bg-amber-300 rounded-full shadow-sm shadow-amber-400"
+                          style={{ 
+                            filter: 'blur(0.5px)',
+                            boxShadow: '0 0 4px 1px rgba(251, 191, 36, 0.6)'
+                          }}
+                        />
+                      ))}
                     </div>
                     <div className="flex flex-col">
                       <span className="text-xl font-bold text-white tracking-wide">NOOR</span>
