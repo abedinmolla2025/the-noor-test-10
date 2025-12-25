@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { ArrowLeft, Search, Sparkles, Crown } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ArrowLeft, Search, Sparkles, Crown, Volume2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 interface NameOfAllah {
   id: number;
@@ -117,6 +118,37 @@ const NamesOfAllahPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedName, setSelectedName] = useState<NameOfAllah | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const speakArabic = useCallback((arabicText: string, transliteration: string) => {
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(arabicText);
+    utterance.lang = 'ar-SA';
+    utterance.rate = 0.7;
+    utterance.pitch = 1;
+    
+    // Try to find an Arabic voice
+    const voices = window.speechSynthesis.getVoices();
+    const arabicVoice = voices.find(voice => 
+      voice.lang.startsWith('ar') || voice.name.toLowerCase().includes('arabic')
+    );
+    
+    if (arabicVoice) {
+      utterance.voice = arabicVoice;
+    }
+    
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      toast.error("অডিও চালাতে সমস্যা হয়েছে");
+    };
+    
+    window.speechSynthesis.speak(utterance);
+    toast.success(`${transliteration} উচ্চারণ হচ্ছে...`);
+  }, []);
 
   const filteredNames = namesOfAllah.filter(
     (name) =>
@@ -311,6 +343,19 @@ const NamesOfAllahPage = () => {
                   </div>
                 </motion.div>
 
+                {/* Audio Button */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.15 }}
+                  onClick={() => speakArabic(selectedName.arabic, selectedName.transliteration)}
+                  disabled={isSpeaking}
+                  className={`mb-6 px-6 py-3 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-white font-medium shadow-lg shadow-amber-400/30 hover:from-amber-500 hover:to-yellow-600 transition-all flex items-center gap-2 mx-auto ${isSpeaking ? 'animate-pulse' : ''}`}
+                >
+                  <Volume2 className={`h-5 w-5 ${isSpeaking ? 'animate-bounce' : ''}`} />
+                  {isSpeaking ? 'উচ্চারণ হচ্ছে...' : 'উচ্চারণ শুনুন'}
+                </motion.button>
+
                 {/* Royal Divider */}
                 <div className="flex items-center justify-center gap-4 mb-6">
                   <div className="h-px w-20 bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
@@ -427,6 +472,17 @@ const NamesOfAllahPage = () => {
                   <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-amber-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   <div className="relative p-4">
+                    {/* Audio Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        speakArabic(name.arabic, name.transliteration);
+                      }}
+                      className="absolute top-2 left-2 w-7 h-7 rounded-full bg-gradient-to-br from-amber-400/80 to-yellow-500/80 flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 z-10"
+                    >
+                      <Volume2 className="h-3.5 w-3.5 text-white" />
+                    </button>
+                    
                     {/* Number Badge */}
                     <div className="absolute top-2 right-2">
                       <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shadow-md shadow-amber-300/30">
@@ -437,7 +493,7 @@ const NamesOfAllahPage = () => {
                     </div>
                     
                     {/* Arabic */}
-                    <div className="mb-3 pr-8">
+                    <div className="mb-3 pr-8 pl-6">
                       <p 
                         className="text-2xl md:text-3xl font-bold text-amber-900 group-hover:text-amber-800 transition-colors leading-tight"
                         style={{ fontFamily: "'Amiri', 'Noto Naskh Arabic', serif" }}
