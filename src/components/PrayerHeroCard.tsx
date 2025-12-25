@@ -260,7 +260,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                 </div>
 
                 {/* Praying Man 3D Image - Fixed Position */}
-                <div className="absolute right-24 top-1/2 -translate-y-1/2">
+                <div className="absolute right-32 top-1/2 -translate-y-1/2">
                   <img 
                     src={prayingMan3D} 
                     alt="Praying Man" 
