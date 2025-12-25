@@ -178,15 +178,29 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <div className="relative">
+                      {/* Multiple Glow Layers */}
+                      <motion.div 
+                        animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.15, 0.3] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute -inset-3 bg-amber-400 rounded-full blur-xl"
+                      />
+                      <motion.div 
+                        animate={{ scale: [1.1, 1.3, 1.1], opacity: [0.5, 0.25, 0.5] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                        className="absolute -inset-2 bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-400 rounded-full blur-lg"
+                      />
+                      <motion.div 
+                        animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.3, 0.6] }}
+                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute -inset-1 bg-amber-400 rounded-full blur-md"
+                      />
                       <img 
                         src={noorLogo} 
                         alt="NOOR Logo" 
-                        className="w-14 h-14 rounded-full object-cover shadow-lg shadow-amber-500/40 border-2 border-amber-400/60 relative z-10"
-                      />
-                      <motion.div 
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute inset-0 bg-amber-400 rounded-full blur-md -z-10"
+                        className="w-14 h-14 rounded-full object-cover shadow-lg shadow-amber-500/50 border-2 border-amber-400/70 relative z-10"
+                        style={{ 
+                          boxShadow: '0 0 20px 4px rgba(251, 191, 36, 0.5), 0 0 40px 8px rgba(251, 191, 36, 0.2)' 
+                        }}
                       />
                       {/* Falling Light Particles */}
                       {[...Array(8)].map((_, i) => (
