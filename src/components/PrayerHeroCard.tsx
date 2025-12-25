@@ -159,7 +159,7 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             
             {/* Left Section - Main Info */}
-            <div className="flex-1 space-y-5">
+            <div className="flex-1 space-y-5 relative z-20">
               
               {/* Top Bar - Location & Hijri Date */}
               <motion.div 
@@ -230,45 +230,46 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
             </div>
 
             {/* Right Section - Prayer Times Quick View */}
+            {/* Centered Praying Man - Background Element */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="absolute right-2 -top-2 md:right-4 md:-top-4 lg:relative lg:right-auto lg:top-auto"
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
             >
               <div className="relative">
                 {/* Multi-layer Glow Effect */}
                 <motion.div 
-                  animate={{ opacity: [0.3, 0.5, 0.3] }}
+                  animate={{ opacity: [0.2, 0.4, 0.2] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -inset-6 md:-inset-10 bg-gradient-to-tr from-[hsl(45,93%,58%)]/30 via-[hsl(45,93%,70%)]/20 to-transparent rounded-full blur-3xl"
+                  className="absolute -inset-16 bg-gradient-to-tr from-[hsl(45,93%,58%)]/25 via-[hsl(45,93%,70%)]/15 to-transparent rounded-full blur-[60px]"
                 />
                 <motion.div 
-                  animate={{ opacity: [0.2, 0.4, 0.2], scale: [1, 1.1, 1] }}
+                  animate={{ opacity: [0.15, 0.3, 0.15], scale: [1, 1.1, 1] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute -inset-4 md:-inset-8 bg-gradient-to-bl from-[hsl(158,64%,40%)]/20 via-transparent to-[hsl(45,93%,58%)]/15 rounded-full blur-2xl"
+                  className="absolute -inset-12 bg-gradient-to-bl from-[hsl(158,64%,40%)]/15 via-transparent to-[hsl(45,93%,58%)]/10 rounded-full blur-[40px]"
                 />
                 
                 {/* Floating Ring Effect */}
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0 md:-inset-4 border border-[hsl(45,93%,58%)]/20 rounded-full"
+                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  className="absolute -inset-8 border border-[hsl(45,93%,58%)]/10 rounded-full"
                 />
                 
-                {/* Image Container with Glass Effect */}
-                <div className="relative overflow-hidden">
+                {/* Image Container */}
+                <div className="relative">
                   {/* Bottom Fade for Illusion */}
-                  <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[hsl(158,64%,18%)] via-[hsl(158,64%,18%)]/50 to-transparent z-10" />
+                  <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[hsl(158,64%,18%)] via-[hsl(158,64%,18%)]/70 to-transparent z-10" />
                   
                   <img
                     src={prayingMan}
                     alt="Person praying"
-                    className="w-24 h-28 md:w-44 md:h-52 lg:w-56 lg:h-64 object-contain drop-shadow-[0_0_40px_rgba(212,175,55,0.4)] -scale-x-100 relative z-0"
+                    className="w-48 h-56 md:w-72 md:h-80 lg:w-96 lg:h-[26rem] object-contain opacity-40 md:opacity-50 drop-shadow-[0_0_60px_rgba(212,175,55,0.3)] -scale-x-100 relative z-0"
                   />
                   
-                  {/* Subtle inner glow */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[hsl(45,93%,58%)]/5 to-[hsl(45,93%,58%)]/10 mix-blend-overlay" />
+                  {/* Subtle overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[hsl(45,93%,58%)]/3 to-[hsl(45,93%,58%)]/5 mix-blend-overlay z-5" />
                 </div>
               </div>
             </motion.div>
