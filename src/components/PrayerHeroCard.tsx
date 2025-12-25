@@ -126,25 +126,25 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
     >
       {/* Premium Glass Card */}
       <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl">
-        {/* Dynamic Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(158,64%,18%)] via-[hsl(168,60%,22%)] to-[hsl(175,55%,15%)]" />
+        {/* Dynamic Gradient Background - Matching PrayerTimesPage */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-700 via-teal-700 to-cyan-800" />
         
         {/* Animated Orbs */}
         <motion.div 
           animate={{ 
             scale: [1, 1.2, 1],
-            opacity: [0.15, 0.25, 0.15]
+            opacity: [0.2, 0.35, 0.2]
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-[hsl(45,93%,58%)] to-[hsl(35,90%,50%)] rounded-full blur-[80px]"
+          className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full blur-[80px]"
         />
         <motion.div 
           animate={{ 
             scale: [1, 1.3, 1],
-            opacity: [0.1, 0.2, 0.1]
+            opacity: [0.15, 0.25, 0.15]
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-tr from-[hsl(158,64%,45%)] to-[hsl(180,50%,40%)] rounded-full blur-[60px]"
+          className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-to-tr from-teal-400 to-cyan-500 rounded-full blur-[60px]"
         />
         
         {/* Mesh Pattern */}
@@ -167,16 +167,16 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
                 transition={{ delay: 0.1 }}
                 className="flex flex-wrap items-center gap-3"
               >
-                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-full px-4 py-2 border border-white/10">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
                   {isLoading ? (
-                    <Loader2 size={14} className="animate-spin text-[hsl(45,93%,58%)]" />
+                    <Loader2 size={14} className="animate-spin text-amber-400" />
                   ) : (
-                    <MapPin size={14} className="text-[hsl(45,93%,58%)]" />
+                    <MapPin size={14} className="text-amber-400" />
                   )}
-                  <span className="text-sm text-white/90 font-medium">{locationStr}</span>
+                  <span className="text-sm text-white font-medium">{locationStr}</span>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 bg-[hsl(45,93%,58%)]/10 backdrop-blur-sm rounded-full px-4 py-2 border border-[hsl(45,93%,58%)]/20">
-                  <span className="font-arabic text-sm text-[hsl(45,93%,58%)]">{hijriDateStr}</span>
+                <div className="hidden sm:flex items-center gap-2 bg-amber-400/15 backdrop-blur-sm rounded-full px-4 py-2 border border-amber-400/30">
+                  <span className="font-arabic text-sm text-amber-300">{hijriDateStr}</span>
                 </div>
               </motion.div>
 
@@ -188,8 +188,8 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
                 className="space-y-2"
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles size={14} className="text-[hsl(45,93%,58%)]" />
-                  <span className="text-xs text-[hsl(45,93%,58%)] uppercase tracking-[0.2em] font-semibold">
+                  <Sparkles size={14} className="text-amber-400" />
+                  <span className="text-xs text-amber-400 uppercase tracking-[0.2em] font-semibold">
                     Current Prayer
                   </span>
                 </div>
@@ -210,20 +210,20 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[hsl(45,93%,58%)]/15 via-[hsl(45,93%,58%)]/10 to-transparent border border-[hsl(45,93%,58%)]/25 rounded-2xl px-5 py-3 backdrop-blur-md group-hover:border-[hsl(45,93%,58%)]/50 group-hover:from-[hsl(45,93%,58%)]/25 transition-all duration-300">
+                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-400/20 via-amber-400/15 to-transparent border border-amber-400/30 rounded-2xl px-5 py-3 backdrop-blur-md group-hover:border-amber-400/50 group-hover:from-amber-400/30 transition-all duration-300">
                   <div className="relative">
-                    <Clock size={18} className="text-[hsl(45,93%,58%)]" />
+                    <Clock size={18} className="text-amber-400" />
                     <motion.div 
                       animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0 bg-[hsl(45,93%,58%)] rounded-full blur-sm"
+                      className="absolute inset-0 bg-amber-400 rounded-full blur-sm"
                     />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider text-white/50">Next Prayer</span>
+                    <span className="text-[10px] uppercase tracking-wider text-white/60">Next Prayer</span>
                     <span className="text-lg font-bold text-white tabular-nums">{getCountdown()}</span>
                   </div>
-                  <ChevronRight size={18} className="text-[hsl(45,93%,58%)] ml-2 group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight size={18} className="text-amber-400 ml-2 group-hover:translate-x-1 transition-transform" />
                 </div>
               </motion.div>
             </div>
@@ -251,10 +251,10 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
                     className={`
                       relative text-center py-2.5 px-2 rounded-xl transition-all duration-300
                       ${isCurrentPrayer 
-                        ? 'bg-[hsl(45,93%,58%)]/20 border border-[hsl(45,93%,58%)]/40 shadow-lg shadow-[hsl(45,93%,58%)]/10' 
+                        ? 'bg-amber-400/25 border border-amber-400/50 shadow-lg shadow-amber-400/15' 
                         : isNextPrayer
-                          ? 'bg-white/5 border border-white/20'
-                          : 'bg-white/[0.02] border border-transparent hover:bg-white/5'
+                          ? 'bg-white/10 border border-white/25'
+                          : 'bg-white/5 border border-transparent hover:bg-white/10'
                       }
                     `}
                   >
@@ -262,16 +262,16 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
                       <motion.div 
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute inset-0 bg-[hsl(45,93%,58%)]/10 rounded-xl"
+                        className="absolute inset-0 bg-amber-400/15 rounded-xl"
                       />
                     )}
                     <p className={`text-[10px] sm:text-xs uppercase tracking-wider mb-1 ${
-                      isCurrentPrayer ? 'text-[hsl(45,93%,58%)] font-semibold' : 'text-white/50'
+                      isCurrentPrayer ? 'text-amber-300 font-semibold' : 'text-white/60'
                     }`}>
                       {prayer.name}
                     </p>
                     <p className={`text-sm sm:text-base font-bold tabular-nums ${
-                      isCurrentPrayer ? 'text-[hsl(45,93%,58%)]' : 'text-white/90'
+                      isCurrentPrayer ? 'text-amber-300' : 'text-white'
                     }`}>
                       {formatPrayerTime(prayer.time)}
                     </p>
@@ -284,7 +284,7 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
       </div>
 
       {/* Outer Glow Effect on Hover */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-[hsl(45,93%,58%)]/0 via-[hsl(45,93%,58%)]/10 to-[hsl(45,93%,58%)]/0 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+      <div className="absolute -inset-1 bg-gradient-to-r from-amber-400/0 via-amber-400/15 to-amber-400/0 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
     </motion.div>
   );
 };
