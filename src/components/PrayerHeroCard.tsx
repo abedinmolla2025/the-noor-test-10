@@ -192,12 +192,9 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
                   <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
                     {getCurrentPrayer()}
                   </h2>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl md:text-4xl lg:text-5xl font-light text-white/70 tabular-nums">
-                      {formatTime(currentTime)}
-                    </span>
-                    <span className="text-lg md:text-xl font-medium text-[hsl(45,93%,58%)]">{period}</span>
-                  </div>
+                  <span className="text-3xl md:text-4xl lg:text-5xl font-light text-white/70 tabular-nums">
+                    {formatTime(currentTime)}
+                  </span>
                 </div>
               </motion.div>
 
