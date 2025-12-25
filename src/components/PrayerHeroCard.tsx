@@ -239,7 +239,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                 </div>
               </div>
 
-              {/* Current Prayer & Next Prayer - Side by Side with Praying Man Image */}
+              {/* Current Prayer & Next Prayer - Side by Side */}
               <div className="flex items-center justify-between gap-2">
                 {/* Current Prayer */}
                 <div className="flex-1">
@@ -259,25 +259,20 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                   </div>
                 </div>
 
-                {/* Praying Man 3D Image */}
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="flex-shrink-0"
-                >
+                {/* Praying Man 3D Image - Fixed Position */}
+                <div className="absolute right-16 top-1/2 -translate-y-1/2">
                   <img 
                     src={prayingMan3D} 
                     alt="Praying Man" 
-                    className="w-24 h-24 object-contain -scale-x-100"
+                    className="w-20 h-20 object-contain -scale-x-100"
                     style={{
                       filter: 'drop-shadow(0 0 12px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 24px rgba(16, 185, 129, 0.4))'
                     }}
                   />
-                </motion.div>
+                </div>
 
-                {/* Next Prayer Countdown */}
-                <div className="flex items-center gap-1.5 bg-amber-400/15 border border-amber-400/25 rounded-lg px-2 py-1.5">
+                {/* Next Prayer Countdown - Fixed Width */}
+                <div className="flex items-center gap-1.5 bg-amber-400/15 border border-amber-400/25 rounded-lg px-2 py-1.5 min-w-[90px]">
                   <Clock size={12} className="text-amber-400" />
                   <div className="flex flex-col leading-tight">
                     <span className="text-[8px] uppercase tracking-wider text-white/60">Next</span>
