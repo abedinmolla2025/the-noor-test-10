@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { MapPin, Clock, Loader2, ChevronRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import prayingMan from "@/assets/praying-man-new.webp";
+import prayingMan from "@/assets/praying-man-new.png";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
 interface PrayerHeroCardProps {
