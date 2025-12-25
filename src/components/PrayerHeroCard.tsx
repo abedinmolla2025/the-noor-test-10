@@ -148,154 +148,87 @@ const PrayerHeroCard = ({ prayerData }: PrayerHeroCardProps) => {
         }} />
 
         {/* Content Container */}
-        <div className="relative z-10 p-6 md:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="relative z-10 p-6">
+          <div className="flex justify-between items-start">
             
             {/* Left Section - Main Info */}
-            <div className="flex-1 space-y-5">
+            <div className="flex-1 space-y-4">
               
               {/* Top Bar - Location & Hijri Date */}
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
-                className="flex flex-wrap items-center gap-3"
+                className="flex items-center gap-4 text-sm"
               >
-                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm rounded-full px-4 py-2 border border-white/10">
+                <div className="flex items-center gap-1.5 text-white/80">
                   {isLoading ? (
                     <Loader2 size={14} className="animate-spin text-[hsl(45,93%,58%)]" />
                   ) : (
                     <MapPin size={14} className="text-[hsl(45,93%,58%)]" />
                   )}
-                  <span className="text-sm text-white/90 font-medium">{locationStr}</span>
+                  <span>{locationStr}</span>
                 </div>
-                <div className="hidden sm:flex items-center gap-2 bg-[hsl(45,93%,58%)]/10 backdrop-blur-sm rounded-full px-4 py-2 border border-[hsl(45,93%,58%)]/20">
-                  <span className="font-arabic text-sm text-[hsl(45,93%,58%)]">{hijriDateStr}</span>
-                </div>
+                <span className="text-white/40">•</span>
+                <span className="font-arabic text-white/80">{hijriDateStr}</span>
               </motion.div>
 
-              {/* Current Time - Hero Display */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="space-y-2"
-              >
-                <div className="flex items-center gap-2">
-                  <Sparkles size={14} className="text-[hsl(45,93%,58%)]" />
-                  <span className="text-xs text-[hsl(45,93%,58%)] uppercase tracking-[0.2em] font-semibold">
-                    Current Prayer
-                  </span>
-                </div>
-                
-                <div className="flex items-baseline gap-4">
-                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-                    {getCurrentPrayer()}
-                  </h2>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl md:text-4xl lg:text-5xl font-light text-white/70 tabular-nums">
-                      {formatTime(currentTime)}
-                    </span>
-                    <span className="text-lg md:text-xl font-medium text-[hsl(45,93%,58%)]">{period}</span>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Next Prayer Countdown - Premium Badge */}
+              {/* Current Prayer */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.2 }}
               >
-                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-[hsl(45,93%,58%)]/15 via-[hsl(45,93%,58%)]/10 to-transparent border border-[hsl(45,93%,58%)]/25 rounded-2xl px-5 py-3 backdrop-blur-md group-hover:border-[hsl(45,93%,58%)]/50 group-hover:from-[hsl(45,93%,58%)]/25 transition-all duration-300">
-                  <div className="relative">
-                    <Clock size={18} className="text-[hsl(45,93%,58%)]" />
-                    <motion.div 
-                      animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0 bg-[hsl(45,93%,58%)] rounded-full blur-sm"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider text-white/50">Next Prayer</span>
-                    <span className="text-lg font-bold text-white tabular-nums">{getCountdown()}</span>
-                  </div>
-                  <ChevronRight size={18} className="text-[hsl(45,93%,58%)] ml-2 group-hover:translate-x-1 transition-transform" />
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles size={16} className="text-[hsl(45,93%,58%)]" />
+                  <span className="text-xs text-[hsl(45,93%,58%)] uppercase tracking-wider font-medium">Current Prayer</span>
                 </div>
+                <h2 className="text-4xl font-bold text-white mb-2">
+                  {getCurrentPrayer()}
+                </h2>
+              </motion.div>
+
+              {/* Time */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-baseline gap-2 mb-4"
+              >
+                <span className="text-5xl font-bold tracking-tight text-white">
+                  {formatTime(currentTime)}
+                </span>
+                <span className="text-xl font-medium text-[hsl(45,93%,58%)]">{period}</span>
+              </motion.div>
+
+              {/* Countdown */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-[hsl(45,93%,58%)]/20 to-[hsl(45,93%,58%)]/10 border border-[hsl(45,93%,58%)]/30 rounded-full px-4 py-2 backdrop-blur-sm group-hover:border-[hsl(45,93%,58%)]/50 transition-all"
+              >
+                <Clock size={16} className="text-[hsl(45,93%,58%)] animate-pulse" />
+                <span className="text-sm font-medium text-white">Next in {getCountdown()}</span>
+                <ChevronRight size={16} className="text-[hsl(45,93%,58%)] ml-1 group-hover:translate-x-1 transition-transform" />
               </motion.div>
             </div>
 
-            {/* Right Section - Prayer Times Quick View */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+            {/* Praying Person Image */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="hidden md:block"
+              transition={{ delay: 0.3 }}
+              className="hidden sm:block relative"
             >
-              <div className="relative">
-                {/* Praying Person with Premium Glow */}
-                <div className="absolute -inset-8 bg-gradient-to-tr from-[hsl(45,93%,58%)]/20 via-transparent to-[hsl(158,64%,40%)]/10 rounded-full blur-2xl" />
-                <div className="relative bg-gradient-to-br from-white/5 to-transparent backdrop-blur-sm rounded-3xl p-4 border border-white/10">
-                  <img
-                    src={prayingMan}
-                    alt="Person praying"
-                    className="w-36 h-36 lg:w-44 lg:h-44 object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.3)] -scale-x-100"
-                  />
-                </div>
-              </div>
+              <div className="absolute inset-0 bg-[hsl(45,93%,58%)]/20 rounded-full blur-3xl scale-75" />
+              <img
+                src={prayingMan}
+                alt="Person praying"
+                className="w-48 h-48 object-contain drop-shadow-2xl -scale-x-100 relative z-10"
+              />
             </motion.div>
           </div>
-
-          {/* Bottom Quick Stats - Mobile Friendly */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mt-6 pt-5 border-t border-white/10"
-          >
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
-              {prayerSchedule.map((prayer, index) => {
-                const isCurrentPrayer = getCurrentPrayer() === prayer.name;
-                const isNextPrayer = getNextPrayer().name === prayer.name;
-                
-                return (
-                  <motion.div
-                    key={prayer.name}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 + index * 0.05 }}
-                    className={`
-                      relative text-center py-2.5 px-2 rounded-xl transition-all duration-300
-                      ${isCurrentPrayer 
-                        ? 'bg-[hsl(45,93%,58%)]/20 border border-[hsl(45,93%,58%)]/40 shadow-lg shadow-[hsl(45,93%,58%)]/10' 
-                        : isNextPrayer
-                          ? 'bg-white/5 border border-white/20'
-                          : 'bg-white/[0.02] border border-transparent hover:bg-white/5'
-                      }
-                    `}
-                  >
-                    {isCurrentPrayer && (
-                      <motion.div 
-                        animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute inset-0 bg-[hsl(45,93%,58%)]/10 rounded-xl"
-                      />
-                    )}
-                    <p className={`text-[10px] sm:text-xs uppercase tracking-wider mb-1 ${
-                      isCurrentPrayer ? 'text-[hsl(45,93%,58%)] font-semibold' : 'text-white/50'
-                    }`}>
-                      {prayer.name}
-                    </p>
-                    <p className={`text-sm sm:text-base font-bold tabular-nums ${
-                      isCurrentPrayer ? 'text-[hsl(45,93%,58%)]' : 'text-white/90'
-                    }`}>
-                      {prayer.time}
-                    </p>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
         </div>
       </div>
 
