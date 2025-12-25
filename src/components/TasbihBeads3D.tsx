@@ -107,13 +107,13 @@ const TasbihMala = ({ count, totalBeads }: TasbihMalaProps) => {
 
   const beadPositions = useMemo(() => {
     const positions: [number, number, number][] = [];
-    const radius = 3;
+    const radius = 4.5;
     
     for (let i = 0; i < totalBeads; i++) {
       const angle = (i / totalBeads) * Math.PI * 2;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
-      const y = Math.sin(angle * 2) * 0.3; // Subtle wave
+      const y = Math.sin(angle * 2) * 0.4; // Subtle wave
       positions.push([x, y, z]);
     }
     
