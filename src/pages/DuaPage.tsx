@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Search, BookOpen, ChevronRight, ArrowLeft, Sparkles, Heart } from "lucide-react";
+import { Search, BookOpen, ChevronRight, ArrowLeft, Sparkles, Heart, Volume2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
+import DuaAudioPlayer from "@/components/DuaAudioPlayer";
 
 type Language = "bengali" | "english" | "hindi" | "urdu";
 
@@ -581,6 +582,12 @@ const DuaPage = () => {
                   {selectedDua.translations[language].translation}
                 </p>
               </motion.div>
+
+              {/* Audio Player */}
+              <DuaAudioPlayer 
+                arabicText={selectedDua.arabic} 
+                duaId={selectedDua.id} 
+              />
             </div>
           </motion.div>
         ) : (
