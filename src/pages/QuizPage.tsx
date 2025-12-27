@@ -16,6 +16,8 @@ interface QuizQuestion {
   optionsBn: string[];
   correctAnswer: number;
   category: string;
+  explanation: string;
+  explanationBn: string;
 }
 
 interface LeaderboardEntry {
@@ -33,7 +35,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["2,698", "1,500", "3,000", "2,000"],
     optionsBn: ["২,৬৯৮", "১,৫০০", "৩,০০০", "২,০০০"],
     correctAnswer: 0,
-    category: "Quran"
+    category: "Quran",
+    explanation: "Classical scholars have counted the word 'Allah' appearing 2,698 times in the Quran.",
+    explanationBn: "প্রাচীন আলেমদের হিসাব অনুযায়ী কুরআনে 'আল্লাহ' শব্দটি ২,৬৯৮ বার এসেছে।",
   },
   {
     id: 2,
@@ -42,7 +46,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["Salah", "Shahada", "Zakat", "Sawm"],
     optionsBn: ["সালাত", "শাহাদা", "যাকাত", "সাওম"],
     correctAnswer: 1,
-    category: "Pillars"
+    category: "Pillars",
+    explanation: "The Shahada (testimony of faith) is the foundation and first pillar of Islam.",
+    explanationBn: "শাহাদাহ বা ঈমানের সাক্ষ্যই ইসলামের প্রথম ও মূল ভিত্তি।",
   },
   {
     id: 3,
@@ -51,7 +57,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["Shaban", "Rajab", "Ramadan", "Muharram"],
     optionsBn: ["শাবান", "রজব", "রমজান", "মুহররম"],
     correctAnswer: 2,
-    category: "History"
+    category: "History",
+    explanation: "The Quran was first revealed in the month of Ramadan on Laylat al-Qadr.",
+    explanationBn: "কুরআনের অবতরণ রমজান মাসে শবে কদরে শুরু হয়েছিল।",
   },
   {
     id: 4,
@@ -60,7 +68,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["100", "114", "120", "99"],
     optionsBn: ["১০০", "১১৪", "১২০", "৯৯"],
     correctAnswer: 1,
-    category: "Quran"
+    category: "Quran",
+    explanation: "The Quran is divided into 114 surahs of varying lengths.",
+    explanationBn: "কুরআনুল কারীমে মোট ১১৪টি সূরা রয়েছে, যেগুলোর দৈর্ঘ্য ভিন্ন ভিন্ন।",
   },
   {
     id: 5,
@@ -69,7 +79,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["Al-Imran", "An-Nisa", "Al-Baqarah", "Al-Maidah"],
     optionsBn: ["আল-ইমরান", "আন-নিসা", "আল-বাকারাহ", "আল-মায়িদাহ"],
     correctAnswer: 2,
-    category: "Quran"
+    category: "Quran",
+    explanation: "Surah Al-Baqarah is the longest surah, containing 286 verses.",
+    explanationBn: "আল-বাকারাহ হলো কুরআনের সবচেয়ে দীর্ঘ সূরা, এতে ২৮৬টি আয়াত রয়েছে।",
   },
   {
     id: 6,
@@ -78,7 +90,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["3", "4", "5", "6"],
     optionsBn: ["৩", "৪", "৫", "৬"],
     correctAnswer: 2,
-    category: "Pillars"
+    category: "Pillars",
+    explanation: "Five daily prayers were made obligatory during the Night Journey (Isra and Mi'raj).",
+    explanationBn: "ইসরা ও মেরাজের রাতে পাঁচ ওয়াক্ত নামাজ উম্মতের ওপর ফরজ করা হয়েছে।",
   },
   {
     id: 7,
@@ -87,7 +101,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["Ibrahim (AS)", "Musa (AS)", "Adam (AS)", "Nuh (AS)"],
     optionsBn: ["ইব্রাহিম (আ.)", "মূসা (আ.)", "আদম (আ.)", "নূহ (আ.)"],
     correctAnswer: 2,
-    category: "Prophets"
+    category: "Prophets",
+    explanation: "Prophet Adam (AS) is regarded as the first human and first prophet in Islam.",
+    explanationBn: "আদম (আ.)-কে ইসলামে প্রথম মানুষ ও প্রথম নবী হিসেবে মানা হয়।",
   },
   {
     id: 8,
@@ -96,7 +112,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["Jerusalem", "Medina", "Makkah", "Damascus"],
     optionsBn: ["জেরুজালেম", "মদিনা", "মক্কা", "দামেস্ক"],
     correctAnswer: 2,
-    category: "Prayer"
+    category: "Prayer",
+    explanation: "Muslims face the Ka'bah in Makkah, known as the Qibla, during prayer.",
+    explanationBn: "মুসলমানরা নামাজে মক্কার কাবা ঘরের দিকে মুখ করে, যাকে কিবলা বলা হয়।",
   },
   {
     id: 9,
@@ -105,7 +123,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["Fasting", "Charity", "Pilgrimage", "Prayer"],
     optionsBn: ["রোজা", "দান", "হজ", "নামাজ"],
     correctAnswer: 1,
-    category: "Pillars"
+    category: "Pillars",
+    explanation: "Zakat is the obligatory charity given from one's wealth to purify it and help the needy.",
+    explanationBn: "যাকাত হলো সম্পদকে পবিত্র করার জন্য এবং দরিদ্রদের সহায়তায় বাধ্যতামূলক দান।",
   },
   {
     id: 10,
@@ -114,7 +134,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["Mikail", "Israfil", "Jibreel", "Azrael"],
     optionsBn: ["মিকাইল", "ইস্রাফিল", "জিবরীল", "আজরাইল"],
     correctAnswer: 2,
-    category: "Angels"
+    category: "Angels",
+    explanation: "Angel Jibreel (Gabriel) was sent by Allah to reveal the Quran to the Prophet (PBUH).",
+    explanationBn: "আল্লাহর পক্ষ থেকে জিবরীল (আ.) নবী (সা.)-এর নিকট কুরআন নাযিল করেন।",
   },
   {
     id: 11,
@@ -123,7 +145,9 @@ const allQuestions: QuizQuestion[] = [
     options: ["Laylat al-Miraj", "Laylat al-Qadr", "Laylat al-Bara'at", "Laylat al-Isra"],
     optionsBn: ["লাইলাতুল মিরাজ", "লাইলাতুল কদর", "লাইলাতুল বরাত", "লাইলাতুল ইসরা"],
     correctAnswer: 1,
-    category: "Special Days"
+    category: "Special Days",
+    explanation: "The Night of Power, Laylat al-Qadr, is better than a thousand months of worship.",
+    explanationBn: "লাইলাতুল কদর এমন এক রাত যা এক হাজার মাসের ইবাদতের চেয়েও উত্তম।",
   },
   {
     id: 12,
@@ -132,8 +156,10 @@ const allQuestions: QuizQuestion[] = [
     options: ["50", "99", "100", "75"],
     optionsBn: ["৫০", "৯৯", "১০০", "৭৫"],
     correctAnswer: 1,
-    category: "Names of Allah"
-  }
+    category: "Names of Allah",
+    explanation: "Allah has 99 beautiful names (Asma ul-Husna) mentioned in the Sunnah.",
+    explanationBn: "আল্লাহর ৯৯টি সুন্দর নাম আছে, যেগুলোকে আসমাউল হুসনা বলা হয়।",
+  },
 ];
 
 const mockLeaderboard: LeaderboardEntry[] = [
@@ -356,17 +382,32 @@ const QuizPage = () => {
                       
                       <p className="text-4xl font-bold text-primary my-4">{score}/3</p>
                       
-                      <div className="bg-background/50 rounded-xl p-4 mb-4">
-                        <p className="text-sm text-muted-foreground">অর্জিত পয়েন্ট</p>
-                        <p className="text-2xl font-bold text-emerald-500">
-                          +{score * 10 + (score === 3 ? 20 : 0)}
-                        </p>
-                        {score === 3 && (
-                          <Badge className="mt-2 bg-amber-500">পারফেক্ট বোনাস +20</Badge>
-                        )}
+                      <div className="bg-background/50 rounded-xl p-4 mb-4 space-y-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">অর্জিত পয়েন্ট</p>
+                          <p className="text-2xl font-bold text-emerald-500">
+                            +{score * 10 + (score === 3 ? 20 : 0)}
+                          </p>
+                          {score === 3 && (
+                            <Badge className="mt-2 bg-amber-500">পারফেক্ট বোনাস +20</Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div className="rounded-lg bg-primary/5 p-3">
+                            <p className="text-xs text-muted-foreground">আজকের স্ট্রীক</p>
+                            <p className="text-lg font-semibold text-primary">{streak} দিন</p>
+                          </div>
+                          <div className="rounded-lg bg-emerald-500/5 p-3">
+                            <p className="text-xs text-muted-foreground">মোট পয়েন্ট</p>
+                            <p className="text-lg font-semibold text-emerald-500">{totalPoints}</p>
+                          </div>
+                        </div>
                       </div>
                       
-                      <p className="text-muted-foreground">আগামীকাল নতুন প্রশ্নের জন্য ফিরে আসুন!</p>
+                      <p className="text-muted-foreground mb-2">আগামীকাল নতুন প্রশ্নের জন্য ফিরে আসুন!</p>
+                      <p className="text-xs text-muted-foreground">
+                        ধীরে ধীরে শিখুন, প্রতিদিন সামান্য উন্নতিই সবচেয়ে বড় অগ্রগতি।
+                      </p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -386,7 +427,7 @@ const QuizPage = () => {
                     <Progress value={((currentQuestionIndex + 1) / 3) * 100} className="h-2" />
                   </div>
 
-                  <Card className="mb-4">
+                  <Card className="mb-3">
                     <CardHeader>
                       <Badge className="w-fit mb-2">{currentQuestion.category}</Badge>
                       <CardTitle className="text-lg leading-relaxed">
@@ -431,6 +472,23 @@ const QuizPage = () => {
                       ))}
                     </CardContent>
                   </Card>
+
+                  {showResult && currentQuestion && (
+                    <div className="mb-4">
+                      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm">
+                        <p className="font-semibold flex items-center gap-2 mb-1">
+                          <Sparkles className="w-4 h-4 text-emerald-500" />
+                          সঠিক উত্তর ব্যাখ্যা
+                        </p>
+                        <p className="text-muted-foreground text-[13px]">
+                          {currentQuestion.explanationBn}
+                        </p>
+                        <p className="mt-1 text-[11px] text-muted-foreground/80">
+                          {currentQuestion.explanation}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {!showResult ? (
                     <Button
