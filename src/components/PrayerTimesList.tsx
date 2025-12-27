@@ -118,31 +118,31 @@ const PrayerTimesList = () => {
   }
 
   return (
-    <div className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-2xl p-5 shadow-lg">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">আজকের নামাজের সময়</h3>
-        <span className="text-sm text-emerald-200">{today}</span>
+    <div className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-xl p-4 shadow-lg">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-base font-semibold text-white">আজকের নামাজের সময়</h3>
+        <span className="text-xs text-emerald-200">{today}</span>
       </div>
 
       {/* Next Prayer Highlight */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl p-4 mb-4"
+        className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg p-3 mb-3"
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
               {nextPrayer.icon}
             </div>
             <div>
-              <p className="text-amber-100 text-xs">পরবর্তী নামাজ</p>
-              <p className="text-white font-bold text-lg">{nextPrayer.nameBn}</p>
+              <p className="text-amber-100 text-[10px]">পরবর্তী নামাজ</p>
+              <p className="text-white font-bold text-base">{nextPrayer.nameBn}</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-white font-bold text-xl">{nextPrayer.time}</p>
-            <p className="text-amber-100 text-xs">{getTimeRemaining()}</p>
+            <p className="text-white font-bold text-lg">{nextPrayer.time}</p>
+            <p className="text-amber-100 text-[10px]">{getTimeRemaining()}</p>
           </div>
         </div>
       </motion.div>
@@ -150,10 +150,10 @@ const PrayerTimesList = () => {
       {/* Show More Button */}
       <button
         onClick={() => setShowAll(!showAll)}
-        className="w-full flex items-center justify-center gap-2 py-2 text-emerald-200 hover:text-white transition-colors"
+        className="w-full flex items-center justify-center gap-1.5 py-1.5 text-emerald-200 hover:text-white transition-colors"
       >
-        <span className="text-sm">{showAll ? "সংক্ষিপ্ত করুন" : "সব সময় দেখুন"}</span>
-        {showAll ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        <span className="text-xs">{showAll ? "সংক্ষিপ্ত করুন" : "সব সময় দেখুন"}</span>
+        {showAll ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
 
       {/* All Prayer Times */}
@@ -166,33 +166,30 @@ const PrayerTimesList = () => {
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="space-y-2 pt-3 border-t border-white/10 mt-3">
+            <div className="space-y-1 pt-2 border-t border-white/10 mt-2">
               {prayerTimesList.map((prayer, index) => (
                 <motion.div
                   key={prayer.name}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`flex items-center justify-between py-2 px-3 rounded-xl transition-colors ${
+                  className={`flex items-center justify-between py-1.5 px-2 rounded-lg transition-colors ${
                     index === nextPrayerIndex
                       ? "bg-amber-500/20"
                       : "hover:bg-white/5"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center">
                       {prayer.icon}
                     </div>
-                    <div>
-                      <span className={`font-medium ${
-                        index === nextPrayerIndex ? "text-amber-300" : "text-white"
-                      }`}>
-                        {prayer.nameBn}
-                      </span>
-                      <span className="text-xs text-white/50 ml-2">{prayer.name}</span>
-                    </div>
+                    <span className={`text-sm font-medium ${
+                      index === nextPrayerIndex ? "text-amber-300" : "text-white"
+                    }`}>
+                      {prayer.nameBn}
+                    </span>
                   </div>
-                  <span className={`font-semibold ${
+                  <span className={`text-sm font-semibold ${
                     index === nextPrayerIndex ? "text-amber-300" : "text-white"
                   }`}>
                     {prayer.time}
