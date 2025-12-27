@@ -108,54 +108,54 @@ const PrayerTimesList = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-2xl p-5 shadow-lg">
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 animate-spin text-emerald-300" />
-          <span className="ml-2 text-emerald-200">নামাজের সময় লোড হচ্ছে...</span>
+      <div className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-xl p-3 shadow-lg">
+        <div className="flex items-center justify-center py-4">
+          <Loader2 className="w-5 h-5 animate-spin text-emerald-300" />
+          <span className="ml-2 text-xs text-emerald-200">নামাজের সময় লোড হচ্ছে...</span>
         </div>
       </div>
     );
   }
-
+ 
   return (
-    <div className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-xl p-4 shadow-lg">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-semibold text-white">আজকের নামাজের সময়</h3>
-        <span className="text-xs text-emerald-200">{today}</span>
+    <div className="bg-gradient-to-br from-emerald-800 to-teal-900 rounded-lg p-3 shadow-lg">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-semibold text-white">আজকের নামাজের সময়</h3>
+        <span className="text-[10px] text-emerald-200">{today}</span>
       </div>
-
+ 
       {/* Next Prayer Highlight */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg p-3 mb-3"
+        className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-md p-2.5 mb-2"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-md bg-white/20 flex items-center justify-center flex-shrink-0">
               {nextPrayer.icon}
             </div>
-            <div>
-              <p className="text-amber-100 text-[10px]">পরবর্তী নামাজ</p>
-              <p className="text-white font-bold text-base">{nextPrayer.nameBn}</p>
+            <div className="min-w-0">
+              <p className="text-amber-100 text-[9px] leading-none">পরবর্তী নামাজ</p>
+              <p className="text-white font-semibold text-sm leading-snug truncate">{nextPrayer.nameBn}</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-white font-bold text-lg">{nextPrayer.time}</p>
-            <p className="text-amber-100 text-[10px]">{getTimeRemaining()}</p>
+          <div className="text-right flex-shrink-0">
+            <p className="text-white font-semibold text-base leading-tight">{nextPrayer.time}</p>
+            <p className="text-amber-100 text-[9px] leading-none mt-0.5">{getTimeRemaining()}</p>
           </div>
         </div>
       </motion.div>
-
+ 
       {/* Show More Button */}
       <button
         onClick={() => setShowAll(!showAll)}
-        className="w-full flex items-center justify-center gap-1.5 py-1.5 text-emerald-200 hover:text-white transition-colors"
+        className="w-full flex items-center justify-center gap-1 py-1 text-[11px] text-emerald-200 hover:text-white transition-colors"
       >
-        <span className="text-xs">{showAll ? "সংক্ষিপ্ত করুন" : "সব সময় দেখুন"}</span>
-        {showAll ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        <span>{showAll ? "সংক্ষিপ্ত করুন" : "সব সময় দেখুন"}</span>
+        {showAll ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
       </button>
-
+ 
       {/* All Prayer Times */}
       <AnimatePresence>
         {showAll && (
@@ -163,35 +163,39 @@ const PrayerTimesList = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <div className="space-y-1 pt-2 border-t border-white/10 mt-2">
+            <div className="space-y-0.5 pt-1.5 border-t border-white/10 mt-1.5">
               {prayerTimesList.map((prayer, index) => (
                 <motion.div
                   key={prayer.name}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`flex items-center justify-between py-1.5 px-2 rounded-lg transition-colors ${
+                  transition={{ delay: index * 0.04 }}
+                  className={`flex items-center justify-between py-1 px-2 rounded-md text-xs transition-colors ${
                     index === nextPrayerIndex
                       ? "bg-amber-500/20"
                       : "hover:bg-white/5"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center">
                       {prayer.icon}
                     </div>
-                    <span className={`text-sm font-medium ${
-                      index === nextPrayerIndex ? "text-amber-300" : "text-white"
-                    }`}>
+                    <span
+                      className={`font-medium ${
+                        index === nextPrayerIndex ? "text-amber-300" : "text-white"
+                      }`}
+                    >
                       {prayer.nameBn}
                     </span>
                   </div>
-                  <span className={`text-sm font-semibold ${
-                    index === nextPrayerIndex ? "text-amber-300" : "text-white"
-                  }`}>
+                  <span
+                    className={`font-semibold tabular-nums ${
+                      index === nextPrayerIndex ? "text-amber-300" : "text-white"
+                    }`}
+                  >
                     {prayer.time}
                   </span>
                 </motion.div>
@@ -203,5 +207,5 @@ const PrayerTimesList = () => {
     </div>
   );
 };
-
+ 
 export default PrayerTimesList;
