@@ -8,6 +8,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { ArrowLeft, Trophy, Star, Medal, Crown, Zap, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { playSfx } from "@/utils/quizSfx";
+import { StarBadge, TrophyBadge, MedalBadge, CrownBadge, SparklesBadge } from "@/components/BadgeIcons";
 
 interface QuizQuestion {
   id: number;
@@ -175,11 +176,11 @@ const mockLeaderboard: LeaderboardEntry[] = [
 ];
 
 const badges = [
-  { id: 1, name: "First Steps", nameBn: "প্রথম পদক্ষেপ", icon: Star, color: "text-yellow-500", bgGradient: "from-yellow-500/20 to-amber-500/20", requirement: 10 },
-  { id: 2, name: "Quiz Master", nameBn: "কুইজ মাস্টার", icon: Trophy, color: "text-amber-500", bgGradient: "from-amber-500/20 to-orange-500/20", requirement: 50 },
-  { id: 3, name: "Knowledge Seeker", nameBn: "জ্ঞানী", icon: Medal, color: "text-blue-500", bgGradient: "from-blue-500/20 to-cyan-500/20", requirement: 100 },
-  { id: 4, name: "Champion", nameBn: "চ্যাম্পিয়ন", icon: Crown, color: "text-purple-500", bgGradient: "from-purple-500/20 to-pink-500/20", requirement: 200 },
-  { id: 5, name: "Quran Expert", nameBn: "কুরআন বিশেষজ্ঞ", icon: Sparkles, color: "text-emerald-500", bgGradient: "from-emerald-500/20 to-teal-500/20", requirement: 300 },
+  { id: 1, name: "First Steps", nameBn: "প্রথম পদক্ষেপ", BadgeIcon: StarBadge, color: "text-yellow-500", bgGradient: "from-yellow-500/20 to-amber-500/20", requirement: 10 },
+  { id: 2, name: "Quiz Master", nameBn: "কুইজ মাস্টার", BadgeIcon: TrophyBadge, color: "text-amber-500", bgGradient: "from-amber-500/20 to-orange-500/20", requirement: 50 },
+  { id: 3, name: "Knowledge Seeker", nameBn: "জ্ঞানী", BadgeIcon: MedalBadge, color: "text-blue-500", bgGradient: "from-blue-500/20 to-cyan-500/20", requirement: 100 },
+  { id: 4, name: "Champion", nameBn: "চ্যাম্পিয়ন", BadgeIcon: CrownBadge, color: "text-purple-500", bgGradient: "from-purple-500/20 to-pink-500/20", requirement: 200 },
+  { id: 5, name: "Quran Expert", nameBn: "কুরআন বিশেষজ্ঞ", BadgeIcon: SparklesBadge, color: "text-emerald-500", bgGradient: "from-emerald-500/20 to-teal-500/20", requirement: 300 },
 ];
 
 const QuizPage = () => {
@@ -630,15 +631,15 @@ const QuizPage = () => {
                               isEarned 
                                 ? `bg-gradient-to-br ${badge.bgGradient}` 
                                 : "bg-muted/50"
-                            } rounded-2xl p-4 shrink-0`}>
+                            } rounded-2xl p-3 shrink-0`}>
                               {!isEarned && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-2xl">
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] rounded-2xl z-10">
                                   <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                                   </svg>
                                 </div>
                               )}
-                              <badge.icon className={`w-10 h-10 ${isEarned ? badge.color : "text-muted-foreground"}`} />
+                              <badge.BadgeIcon className="w-16 h-16" />
                             </div>
 
                             {/* Badge Info */}
