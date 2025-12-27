@@ -90,12 +90,13 @@ const Index = () => {
               <AudioRecitationCard />
             </div>
 
-            <Card className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-emerald-500/10 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-shadow duration-200">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_60%)]" />
+            <Card className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/20 via-background to-emerald-500/15 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-200">
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_transparent_60%)]" />
+              <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-primary/20 blur-2xl" />
               <CardHeader className="relative z-10 pb-3 flex flex-row items-start justify-between gap-2">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-primary flex items-center gap-1">
-                    <Trophy className="w-3 h-3" />
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-primary flex items-center gap-1">
+                    <Trophy className="w-3.5 h-3.5" />
                     Daily Challenge
                   </p>
                   <CardTitle className="mt-1 text-base">Daily Islamic Quiz</CardTitle>
@@ -103,18 +104,21 @@ const Index = () => {
                     প্রতিদিন ৩টি শর্ট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান এবং ধারাবাহিকতা (streak) ধরে রাখুন।
                   </CardDescription>
                 </div>
+                <span className="inline-flex items-center rounded-full border border-primary/30 bg-background/60 px-2 py-0.5 text-[10px] font-medium text-primary backdrop-blur-sm">
+                  Pro Tip
+                </span>
               </CardHeader>
               <CardContent className="relative z-10 flex flex-col gap-3 pb-4">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>Streak &amp; points saved on this device</span>
-                  <span className="rounded-full bg-background/40 px-2 py-0.5">Daily • 3 Qs</span>
+                  <span className="rounded-full bg-background/50 px-2 py-0.5">Daily • 3 Qs</span>
                 </div>
                 <Button
-                  className="group w-full h-9 text-sm justify-between bg-gradient-to-r from-primary via-primary to-amber-500 text-primary-foreground shadow-md shadow-primary/30 hover:shadow-lg hover:shadow-primary/40 hover:opacity-100 border border-white/10 px-3"
+                  className="group w-full h-10 text-sm justify-between bg-gradient-to-r from-primary via-primary to-amber-500 text-primary-foreground shadow-md shadow-primary/40 hover:shadow-lg hover:shadow-primary/60 hover:brightness-[1.03] border border-white/10 px-3"
                   onClick={() => navigate("/quiz")}
                 >
                   <span className="flex items-center gap-1.5">
-                    <Trophy className="w-4 h-4" />
+                    <Trophy className="w-4 h-4 group-hover:scale-110 group-hover:-translate-y-px transition-transform" />
                     আজকের কুইজ দিন
                   </span>
                   <span className="text-[10px] uppercase tracking-wide text-primary-foreground/80 group-hover:translate-x-0.5 transition-transform">
