@@ -130,10 +130,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Prayer Times List */}
-        <section className="animate-fade-in" style={{ animationDelay: "200ms" }}>
-          <PrayerTimesList />
-        </section>
 
         {/* Daily Hadith */}
         <section className="animate-fade-in" style={{ animationDelay: "350ms" }}>
