@@ -35,18 +35,6 @@ const features: FeatureItem[] = [
     }
   },
   { 
-    emoji: "🧠", 
-    label: "Quiz",
-    labelBn: "কুইজ",
-    path: "/quiz",
-    gradient: "from-violet-500/30 to-purple-600/40",
-    animation: {
-      scale: [1, 1.1, 1],
-      rotate: [0, 5, -5, 0],
-      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" as const }
-    }
-  },
-  { 
     emoji: "👶", 
     label: "Names",
     labelBn: "নাম",
