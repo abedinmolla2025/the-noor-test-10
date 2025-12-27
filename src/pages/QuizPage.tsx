@@ -492,6 +492,8 @@ const badges = [
   { id: 5, name: "Quran Expert", nameBn: "কুরআন বিশেষজ্ঞ", BadgeIcon: SparklesBadge, color: "text-emerald-500", bgGradient: "from-emerald-500/20 to-teal-500/20", requirement: 300 },
 ];
 
+type LanguageMode = "en" | "bn" | "mixed";
+
 const QuizPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"quiz" | "leaderboard" | "badges">("quiz");
@@ -514,6 +516,10 @@ const QuizPage = () => {
   });
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [languageMode, setLanguageMode] = useState<LanguageMode>(() => {
+    const saved = localStorage.getItem("quizLanguageMode") as LanguageMode | null;
+    return saved ?? "mixed";
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -523,6 +529,10 @@ const QuizPage = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("quizLanguageMode", languageMode);
+  }, [languageMode]);
+
   const today = new Date().toDateString();
   const hasPlayedToday = lastPlayedDate === today;
 
@@ -530,7 +540,7 @@ const QuizPage = () => {
     // Get 3 random questions for today based on date seed
     const dateSeed = new Date().toDateString();
     const shuffled = [...allQuestions].sort(() => {
-      const hash = dateSeed.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
+      const hash = dateSeed.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
       return Math.sin(hash) - 0.5;
     });
     setDailyQuestions(shuffled.slice(0, 3));
@@ -623,7 +633,7 @@ const QuizPage = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 px-4 pb-3">
+        <div className="flex gap-2 px-4 pb-2">
           {[
             { id: "quiz", label: "Quiz", icon: Sparkles },
             { id: "leaderboard", label: "Leaderboard", icon: Trophy },
@@ -643,6 +653,34 @@ const QuizPage = () => {
             </button>
           ))}
         </div>
+
+        {/* Language Toggle (Quiz only) */}
+        {activeTab === "quiz" && (
+          <div className="flex items-center justify-between px-4 pb-3 text-xs">
+            <span className="text-muted-foreground">Question language</span>
+            <div className="inline-flex rounded-full bg-muted/60 p-1">
+              {(
+                [
+                  { id: "en", label: "English" },
+                  { id: "bn", label: "বাংলা" },
+                  { id: "mixed", label: "Mixed" },
+                ] as { id: LanguageMode; label: string }[]
+              ).map((mode) => (
+                <button
+                  key={mode.id}
+                  onClick={() => setLanguageMode(mode.id)}
+                  className={`px-3 py-1 rounded-full transition-all ${
+                    languageMode === mode.id
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="p-4">
@@ -797,9 +835,15 @@ const QuizPage = () => {
                     <CardHeader>
                       <Badge className="w-fit mb-2">{currentQuestion.category}</Badge>
                       <CardTitle className="text-lg leading-relaxed">
-                        {currentQuestion.questionBn}
+                        {languageMode === "bn"
+                          ? currentQuestion.questionBn
+                          : currentQuestion.question}
                       </CardTitle>
-                      <p className="text-sm text-muted-foreground">{currentQuestion.question}</p>
+                      {languageMode === "mixed" && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {currentQuestion.questionBn}
+                        </p>
+                      )}
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {currentQuestion.options.map((option, index) => (
@@ -822,8 +866,12 @@ const QuizPage = () => {
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-medium">{option}</p>
-                              {currentQuestion.optionsBn?.[index] && (
+                              <p className="font-medium">
+                                {languageMode === "bn"
+                                  ? currentQuestion.optionsBn?.[index] ?? option
+                                  : option}
+                              </p>
+                              {languageMode === "mixed" && currentQuestion.optionsBn?.[index] && (
                                 <p className="text-sm text-muted-foreground mt-0.5">
                                   {currentQuestion.optionsBn[index]}
                                 </p>
@@ -849,11 +897,15 @@ const QuizPage = () => {
                         Correct answer explanation
                       </p>
                       <p className="text-muted-foreground text-[13px]">
-                        {currentQuestion.explanationBn}
+                        {languageMode === "bn" || languageMode === "mixed"
+                          ? currentQuestion.explanationBn
+                          : currentQuestion.explanation}
                       </p>
-                      <p className="mt-1 text-[11px] text-muted-foreground/80">
-                        {currentQuestion.explanation}
-                      </p>
+                      {languageMode === "mixed" && (
+                        <p className="mt-1 text-[11px] text-muted-foreground/80">
+                          {currentQuestion.explanation}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
