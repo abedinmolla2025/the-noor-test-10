@@ -50,18 +50,18 @@ const AudioRecitationCard = () => {
       <div className="absolute inset-0 rounded-[1.5rem] md:rounded-[2rem] border border-white/10 group-hover:border-amber-400/20 transition-colors duration-300" />
 
       {/* Content */}
-      <div className="relative z-10 p-5 md:p-6 lg:p-7">
+      <div className="relative z-10 p-4 md:p-5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 md:gap-5">
+          <div className="flex items-center gap-3 md:gap-4">
             {/* Icon with glow */}
             <motion.div 
               animate={{ 
                 boxShadow: ['0 0 15px rgba(251,191,36,0.2)', '0 0 30px rgba(251,191,36,0.4)', '0 0 15px rgba(251,191,36,0.2)']
               }}
               transition={{ duration: 2.5, repeat: Infinity }}
-              className="relative w-14 h-14 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-500/10 border border-amber-400/30 flex items-center justify-center backdrop-blur-sm"
+              className="relative w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-500/10 border border-amber-400/30 flex items-center justify-center backdrop-blur-sm"
             >
-              <Headphones size={26} className="text-amber-400 md:w-7 md:h-7" />
+              <Headphones size={22} className="text-amber-400 md:w-6 md:h-6" />
               
               {/* Floating music notes */}
               <motion.div
@@ -73,80 +73,68 @@ const AudioRecitationCard = () => {
                 transition={{ duration: 3, repeat: Infinity }}
                 className="absolute -top-1 -right-1"
               >
-                <Music2 size={12} className="text-amber-400/70" />
+                <Music2 size={10} className="text-amber-400/70" />
               </motion.div>
             </motion.div>
             
             <div>
-              <p className="text-white/50 text-xs md:text-sm mb-1 uppercase tracking-wider font-medium">
+              <p className="text-white/50 text-[10px] md:text-xs uppercase tracking-wider font-medium">
                 কুরআন শুনুন
               </p>
-              <h3 className="text-white text-xl md:text-2xl font-bold">
+              <h3 className="text-white text-lg md:text-xl font-bold">
                 Audio Recitation
               </h3>
-              <p className="text-white/40 text-sm mt-0.5 hidden sm:block">
-                Beautiful recitations by world-renowned Qaris
-              </p>
             </div>
           </div>
           
           {/* Play Button */}
-          <div className="flex items-center gap-3">
-            <motion.div 
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative"
-            >
-              {/* Pulse ring effect */}
-              <motion.div
-                animate={{ 
-                  scale: [1, 1.3, 1],
-                  opacity: [0.4, 0, 0.4]
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute inset-0 bg-amber-400 rounded-full"
-              />
-              
-              <div className="relative w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:shadow-amber-500/50 transition-shadow">
-                <Play size={26} className="text-violet-900 ml-1 md:w-7 md:h-7" fill="currentColor" />
-              </div>
-            </motion.div>
-          </div>
+          <motion.div 
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative"
+          >
+            {/* Pulse ring effect */}
+            <motion.div
+              animate={{ 
+                scale: [1, 1.3, 1],
+                opacity: [0.4, 0, 0.4]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 bg-amber-400 rounded-full"
+            />
+            
+            <div className="relative w-11 h-11 md:w-12 md:h-12 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:shadow-amber-500/50 transition-shadow">
+              <Play size={22} className="text-violet-900 ml-0.5 md:w-6 md:h-6" fill="currentColor" />
+            </div>
+          </motion.div>
         </div>
         
-        {/* Bottom Section - Reciters Preview */}
-        <div className="mt-5 pt-4 border-t border-white/10">
+        {/* Bottom Section - Compact */}
+        <div className="mt-3 pt-3 border-t border-white/10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {/* Reciter avatars */}
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <motion.div
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-1.5">
+                {[1, 2, 3].map((i) => (
+                  <div
                     key={i}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-white/20 to-white/5 border-2 border-violet-900 flex items-center justify-center"
+                    className="w-6 h-6 rounded-full bg-gradient-to-br from-white/20 to-white/5 border border-violet-900 flex items-center justify-center"
                   >
-                    <span className="text-[10px] md:text-xs text-white/70 font-medium">
-                      {['AS', 'MS', 'AH', '+'][i - 1]}
+                    <span className="text-[8px] text-white/70 font-medium">
+                      {['AS', 'MS', '+'][i - 1]}
                     </span>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
-              <div>
-                <p className="text-white/80 text-sm font-medium">১০০+ সূরা</p>
-                <p className="text-white/40 text-xs">Multiple Reciters</p>
-              </div>
+              <p className="text-white/60 text-xs">১০০+ সূরা</p>
             </div>
             
             <motion.div
-              animate={{ x: [0, 5, 0] }}
+              animate={{ x: [0, 3, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="flex items-center gap-1 text-amber-400"
+              className="flex items-center gap-0.5 text-amber-400"
             >
-              <span className="text-sm font-medium hidden sm:inline">শুনুন</span>
-              <ChevronRight size={18} />
+              <span className="text-xs font-medium">শুনুন</span>
+              <ChevronRight size={14} />
             </motion.div>
           </div>
         </div>
