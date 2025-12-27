@@ -823,6 +823,11 @@ const QuizPage = () => {
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="font-medium">{option}</p>
+                              {currentQuestion.optionsBn?.[index] && (
+                                <p className="text-sm text-muted-foreground mt-0.5">
+                                  {currentQuestion.optionsBn[index]}
+                                </p>
+                              )}
                             </div>
                             {showResult && index === currentQuestion.correctAnswer && (
                               <CheckCircle2 className="w-6 h-6 text-emerald-500" />
