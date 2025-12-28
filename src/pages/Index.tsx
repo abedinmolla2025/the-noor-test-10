@@ -139,9 +139,28 @@ const Index = () => {
           <DailyHadith />
         </section>
 
-        <p className="mt-4 text-[11px] text-center text-muted-foreground">
-          Developed by <span className="font-semibold">ABEDIN MOLLA</span> – India
-        </p>
+        {/* Footer Navigation */}
+        <footer className="mt-6 pt-4 border-t border-border/60 text-center space-y-3 text-[11px] text-muted-foreground">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+            <button onClick={() => navigate("/")} className="hover:text-foreground transition-colors">হোম</button>
+            <button onClick={() => navigate("/quran")} className="hover:text-foreground transition-colors">কুরআন</button>
+            <button onClick={() => navigate("/bukhari")} className="hover:text-foreground transition-colors">হাদিস</button>
+            <button onClick={() => navigate("/calendar")} className="hover:text-foreground transition-colors">ইসলামিক ক্যালেন্ডার</button>
+            <button onClick={() => navigate("/prayer-times")} className="hover:text-foreground transition-colors">নামাজের সময়</button>
+            <button onClick={() => navigate("/dua")} className="hover:text-foreground transition-colors">দুআ</button>
+            <button onClick={() => navigate("/tasbih")} className="hover:text-foreground transition-colors">তাসবিহ</button>
+            <button onClick={() => navigate("/baby-names")} className="hover:text-foreground transition-colors">ইসলামিক নাম</button>
+            <button onClick={() => navigate("/99-names")} className="hover:text-foreground transition-colors">আল্লাহর ৯৯ নাম</button>
+            <button onClick={() => navigate("/quiz")} className="hover:text-foreground transition-colors">ডেইলি কুইজ</button>
+            <button onClick={() => navigate("/settings")} className="hover:text-foreground transition-colors">সেটিংস</button>
+            <button onClick={() => navigate("/privacy-policy")} className="hover:text-foreground transition-colors">প্রাইভেসি পলিসি</button>
+            <button onClick={() => navigate("/terms")} className="hover:text-foreground transition-colors">টার্মস</button>
+          </div>
+
+          <p>
+            Developed by <span className="font-semibold">ABEDIN MOLLA</span> – India
+          </p>
+        </footer>
       </main>
 
       {/* Athan Settings Modal */}
