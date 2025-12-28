@@ -359,7 +359,7 @@ const SettingsPage = () => {
                   <Info size={20} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Islamic App</h3>
+                  <h3 className="font-semibold">NOOR – Islamic App</h3>
                   <p className="text-xs text-muted-foreground">Version 1.0.0</p>
                 </div>
               </div>
