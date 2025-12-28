@@ -123,13 +123,13 @@ const SettingsPage = () => {
 
   const settingsGroups = [
     {
-      title: "অ্যাপিয়ারেন্স",
+      title: "Appearance",
       icon: "🎨",
       items: [
         {
           id: "darkMode",
-          label: "ডার্ক মোড",
-          description: "অন্ধকার থিম ব্যবহার করুন",
+          label: "Dark mode",
+          description: "Use a dark theme for the app",
           icon: theme === "dark" ? <Moon size={20} className="text-primary" /> : <Sun size={20} className="text-amber-500" />,
           type: "switch",
           value: theme === "dark",
@@ -137,31 +137,31 @@ const SettingsPage = () => {
         },
         {
           id: "themeColor",
-          label: "থিম কালার",
-          description: "প্রিয় কালার mood নির্বাচন করুন",
+          label: "Theme color",
+          description: "Choose your preferred color mood",
           icon: <Palette size={20} className="text-primary" />,
           type: "select",
           value: themeColor,
           onChange: handleThemeColorChange,
           options: [
-            { value: "default", label: "ডিফল্ট" },
-            { value: "emerald", label: "এমেরাল্ড" },
-            { value: "teal", label: "টিল" },
-            { value: "amber", label: "অ্যাম্বার" },
+            { value: "default", label: "Default" },
+            { value: "emerald", label: "Emerald" },
+            { value: "teal", label: "Teal" },
+            { value: "amber", label: "Amber" },
           ],
         },
         {
           id: "fontSize",
-          label: "ফন্ট সাইজ",
-          description: "লেখার সাইজ ছোট/বড় করুন",
+          label: "Font size",
+          description: "Make text smaller or larger",
           icon: <Info size={20} className="text-primary" />,
           type: "select",
           value: fontSize,
           onChange: handleFontSizeChange,
           options: [
-            { value: "sm", label: "ছোট" },
-            { value: "md", label: "ডিফল্ট" },
-            { value: "lg", label: "বড়" },
+            { value: "sm", label: "Small" },
+            { value: "md", label: "Default" },
+            { value: "lg", label: "Large" },
           ],
         },
       ],
@@ -218,13 +218,13 @@ const SettingsPage = () => {
       ],
     },
     {
-      title: "ভাষা ও অঞ্চল",
+      title: "Language & region",
       icon: "🌍",
       items: [
         {
           id: "language",
-          label: "ভাষা",
-          description: "অ্যাপের ভাষা নির্বাচন করুন",
+          label: "App language",
+          description: "Choose your preferred language",
           icon: <Globe size={20} className="text-primary" />,
           type: "select",
           value: language,
@@ -238,23 +238,23 @@ const SettingsPage = () => {
       ],
     },
     {
-      title: "নামাজের সময়",
+      title: "Prayer time settings",
       icon: "🕌",
       items: [
         {
           id: "calculationMethod",
-          label: "গণনা পদ্ধতি",
-          description: "নামাজের সময় গণনার পদ্ধতি",
+          label: "Calculation method",
+          description: "Choose how prayer times are calculated",
           icon: <Palette size={20} className="text-primary" />,
           type: "select",
           value: calculationMethod,
           onChange: setCalculationMethod,
           options: [
-            { value: "karachi", label: "করাচি (হানাফী)" },
-            { value: "isna", label: "ISNA (উত্তর আমেরিকা)" },
-            { value: "mwl", label: "মুসলিম ওয়ার্ল্ড লিগ" },
-            { value: "egypt", label: "মিশর" },
-            { value: "makkah", label: "উম্মুল কুরা (মক্কা)" },
+            { value: "karachi", label: "Karachi (Hanafi)" },
+            { value: "isna", label: "ISNA (North America)" },
+            { value: "mwl", label: "Muslim World League" },
+            { value: "egypt", label: "Egypt" },
+            { value: "makkah", label: "Umm al-Qura (Makkah)" },
           ],
         },
       ],
@@ -273,8 +273,8 @@ const SettingsPage = () => {
             <ArrowLeft size={22} />
           </button>
           <div>
-            <h1 className="text-xl font-bold tracking-wide">সেটিংস</h1>
-            <p className="text-sm text-muted-foreground">অ্যাপ আপনার পছন্দ অনুযায়ী কাস্টমাইজ করুন</p>
+            <h1 className="text-xl font-bold tracking-wide">Settings</h1>
+            <p className="text-sm text-muted-foreground">Customize your app preferences</p>
           </div>
         </div>
       </div>
@@ -359,8 +359,8 @@ const SettingsPage = () => {
                   <Info size={20} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">ইসলামিক অ্যাপ</h3>
-                  <p className="text-xs text-muted-foreground">ভার্সন ১.০.০</p>
+                  <h3 className="font-semibold">Islamic App</h3>
+                  <p className="text-xs text-muted-foreground">Version 1.0.0</p>
                 </div>
               </div>
               <Separator className="my-4" />
