@@ -139,19 +139,19 @@ const SettingsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 pb-24 font-bangla">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-4">
           <button 
             onClick={() => navigate("/")}
-            className="p-2 rounded-full hover:bg-muted transition-colors"
+            className="p-2 rounded-full hover:bg-muted/70 border border-border/60 transition-colors"
           >
-            <ArrowLeft size={24} />
+            <ArrowLeft size={22} />
           </button>
           <div>
-            <h1 className="text-xl font-bold">সেটিংস</h1>
-            <p className="text-sm text-muted-foreground">অ্যাপ কাস্টমাইজ করুন</p>
+            <h1 className="text-xl font-bold tracking-wide">সেটিংস</h1>
+            <p className="text-sm text-muted-foreground">অ্যাপ আপনার পছন্দ অনুযায়ী কাস্টমাইজ করুন</p>
           </div>
         </div>
       </div>
@@ -164,27 +164,27 @@ const SettingsPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: groupIndex * 0.1 }}
           >
-            <Card className="bg-card/50 border-border/50">
-              <CardHeader className="pb-2">
+            <Card className="bg-card/70 border border-border/60 rounded-2xl shadow-soft">
+              <CardHeader className="pb-1 pt-4">
                 <CardTitle className="text-base flex items-center gap-2">
                   <span className="text-xl">{group.icon}</span>
-                  {group.title}
+                  <span className="font-semibold">{group.title}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-5 pt-2">
                 {group.items.map((item, itemIndex) => (
                   <div key={item.id}>
                     {itemIndex > 0 && <Separator className="mb-4" />}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-muted/50">
+                        <div className="p-2 rounded-lg bg-primary/5 text-primary shadow-soft">
                           {item.icon}
                         </div>
                         <div>
-                          <Label htmlFor={item.id} className="text-sm font-medium cursor-pointer">
+                          <Label htmlFor={item.id} className="text-sm font-semibold cursor-pointer">
                             {item.label}
                           </Label>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             {item.description}
                           </p>
                         </div>
@@ -229,14 +229,14 @@ const SettingsPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Card className="bg-card/50 border-border/50">
+          <Card className="bg-card/70 border border-border/60 rounded-2xl shadow-soft">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <Info size={20} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-medium">ইসলামিক অ্যাপ</h3>
+                  <h3 className="font-semibold">ইসলামিক অ্যাপ</h3>
                   <p className="text-xs text-muted-foreground">ভার্সন ১.০.০</p>
                 </div>
               </div>
