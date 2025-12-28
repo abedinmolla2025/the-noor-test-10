@@ -520,6 +520,7 @@ const QuizPage = () => {
     const saved = localStorage.getItem("quizLanguageMode") as LanguageMode | null;
     return saved ?? "mixed";
   });
+  const [currentDate, setCurrentDate] = useState(() => new Date().toDateString());
 
   useEffect(() => {
     const handleResize = () => {
@@ -533,18 +534,29 @@ const QuizPage = () => {
     localStorage.setItem("quizLanguageMode", languageMode);
   }, [languageMode]);
 
-  const today = new Date().toDateString();
+  // Keep track of the current calendar day so that daily quiz
+  // can auto-refresh even if the page stays open past midnight
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const nextDate = new Date().toDateString();
+      setCurrentDate(prev => (prev === nextDate ? prev : nextDate));
+    }, 60_000); // check every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const today = currentDate;
   const hasPlayedToday = lastPlayedDate === today;
 
   useEffect(() => {
-    // Get 3 random questions for today based on date seed
-    const dateSeed = new Date().toDateString();
+    // Get 3 deterministic questions for the current day based on date seed
+    const dateSeed = currentDate;
     const shuffled = [...allQuestions].sort(() => {
       const hash = dateSeed.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
       return Math.sin(hash) - 0.5;
     });
     setDailyQuestions(shuffled.slice(0, 3));
-  }, []);
+  }, [currentDate]);
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (showResult) return;
