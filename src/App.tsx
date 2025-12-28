@@ -16,6 +16,8 @@ import BukhariPage from "./pages/BukhariPage";
 import IslamicCalendarPage from "./pages/IslamicCalendarPage";
 import SettingsPage from "./pages/SettingsPage";
 import QuizPage from "./pages/QuizPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsPage from "./pages/TermsPage";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,8 @@ const App = () => (
             <Route path="/calendar" element={<IslamicCalendarPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

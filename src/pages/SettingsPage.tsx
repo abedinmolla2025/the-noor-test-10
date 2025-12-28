@@ -364,9 +364,26 @@ const SettingsPage = () => {
                 </div>
               </div>
               <Separator className="my-4" />
-              <p className="text-xs text-muted-foreground text-center">
-                সকল প্রশংসা মহান আল্লাহর জন্য 🤲
+              <p className="text-xs text-muted-foreground text-center mb-3">
+                All praise is due to Allah alone 🤲
               </p>
+              <div className="flex items-center justify-center gap-3 text-[11px] text-muted-foreground">
+                <button
+                  type="button"
+                  onClick={() => navigate("/privacy-policy")}
+                  className="underline-offset-2 hover:underline"
+                >
+                  Privacy policy
+                </button>
+                <span>•</span>
+                <button
+                  type="button"
+                  onClick={() => navigate("/terms")}
+                  className="underline-offset-2 hover:underline"
+                >
+                  Terms &amp; conditions
+                </button>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
