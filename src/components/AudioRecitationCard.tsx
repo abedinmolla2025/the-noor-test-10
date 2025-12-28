@@ -41,11 +41,11 @@ const AudioRecitationCard = () => {
               <p className="text-[10px] md:text-[11px] uppercase tracking-[0.14em] text-white/60 font-medium">
                 কুরআন শুনুন
               </p>
-              <div className="flex items-center gap-1 text-xs text-amber-200/90">
-                <span className="font-semibold">Audio Recitation</span>
-                <span className="h-1 w-1 rounded-full bg-amber-300" />
-                <span>১০০+ সূরা</span>
-              </div>
+          <div className="flex items-center gap-1 text-xs text-amber-200/90">
+            <span className="font-semibold">Audio Recitation</span>
+            <span className="h-1 w-1 rounded-full bg-amber-300" />
+            <span>১০০+ সূরা • Multiple Reciters</span>
+          </div>
             </div>
           </div>
 
@@ -74,11 +74,11 @@ const AudioRecitationCard = () => {
                 </div>
               ))}
             </div>
-            <span>Beautiful recitation</span>
+            <span>Beautiful & peaceful recitation</span>
           </div>
 
           <div className="flex items-center gap-0.5 text-amber-200">
-            <span>শুনুন</span>
+            <span>▶ Play Now</span>
             <ChevronRight size={13} />
           </div>
         </div>
