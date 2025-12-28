@@ -54,10 +54,10 @@ const BottomNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/60 bg-gradient-to-t from-background via-background/95 to-background/90 dark:from-card dark:via-card/95 dark:to-card/90 backdrop-blur-xl shadow-[0_-6px_18px_rgba(15,118,110,0.15)] dark:shadow-[0_-8px_24px_rgba(15,118,110,0.35)]">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-2xl z-50">
       <div className="w-full max-w-lg mx-auto pt-2 px-2 sm:px-4 flex flex-col gap-1">
-        <p className="text-[10px] text-center text-muted-foreground/80 mb-1">
-          Developed by <span className="font-semibold text-primary">ABEDIN MOLLA</span> – India
+        <p className="text-[10px] text-center text-muted-foreground mb-1">
+          Developed by <span className="font-semibold">ABEDIN MOLLA</span> – India
         </p>
         <div className="flex justify-around items-center py-1.5">
           {navItems.map((item) => (
@@ -65,9 +65,9 @@ const BottomNavigation = () => {
               key={item.id}
               onClick={() => navigate(item.path)}
               whileTap={{ scale: 0.9 }}
-              className={`relative flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 hover:bg-muted/60 dark:hover:bg-muted/40 ${
-                isActive(item.path)
-                  ? "text-primary shadow-soft bg-background/70 dark:bg-card/80"
+              className={`relative flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+                isActive(item.path) 
+                  ? "text-primary" 
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -79,7 +79,7 @@ const BottomNavigation = () => {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
-              <motion.div
+              <motion.div 
                 className={`text-xl sm:text-2xl transition-transform ${
                   isActive(item.path) ? "scale-110" : ""
                 }`}
@@ -88,11 +88,9 @@ const BottomNavigation = () => {
               >
                 {item.icon}
               </motion.div>
-              <span
-                className={`text-[10px] sm:text-xs font-medium ${
-                  isActive(item.path) ? "text-primary font-semibold" : ""
-                }`}
-              >
+              <span className={`text-[10px] sm:text-xs font-medium ${
+                isActive(item.path) ? "text-primary font-semibold" : ""
+              }`}>
                 {item.labelBn}
               </span>
             </motion.button>
