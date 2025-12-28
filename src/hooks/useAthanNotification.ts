@@ -83,9 +83,20 @@ export const useAthanNotification = (prayerTimes: PrayerTimings | null) => {
 
   const playAthan = useCallback(async (prayerName: string) => {
     if (!audioRef.current || !settings.enabled) return;
-    
-    const prayerKey = prayerName as keyof typeof settings.prayers;
-    if (!settings.prayers[prayerKey]) return;
+
+    // Only enforce per-prayer toggles for real prayers, not for test plays
+    const enabledPrayers: (keyof typeof settings.prayers)[] = [
+      "Fajr",
+      "Dhuhr",
+      "Asr",
+      "Maghrib",
+      "Isha",
+    ];
+
+    if (enabledPrayers.includes(prayerName as keyof typeof settings.prayers)) {
+      const prayerKey = prayerName as keyof typeof settings.prayers;
+      if (!settings.prayers[prayerKey]) return;
+    }
 
     try {
       // Request notification permission
@@ -93,8 +104,12 @@ export const useAthanNotification = (prayerTimes: PrayerTimings | null) => {
         await Notification.requestPermission();
       }
 
-      // Show notification
-      if ("Notification" in window && Notification.permission === "granted") {
+      // Show notification for real prayers only
+      if (
+        "Notification" in window &&
+        Notification.permission === "granted" &&
+        enabledPrayers.includes(prayerName as keyof typeof settings.prayers)
+      ) {
         new Notification(`${prayerName} Prayer Time`, {
           body: `It's time for ${prayerName} prayer`,
           icon: "/favicon.ico",
