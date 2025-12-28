@@ -101,11 +101,14 @@ const Index = () => {
                   </p>
                   <CardTitle className="mt-1 text-base">Daily Islamic Quiz</CardTitle>
                   <CardDescription className="mt-1 text-xs leading-relaxed">
-                    প্রতিদিন ৩টি শর্ট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান এবং ধারাবাহিকতা (streak) ধরে রাখুন।
+                    প্রতিদিন ৩টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
                   </CardDescription>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Build your daily Islamic habit
+                  </p>
                 </div>
                 <span className="inline-flex items-center rounded-full border border-primary/30 bg-background/60 px-2 py-0.5 text-[10px] font-medium text-primary backdrop-blur-sm">
-                  Pro Tip
+                  PRO
                 </span>
               </CardHeader>
               <CardContent className="relative z-10 flex flex-col gap-3 pb-4">
