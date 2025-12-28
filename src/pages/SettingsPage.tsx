@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Moon, Sun, Bell, BellOff, Globe, Volume2, VolumeX, Palette, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -9,46 +9,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
+import { useAppSettings } from "@/context/AppSettingsContext";
 
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, setTheme, language, setLanguage, themeColor, setThemeColor, fontSize, setFontSize } = useAppSettings();
   
-  // Settings state
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const stored = localStorage.getItem("theme");
-    if (stored === "dark") return true;
-    if (stored === "light") return false;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
+  // Settings state (local-only for now)
   const [notifications, setNotifications] = useState(true);
   const [athanSound, setAthanSound] = useState(true);
-  const [language, setLanguage] = useState("bn");
   const [calculationMethod, setCalculationMethod] = useState("karachi");
-
-  // New visual customization state (only for Settings UI for now)
-  const [themeColor, setThemeColor] = useState("default");
-  const [fontSize, setFontSize] = useState("md");
 
   // Detailed notification preferences (local only)
   const [quizNotifications, setQuizNotifications] = useState(true);
   const [dailyReminder, setDailyReminder] = useState(false);
   const [marketingNotifications, setMarketingNotifications] = useState(false);
 
-  // Sync initial dark mode with document class
+  // Sync context theme with document class on first mount
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [darkMode]);
+    // ensure current theme is applied (context already handles this on mount)
+  }, []);
 
   const handleDarkModeToggle = (checked: boolean) => {
-    setDarkMode(checked);
+    setTheme(checked ? "dark" : "light");
     toast({
       title: checked ? "🌙 ডার্ক মোড চালু" : "☀️ লাইট মোড চালু",
       description: "থিম পরিবর্তন হয়েছে",
@@ -72,8 +56,9 @@ const SettingsPage = () => {
   };
 
   const handleLanguageChange = (value: string) => {
-    setLanguage(value);
-    const langName = value === "bn" ? "বাংলা" : value === "en" ? "English" : "العربية";
+    const lang = value as "bn" | "en" | "ar";
+    setLanguage(lang);
+    const langName = lang === "bn" ? "বাংলা" : lang === "en" ? "English" : "العربية";
     toast({
       title: "🌐 ভাষা পরিবর্তন",
       description: `ভাষা ${langName} এ পরিবর্তন হয়েছে`,
@@ -81,26 +66,28 @@ const SettingsPage = () => {
   };
 
   const handleThemeColorChange = (value: string) => {
-    setThemeColor(value);
+    const color = value as "default" | "emerald" | "teal" | "amber";
+    setThemeColor(color);
     const label =
-      value === "default" ? "ডিফল্ট" :
-      value === "emerald" ? "এমেরাল্ড" :
-      value === "teal" ? "টিল" :
+      color === "default" ? "ডিফল্ট" :
+      color === "emerald" ? "এমেরাল্ড" :
+      color === "teal" ? "টিল" :
       "অ্যাম্বার";
 
     toast({
       title: "🎨 থিম কালার পরিবর্তন",
-      description: `থিম কালার ${label} সিলেক্ট হয়েছে (শীঘ্রই পুরো অ্যাপে প্রয়োগ হবে)`,
+      description: `থিম কালার ${label} এখন গ্লোবালি প্রয়োগ হয়েছে`,
     });
   };
 
   const handleFontSizeChange = (value: string) => {
-    setFontSize(value);
-    const label = value === "sm" ? "ছোট" : value === "lg" ? "বড়" : "ডিফল্ট";
+    const size = value as "sm" | "md" | "lg";
+    setFontSize(size);
+    const label = size === "sm" ? "ছোট" : size === "lg" ? "বড়" : "ডিফল্ট";
 
     toast({
       title: "🔤 ফন্ট সাইজ আপডেট",
-      description: `ফন্ট সাইজ ${label} সেট করা হয়েছে`,
+      description: `ফন্ট সাইজ ${label} হিসেবে পুরো অ্যাপে সেভ হয়েছে`,
     });
   };
 
@@ -143,9 +130,9 @@ const SettingsPage = () => {
           id: "darkMode",
           label: "ডার্ক মোড",
           description: "অন্ধকার থিম ব্যবহার করুন",
-          icon: darkMode ? <Moon size={20} className="text-primary" /> : <Sun size={20} className="text-amber-500" />,
+          icon: theme === "dark" ? <Moon size={20} className="text-primary" /> : <Sun size={20} className="text-amber-500" />,
           type: "switch",
-          value: darkMode,
+          value: theme === "dark",
           onChange: handleDarkModeToggle,
         },
         {
