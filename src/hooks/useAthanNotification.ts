@@ -19,6 +19,7 @@ interface AthanSettings {
     Isha: boolean;
   };
   volume: number;
+  sound: keyof typeof ATHAN_AUDIO_URLS;
 }
 
 const DEFAULT_SETTINGS: AthanSettings = {
@@ -31,6 +32,7 @@ const DEFAULT_SETTINGS: AthanSettings = {
     Isha: true,
   },
   volume: 0.8,
+  sound: "madinah",
 };
 
 // Free Athan audio sources
@@ -58,9 +60,9 @@ export const useAthanNotification = (prayerTimes: PrayerTimings | null) => {
 
   // Initialize audio
   useEffect(() => {
-    audioRef.current = new Audio(ATHAN_AUDIO_URLS.madinah);
+    audioRef.current = new Audio(ATHAN_AUDIO_URLS[settings.sound]);
     audioRef.current.volume = settings.volume;
-    
+
     audioRef.current.addEventListener("ended", () => {
       setIsPlaying(false);
       setCurrentPrayer(null);
@@ -74,12 +76,12 @@ export const useAthanNotification = (prayerTimes: PrayerTimings | null) => {
     };
   }, []);
 
-  // Update volume when settings change
+  // Update audio source and volume when settings change
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = settings.volume;
-    }
-  }, [settings.volume]);
+    if (!audioRef.current) return;
+    audioRef.current.src = ATHAN_AUDIO_URLS[settings.sound];
+    audioRef.current.volume = settings.volume;
+  }, [settings.sound, settings.volume]);
 
   const playAthan = useCallback(async (prayerName: string) => {
     if (!audioRef.current || !settings.enabled) return;

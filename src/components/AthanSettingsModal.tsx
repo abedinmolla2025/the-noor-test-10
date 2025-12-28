@@ -18,6 +18,7 @@ interface AthanSettingsModalProps {
       Isha: boolean;
     };
     volume: number;
+    sound: "makkah" | "madinah";
   };
   onUpdateSettings: (settings: any) => void;
   onTogglePrayer: (prayer: "Fajr" | "Dhuhr" | "Asr" | "Maghrib" | "Isha") => void;
@@ -155,24 +156,58 @@ const AthanSettingsModal = ({
               </div>
 
               {/* Test Athan */}
-              <div className="flex gap-2">
-                <Button
-                  onClick={isPlaying ? onStop : onPlayTest}
-                  variant={isPlaying ? "destructive" : "outline"}
-                  className="flex-1 gap-2"
-                >
-                  {isPlaying ? (
-                    <>
-                      <Square className="w-4 h-4" />
-                      Stop
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-4 h-4" />
-                      Test Athan
-                    </>
-                  )}
-                </Button>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={isPlaying ? onStop : onPlayTest}
+                    variant={isPlaying ? "destructive" : "outline"}
+                    className="flex-1 gap-2"
+                  >
+                    {isPlaying ? (
+                      <>
+                        <Square className="w-4 h-4" />
+                        Stop
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4" />
+                        Test Athan
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Athan sound selection */}
+                <div className="space-y-2">
+                  <p className="font-medium">Athan sound</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant={settings.sound === "makkah" ? "default" : "outline"}
+                      className="w-full justify-between"
+                      onClick={() => onUpdateSettings({ sound: "makkah" })}
+                    >
+                      <span>Makkah</span>
+                      {settings.sound === "makkah" && (
+                        <span className="text-xs text-muted-foreground">Selected</span>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={settings.sound === "madinah" ? "default" : "outline"}
+                      className="w-full justify-between"
+                      onClick={() => onUpdateSettings({ sound: "madinah" })}
+                    >
+                      <span>Madinah</span>
+                      {settings.sound === "madinah" && (
+                        <span className="text-xs text-muted-foreground">Selected</span>
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Choose your preferred Athan recitation style.
+                  </p>
+                </div>
               </div>
 
               {/* Prayer Toggle List */}
