@@ -5,6 +5,8 @@ export type ThemeColor = "default" | "emerald" | "teal" | "amber";
 export type FontSize = "sm" | "md" | "lg";
 export type AppLanguage = "bn" | "en" | "ar";
 
+export type PrayerCalculationMethod = "karachi" | "isna" | "mwl" | "egypt" | "makkah";
+
 interface AppSettingsContextValue {
   theme: ThemeMode;
   setTheme: (mode: ThemeMode) => void;
@@ -14,6 +16,8 @@ interface AppSettingsContextValue {
   setThemeColor: (color: ThemeColor) => void;
   fontSize: FontSize;
   setFontSize: (size: FontSize) => void;
+  calculationMethod: PrayerCalculationMethod;
+  setCalculationMethod: (method: PrayerCalculationMethod) => void;
 }
 
 const AppSettingsContext = createContext<AppSettingsContextValue | undefined>(undefined);
@@ -22,6 +26,7 @@ const THEME_KEY = "theme";
 const LANG_KEY = "appLanguage";
 const COLOR_KEY = "themeColor";
 const FONT_KEY = "fontSize";
+const PRAYER_METHOD_KEY = "prayerCalculationMethod";
 
 function applyTheme(mode: ThemeMode) {
   if (typeof document === "undefined") return;
@@ -73,6 +78,12 @@ export const AppSettingsProvider = ({ children }: { children: React.ReactNode })
     return stored ?? "md";
   });
 
+  const [calculationMethod, setCalculationMethodState] = useState<PrayerCalculationMethod>(() => {
+    if (typeof window === "undefined") return "karachi";
+    const stored = localStorage.getItem(PRAYER_METHOD_KEY) as PrayerCalculationMethod | null;
+    return stored ?? "karachi";
+  });
+
   // Apply initial values on mount
   useEffect(() => {
     applyTheme(theme);
@@ -113,9 +124,27 @@ export const AppSettingsProvider = ({ children }: { children: React.ReactNode })
     applyFontSize(size);
   };
 
+  const setCalculationMethod = (method: PrayerCalculationMethod) => {
+    setCalculationMethodState(method);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(PRAYER_METHOD_KEY, method);
+    }
+  };
+
   return (
     <AppSettingsContext.Provider
-      value={{ theme, setTheme, language, setLanguage, themeColor, setThemeColor, fontSize, setFontSize }}
+      value={{
+        theme,
+        setTheme,
+        language,
+        setLanguage,
+        themeColor,
+        setThemeColor,
+        fontSize,
+        setFontSize,
+        calculationMethod,
+        setCalculationMethod,
+      }}
     >
       {children}
     </AppSettingsContext.Provider>

@@ -14,12 +14,11 @@ import { useAppSettings } from "@/context/AppSettingsContext";
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { theme, setTheme, language, setLanguage, themeColor, setThemeColor, fontSize, setFontSize } = useAppSettings();
+  const { theme, setTheme, language, setLanguage, themeColor, setThemeColor, fontSize, setFontSize, calculationMethod, setCalculationMethod } = useAppSettings();
   
   // Settings state (local-only for now)
   const [notifications, setNotifications] = useState(true);
   const [athanSound, setAthanSound] = useState(true);
-  const [calculationMethod, setCalculationMethod] = useState("karachi");
 
   // Detailed notification preferences (local only)
   const [quizNotifications, setQuizNotifications] = useState(true);
