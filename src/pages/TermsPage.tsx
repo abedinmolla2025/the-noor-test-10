@@ -22,6 +22,16 @@ const TermsPage = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6 text-sm leading-relaxed">
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 flex items-start gap-3">
+          <div className="p-2 rounded-lg bg-primary/10 text-primary text-base font-semibold">NOOR</div>
+          <div>
+            <p className="font-semibold">About NOOR – Islamic App</p>
+            <p className="text-muted-foreground">
+              Developed by <span className="font-semibold">ABEDIN MOLLA</span> (India) to make daily
+              Islamic practice—prayer, Quran and duas—beautiful, simple and always close at hand.
+            </p>
+          </div>
+        </section>
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
           <h2 className="text-lg font-semibold">1. Purpose of the app / অ্যাপের উদ্দেশ্য</h2>
           <p className="text-muted-foreground">
