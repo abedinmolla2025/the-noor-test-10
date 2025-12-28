@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import { Home, BookOpen, ScrollText, CalendarDays, Settings2 } from "lucide-react";
+import type React from "react";
 interface NavItem {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   labelBn: string;
   id: string;
@@ -12,38 +13,38 @@ interface NavItem {
 const navItems: NavItem[] = [
   { 
     id: "home",
-    icon: "🏠",
+    icon: <Home className="w-5 h-5" />,
     label: "Home",
     labelBn: "হোম",
-    path: "/"
+    path: "/",
   },
   { 
     id: "quran",
-    icon: "📖",
+    icon: <BookOpen className="w-5 h-5" />,
     label: "Quran",
     labelBn: "কুরআন",
-    path: "/quran"
+    path: "/quran",
   },
   { 
     id: "hadith",
-    icon: "📜",
+    icon: <ScrollText className="w-5 h-5" />,
     label: "Hadith",
     labelBn: "হাদিস",
-    path: "/bukhari"
+    path: "/bukhari",
   },
   { 
     id: "calendar",
-    icon: "🗓️",
+    icon: <CalendarDays className="w-5 h-5" />,
     label: "Calendar",
     labelBn: "ক্যালেন্ডার",
-    path: "/calendar"
+    path: "/calendar",
   },
   { 
     id: "settings",
-    icon: "⚙️",
+    icon: <Settings2 className="w-5 h-5" />,
     label: "Settings",
     labelBn: "সেটিংস",
-    path: "/settings"
+    path: "/settings",
   },
 ];
 
