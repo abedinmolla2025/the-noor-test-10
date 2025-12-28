@@ -28,6 +28,7 @@ interface BabyName {
   meanings: Record<Language, string>;
   gender: "boy" | "girl";
   origin: string;
+  bnPronunciation?: string;
 }
 
 const translations: Record<Language, {
@@ -159,10 +160,11 @@ const babyNames: BabyName[] = [
       en: "Most commendable, most praiseworthy",
       ar: "الأكثر حمدًا وثناءً",
       hi: "सबसे प्रशंसनीय",
-      ur: "سب سے زیادہ قابل تعریف"
+      ur: "सब से زیادہ قابل تعریف"
     },
     gender: "boy", 
-    origin: "Arabic" 
+    origin: "Arabic",
+    bnPronunciation: "আহমাদ",
   },
   { 
     id: 3, 
@@ -176,7 +178,8 @@ const babyNames: BabyName[] = [
       ur: "بلند، اعلیٰ، شریف"
     },
     gender: "boy", 
-    origin: "Arabic" 
+    origin: "Arabic",
+    bnPronunciation: "আলী",
   },
   { 
     id: 4, 
@@ -1508,7 +1511,14 @@ const BabyNamesPage = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-semibold text-white">{name.name}</p>
+              <p className="font-semibold text-white">
+                {name.name}
+                {language === "bn" && name.bnPronunciation && (
+                  <span className="text-xs text-teal-200/90 ml-1">
+                    ( {name.bnPronunciation} )
+                  </span>
+                )}
+              </p>
               <span className="text-lg font-arabic text-amber-300">
                 {name.arabic}
               </span>
@@ -1516,16 +1526,6 @@ const BabyNamesPage = () => {
             <p className="text-sm text-white/60 line-clamp-1">
               {name.meanings[language]}
             </p>
-            {language === "bn" && (
-              <p className="text-xs text-teal-200/80 line-clamp-1">
-                {name.meanings.en}
-              </p>
-            )}
-            {language === "en" && (
-              <p className="text-xs text-teal-200/80 line-clamp-1">
-                {name.meanings.bn}
-              </p>
-            )}
           </div>
         </div>
         <button
