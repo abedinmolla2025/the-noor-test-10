@@ -22,6 +22,21 @@ const TermsPage = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6 text-sm leading-relaxed">
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-1">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Developer</p>
+          <p className="font-semibold">ABEDIN MOLLA – India</p>
+          <p className="text-muted-foreground">
+            A humble effort by developer <span className="font-semibold">ABEDIN MOLLA</span> from India
+            to bring daily Islamic reminders—prayer times, Quran and duas—together in one
+            beautiful place.
+          </p>
+          <p className="text-muted-foreground">
+            ভারতের ডেভেলপার <span className="font-semibold">আবিদিন মোল্লা (ABEDIN MOLLA)</span>-এর একটি ছোট
+            প্রচেষ্টা, যেন নামাজের সময়, কুরআন ও দো‘আর মত দৈনন্দিন ইসলামি আমলগুলো এক জায়গায়
+            সুন্দরভাবে পাওয়া যায়।
+          </p>
+        </section>
+
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 flex items-start gap-3">
           <div className="p-2 rounded-lg bg-primary/10 text-primary text-base font-semibold">NOOR</div>
           <div>
