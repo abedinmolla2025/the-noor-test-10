@@ -29,6 +29,7 @@ interface BabyName {
   gender: "boy" | "girl";
   origin: string;
   bnPronunciation?: string;
+  reference?: string;
 }
 
 const translations: Record<Language, {
@@ -447,7 +448,9 @@ const babyNames: BabyName[] = [
       ur: "زندہ، خوشحال"
     },
     gender: "girl", 
-    origin: "Arabic" 
+    origin: "Arabic",
+    bnPronunciation: "আয়েশা",
+    reference: "নবী মুহাম্মদ ﷺ এর স্ত্রী",
   },
   { 
     id: 23, 
@@ -1667,17 +1670,37 @@ const BabyNamesPage = () => {
               transition={{ delay: 0.2 }}
               className="space-y-4"
             >
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5">
-                <p className="text-sm font-medium text-white/60 mb-2">
-                  {t.meaning}
-                </p>
-                <p className="text-lg text-white mb-2">
-                  {selectedName.meanings[language]}
-                </p>
-                <div className="space-y-1 text-sm text-teal-100">
-                  <p>EN: {selectedName.meanings.en}</p>
-                  <p>BN: {selectedName.meanings.bn}</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-white/60 mb-1">
+                    {t.meaning}
+                  </p>
+                  <p className="text-lg text-white">
+                    {selectedName.meanings[language]}
+                  </p>
                 </div>
+
+                {selectedName.bnPronunciation && (
+                  <div>
+                    <p className="text-sm font-medium text-white/60 mb-1">
+                      উচ্চারণ (বাংলা)
+                    </p>
+                    <p className="text-base text-teal-100">
+                      {selectedName.bnPronunciation}
+                    </p>
+                  </div>
+                )}
+
+                {selectedName.reference && (
+                  <div>
+                    <p className="text-sm font-medium text-white/60 mb-1">
+                      ইসলামিক রেফারেন্স
+                    </p>
+                    <p className="text-sm text-teal-100/90">
+                      {selectedName.reference}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
