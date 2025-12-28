@@ -21,28 +21,56 @@ const TermsPage = () => {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5">
-          <h2 className="text-lg font-semibold mb-2">1. Purpose of the app</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+      <main className="max-w-2xl mx-auto px-4 py-6 space-y-6 text-sm leading-relaxed">
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
+          <h2 className="text-lg font-semibold">1. Purpose of the app / অ্যাপের উদ্দেশ্য</h2>
+          <p className="text-muted-foreground">
             NOOR – Islamic App is provided for educational and spiritual benefit only. It should
             not be used for any harmful, offensive or unlawful activity.
           </p>
-        </section>
-
-        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
-          <h2 className="text-lg font-semibold">2. Personal responsibility</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            You remain responsible for verifying important information such as prayer times or
-            religious rulings with trusted local scholars or sources.
+          <p className="text-muted-foreground">
+            NOOR – ইসলামিক অ্যাপ কেবল ইলমী ও আত্মিক উপকারের জন্য তৈরি। এটি কোনো প্রকার ক্ষতিকর,
+            অশালীন বা আইনবিরোধী কাজে ব্যবহার করা সম্পূর্ণভাবে নিষিদ্ধ।
           </p>
         </section>
 
         <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
-          <h2 className="text-lg font-semibold">3. Changes to these terms</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <h2 className="text-lg font-semibold">2. Personal responsibility / ব্যক্তিগত দায়িত্ব</h2>
+          <p className="text-muted-foreground">
+            You remain responsible for verifying important information such as prayer times or
+            religious rulings with trusted local scholars or sources. The app is a helpful tool,
+            not a replacement for qualified scholarship.
+          </p>
+          <p className="text-muted-foreground">
+            নামাজের সঠিক সময়, শরঈ মাসআলা বা গুরুত্বপূর্ণ কোনো বিষয়ের ক্ষেত্রে সর্বদা নির্ভরযোগ্য
+            আলিম বা স্থানীয় ইসলামিক কর্তৃপক্ষের সাথে মিলিয়ে নেওয়া আপনার নিজস্ব দায়িত্ব। এই
+            অ্যাপ কেবল সহায়ক মাধ্যম, আলিমদের বিকল্প নয়।
+          </p>
+        </section>
+
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
+          <h2 className="text-lg font-semibold">3. Acceptable use / ব্যবহারবিধি</h2>
+          <p className="text-muted-foreground">
+            You agree not to misuse the app, attempt to break security, or disturb other users'
+            experience in any way. Any abusive or harmful use is strictly prohibited.
+          </p>
+          <p className="text-muted-foreground">
+            আপনি সম্মত হচ্ছেন যে, অ্যাপটি অপব্যবহার করবেন না, নিরাপত্তা ভঙ্গের চেষ্টা করবেন না,
+            এবং অন্য ব্যবহারকারীর অভিজ্ঞতা নষ্ট হয় এমন কোনো কাজ করবেন না। এসব কাজ সম্পূর্ণভাবে
+            নিষিদ্ধ।
+          </p>
+        </section>
+
+        <section className="bg-card/70 border border-border/60 rounded-2xl shadow-soft p-5 space-y-2">
+          <h2 className="text-lg font-semibold">4. Changes to these terms / শর্তাবলি পরিবর্তন</h2>
+          <p className="text-muted-foreground">
             These terms may be updated over time as the app improves. Continued use of the app
             after changes means you accept the updated terms.
+          </p>
+          <p className="text-muted-foreground">
+            ভবিষ্যতে অ্যাপের ফিচার ও সুবিধা বাড়ার সাথে সাথে এই শর্তাবলিতেও পরিবর্তন আসতে পারে। নতুন
+            শর্ত প্রয়োগের পরও আপনি অ্যাপ ব্যবহার চালিয়ে গেলে ধরে নেওয়া হবে যে আপনি আপডেটেড
+            শর্তাবলি মেনে নিয়েছেন।
           </p>
         </section>
       </main>
