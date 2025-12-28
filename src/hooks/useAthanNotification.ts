@@ -58,7 +58,7 @@ export const useAthanNotification = (prayerTimes: PrayerTimings | null) => {
 
   // Initialize audio
   useEffect(() => {
-    audioRef.current = new Audio(ATHAN_AUDIO_URLS.makkah);
+    audioRef.current = new Audio(ATHAN_AUDIO_URLS.madinah);
     audioRef.current.volume = settings.volume;
     
     audioRef.current.addEventListener("ended", () => {
