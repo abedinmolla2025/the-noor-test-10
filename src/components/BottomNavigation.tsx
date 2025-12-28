@@ -88,7 +88,7 @@ const BottomNavigation = () => {
             <span className={`text-[10px] sm:text-xs font-medium ${
               isActive(item.path) ? "text-primary font-semibold" : ""
             }`}>
-              {item.labelBn}
+              {item.label}
             </span>
           </motion.button>
         ))}
