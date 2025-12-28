@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BellRing, Sparkles, Trophy } from "lucide-react";
+import { BellRing, Sparkles, Trophy, Home, BookOpen, ScrollText, CalendarDays, Settings, ListChecks } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PrayerHeroCard from "@/components/PrayerHeroCard";
@@ -13,6 +13,7 @@ import { useAthanNotification } from "@/hooks/useAthanNotification";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
   const { prayerTimes } = usePrayerTimes();
@@ -140,26 +141,41 @@ const Index = () => {
         </section>
 
         {/* Footer Navigation */}
-        <footer className="mt-6 pt-4 border-t border-border/60 text-center space-y-3 text-[11px] text-muted-foreground">
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-            <button onClick={() => navigate("/")} className="hover:text-foreground transition-colors">হোম</button>
-            <button onClick={() => navigate("/quran")} className="hover:text-foreground transition-colors">কুরআন</button>
-            <button onClick={() => navigate("/bukhari")} className="hover:text-foreground transition-colors">হাদিস</button>
-            <button onClick={() => navigate("/calendar")} className="hover:text-foreground transition-colors">ইসলামিক ক্যালেন্ডার</button>
-            <button onClick={() => navigate("/prayer-times")} className="hover:text-foreground transition-colors">নামাজের সময়</button>
-            <button onClick={() => navigate("/dua")} className="hover:text-foreground transition-colors">দুআ</button>
-            <button onClick={() => navigate("/tasbih")} className="hover:text-foreground transition-colors">তাসবিহ</button>
-            <button onClick={() => navigate("/baby-names")} className="hover:text-foreground transition-colors">ইসলামিক নাম</button>
-            <button onClick={() => navigate("/99-names")} className="hover:text-foreground transition-colors">আল্লাহর ৯৯ নাম</button>
-            <button onClick={() => navigate("/quiz")} className="hover:text-foreground transition-colors">ডেইলি কুইজ</button>
-            <button onClick={() => navigate("/settings")} className="hover:text-foreground transition-colors">সেটিংস</button>
-            <button onClick={() => navigate("/privacy-policy")} className="hover:text-foreground transition-colors">প্রাইভেসি পলিসি</button>
-            <button onClick={() => navigate("/terms")} className="hover:text-foreground transition-colors">টার্মস</button>
-          </div>
+        <footer className="mt-6 pt-5 border-t border-border/70">
+          <div className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-t from-primary/10 via-background to-background/80 border border-border/60 px-3 py-3 shadow-sm shadow-primary/10 animate-fade-in">
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
+              <button onClick={() => navigate("/")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
+                <Home className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+                <span>হোম</span>
+              </button>
+              <button onClick={() => navigate("/quran")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
+                <BookOpen className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+                <span>কুরআন</span>
+              </button>
+              <button onClick={() => navigate("/bukhari")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
+                <ScrollText className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+                <span>হাদিস</span>
+              </button>
+              <button onClick={() => navigate("/calendar")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
+                <CalendarDays className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+                <span>ইসলামিক ক্যালেন্ডার</span>
+              </button>
+              <button onClick={() => navigate("/prayer-times")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
+                <ListChecks className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+                <span>নামাজের সময়</span>
+              </button>
+              <button onClick={() => navigate("/settings")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
+                <Settings className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+                <span>সেটিংস</span>
+              </button>
+            </div>
 
-          <p>
-            Developed by <span className="font-semibold">ABEDIN MOLLA</span> – India
-          </p>
+            <div className="mt-3 h-px w-20 mx-auto bg-border/70 rounded-full" />
+
+            <p className="mt-2 text-[11px] text-center text-muted-foreground">
+              Developed by <span className="font-semibold">ABEDIN MOLLA</span>  India
+            </p>
+          </div>
         </footer>
       </main>
 
