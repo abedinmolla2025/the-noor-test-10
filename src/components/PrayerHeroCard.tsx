@@ -231,9 +231,14 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <Sparkles size={10} className="text-amber-400" />
-                    <span className="text-[9px] text-amber-400 uppercase tracking-[0.1em] font-semibold">
-                      Current Prayer
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-[9px] text-amber-400 uppercase tracking-[0.1em] font-semibold">
+                        Current Prayer
+                      </span>
+                      <span className="text-[10px] text-white/80 font-medium tracking-wide">
+                        Stay connected with your daily salah
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <h2 className="text-2xl font-bold text-white tracking-tight">
