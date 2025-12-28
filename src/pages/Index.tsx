@@ -90,34 +90,65 @@ const Index = () => {
               <AudioRecitationCard />
             </div>
 
-            <Card className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/20 via-background to-emerald-500/15 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-200">
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_transparent_60%)]" />
-              <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-primary/20 blur-2xl" />
-              <CardHeader className="relative z-10 pb-3 flex flex-row items-start justify-between gap-2">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-primary flex items-center gap-1">
-                    <Trophy className="w-3.5 h-3.5" />
+            <Card className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/15 via-background to-emerald-600/20 shadow-[0_18px_45px_rgba(16,185,129,0.35)] hover:shadow-[0_22px_55px_rgba(16,185,129,0.5)] hover:-translate-y-1 transition-all duration-300 backdrop-blur-lg">
+              {/* subtle light textures */}
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_60%)]" />
+              <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-primary/25 blur-3xl" />
+              <div className="pointer-events-none absolute -left-10 bottom-[-24px] h-28 w-28 rounded-full bg-emerald-400/20 blur-3xl" />
+
+              <CardHeader className="relative z-10 pb-3 flex flex-row items-start justify-between gap-3">
+                <div className="space-y-1.5">
+                  <p className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-primary/90">
+                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary/10">
+                      <Trophy className="w-2.5 h-2.5" />
+                    </span>
                     Daily Challenge
                   </p>
-                  <CardTitle className="mt-1 text-base">Daily Islamic Quiz</CardTitle>
-                  <CardDescription className="mt-1 text-xs leading-relaxed">
-                    প্রতিদিন ৩টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
-                  </CardDescription>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    Build your daily Islamic habit
-                  </p>
+                  <div>
+                    <CardTitle className="text-[15px] font-semibold flex items-center gap-1.5">
+                      Daily Islamic Quiz
+                      <span className="h-1 w-1 rounded-full bg-amber-400" />
+                    </CardTitle>
+                    <CardDescription className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      প্রতিদিন ৩টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
+                    </CardDescription>
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px] text-muted-foreground/90">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-background/60 px-2 py-0.5 border border-primary/10">
+                      <span className="h-1 w-1 rounded-full bg-emerald-400" />
+                      increase emotional trust
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-background/60 px-2 py-0.5 border border-primary/10">
+                      <span className="h-1 w-1 rounded-full bg-emerald-400" />
+                      improve engagement
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-background/60 px-2 py-0.5 border border-primary/10">
+                      <span className="h-1 w-1 rounded-full bg-emerald-400" />
+                      push daily habit formation
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-background/60 px-2 py-0.5 border border-primary/10">
+                      <span className="h-1 w-1 rounded-full bg-emerald-400" />
+                      prepare for monetization
+                    </span>
+                  </div>
                 </div>
-                <span className="inline-flex items-center rounded-full border border-primary/30 bg-background/60 px-2 py-0.5 text-[10px] font-medium text-primary backdrop-blur-sm">
-                  PRO
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="inline-flex items-center rounded-full border border-amber-400/60 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400 backdrop-blur-sm shadow-[0_0_20px_rgba(251,191,36,0.35)]">
+                    PRO
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">Daily • 3 Qs</span>
+                </div>
               </CardHeader>
+
               <CardContent className="relative z-10 flex flex-col gap-3 pb-4">
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>Streak &amp; points saved on this device</span>
-                  <span className="rounded-full bg-background/50 px-2 py-0.5">Daily • 3 Qs</span>
+                  <span className="rounded-full bg-background/70 px-2 py-0.5 border border-white/10">
+                    Consistency matters
+                  </span>
                 </div>
                 <Button
-                  className="group w-full h-10 text-sm justify-between bg-gradient-to-r from-primary via-primary to-amber-500 text-primary-foreground shadow-md shadow-primary/40 hover:shadow-lg hover:shadow-primary/60 hover:brightness-[1.03] border border-white/10 px-3"
+                  className="group w-full h-10 text-sm justify-between bg-gradient-to-r from-primary via-primary to-amber-500 text-primary-foreground shadow-[0_10px_30px_rgba(59,130,246,0.45)] hover:shadow-[0_14px_40px_rgba(59,130,246,0.75)] hover:brightness-[1.04] border border-white/10 px-3"
                   onClick={() => navigate("/quiz")}
                 >
                   <span className="flex items-center gap-1.5">
