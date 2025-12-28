@@ -1516,6 +1516,16 @@ const BabyNamesPage = () => {
             <p className="text-sm text-white/60 line-clamp-1">
               {name.meanings[language]}
             </p>
+            {language === "bn" && (
+              <p className="text-xs text-teal-200/80 line-clamp-1">
+                {name.meanings.en}
+              </p>
+            )}
+            {language === "en" && (
+              <p className="text-xs text-teal-200/80 line-clamp-1">
+                {name.meanings.bn}
+              </p>
+            )}
           </div>
         </div>
         <button
@@ -1661,7 +1671,13 @@ const BabyNamesPage = () => {
                 <p className="text-sm font-medium text-white/60 mb-2">
                   {t.meaning}
                 </p>
-                <p className="text-lg text-white">{selectedName.meanings[language]}</p>
+                <p className="text-lg text-white mb-2">
+                  {selectedName.meanings[language]}
+                </p>
+                <div className="space-y-1 text-sm text-teal-100">
+                  <p>EN: {selectedName.meanings.en}</p>
+                  <p>BN: {selectedName.meanings.bn}</p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
