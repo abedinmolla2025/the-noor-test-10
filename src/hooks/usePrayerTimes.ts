@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAppSettings } from "@/context/AppSettingsContext";
 
 interface PrayerTimings {
   Fajr: string;
@@ -36,6 +37,24 @@ export const usePrayerTimes = (): UsePrayerTimesReturn => {
   const [hijriDate, setHijriDate] = useState<HijriDate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { calculationMethod } = useAppSettings();
+
+  const getMethodId = (method: string): number => {
+    switch (method) {
+      case "karachi":
+        return 1;
+      case "isna":
+        return 2;
+      case "mwl":
+        return 3;
+      case "makkah":
+        return 4;
+      case "egypt":
+        return 5;
+      default:
+        return 2;
+    }
+  };
 
   useEffect(() => {
     const fetchPrayerTimes = async (latitude: number, longitude: number) => {
@@ -44,9 +63,11 @@ export const usePrayerTimes = (): UsePrayerTimesReturn => {
         const today = new Date();
         const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
         
+        const methodId = getMethodId(calculationMethod);
+        
         // Fetch prayer times from Aladhan API
         const response = await fetch(
-          `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=2`
+          `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=${methodId}`
         );
         
         if (!response.ok) {
@@ -127,7 +148,7 @@ export const usePrayerTimes = (): UsePrayerTimesReturn => {
     };
 
     getLocationAndPrayerTimes();
-  }, []);
+  }, [calculationMethod]);
 
   return { prayerTimes, location, hijriDate, isLoading, error };
 };
