@@ -54,8 +54,8 @@ const BottomNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed bottom-3 left-0 right-0 bg-white/95 dark:bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-2xl z-50">
-      <div className="w-full max-w-lg mx-auto flex justify-around items-center py-2 px-2 sm:px-4">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-card/95 backdrop-blur-xl border-t border-border/50 shadow-2xl z-50">
+      <div className="w-full max-w-lg mx-auto flex justify-around items-center pt-2 pb-5 px-2 sm:px-4">
         {navItems.map((item) => (
           <motion.button
             key={item.id}
