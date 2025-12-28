@@ -21,6 +21,15 @@ const SettingsPage = () => {
   const [language, setLanguage] = useState("bn");
   const [calculationMethod, setCalculationMethod] = useState("karachi");
 
+  // New visual customization state (only for Settings UI for now)
+  const [themeColor, setThemeColor] = useState("default");
+  const [fontSize, setFontSize] = useState("md");
+
+  // Detailed notification preferences (local only)
+  const [quizNotifications, setQuizNotifications] = useState(true);
+  const [dailyReminder, setDailyReminder] = useState(false);
+  const [marketingNotifications, setMarketingNotifications] = useState(false);
+
   const handleDarkModeToggle = (checked: boolean) => {
     setDarkMode(checked);
     toast({
@@ -54,6 +63,60 @@ const SettingsPage = () => {
     });
   };
 
+  const handleThemeColorChange = (value: string) => {
+    setThemeColor(value);
+    const label =
+      value === "default" ? "ডিফল্ট" :
+      value === "emerald" ? "এমেরাল্ড" :
+      value === "teal" ? "টিল" :
+      "অ্যাম্বার";
+
+    toast({
+      title: "🎨 থিম কালার পরিবর্তন",
+      description: `থিম কালার ${label} সিলেক্ট হয়েছে (শীঘ্রই পুরো অ্যাপে প্রয়োগ হবে)`,
+    });
+  };
+
+  const handleFontSizeChange = (value: string) => {
+    setFontSize(value);
+    const label = value === "sm" ? "ছোট" : value === "lg" ? "বড়" : "ডিফল্ট";
+
+    toast({
+      title: "🔤 ফন্ট সাইজ আপডেট",
+      description: `ফন্ট সাইজ ${label} সেট করা হয়েছে`,
+    });
+  };
+
+  const handleQuizNotificationToggle = (checked: boolean) => {
+    setQuizNotifications(checked);
+    toast({
+      title: checked ? "📚 Daily Quiz নোটিফিকেশন চালু" : "📚 Daily Quiz নোটিফিকেশন বন্ধ",
+      description: checked
+        ? "নতুন Daily Quiz প্রকাশ হলে রিমাইন্ডার পাবেন"
+        : "Quiz নোটিফিকেশন আর পাঠানো হবে না",
+    });
+  };
+
+  const handleDailyReminderToggle = (checked: boolean) => {
+    setDailyReminder(checked);
+    toast({
+      title: checked ? "⏰ দৈনিক রিমাইন্ডার চালু" : "⏰ দৈনিক রিমাইন্ডার বন্ধ",
+      description: checked
+        ? "প্রতিদিন নির্দিষ্ট সময়ে একটি নরম রিমাইন্ডার পাবেন"
+        : "দৈনিক রিমাইন্ডার বন্ধ করা হয়েছে",
+    });
+  };
+
+  const handleMarketingNotificationToggle = (checked: boolean) => {
+    setMarketingNotifications(checked);
+    toast({
+      title: checked ? "✨ প্রমোশনাল নোটিফিকেশন চালু" : "✨ প্রমোশনাল নোটিফিকেশন বন্ধ",
+      description: checked
+        ? "নতুন ফিচার ও আপডেট সম্পর্কে জানানো হবে"
+        : "প্রমোশনাল নোটিফিকেশন পাঠানো হবে না",
+    });
+  };
+
   const settingsGroups = [
     {
       title: "অ্যাপিয়ারেন্স",
@@ -66,9 +129,38 @@ const SettingsPage = () => {
           icon: darkMode ? <Moon size={20} className="text-primary" /> : <Sun size={20} className="text-amber-500" />,
           type: "switch",
           value: darkMode,
-          onChange: handleDarkModeToggle
-        }
-      ]
+          onChange: handleDarkModeToggle,
+        },
+        {
+          id: "themeColor",
+          label: "থিম কালার",
+          description: "প্রিয় কালার mood নির্বাচন করুন",
+          icon: <Palette size={20} className="text-primary" />,
+          type: "select",
+          value: themeColor,
+          onChange: handleThemeColorChange,
+          options: [
+            { value: "default", label: "ডিফল্ট" },
+            { value: "emerald", label: "এমেরাল্ড" },
+            { value: "teal", label: "টিল" },
+            { value: "amber", label: "অ্যাম্বার" },
+          ],
+        },
+        {
+          id: "fontSize",
+          label: "ফন্ট সাইজ",
+          description: "লেখার সাইজ ছোট/বড় করুন",
+          icon: <Info size={20} className="text-primary" />,
+          type: "select",
+          value: fontSize,
+          onChange: handleFontSizeChange,
+          options: [
+            { value: "sm", label: "ছোট" },
+            { value: "md", label: "ডিফল্ট" },
+            { value: "lg", label: "বড়" },
+          ],
+        },
+      ],
     },
     {
       title: "নোটিফিকেশন",
@@ -81,7 +173,7 @@ const SettingsPage = () => {
           icon: notifications ? <Bell size={20} className="text-primary" /> : <BellOff size={20} className="text-muted-foreground" />,
           type: "switch",
           value: notifications,
-          onChange: handleNotificationToggle
+          onChange: handleNotificationToggle,
         },
         {
           id: "athanSound",
@@ -90,9 +182,36 @@ const SettingsPage = () => {
           icon: athanSound ? <Volume2 size={20} className="text-primary" /> : <VolumeX size={20} className="text-muted-foreground" />,
           type: "switch",
           value: athanSound,
-          onChange: handleAthanSoundToggle
-        }
-      ]
+          onChange: handleAthanSoundToggle,
+        },
+        {
+          id: "quizNotifications",
+          label: "Daily Quiz নোটিফিকেশন",
+          description: "নতুন Quiz এলে রিমাইন্ডার পান",
+          icon: <Bell size={20} className="text-primary" />,
+          type: "switch",
+          value: quizNotifications,
+          onChange: handleQuizNotificationToggle,
+        },
+        {
+          id: "dailyReminder",
+          label: "দৈনিক স্মরণ করিয়ে দেয়া",
+          description: "একটি gentle daily reminder পাবেন",
+          icon: <Bell size={20} className="text-emerald-500" />,
+          type: "switch",
+          value: dailyReminder,
+          onChange: handleDailyReminderToggle,
+        },
+        {
+          id: "marketingNotifications",
+          label: "আপডেট ও ফিচার নোটিফিকেশন",
+          description: "নতুন ফিচার ও Islamic content আপডেট",
+          icon: <Bell size={20} className="text-amber-500" />,
+          type: "switch",
+          value: marketingNotifications,
+          onChange: handleMarketingNotificationToggle,
+        },
+      ],
     },
     {
       title: "ভাষা ও অঞ্চল",
@@ -109,10 +228,10 @@ const SettingsPage = () => {
           options: [
             { value: "bn", label: "বাংলা" },
             { value: "en", label: "English" },
-            { value: "ar", label: "العربية" }
-          ]
-        }
-      ]
+            { value: "ar", label: "العربية" },
+          ],
+        },
+      ],
     },
     {
       title: "নামাজের সময়",
@@ -131,11 +250,11 @@ const SettingsPage = () => {
             { value: "isna", label: "ISNA (উত্তর আমেরিকা)" },
             { value: "mwl", label: "মুসলিম ওয়ার্ল্ড লিগ" },
             { value: "egypt", label: "মিশর" },
-            { value: "makkah", label: "উম্মুল কুরা (মক্কা)" }
-          ]
-        }
-      ]
-    }
+            { value: "makkah", label: "উম্মুল কুরা (মক্কা)" },
+          ],
+        },
+      ],
+    },
   ];
 
   return (
