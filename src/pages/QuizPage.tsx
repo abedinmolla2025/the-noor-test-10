@@ -845,16 +845,20 @@ const QuizPage = () => {
 
                   <Card className="mb-3">
                     <CardHeader>
-                      <Badge className="w-fit mb-2">{currentQuestion.category}</Badge>
-                      <CardTitle className="text-lg leading-relaxed">
+                      <CardTitle className="text-xl leading-relaxed">
                         {languageMode === "bn"
                           ? currentQuestion.questionBn
                           : currentQuestion.question}
                       </CardTitle>
                       {languageMode === "mixed" && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {currentQuestion.questionBn}
-                        </p>
+                        <div className="mt-1 space-y-0.5">
+                          <p className="text-[17px] leading-relaxed">
+                            {currentQuestion.questionBn}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {currentQuestion.question}
+                          </p>
+                        </div>
                       )}
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -878,16 +882,16 @@ const QuizPage = () => {
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-medium">
-                                {languageMode === "bn"
-                                  ? currentQuestion.optionsBn?.[index] ?? option
-                                  : option}
-                              </p>
-                              {languageMode === "mixed" && currentQuestion.optionsBn?.[index] && (
-                                <p className="text-sm text-muted-foreground mt-0.5">
-                                  {currentQuestion.optionsBn[index]}
-                                </p>
-                              )}
+                          <p className="font-semibold text-[15px] leading-snug">
+                            {languageMode === "bn"
+                              ? currentQuestion.optionsBn?.[index] ?? option
+                              : option}
+                          </p>
+                          {languageMode === "mixed" && currentQuestion.optionsBn?.[index] && (
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {option}
+                            </p>
+                          )}
                             </div>
                             {showResult && index === currentQuestion.correctAnswer && (
                               <CheckCircle2 className="w-6 h-6 text-emerald-500" />
