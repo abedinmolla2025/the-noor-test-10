@@ -61,8 +61,8 @@ const BottomNavigation = () => {
   if (!isMobile) return null;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-xl md:bottom-4 md:mx-auto md:max-w-lg md:rounded-2xl md:border md:shadow-card">
-      <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-1.5 px-2 pt-2 pb-4 sm:px-4">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/50 bg-background/90 backdrop-blur-2xl shadow-soft md:bottom-4 md:mx-auto md:max-w-lg md:rounded-3xl md:border md:shadow-card">
+      <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-1.5 px-2 pt-2 pb-3 sm:px-4">
         {navItems.map((item) => {
           const active = isActive(item.path);
 
@@ -70,18 +70,18 @@ const BottomNavigation = () => {
             <motion.button
               key={item.id}
               onClick={() => navigate(item.path)}
-              whileTap={{ scale: 0.94 }}
+              whileTap={{ scale: 0.9, y: 1 }}
               className={`bottom-nav-item relative flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-1.5 text-[11px] font-medium transition-all duration-200 sm:text-xs ${
                 active
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "text-primary shadow-soft bg-primary/5"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/60"
               }`}
             >
               {active && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute -top-1 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent"
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r from-primary/20 via-primary/5 to-accent/20 shadow-glow"
+                  transition={{ type: "spring", stiffness: 260, damping: 28 }}
                 />
               )}
 
