@@ -26,9 +26,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Init Capacitor
-        run: npx cap init NOOR com.noor.app --skip-appid-validation
-
       - name: Add Android platform
         run: npx cap add android
 
@@ -43,4 +40,3 @@ jobs:
         with:
           name: NOOR-AAB
           path: android/app/build/outputs/bundle/release/app-release.aab
-
