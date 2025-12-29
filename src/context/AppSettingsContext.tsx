@@ -79,9 +79,9 @@ export const AppSettingsProvider = ({ children }: { children: React.ReactNode })
   });
 
   const [calculationMethod, setCalculationMethodState] = useState<PrayerCalculationMethod>(() => {
-    if (typeof window === "undefined") return "isna";
+    if (typeof window === "undefined") return "karachi";
     const stored = localStorage.getItem(PRAYER_METHOD_KEY) as PrayerCalculationMethod | null;
-    return stored ?? "isna";
+    return stored ?? "karachi";
   });
 
   // Apply initial values on mount
