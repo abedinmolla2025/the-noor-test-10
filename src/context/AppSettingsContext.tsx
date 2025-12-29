@@ -7,6 +7,14 @@ export type AppLanguage = "bn" | "en" | "ar";
 
 export type PrayerCalculationMethod = "karachi" | "isna" | "mwl" | "egypt" | "makkah";
 
+export type PrayerOffsets = {
+  Fajr: number;
+  Dhuhr: number;
+  Asr: number;
+  Maghrib: number;
+  Isha: number;
+};
+
 interface AppSettingsContextValue {
   theme: ThemeMode;
   setTheme: (mode: ThemeMode) => void;
@@ -18,6 +26,8 @@ interface AppSettingsContextValue {
   setFontSize: (size: FontSize) => void;
   calculationMethod: PrayerCalculationMethod;
   setCalculationMethod: (method: PrayerCalculationMethod) => void;
+  prayerOffsets: PrayerOffsets;
+  setPrayerOffsets: (offsets: PrayerOffsets) => void;
 }
 
 const AppSettingsContext = createContext<AppSettingsContextValue | undefined>(undefined);
@@ -84,6 +94,18 @@ export const AppSettingsProvider = ({ children }: { children: React.ReactNode })
     return stored ?? "karachi";
   });
 
+  const [prayerOffsets, setPrayerOffsetsState] = useState<PrayerOffsets>(() => {
+    if (typeof window === "undefined") {
+      return { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 };
+    }
+    try {
+      const stored = localStorage.getItem("prayerOffsets");
+      return stored ? JSON.parse(stored) : { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 };
+    } catch {
+      return { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 };
+    }
+  });
+
   // Apply initial values on mount
   useEffect(() => {
     applyTheme(theme);
@@ -131,6 +153,13 @@ export const AppSettingsProvider = ({ children }: { children: React.ReactNode })
     }
   };
 
+  const setPrayerOffsets = (offsets: PrayerOffsets) => {
+    setPrayerOffsetsState(offsets);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("prayerOffsets", JSON.stringify(offsets));
+    }
+  };
+
   return (
     <AppSettingsContext.Provider
       value={{
@@ -144,6 +173,8 @@ export const AppSettingsProvider = ({ children }: { children: React.ReactNode })
         setFontSize,
         calculationMethod,
         setCalculationMethod,
+        prayerOffsets,
+        setPrayerOffsets,
       }}
     >
       {children}
