@@ -36,14 +36,7 @@ const PrayerTimesList = () => {
         { name: "Maghrib", nameBn: "মাগরিব", time: formatTo12Hour(prayerTimes.Maghrib), icon: <Sunset size={20} className="text-rose-400" /> },
         { name: "Isha", nameBn: "ইশা", time: formatTo12Hour(prayerTimes.Isha), icon: <Moon size={20} className="text-purple-400" /> },
       ]
-    : [
-        { name: "Fajr", nameBn: "ফজর", time: "05:00 AM", icon: <Moon size={20} className="text-indigo-400" /> },
-        { name: "Sunrise", nameBn: "সূর্যোদয়", time: "06:15 AM", icon: <Sunrise size={20} className="text-amber-400" /> },
-        { name: "Dhuhr", nameBn: "যোহর", time: "12:30 PM", icon: <Sun size={20} className="text-yellow-400" /> },
-        { name: "Asr", nameBn: "আসর", time: "03:30 PM", icon: <Sun size={20} className="text-orange-400" /> },
-        { name: "Maghrib", nameBn: "মাগরিব", time: "06:00 PM", icon: <Sunset size={20} className="text-rose-400" /> },
-        { name: "Isha", nameBn: "ইশা", time: "07:30 PM", icon: <Moon size={20} className="text-purple-400" /> },
-      ];
+    : [];
 
   // Get next prayer index
   const getNextPrayerIndex = () => {

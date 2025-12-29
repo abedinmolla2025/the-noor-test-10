@@ -50,16 +50,11 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
         { name: "Maghrib", time: prayerTimes.Maghrib },
         { name: "Isha", time: prayerTimes.Isha },
       ]
-    : [
-        { name: "Fajr", time: "05:00" },
-        { name: "Sunrise", time: "06:15" },
-        { name: "Dhuhr", time: "12:30" },
-        { name: "Asr", time: "15:30" },
-        { name: "Maghrib", time: "18:00" },
-        { name: "Isha", time: "19:30" },
-      ];
+    : [];
 
   const getCurrentPrayer = () => {
+    if (!prayerSchedule.length) return "Loading";
+
     const now = currentTime.getHours() * 60 + currentTime.getMinutes();
 
     for (let i = prayerSchedule.length - 1; i >= 0; i--) {
@@ -69,10 +64,12 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
         return prayerSchedule[i].name;
       }
     }
-    return "Isha";
+    return prayerSchedule[prayerSchedule.length - 1]?.name || "";
   };
 
   const getNextPrayer = () => {
+    if (!prayerSchedule.length) return { name: "", time: "00:00" };
+
     const now = currentTime.getHours() * 60 + currentTime.getMinutes();
 
     for (let i = 0; i < prayerSchedule.length; i++) {
@@ -86,6 +83,8 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
   };
 
   const getCountdown = () => {
+    if (!prayerSchedule.length) return "--:--:--";
+
     const next = getNextPrayer();
     const { hours, minutes } = formatTo24Hour(next.time);
     
