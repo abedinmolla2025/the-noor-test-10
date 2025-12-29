@@ -243,13 +243,13 @@ const SettingsPage = () => {
         {
           id: "calculationMethod",
           label: "Calculation method",
-          description: "Choose how prayer times are calculated",
+          description: "South Asia-র জন্য Karachi method (Hanafi) রেকমেন্ডেড",
           icon: <Palette size={20} className="text-primary" />,
           type: "select",
           value: calculationMethod,
           onChange: setCalculationMethod,
           options: [
-            { value: "karachi", label: "Karachi (Hanafi)" },
+            { value: "karachi", label: "Karachi (Hanafi) – India, Bangladesh, Pakistan" },
             { value: "isna", label: "ISNA (North America)" },
             { value: "mwl", label: "Muslim World League" },
             { value: "egypt", label: "Egypt" },
