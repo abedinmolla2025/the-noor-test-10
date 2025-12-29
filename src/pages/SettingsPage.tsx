@@ -11,10 +11,12 @@ import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useAppSettings } from "@/context/AppSettingsContext";
 
+const OFFSET_OPTIONS = [-20, -15, -10, -5, 0, 5, 10, 15, 20];
+
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { theme, setTheme, language, setLanguage, themeColor, setThemeColor, fontSize, setFontSize, calculationMethod, setCalculationMethod } = useAppSettings();
+  const { theme, setTheme, language, setLanguage, themeColor, setThemeColor, fontSize, setFontSize, calculationMethod, setCalculationMethod, prayerOffsets, setPrayerOffsets } = useAppSettings();
   
   // Settings state (local-only for now)
   const [notifications, setNotifications] = useState(true);
@@ -120,6 +122,17 @@ const SettingsPage = () => {
     });
   };
 
+  const handleOffsetChange = (prayer: keyof typeof prayerOffsets, value: string) => {
+    const minutes = parseInt(value, 10) || 0;
+    const updated = { ...prayerOffsets, [prayer]: minutes };
+    setPrayerOffsets(updated);
+    const sign = minutes > 0 ? "+" : "";
+    toast({
+      title: "🕒 Prayer time adjusted",
+      description: `${prayer} ${sign}${minutes} মিনিট offset করা হয়েছে`,
+    });
+  };
+ 
   const settingsGroups = [
     {
       title: "Appearance",
@@ -243,14 +256,14 @@ const SettingsPage = () => {
         {
           id: "calculationMethod",
           label: "Calculation method",
-          description: "South Asia-র জন্য Karachi method (Hanafi) রেকমেন্ডেড",
+          description: "Global calculation method for prayer times",
           icon: <Palette size={20} className="text-primary" />,
           type: "select",
           value: calculationMethod,
           onChange: setCalculationMethod,
           options: [
-            { value: "karachi", label: "Karachi (Hanafi) – India, Bangladesh, Pakistan" },
-            { value: "isna", label: "ISNA (North America)" },
+            { value: "karachi", label: "Karachi (Hanafi) – South Asia" },
+            { value: "isna", label: "ISNA – North America" },
             { value: "mwl", label: "Muslim World League" },
             { value: "egypt", label: "Egypt" },
             { value: "makkah", label: "Umm al-Qura (Makkah)" },

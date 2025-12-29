@@ -37,7 +37,7 @@ export const usePrayerTimes = (): UsePrayerTimesReturn => {
   const [hijriDate, setHijriDate] = useState<HijriDate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { calculationMethod } = useAppSettings();
+  const { calculationMethod, prayerOffsets } = useAppSettings();
 
   const getMethodId = (method: string): number => {
     switch (method) {
@@ -54,6 +54,15 @@ export const usePrayerTimes = (): UsePrayerTimesReturn => {
       default:
         return 2;
     }
+  };
+
+  const applyOffset = (time: string, offsetMinutes: number): string => {
+    const [h, m] = time.split(":").map(Number);
+    let total = h * 60 + m + offsetMinutes;
+    total = ((total % (24 * 60)) + (24 * 60)) % (24 * 60);
+    const hours = Math.floor(total / 60);
+    const minutes = total % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
   };
 
   useEffect(() => {
@@ -77,16 +86,26 @@ export const usePrayerTimes = (): UsePrayerTimesReturn => {
         const data = await response.json();
         
         if (data.code === 200 && data.data) {
-          setPrayerTimes({
+          const rawTimes: PrayerTimings = {
             Fajr: data.data.timings.Fajr.split(' ')[0],
             Sunrise: data.data.timings.Sunrise.split(' ')[0],
             Dhuhr: data.data.timings.Dhuhr.split(' ')[0],
             Asr: data.data.timings.Asr.split(' ')[0],
             Maghrib: data.data.timings.Maghrib.split(' ')[0],
             Isha: data.data.timings.Isha.split(' ')[0],
-          });
-          
-          // Set Hijri date
+          };
+
+          const adjustedTimes: PrayerTimings = {
+            Fajr: applyOffset(rawTimes.Fajr, prayerOffsets.Fajr),
+            Sunrise: rawTimes.Sunrise,
+            Dhuhr: applyOffset(rawTimes.Dhuhr, prayerOffsets.Dhuhr),
+            Asr: applyOffset(rawTimes.Asr, prayerOffsets.Asr),
+            Maghrib: applyOffset(rawTimes.Maghrib, prayerOffsets.Maghrib),
+            Isha: applyOffset(rawTimes.Isha, prayerOffsets.Isha),
+          };
+
+          setPrayerTimes(adjustedTimes);
+
           if (data.data.date?.hijri) {
             setHijriDate({
               day: data.data.date.hijri.day,
