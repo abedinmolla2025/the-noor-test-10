@@ -1,38 +1,43 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
-type AppRole = 'super_admin' | 'admin' | 'editor' | 'user';
+export type AppRole = "user" | "editor" | "admin" | "super_admin";
 
-interface AdminContextType {
+type AdminContextType = {
   user: User | null;
   roles: AppRole[];
   isAdmin: boolean;
   isSuperAdmin: boolean;
   loading: boolean;
-}
+};
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const loadSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      const session = data.session;
+
       setUser(session?.user ?? null);
+
       if (session?.user) {
-        fetchUserRoles(session.user.id);
+        await fetchUserRoles(session.user.id);
       } else {
         setLoading(false);
       }
-    });
+    };
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    loadSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
+
       if (session?.user) {
         fetchUserRoles(session.user.id);
       } else {
@@ -41,7 +46,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   const fetchUserRoles = async (userId: string) => {
@@ -69,7 +76,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const isSuperAdmin = roles.includes('super_admin');
 
   return (
-    <AdminContext.Provider value={{ user, roles, isAdmin, isSuperAdmin, loading }}>
+    <AdminContext.Provider
+      value={{ user, roles, isAdmin, isSuperAdmin, loading }}
+    >
       {children}
     </AdminContext.Provider>
   );
@@ -77,8 +86,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
 export const useAdmin = () => {
   const context = useContext(AdminContext);
-  if (context === undefined) {
-    throw new Error('useAdmin must be used within an AdminProvider');
-  }
+  if (!context) throw new Error("useAdmin must be used within AdminProvider");
   return context;
 };
