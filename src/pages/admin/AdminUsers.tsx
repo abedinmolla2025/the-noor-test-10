@@ -6,20 +6,31 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Search, Ban, Trash2 } from 'lucide-react';
+import { Search, Trash2, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useAdmin, AppRole } from '@/contexts/AdminContext';
+import { RoleManagementDialog } from '@/components/admin/RoleManagementDialog';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useAdmin } from '@/contexts/AdminContext';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export default function AdminUsers() {
   const [search, setSearch] = useState('');
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    email: string;
+    roles: AppRole[];
+  } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { isSuperAdmin } = useAdmin();
@@ -45,26 +56,15 @@ export default function AdminUsers() {
     },
   });
 
-  const updateRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
-      // Delete existing roles for this user
-      await supabase.from('user_roles').delete().eq('user_id', userId);
-      
-      // Insert new role
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({ user_id: userId, role: role as any });
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      toast({ title: 'Role updated successfully' });
-    },
-    onError: () => {
-      toast({ title: 'Failed to update role', variant: 'destructive' });
-    },
-  });
+  const openRoleDialog = (userId: string, email: string, roles: AppRole[]) => {
+    setSelectedUser({ id: userId, email, roles });
+    setRoleDialogOpen(true);
+  };
+
+  const openDeleteDialog = (userId: string, email: string) => {
+    setSelectedUser({ id: userId, email, roles: [] });
+    setDeleteDialogOpen(true);
+  };
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -74,11 +74,25 @@ export default function AdminUsers() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       toast({ title: 'User deleted successfully' });
+      setDeleteDialogOpen(false);
     },
     onError: () => {
       toast({ title: 'Failed to delete user', variant: 'destructive' });
     },
   });
+
+  const getRoleBadgeVariant = (role: AppRole) => {
+    switch (role) {
+      case 'super_admin':
+        return 'default';
+      case 'admin':
+        return 'secondary';
+      case 'editor':
+        return 'outline';
+      default:
+        return 'outline';
+    }
+  };
 
   return (
     <AdminLayout>
@@ -116,56 +130,93 @@ export default function AdminUsers() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users?.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.full_name || '-'}</TableCell>
-                      <TableCell>
-                        {isSuperAdmin ? (
-                          <Select
-                            value={(user.user_roles as any)?.[0]?.role || 'user'}
-                            onValueChange={(role) =>
-                              updateRoleMutation.mutate({ userId: user.id, role })
-                            }
-                          >
-                            <SelectTrigger className="w-[140px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="user">User</SelectItem>
-                              <SelectItem value="editor">Editor</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                              <SelectItem value="super_admin">Super Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <Badge>{(user.user_roles as any)?.[0]?.role || 'user'}</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          {isSuperAdmin && (
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => deleteUserMutation.mutate(user.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {users?.map((user) => {
+                    const userRoles = ((user.user_roles as any) || []).map((r: any) => r.role as AppRole);
+                    return (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.full_name || '-'}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {userRoles.length > 0 ? (
+                              userRoles.map((role: AppRole) => (
+                                <Badge key={role} variant={getRoleBadgeVariant(role)}>
+                                  {role.replace('_', ' ')}
+                                </Badge>
+                              ))
+                            ) : (
+                              <Badge variant="outline">No roles</Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            {isSuperAdmin && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openRoleDialog(user.id, user.email || '', userRoles)}
+                                >
+                                  <Settings className="h-4 w-4 mr-1" />
+                                  Manage Roles
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => openDeleteDialog(user.id, user.email || '')}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
           </CardContent>
         </Card>
       </div>
+
+      {selectedUser && (
+        <>
+          <RoleManagementDialog
+            open={roleDialogOpen}
+            onOpenChange={setRoleDialogOpen}
+            userId={selectedUser.id}
+            userEmail={selectedUser.email}
+            currentRoles={selectedUser.roles}
+          />
+
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the user account for{' '}
+                  <strong>{selectedUser.email}</strong>. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteUserMutation.mutate(selectedUser.id)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete User
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      )}
     </AdminLayout>
   );
 }
