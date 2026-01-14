@@ -35,18 +35,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     loadSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
-
-      // Log auth events to audit log
-      if (session?.user && (event === 'SIGNED_IN' || event === 'SIGNED_OUT')) {
-        await supabase.from('admin_audit_log').insert({
-          action: event === 'SIGNED_IN' ? 'auth.login' : 'auth.logout',
-          actor_id: session.user.id,
-          resource_type: 'auth',
-          metadata: { event, timestamp: new Date().toISOString() },
-        });
-      }
 
       if (session?.user) {
         fetchUserRoles(session.user.id);

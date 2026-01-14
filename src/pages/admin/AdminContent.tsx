@@ -15,10 +15,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ContentPreview } from '@/components/admin/ContentPreview';
-import { ReviewComments } from '@/components/admin/ReviewComments';
 
-import { Plus, Edit, Trash2, Workflow, History, Activity, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Workflow, History, Activity } from 'lucide-react';
 
 interface AdminContentRow {
   id: string;
@@ -88,7 +86,7 @@ export default function AdminContent() {
   const queryClient = useQueryClient();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview' | 'workflow' | 'versions' | 'comments' | 'audit'>('edit');
+  const [activeTab, setActiveTab] = useState<'edit' | 'workflow' | 'versions' | 'audit'>('edit');
   const [editForm, setEditForm] = useState({
     content_type: 'dua',
     title: '',
@@ -570,17 +568,11 @@ export default function AdminContent() {
           >
             <TabsList>
               <TabsTrigger value="edit">Edit</TabsTrigger>
-              <TabsTrigger value="preview">
-                <Eye className="h-3 w-3 mr-1" /> Preview
-              </TabsTrigger>
               <TabsTrigger value="workflow" disabled={!selectedContent}>
                 <Workflow className="h-3 w-3 mr-1" /> Workflow
               </TabsTrigger>
               <TabsTrigger value="versions" disabled={!selectedContent}>
                 <History className="h-3 w-3 mr-1" /> Versions
-              </TabsTrigger>
-              <TabsTrigger value="comments" disabled={!selectedContent}>
-                <Activity className="h-3 w-3 mr-1" /> Comments
               </TabsTrigger>
               <TabsTrigger value="audit" disabled={!selectedContent}>
                 <Activity className="h-3 w-3 mr-1" /> Audit
@@ -695,17 +687,6 @@ export default function AdminContent() {
               </div>
             </TabsContent>
 
-            <TabsContent value="preview" className="pt-4 space-y-4">
-              <ContentPreview
-                contentType={editForm.content_type}
-                title={editForm.title}
-                titleArabic={editForm.title_arabic}
-                content={editForm.content}
-                contentArabic={editForm.content_arabic}
-                category={editForm.category}
-              />
-            </TabsContent>
-
             <TabsContent value="workflow" className="pt-4 space-y-4">
               {selectedContent ? (
                 <div className="space-y-4">
@@ -813,16 +794,6 @@ export default function AdminContent() {
               ) : (
                 <p className="text-sm text-muted-foreground">
                   Select a content item from the list above to see its version history.
-                </p>
-              )}
-            </TabsContent>
-
-            <TabsContent value="comments" className="pt-4 space-y-4">
-              {selectedContent ? (
-                <ReviewComments contentId={selectedContent.id} />
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Select a content item from the list above to view review comments.
                 </p>
               )}
             </TabsContent>

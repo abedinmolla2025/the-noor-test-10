@@ -276,38 +276,6 @@ export type Database = {
           },
         ]
       }
-      content_review_comments: {
-        Row: {
-          actor_id: string
-          comment: string
-          content_id: string
-          created_at: string
-          id: string
-        }
-        Insert: {
-          actor_id: string
-          comment: string
-          content_id: string
-          created_at?: string
-          id?: string
-        }
-        Update: {
-          actor_id?: string
-          comment?: string
-          content_id?: string
-          created_at?: string
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_review_comments_content_id_fkey"
-            columns: ["content_id"]
-            isOneToOne: false
-            referencedRelation: "admin_content"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       content_versions: {
         Row: {
           change_summary: string | null
@@ -392,33 +360,6 @@ export type Database = {
         }
         Relationships: []
       }
-      role_capabilities: {
-        Row: {
-          allowed: boolean
-          capability: string
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at: string
-        }
-        Insert: {
-          allowed?: boolean
-          capability: string
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at?: string
-        }
-        Update: {
-          allowed?: boolean
-          capability?: string
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       user_activity: {
         Row: {
           activity_data: Json | null
@@ -440,33 +381,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           user_id?: string | null
-        }
-        Relationships: []
-      }
-      user_mfa_settings: {
-        Row: {
-          created_at: string
-          id: string
-          is_mfa_enabled: boolean
-          method: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_mfa_enabled?: boolean
-          method?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_mfa_enabled?: boolean
-          method?: string | null
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }

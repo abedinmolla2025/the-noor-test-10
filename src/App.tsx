@@ -26,7 +26,6 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminContent from "./pages/admin/AdminContent";
 import AdminContentWorkflowPage from "./pages/admin/AdminContentWorkflow";
 import AdminAuditPage from "./pages/admin/AdminAudit";
-import AdminPermissions from "./pages/admin/AdminPermissions";
 import AdminMonetization from "./pages/admin/AdminMonetization";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminMedia from "./pages/admin/AdminMedia";
@@ -177,14 +176,6 @@ const App = () => (
                 element={
                   <AdminLayout>
                     <AdminAuditPage />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/permissions"
-                element={
-                  <AdminLayout>
-                    <AdminPermissions />
                   </AdminLayout>
                 }
               />
