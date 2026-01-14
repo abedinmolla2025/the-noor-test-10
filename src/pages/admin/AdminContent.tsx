@@ -16,7 +16,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
-import { Plus, Edit, Trash2, Workflow, History, Activity } from 'lucide-react';
+import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen } from 'lucide-react';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 
 interface AdminContentRow {
   id: string;
@@ -492,12 +493,13 @@ export default function AdminContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Content Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage Quran, Dua, Hadith and other content with workflow, versions, and audit.
-          </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex-1">
+          <AdminPageHeader
+            title="Content Management"
+            description="Manage Quran, Dua, Hadith and other content with workflow, versions, and audit."
+            icon={BookOpen}
+          />
         </div>
         <Button
           onClick={() => {
@@ -510,61 +512,89 @@ export default function AdminContent() {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Content List</CardTitle>
+      <Card className="shadow-sm border-border/80">
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>Content List</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Filter, select and manage items before working on their workflow.
+            </p>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-2">
           {isLoading ? (
-            <p>Loading...</p>
-          ) : (
+            <p className="text-sm text-muted-foreground">Loading content…</p>
+          ) : content && content.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Type</TableHead>
+                  <TableHead className="w-[90px]">Type</TableHead>
                   <TableHead>Title</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Scheduled</TableHead>
-                  <TableHead>Published</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="w-[140px]">Category</TableHead>
+                  <TableHead className="w-[120px]">Status</TableHead>
+                  <TableHead className="w-[150px]">Scheduled</TableHead>
+                  <TableHead className="w-[150px]">Published</TableHead>
+                  <TableHead className="w-[90px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {content?.map((item) => (
+                {content.map((item) => (
                   <TableRow
                     key={item.id}
-                    className={selectedId === item.id ? 'bg-muted/50' : ''}
+                    className={
+                      selectedId === item.id
+                        ? 'bg-muted/60 hover:bg-muted/70'
+                        : 'hover:bg-muted/40'
+                    }
                   >
                     <TableCell>
-                      <Badge variant="outline">{item.content_type}</Badge>
+                      <Badge
+                        variant="outline"
+                        className="rounded-full px-2 py-0.5 text-xs font-medium uppercase tracking-wide"
+                      >
+                        {item.content_type}
+                      </Badge>
                     </TableCell>
-                    <TableCell>{item.title}</TableCell>
-                    <TableCell>{item.category || '-'}</TableCell>
+                    <TableCell className="max-w-xs truncate">{item.title}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {item.category || '-'}
+                    </TableCell>
                     <TableCell>
-                      <Badge variant={STATUS_VARIANTS[item.status] || 'secondary'}>
+                      <Badge
+                        variant={STATUS_VARIANTS[item.status] || 'secondary'}
+                        className="rounded-full px-2 py-0.5 text-xs font-medium flex items-center gap-1"
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
                         {STATUS_LABELS[item.status] || item.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{formatDateTime(item.scheduled_at)}</TableCell>
-                    <TableCell>{formatDateTime(item.published_at)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
+                    <TableCell className="text-xs text-muted-foreground">
+                      {formatDateTime(item.scheduled_at)}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {formatDateTime(item.published_at)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="inline-flex gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-8 w-8 p-0"
                           onClick={() => {
                             setSelectedId(item.id);
                             resetEditForm(item);
                             setActiveTab('workflow');
                           }}
+                          aria-label="Open workflow"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                           onClick={() => deleteMutation.mutate(item.id)}
+                          aria-label="Delete content"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -574,11 +604,13 @@ export default function AdminContent() {
                 ))}
               </TableBody>
             </Table>
+          ) : (
+            <p className="text-sm text-muted-foreground">No content yet. Create your first item.</p>
           )}
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="shadow-sm border-border/80">
         <CardHeader>
           <CardTitle>Content Details</CardTitle>
         </CardHeader>
@@ -587,15 +619,29 @@ export default function AdminContent() {
             value={activeTab}
             onValueChange={(value) => setActiveTab(value as typeof activeTab)}
           >
-            <TabsList>
-              <TabsTrigger value="edit">Edit</TabsTrigger>
-              <TabsTrigger value="workflow" disabled={!selectedContent}>
+            <TabsList className="inline-flex h-10 items-center justify-center rounded-full bg-muted/70 p-1 text-xs sm:text-sm">
+              <TabsTrigger className="rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow" value="edit">
+                Edit
+              </TabsTrigger>
+              <TabsTrigger
+                value="workflow"
+                disabled={!selectedContent}
+                className="rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
+              >
                 <Workflow className="h-3 w-3 mr-1" /> Workflow
               </TabsTrigger>
-              <TabsTrigger value="versions" disabled={!selectedContent}>
+              <TabsTrigger
+                value="versions"
+                disabled={!selectedContent}
+                className="rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
+              >
                 <History className="h-3 w-3 mr-1" /> Versions
               </TabsTrigger>
-              <TabsTrigger value="audit" disabled={!selectedContent}>
+              <TabsTrigger
+                value="audit"
+                disabled={!selectedContent}
+                className="rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
+              >
                 <Activity className="h-3 w-3 mr-1" /> Audit
               </TabsTrigger>
             </TabsList>
@@ -690,12 +736,16 @@ export default function AdminContent() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t border-border">
+              <div className="flex justify-between items-center pt-4 border-t border-border/70">
                 {selectedContent && (
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <div>
-                      Status:{' '}
-                      <Badge variant={STATUS_VARIANTS[selectedContent.status] || 'secondary'}>
+                  <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">Status:</span>
+                      <Badge
+                        variant={STATUS_VARIANTS[selectedContent.status] || 'secondary'}
+                        className="rounded-full px-2 py-0.5 text-xs font-medium flex items-center gap-1"
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
                         {STATUS_LABELS[selectedContent.status] || selectedContent.status}
                       </Badge>
                     </div>
@@ -726,7 +776,11 @@ export default function AdminContent() {
                     <div>
                       <Label>Current Status</Label>
                       <div className="mt-1">
-                        <Badge variant={STATUS_VARIANTS[selectedContent.status] || 'secondary'}>
+                        <Badge
+                          variant={STATUS_VARIANTS[selectedContent.status] || 'secondary'}
+                          className="rounded-full px-2 py-0.5 text-xs font-medium flex items-center gap-1"
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-current" />
                           {STATUS_LABELS[selectedContent.status] || selectedContent.status}
                         </Badge>
                       </div>
@@ -778,28 +832,32 @@ export default function AdminContent() {
               )}
             </TabsContent>
 
-            <TabsContent value="versions" className="pt-4 space-y-4">
+            <TabsContent value="versions" className="pt-6 space-y-4 border-t border-border/60 mt-4">
               {selectedContent ? (
                 versions && versions.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Version</TableHead>
+                        <TableHead className="w-[90px]">Version</TableHead>
                         <TableHead>Title</TableHead>
-                        <TableHead>Created At</TableHead>
+                        <TableHead className="w-[180px]">Created At</TableHead>
                         <TableHead>Summary</TableHead>
-                        <TableHead>Actions</TableHead>
+                        <TableHead className="w-[140px] text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {versions.map((version) => (
                         <TableRow key={version.id}>
                           <TableCell>{version.version_number}</TableCell>
-                          <TableCell>{version.title}</TableCell>
-                          <TableCell>{formatDateTime(version.created_at)}</TableCell>
-                          <TableCell>{version.change_summary || '-'}</TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
+                          <TableCell className="max-w-xs truncate">{version.title}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {formatDateTime(version.created_at)}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {version.change_summary || '-'}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="inline-flex gap-2">
                               <VersionPreviewDialog version={version} />
                               <Button
                                 variant="outline"
@@ -826,7 +884,7 @@ export default function AdminContent() {
               )}
             </TabsContent>
 
-            <TabsContent value="audit" className="pt-4 space-y-4">
+            <TabsContent value="audit" className="pt-6 space-y-4 border-t border-border/60 mt-4">
               {selectedContent ? (
                 auditLogs && auditLogs.length > 0 ? (
                   <Table>
