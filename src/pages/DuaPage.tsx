@@ -336,7 +336,7 @@ const DuaPage = () => {
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="w-6 h-6 rounded-full bg-[hsl(45,93%,58%)]/20 flex items-center justify-center text-xs font-bold text-[hsl(45,93%,58%)]">
-                            {dua.id}
+                            {index + 1}
                           </span>
                           <p className="font-semibold text-white">{dua.translations[language].title}</p>
                         </div>
