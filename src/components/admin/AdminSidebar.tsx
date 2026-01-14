@@ -10,6 +10,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  Activity,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +34,7 @@ export const AdminSidebar = () => {
     { to: '/admin/notifications', icon: Bell, label: 'Notifications' },
     { to: '/admin/reports', icon: BarChart3, label: 'Reports' },
     { to: '/admin/finance', icon: DollarSign, label: 'Finance' },
+    { to: '/admin/audit', icon: Activity, label: 'Audit' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
