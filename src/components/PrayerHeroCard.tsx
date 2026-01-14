@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MapPin, Clock, Loader2, ChevronRight, Sparkles, Bell, BellRing } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import noorLogo from "@/assets/noor-logo.png";
 import prayingMan3D from "@/assets/praying-man-3d.png";
 import { useGlobalConfig } from "@/context/GlobalConfigContext";
