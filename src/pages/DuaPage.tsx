@@ -58,7 +58,7 @@ const DuaPage = () => {
         .select("*")
         .eq("status", "published")
         .eq("content_type", "dua")
-        .order("created_at", { ascending: false });
+        .order("published_at", { ascending: false });
 
       if (error) {
         console.error("Error loading duas", error);
@@ -109,7 +109,7 @@ const DuaPage = () => {
     const translation = dua.translations[language];
     const matchesSearch =
       translation.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dua.transliteration.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (dua.transliteration || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       translation.translation.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !selectedCategory || translation.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -310,33 +310,45 @@ const DuaPage = () => {
             )}
 
             {/* Dua List */}
-            <div className="space-y-3">
-              {filteredDuas.map((dua, index) => (
-                <motion.button
-                  key={dua.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => setSelectedDua(dua)}
-                  className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-2 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-[hsl(45,93%,58%)]/20 flex items-center justify-center text-xs font-bold text-[hsl(45,93%,58%)]">
-                          {dua.id}
-                        </span>
-                        <p className="font-semibold text-white">{dua.translations[language].title}</p>
+            {!loading && !error && filteredDuas.length === 0 ? (
+              <div className="py-8 text-center text-white/70 text-sm">
+                {language === "bengali"
+                  ? "কোনো দোয়া পাওয়া যায়নি।"
+                  : language === "hindi"
+                  ? "कोई दुआ नहीं मिली।"
+                  : language === "urdu"
+                  ? "کوئی دعا نہیں ملی۔"
+                  : "No duas found."}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredDuas.map((dua, index) => (
+                  <motion.button
+                    key={dua.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => setSelectedDua(dua)}
+                    className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full bg-[hsl(45,93%,58%)]/20 flex items-center justify-center text-xs font-bold text-[hsl(45,93%,58%)]">
+                            {dua.id}
+                          </span>
+                          <p className="font-semibold text-white">{dua.translations[language].title}</p>
+                        </div>
+                        <p className="text-sm text-white/60 line-clamp-1 font-arabic">
+                          {dua.arabic}
+                        </p>
                       </div>
-                      <p className="text-sm text-white/60 line-clamp-1 font-arabic">
-                        {dua.arabic}
-                      </p>
+                      <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-[hsl(45,93%,58%)] transition-colors" />
                     </div>
-                    <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-[hsl(45,93%,58%)] transition-colors" />
-                  </div>
-                </motion.button>
-              ))}
-            </div>
+                  </motion.button>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
