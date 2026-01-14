@@ -24,6 +24,8 @@ import AdminResetPassword from "./pages/AdminResetPassword";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminContent from "./pages/admin/AdminContent";
+import AdminContentWorkflowPage from "./pages/admin/AdminContentWorkflow";
+import AdminAuditPage from "./pages/admin/AdminAudit";
 import AdminMonetization from "./pages/admin/AdminMonetization";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminMedia from "./pages/admin/AdminMedia";
@@ -95,6 +97,14 @@ const App = () => (
                   </AdminLayout>
                 }
               />
+              <Route
+                path="/admin/content/:id/workflow"
+                element={
+                  <AdminLayout>
+                    <AdminContentWorkflowPage />
+                  </AdminLayout>
+                }
+              />
               {/* Ads, Reports, Finance map to existing Monetization/Analytics pages for now */}
               <Route
                 path="/admin/ads"
@@ -158,6 +168,14 @@ const App = () => (
                 element={
                   <AdminLayout>
                     <AdminSettings />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/audit"
+                element={
+                  <AdminLayout>
+                    <AdminAuditPage />
                   </AdminLayout>
                 }
               />
