@@ -29,6 +29,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
+import { AdminLayout } from "./components/admin/AdminLayout";
 
 const queryClient = new QueryClient();
 
@@ -57,16 +58,105 @@ const App = () => (
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/content" element={<AdminContent />} />
-              <Route path="/admin/monetization" element={<AdminMonetization />} />
-              <Route path="/admin/notifications" element={<AdminNotifications />} />
-              <Route path="/admin/media" element={<AdminMedia />} />
-              <Route path="/admin/analytics" element={<AdminAnalytics />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
+              {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminLayout>
+                    <AdminDashboard />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <AdminLayout>
+                    <AdminDashboard />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <AdminLayout>
+                    <AdminUsers />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/content"
+                element={
+                  <AdminLayout>
+                    <AdminContent />
+                  </AdminLayout>
+                }
+              />
+              {/* Ads, Reports, Finance map to existing Monetization/Analytics pages for now */}
+              <Route
+                path="/admin/ads"
+                element={
+                  <AdminLayout>
+                    <AdminMonetization />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/reports"
+                element={
+                  <AdminLayout>
+                    <AdminAnalytics />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/finance"
+                element={
+                  <AdminLayout>
+                    <AdminMonetization />
+                  </AdminLayout>
+                }
+              />
+              {/* Keep existing admin routes for backward compatibility */}
+              <Route
+                path="/admin/monetization"
+                element={
+                  <AdminLayout>
+                    <AdminMonetization />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/notifications"
+                element={
+                  <AdminLayout>
+                    <AdminNotifications />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/media"
+                element={
+                  <AdminLayout>
+                    <AdminMedia />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/analytics"
+                element={
+                  <AdminLayout>
+                    <AdminAnalytics />
+                  </AdminLayout>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <AdminLayout>
+                    <AdminSettings />
+                  </AdminLayout>
+                }
+              />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

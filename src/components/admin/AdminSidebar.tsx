@@ -29,10 +29,10 @@ export const AdminSidebar = () => {
     { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/admin/users', icon: Users, label: 'Users' },
     { to: '/admin/content', icon: BookOpen, label: 'Content' },
-    { to: '/admin/monetization', icon: DollarSign, label: 'Monetization' },
+    { to: '/admin/ads', icon: DollarSign, label: 'Ads' },
     { to: '/admin/notifications', icon: Bell, label: 'Notifications' },
-    { to: '/admin/media', icon: Image, label: 'Media' },
-    { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+    { to: '/admin/reports', icon: BarChart3, label: 'Reports' },
+    { to: '/admin/finance', icon: DollarSign, label: 'Finance' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
