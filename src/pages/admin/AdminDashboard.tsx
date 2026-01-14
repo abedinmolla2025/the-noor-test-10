@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, BookOpen, Activity, DollarSign } from 'lucide-react';
+import { Users, BookOpen, Activity, DollarSign, LayoutDashboard } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 
 export default function AdminDashboard() {
   const { data: stats } = useQuery({
@@ -51,32 +52,33 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">Welcome to NOOR Admin Panel</p>
-      </div>
+      <AdminPageHeader
+        title="Dashboard"
+        description="High-level overview of your NOOR app performance."
+        icon={LayoutDashboard}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (
-          <Card key={stat.title}>
+          <Card key={stat.title} className="shadow-sm border-border/80">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
               <stat.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
+              <div className="text-2xl font-semibold tracking-tight">{stat.value}</div>
+              <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card>
+      <Card className="shadow-sm border-dashed border-border/70">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No recent activity</p>
+          <p className="text-muted-foreground text-sm">No recent activity yet.</p>
         </CardContent>
       </Card>
     </div>
