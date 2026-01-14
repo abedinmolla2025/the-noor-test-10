@@ -30,7 +30,6 @@ export const AdminSidebar = () => {
     { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/admin/users', icon: Users, label: 'Users' },
     { to: '/admin/content', icon: BookOpen, label: 'Content' },
-    { to: '/admin/import-old-duas', icon: BookOpen, label: 'Import Duas' },
     { to: '/admin/ads', icon: DollarSign, label: 'Ads' },
     { to: '/admin/notifications', icon: Bell, label: 'Notifications' },
     { to: '/admin/reports', icon: BarChart3, label: 'Reports' },
