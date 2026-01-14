@@ -4,12 +4,15 @@ import { Home, BookOpen, ScrollText, CalendarDays, Settings2 } from "lucide-reac
 import type React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+import { useGlobalConfig } from "@/context/GlobalConfigContext";
+
 interface NavItem {
   icon: React.ReactNode;
   label: string;
   labelBn: string;
   id: string;
   path: string;
+  moduleKey?: keyof ReturnType<typeof useGlobalConfig>["modules"];
 }
 
 const navItems: NavItem[] = [
@@ -26,6 +29,7 @@ const navItems: NavItem[] = [
     label: "Quran",
     labelBn: "কুরআন",
     path: "/quran",
+    moduleKey: "quran",
   },
   {
     id: "hadith",
@@ -33,6 +37,7 @@ const navItems: NavItem[] = [
     label: "Hadith",
     labelBn: "হাদিস",
     path: "/bukhari",
+    moduleKey: "hadith",
   },
   {
     id: "calendar",
@@ -40,6 +45,7 @@ const navItems: NavItem[] = [
     label: "Calendar",
     labelBn: "ক্যালেন্ডার",
     path: "/calendar",
+    moduleKey: "calendar",
   },
   {
     id: "settings",
@@ -54,17 +60,10 @@ const BottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { modules } = useGlobalConfig();
 
   const isActive = (path: string) => location.pathname === path;
 
-  // বড় স্ক্রিনে লুকিয়ে রেখে শুধু মোবাইল/ট্যাবের জন্য বটম ন্যাভবার
-  if (!isMobile) return null;
-
-  return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-xl md:bottom-4 md:mx-auto md:max-w-lg md:rounded-2xl md:border md:shadow-card">
-      <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-1.5 px-2 pt-2 pb-4 sm:px-4">
-        {navItems.map((item) => {
-          const active = isActive(item.path);
 
           return (
             <motion.button

@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { MapPin, Clock, Loader2, ChevronRight, Sparkles, Bell, BellRing } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import noorLogo from "@/assets/noor-logo.png";
 import prayingMan3D from "@/assets/praying-man-3d.png";
+import { useGlobalConfig } from "@/context/GlobalConfigContext";
+
 interface AthanSettings {
   enabled: boolean;
   isPlaying: boolean;
@@ -20,6 +21,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const localPrayerData = usePrayerTimes();
+  const { branding } = useGlobalConfig();
   const { prayerTimes, location, hijriDate, isLoading } = prayerData || localPrayerData;
 
   useEffect(() => {
@@ -162,8 +164,8 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                     <div className="relative w-10 h-10 flex-shrink-0">
                       <div className="absolute -inset-0.5 bg-white rounded-full blur-sm opacity-25" />
                       <img 
-                        src={noorLogo} 
-                        alt="NOOR Logo" 
+                        src={branding.logoUrl || noorLogo}
+                        alt={branding.appName || "NOOR Logo"}
                         className="w-10 h-10 rounded-full object-cover relative z-10"
                         style={{ boxShadow: '0 0 8px 2px rgba(255, 255, 255, 0.25)' }}
                       />
@@ -179,12 +181,12 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                           backgroundClip: 'text',
                         }}
                       >
-                        NOOR
+                        {branding.appName || 'NOOR'}
                       </span>
                       <span 
                         className="text-[7px] font-premium uppercase tracking-[0.2em] font-medium text-amber-300/80"
                       >
-                        Islamic App
+                        {branding.tagline || 'Islamic App'}
                       </span>
                     </div>
                   </div>

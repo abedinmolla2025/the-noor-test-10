@@ -34,157 +34,164 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
 import { AdminLayout } from "./components/admin/AdminLayout";
+import { GlobalConfigProvider } from "./context/GlobalConfigContext";
 
 const queryClient = new QueryClient();
+
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/" element={<Index />} />
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/baby-names" element={<BabyNamesPage />} />
+    <Route path="/qibla" element={<QiblaPage />} />
+    <Route path="/tasbih" element={<TasbihPage />} />
+    <Route path="/dua" element={<DuaPage />} />
+    <Route path="/quran" element={<QuranPage />} />
+    <Route path="/99-names" element={<NamesOfAllahPage />} />
+    <Route path="/prayer-times" element={<PrayerTimesPage />} />
+    <Route path="/bukhari" element={<BukhariPage />} />
+    <Route path="/calendar" element={<IslamicCalendarPage />} />
+    <Route path="/settings" element={<SettingsPage />} />
+    <Route path="/quiz" element={<QuizPage />} />
+    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+    <Route path="/terms" element={<TermsPage />} />
+    <Route path="/admin/login" element={<AdminLogin />} />
+    <Route path="/admin/reset-password" element={<AdminResetPassword />} />
+    
+    {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
+    <Route
+      path="/admin"
+      element={
+        <AdminLayout>
+          <AdminDashboard />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/dashboard"
+      element={
+        <AdminLayout>
+          <AdminDashboard />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/users"
+      element={
+        <AdminLayout>
+          <AdminUsers />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/content"
+      element={
+        <AdminLayout>
+          <AdminContent />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/content/:id/workflow"
+      element={
+        <AdminLayout>
+          <AdminContentWorkflowPage />
+        </AdminLayout>
+      }
+    />
+    {/* Ads, Reports, Finance map to existing Monetization/Analytics pages for now */}
+    <Route
+      path="/admin/ads"
+      element={
+        <AdminLayout>
+          <AdminMonetization />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/reports"
+      element={
+        <AdminLayout>
+          <AdminAnalytics />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/finance"
+      element={
+        <AdminLayout>
+          <AdminMonetization />
+        </AdminLayout>
+      }
+    />
+    {/* Keep existing admin routes for backward compatibility */}
+    <Route
+      path="/admin/monetization"
+      element={
+        <AdminLayout>
+          <AdminMonetization />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/notifications"
+      element={
+        <AdminLayout>
+          <AdminNotifications />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/media"
+      element={
+        <AdminLayout>
+          <AdminMedia />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/analytics"
+      element={
+        <AdminLayout>
+          <AdminAnalytics />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/settings"
+      element={
+        <AdminLayout>
+          <AdminSettings />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/audit"
+      element={
+        <AdminLayout>
+          <AdminAuditPage />
+        </AdminLayout>
+      }
+    />
+    
+    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AdminProvider>
-        <AppSettingsProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/baby-names" element={<BabyNamesPage />} />
-              <Route path="/qibla" element={<QiblaPage />} />
-              <Route path="/tasbih" element={<TasbihPage />} />
-              <Route path="/dua" element={<DuaPage />} />
-              <Route path="/quran" element={<QuranPage />} />
-              <Route path="/99-names" element={<NamesOfAllahPage />} />
-              <Route path="/prayer-times" element={<PrayerTimesPage />} />
-              <Route path="/bukhari" element={<BukhariPage />} />
-              <Route path="/calendar" element={<IslamicCalendarPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/quiz" element={<QuizPage />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/reset-password" element={<AdminResetPassword />} />
-              
-              {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
-              <Route
-                path="/admin"
-                element={
-                  <AdminLayout>
-                    <AdminDashboard />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <AdminLayout>
-                    <AdminDashboard />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/users"
-                element={
-                  <AdminLayout>
-                    <AdminUsers />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/content"
-                element={
-                  <AdminLayout>
-                    <AdminContent />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/content/:id/workflow"
-                element={
-                  <AdminLayout>
-                    <AdminContentWorkflowPage />
-                  </AdminLayout>
-                }
-              />
-              {/* Ads, Reports, Finance map to existing Monetization/Analytics pages for now */}
-              <Route
-                path="/admin/ads"
-                element={
-                  <AdminLayout>
-                    <AdminMonetization />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/reports"
-                element={
-                  <AdminLayout>
-                    <AdminAnalytics />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/finance"
-                element={
-                  <AdminLayout>
-                    <AdminMonetization />
-                  </AdminLayout>
-                }
-              />
-              {/* Keep existing admin routes for backward compatibility */}
-              <Route
-                path="/admin/monetization"
-                element={
-                  <AdminLayout>
-                    <AdminMonetization />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/notifications"
-                element={
-                  <AdminLayout>
-                    <AdminNotifications />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/media"
-                element={
-                  <AdminLayout>
-                    <AdminMedia />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/analytics"
-                element={
-                  <AdminLayout>
-                    <AdminAnalytics />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/settings"
-                element={
-                  <AdminLayout>
-                    <AdminSettings />
-                  </AdminLayout>
-                }
-              />
-              <Route
-                path="/admin/audit"
-                element={
-                  <AdminLayout>
-                    <AdminAuditPage />
-                  </AdminLayout>
-                }
-              />
-              
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AppSettingsProvider>
+        <GlobalConfigProvider>
+          <AppSettingsProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </AppSettingsProvider>
+        </GlobalConfigProvider>
       </AdminProvider>
     </TooltipProvider>
   </QueryClientProvider>

@@ -13,11 +13,13 @@ import { useAthanNotification } from "@/hooks/useAthanNotification";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
+import { useGlobalConfig } from "@/context/GlobalConfigContext";
+ 
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
   const { prayerTimes } = usePrayerTimes();
   const navigate = useNavigate();
+  const { modules, system, branding } = useGlobalConfig();
   
   const {
     settings,
@@ -32,6 +34,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
+      {/* Maintenance banner */}
+      {system.maintenanceMode && (
+        <div className="w-full bg-amber-500/90 text-amber-950 text-center text-xs py-2 px-3">
+          {branding.tagline || 'The app is currently in maintenance mode. Some features may be limited.'}
+        </div>
+      )}
+
       {/* Playing Indicator */}
       {isPlaying && currentPrayer && (
         <motion.div
