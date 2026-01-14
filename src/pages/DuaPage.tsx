@@ -29,12 +29,12 @@ interface Dua {
   translations: Record<Language, DuaTranslation>;
 }
 
-
 interface AdminContentDuaRow {
   id: string;
   title: string | null;
   content: string | null;
   content_arabic: string | null;
+  content_pronunciation: string | null;
   category: string | null;
 }
 
@@ -71,7 +71,7 @@ const DuaPage = () => {
         id: row.id,
         arabic: row.content_arabic || "",
         transliteration: undefined,
-        bengaliTransliteration: undefined,
+        bengaliTransliteration: row.content_pronunciation || undefined,
         translations: {
           bengali: {
             title: row.title || "দোয়া",
@@ -110,6 +110,7 @@ const DuaPage = () => {
     const matchesSearch =
       translation.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (dua.transliteration || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (dua.bengaliTransliteration || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       translation.translation.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !selectedCategory || translation.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -235,7 +236,7 @@ const DuaPage = () => {
                     <div className="flex items-center gap-2 mb-3">
                       <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
                       <p className="text-xs font-medium text-[hsl(45,93%,58%)]">
-                        {language === "bengali" ? "বাংলা উচ্চারণ" : language === "hindi" ? "उच्चारण" : language === "urdu" ? "تلفظ" : "Transliteration"}
+                        {language === "bengali" ? "উচ্চারণ" : language === "hindi" ? "उच्चारण" : language === "urdu" ? "تلفظ" : "Transliteration"}
                       </p>
                     </div>
                     <p className="text-white/90 text-lg md:text-xl leading-relaxed">
@@ -255,7 +256,7 @@ const DuaPage = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <Heart className="w-4 h-4 text-[hsl(45,93%,58%)]" />
                   <p className="text-xs font-medium text-[hsl(45,93%,58%)]">
-                    {language === "bengali" ? "অনুবাদ" : language === "hindi" ? "अनुवाद" : language === "urdu" ? "ترجمہ" : "Translation"}
+                    {language === "bengali" ? "অর্থ" : language === "hindi" ? "अनुवाद" : language === "urdu" ? "ترجمہ" : "Translation"}
                   </p>
                 </div>
                 <p className="text-white text-lg md:text-xl leading-relaxed">

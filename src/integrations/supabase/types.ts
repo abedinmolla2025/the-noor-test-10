@@ -61,6 +61,7 @@ export type Database = {
           category: string | null
           content: string | null
           content_arabic: string | null
+          content_pronunciation: string | null
           content_type: string
           created_at: string | null
           created_by: string | null
@@ -86,6 +87,7 @@ export type Database = {
           category?: string | null
           content?: string | null
           content_arabic?: string | null
+          content_pronunciation?: string | null
           content_type: string
           created_at?: string | null
           created_by?: string | null
@@ -111,6 +113,7 @@ export type Database = {
           category?: string | null
           content?: string | null
           content_arabic?: string | null
+          content_pronunciation?: string | null
           content_type?: string
           created_at?: string | null
           created_by?: string | null

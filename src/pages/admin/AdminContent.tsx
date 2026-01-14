@@ -25,6 +25,7 @@ interface AdminContentRow {
   title_arabic: string | null;
   content: string | null;
   content_arabic: string | null;
+  content_pronunciation: string | null;
   category: string | null;
   is_published: boolean | null;
   status: string;
@@ -93,6 +94,7 @@ export default function AdminContent() {
     title_arabic: '',
     content: '',
     content_arabic: '',
+    content_pronunciation: '',
     category: '',
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -178,6 +180,7 @@ export default function AdminContent() {
         title_arabic: '',
         content: '',
         content_arabic: '',
+        content_pronunciation: '',
         category: '',
       });
       setSelectedId(null);
@@ -190,6 +193,7 @@ export default function AdminContent() {
       title_arabic: item.title_arabic ?? '',
       content: item.content ?? '',
       content_arabic: item.content_arabic ?? '',
+      content_pronunciation: item.content_pronunciation ?? '',
       category: item.category ?? '',
     });
     setSelectedId(item.id);
@@ -227,6 +231,7 @@ export default function AdminContent() {
         title_arabic: editForm.title_arabic || null,
         content: editForm.content || null,
         content_arabic: editForm.content_arabic || null,
+        content_pronunciation: editForm.content_pronunciation || null,
         category: editForm.category || null,
       };
 
@@ -627,7 +632,18 @@ export default function AdminContent() {
                       onChange={(e) =>
                         setEditForm((prev) => ({ ...prev, content: e.target.value }))
                       }
-                      rows={6}
+                      rows={4}
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Bangla Pronunciation</Label>
+                    <Textarea
+                      value={editForm.content_pronunciation}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({ ...prev, content_pronunciation: e.target.value }))
+                      }
+                      rows={3}
                     />
                   </div>
 
@@ -638,7 +654,7 @@ export default function AdminContent() {
                       onChange={(e) =>
                         setEditForm((prev) => ({ ...prev, content_arabic: e.target.value }))
                       }
-                      rows={6}
+                      rows={4}
                     />
                   </div>
                 </div>
