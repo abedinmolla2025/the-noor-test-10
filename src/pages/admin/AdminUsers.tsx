@@ -1,4 +1,3 @@
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -95,95 +94,93 @@ export default function AdminUsers() {
   };
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Users Management</h1>
-          <p className="text-muted-foreground mt-2">Manage user accounts and roles</p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>User List</CardTitle>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search users..."
-                className="pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Joined</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users?.map((user) => {
-                    const userRoles = ((user.user_roles as any) || []).map((r: any) => r.role as AppRole);
-                    return (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.full_name || '-'}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {userRoles.length > 0 ? (
-                              userRoles.map((role: AppRole) => (
-                                <Badge key={role} variant={getRoleBadgeVariant(role)}>
-                                  {role.replace('_', ' ')}
-                                </Badge>
-                              ))
-                            ) : (
-                              <Badge variant="outline">No roles</Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            {isSuperAdmin && (
-                              <>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => openRoleDialog(user.id, user.email || '', userRoles)}
-                                >
-                                  <Settings className="h-4 w-4 mr-1" />
-                                  Manage Roles
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => openDeleteDialog(user.id, user.email || '')}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Users Management</h1>
+        <p className="text-muted-foreground mt-2">Manage user accounts and roles</p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>User List</CardTitle>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search users..."
+              className="pl-10"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users?.map((user) => {
+                  const userRoles = ((user.user_roles as any) || []).map((r: any) => r.role as AppRole);
+                  return (
+                    <TableRow key={user.id}>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.full_name || '-'}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {userRoles.length > 0 ? (
+                            userRoles.map((role: AppRole) => (
+                              <Badge key={role} variant={getRoleBadgeVariant(role)}>
+                                {role.replace('_', ' ')}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge variant="outline">No roles</Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          {isSuperAdmin && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openRoleDialog(user.id, user.email || '', userRoles)}
+                              >
+                                <Settings className="h-4 w-4 mr-1" />
+                                Manage Roles
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => openDeleteDialog(user.id, user.email || '')}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {selectedUser && (
         <>
@@ -217,6 +214,6 @@ export default function AdminUsers() {
           </AlertDialog>
         </>
       )}
-    </AdminLayout>
+    </div>
   );
 }

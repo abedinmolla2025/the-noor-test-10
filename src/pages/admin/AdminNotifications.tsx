@@ -1,4 +1,3 @@
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,44 +33,42 @@ export default function AdminNotifications() {
   };
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Notifications</h1>
-          <p className="text-muted-foreground mt-2">Send push notifications to users</p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Send Notification</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Title</Label>
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Notification title"
-              />
-            </div>
-
-            <div>
-              <Label>Message</Label>
-              <Textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Notification message"
-                rows={4}
-              />
-            </div>
-
-            <Button onClick={handleSend} className="w-full">
-              <Send className="h-4 w-4 mr-2" />
-              Send Notification
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Notifications</h1>
+        <p className="text-muted-foreground mt-2">Send push notifications to users</p>
       </div>
-    </AdminLayout>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Send Notification</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Title</Label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Notification title"
+            />
+          </div>
+
+          <div>
+            <Label>Message</Label>
+            <Textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Notification message"
+              rows={4}
+            />
+          </div>
+
+          <Button onClick={handleSend} className="w-full">
+            <Send className="h-4 w-4 mr-2" />
+            Send Notification
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
