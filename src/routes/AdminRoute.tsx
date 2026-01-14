@@ -1,5 +1,4 @@
 import { Navigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { useAdmin } from "@/contexts/AdminContext";
 
 interface AdminRouteProps {
@@ -10,11 +9,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   const { user, isAdmin, loading } = useAdmin();
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return null;
   }
 
   if (!user) {
