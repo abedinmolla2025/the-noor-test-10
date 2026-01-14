@@ -37,16 +37,40 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setTimeoutError(null);
+
+    const AUTH_TIMEOUT_MS = 10000; // 10s hard timeout so spinner can never be infinite
+
+    const withTimeout = <T,>(promise: Promise<T>): Promise<T> => {
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          console.warn('[LoginPage] Auth request timed out');
+          reject(new Error('Request timed out. Please check your connection and try again.'));
+        }, AUTH_TIMEOUT_MS);
+
+        promise
+          .then((result) => {
+            clearTimeout(timeoutId);
+            resolve(result);
+          })
+          .catch((error) => {
+            clearTimeout(timeoutId);
+            reject(error);
+          });
+      });
+    };
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
+        const { error } = await withTimeout(
+          supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+            },
+          })
+        );
 
         if (error) throw error;
 
@@ -55,10 +79,12 @@ export default function LoginPage() {
           description: 'Please check your email to confirm your account.',
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await withTimeout(
+          supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
+        );
 
         if (error) throw error;
 
@@ -70,11 +96,13 @@ export default function LoginPage() {
         navigate('/');
       }
     } catch (error: any) {
+      console.error('[LoginPage] Auth error', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error.message ?? 'Something went wrong. Please try again.',
         variant: 'destructive',
       });
+      setTimeoutError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

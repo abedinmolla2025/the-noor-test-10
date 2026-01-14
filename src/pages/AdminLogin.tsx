@@ -83,23 +83,46 @@ const AdminLogin = () => {
     }
 
     setSubmitting(true);
-    try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: parsed.data.email,
-        password: parsed.data.password,
+
+    const AUTH_TIMEOUT_MS = 10000; // 10s hard timeout
+
+    const withTimeout = <T,>(promise: Promise<T>): Promise<T> => {
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          console.warn("[AdminLogin] Auth request timed out");
+          reject(new Error("Request timed out. Please check your connection and try again."));
+        }, AUTH_TIMEOUT_MS);
+
+        promise
+          .then((result) => {
+            clearTimeout(timeoutId);
+            resolve(result);
+          })
+          .catch((error) => {
+            clearTimeout(timeoutId);
+            reject(error);
+          });
       });
+    };
+
+    try {
+      const { error: signInError } = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email: parsed.data.email,
+          password: parsed.data.password,
+        })
+      );
 
       if (signInError) {
-        // Do not leak exact error details
         setError("Invalid email or password.");
         return;
       }
 
       // AdminContext listener will pick up session and isAdmin,
       // which will cause the redirect above to /admin for admin users.
-    } catch (err) {
-      console.error("Error during admin email login", err);
-      setError("Something went wrong. Please try again.");
+    } catch (err: any) {
+      console.error("[AdminLogin] Error during admin email login", err);
+      setError(err.message ?? "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
