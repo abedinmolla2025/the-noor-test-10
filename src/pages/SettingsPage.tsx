@@ -27,6 +27,10 @@ const SettingsPage = () => {
   const [dailyReminder, setDailyReminder] = useState(false);
   const [marketingNotifications, setMarketingNotifications] = useState(false);
 
+  // Hidden admin unlock via version tap
+  const [versionTapCount, setVersionTapCount] = useState(0);
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
+
   // Sync context theme with document class on first mount
   useEffect(() => {
     // ensure current theme is applied (context already handles this on mount)
@@ -131,6 +135,17 @@ const SettingsPage = () => {
       title: "🕒 Prayer time adjusted",
       description: `${prayer} ${sign}${minutes} মিনিট offset করা হয়েছে`,
     });
+  };
+ 
+  const handleVersionTap = () => {
+    const next = versionTapCount + 1;
+    if (next >= 7) {
+      setAdminUnlocked(true);
+      setVersionTapCount(0);
+      navigate("/admin");
+    } else {
+      setVersionTapCount(next);
+    }
   };
  
   const settingsGroups = [
@@ -372,7 +387,13 @@ const SettingsPage = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold">NOOR – Islamic App</h3>
-                  <p className="text-xs text-muted-foreground">Version 1.0.0</p>
+                  <button
+                    type="button"
+                    onClick={handleVersionTap}
+                    className="text-xs text-muted-foreground hover:underline text-left"
+                  >
+                    Version 1.0.0
+                  </button>
                 </div>
               </div>
               <Separator className="my-4" />
