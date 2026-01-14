@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 interface DuaAudioPlayerProps {
   arabicText: string;
-  duaId: number;
+  duaId: string | number;
 }
 
 const DuaAudioPlayer = ({ arabicText, duaId }: DuaAudioPlayerProps) => {
