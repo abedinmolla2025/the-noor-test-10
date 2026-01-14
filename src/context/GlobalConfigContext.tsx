@@ -276,6 +276,10 @@ export const GlobalConfigProvider = ({
 
 export const useGlobalConfig = () => {
   const ctx = useContext(GlobalConfigContext);
-  if (!ctx) throw new Error("useGlobalConfig must be used within GlobalConfigProvider");
+  if (!ctx) {
+    // Fallback to defaultState so components can render even if the provider
+    // is temporarily missing (e.g. during tests or isolated renders).
+    return defaultState;
+  }
   return ctx;
 };
