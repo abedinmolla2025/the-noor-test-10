@@ -65,8 +65,8 @@ class AdminErrorBoundary extends React.Component<
 }
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
-  return (
-    <AdminErrorBoundary>
+  try {
+    return (
       <ProtectedRoute>
         <div className="flex min-h-screen bg-background">
           <AdminSidebar />
@@ -75,6 +75,18 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           </main>
         </div>
       </ProtectedRoute>
-    </AdminErrorBoundary>
-  );
+    );
+  } catch (error) {
+    console.error('[AdminLayout] Uncaught error in admin layout', error);
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="max-w-md space-y-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+          <h1 className="text-xl font-semibold">Admin panel failed to load</h1>
+          <p className="text-sm text-muted-foreground">
+            An unexpected error occurred while rendering the admin interface.
+          </p>
+        </div>
+      </div>
+    );
+  }
 };

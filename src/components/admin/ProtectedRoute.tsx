@@ -1,13 +1,27 @@
+import { useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAdmin } from '@/contexts/AdminContext';
 import { Loader2 } from 'lucide-react';
+import { useAdmin } from '@/contexts/AdminContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, isAdmin, loading } = useAdmin();
+  const { user, isAdmin, loading, forceClearLoading } = useAdmin();
+  const loadingRenderCount = useRef(0);
+
+  useEffect(() => {
+    if (loading) {
+      loadingRenderCount.current += 1;
+      if (loadingRenderCount.current > 1) {
+        console.warn('[ProtectedRoute] loading persisted across renders, forcing clear');
+        forceClearLoading();
+      }
+    } else {
+      loadingRenderCount.current = 0;
+    }
+  }, [loading, forceClearLoading]);
 
   if (loading) {
     return (
