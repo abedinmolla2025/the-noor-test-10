@@ -29,7 +29,6 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
-import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -59,15 +58,15 @@ const App = () => (
               <Route path="/terms" element={<TermsPage />} />
               
               {/* Admin Routes */}
-              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
-              <Route path="/admin/content" element={<ProtectedRoute><AdminContent /></ProtectedRoute>} />
-              <Route path="/admin/monetization" element={<ProtectedRoute><AdminMonetization /></ProtectedRoute>} />
-              <Route path="/admin/notifications" element={<ProtectedRoute><AdminNotifications /></ProtectedRoute>} />
-              <Route path="/admin/media" element={<ProtectedRoute><AdminMedia /></ProtectedRoute>} />
-              <Route path="/admin/analytics" element={<ProtectedRoute><AdminAnalytics /></ProtectedRoute>} />
-              <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/content" element={<AdminContent />} />
+              <Route path="/admin/monetization" element={<AdminMonetization />} />
+              <Route path="/admin/notifications" element={<AdminNotifications />} />
+              <Route path="/admin/media" element={<AdminMedia />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
