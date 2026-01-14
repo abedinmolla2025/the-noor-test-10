@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,26 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [timeoutError, setTimeoutError] = useState<string | null>(null);
+  const loadingRenderCount = useRef(0);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Safety: if loading persists across renders, force clear so UI doesn't get stuck
+  useEffect(() => {
+    if (loading) {
+      loadingRenderCount.current += 1;
+      if (loadingRenderCount.current > 60) {
+        // ~10 seconds at typical 6fps React renders
+        console.warn('[LoginPage] auth request taking too long, resetting loading state');
+        setLoading(false);
+        setTimeoutError('Network is slow or unreachable. Please try again.');
+      }
+    } else {
+      loadingRenderCount.current = 0;
+      setTimeoutError(null);
+    }
+  }, [loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +121,12 @@ export default function LoginPage() {
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSignUp ? 'Sign Up' : 'Login'}
             </Button>
+
+            {timeoutError && (
+              <p className="text-sm text-destructive text-center" role="alert">
+                {timeoutError}
+              </p>
+            )}
 
             <Button
               type="button"
