@@ -518,7 +518,11 @@ export default function AdminContent() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => resetEditForm(item)}
+                          onClick={() => {
+                            setSelectedId(item.id);
+                            resetEditForm(item);
+                            setActiveTab('workflow');
+                          }}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
