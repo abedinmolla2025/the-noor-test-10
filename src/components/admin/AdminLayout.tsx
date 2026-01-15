@@ -52,7 +52,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 border-r border-border p-0">
-                <AdminSidebar />
+                <AdminSidebar showQuickShortcuts />
               </SheetContent>
             </Sheet>
           </div>

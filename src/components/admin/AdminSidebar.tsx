@@ -6,18 +6,35 @@ import {
   BookOpen,
   DollarSign,
   Bell,
-  Image,
   BarChart3,
   Settings,
   LogOut,
   Activity,
+  Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
-export const AdminSidebar = () => {
+type AdminSidebarProps = {
+  /** Only used inside the mobile sheet: shows a compact shortcut row */
+  showQuickShortcuts?: boolean;
+};
+
+type NavItem = {
+  to: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  label: string;
+};
+
+type NavSection = {
+  title: string;
+  items: NavItem[];
+};
+
+export const AdminSidebar = ({ showQuickShortcuts = false }: AdminSidebarProps) => {
   const { user } = useAdmin();
   const navigate = useNavigate();
 
@@ -26,49 +43,131 @@ export const AdminSidebar = () => {
     navigate('/');
   };
 
-  const navItems = [
-    { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/admin/users', icon: Users, label: 'Users' },
-    { to: '/admin/content', icon: BookOpen, label: 'Content' },
-    { to: '/admin/ads', icon: DollarSign, label: 'Ads' },
-    { to: '/admin/notifications', icon: Bell, label: 'Notifications' },
-    { to: '/admin/reports', icon: BarChart3, label: 'Reports' },
-    { to: '/admin/finance', icon: DollarSign, label: 'Finance' },
-    { to: '/admin/audit', icon: Activity, label: 'Audit' },
-    { to: '/admin/settings', icon: Settings, label: 'Settings' },
+  const sections: NavSection[] = [
+    {
+      title: 'Overview',
+      items: [{ to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' }],
+    },
+    {
+      title: 'Manage',
+      items: [
+        { to: '/admin/users', icon: Users, label: 'Users' },
+        { to: '/admin/content', icon: BookOpen, label: 'Content' },
+        { to: '/admin/notifications', icon: Bell, label: 'Notifications' },
+      ],
+    },
+    {
+      title: 'Insights',
+      items: [
+        { to: '/admin/reports', icon: BarChart3, label: 'Reports' },
+        { to: '/admin/audit', icon: Activity, label: 'Audit' },
+      ],
+    },
+    {
+      title: 'System',
+      items: [
+        { to: '/admin/ads', icon: DollarSign, label: 'Ads' },
+        { to: '/admin/finance', icon: DollarSign, label: 'Finance' },
+        { to: '/admin/settings', icon: Settings, label: 'Settings' },
+      ],
+    },
   ];
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-border bg-card max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-40 max-md:translate-x-0">
-      <div className="flex items-center justify-between gap-2 border-b border-border p-4 md:p-6">
-        <div>
-          <h2 className="text-lg md:text-2xl font-bold text-primary leading-tight">NOOR Admin</h2>
-          <p className="text-xs md:text-sm text-muted-foreground mt-1 truncate max-w-[160px] md:max-w-[200px]">
-            {user?.email}
-          </p>
+    <aside className="flex h-full w-64 flex-col border-r border-border bg-card">
+      <div className="border-b border-border px-3 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold leading-tight text-foreground">NOOR Admin</h2>
+            <p className="mt-1 truncate text-[11px] text-muted-foreground">
+              {user?.email}
+            </p>
+          </div>
+          <div className="hidden md:flex">
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Go to Dashboard"
+              onClick={() => navigate('/admin/dashboard')}
+            >
+              <Zap className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+
+        {showQuickShortcuts && (
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Dashboard"
+              onClick={() => navigate('/admin/dashboard')}
+            >
+              <LayoutDashboard className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Users"
+              onClick={() => navigate('/admin/users')}
+            >
+              <Users className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Content"
+              onClick={() => navigate('/admin/content')}
+            >
+              <BookOpen className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="Notifications"
+              onClick={() => navigate('/admin/notifications')}
+            >
+              <Bell className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
-      <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              activeClassName="bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
-            >
-              <item.icon className="h-4 w-4" />
-              <span className="truncate">{item.label}</span>
-            </NavLink>
+      <ScrollArea className="flex-1 px-2 py-3">
+        <nav className="space-y-3">
+          {sections.map((section) => (
+            <div key={section.title} className="space-y-1">
+              <p className="px-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                {section.title}
+              </p>
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={cn(
+                      "relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-muted-foreground transition-colors",
+                      "hover:bg-muted hover:text-foreground",
+                    )}
+                    activeClassName={cn(
+                      "bg-muted text-foreground",
+                      "before:absolute before:left-0 before:top-1/2 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-primary",
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="truncate">{item.label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
       </ScrollArea>
 
-      <div className="border-t border-border p-3 md:p-4">
+      <div className="border-t border-border p-2">
         <Button
           variant="outline"
-          className="w-full justify-start gap-3 text-sm"
+          className="w-full justify-start gap-2.5 text-[13px]"
           onClick={handleLogout}
         >
           <LogOut className="h-4 w-4" />
