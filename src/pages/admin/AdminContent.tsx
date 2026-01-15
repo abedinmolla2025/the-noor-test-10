@@ -18,6 +18,7 @@ import { Switch } from '@/components/ui/switch';
 
 import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 
 interface AdminContentRow {
   id: string;
@@ -525,103 +526,90 @@ export default function AdminContent() {
           {isLoading ? (
             <p className="text-xs sm:text-sm text-muted-foreground">Loading content…</p>
           ) : content && content.length > 0 ? (
-            <div className="relative -mx-4 sm:mx-0">
-              <div className="overflow-x-auto pb-2">
-                <Table className="min-w-[720px] text-xs sm:text-sm">
-                  <TableHeader>
-                    <TableRow className="h-9">
-                      <TableHead className="w-[90px] whitespace-nowrap">Type</TableHead>
-                      <TableHead className="whitespace-nowrap">Title</TableHead>
-                      <TableHead className="w-[140px] whitespace-nowrap">Category</TableHead>
-                      <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
-                      <TableHead className="w-[150px] whitespace-nowrap">Scheduled</TableHead>
-                      <TableHead className="w-[150px] whitespace-nowrap">Published</TableHead>
-                      <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
+            <MobileTableWrapper>
+              <Table className="min-w-[720px] text-xs sm:text-sm">
+                <TableHeader>
+                  <TableRow className="h-9">
+                    <TableHead className="w-[90px] whitespace-nowrap">Type</TableHead>
+                    <TableHead className="whitespace-nowrap">Title</TableHead>
+                    <TableHead className="w-[140px] whitespace-nowrap">Category</TableHead>
+                    <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
+                    <TableHead className="w-[150px] whitespace-nowrap">Scheduled</TableHead>
+                    <TableHead className="w-[150px] whitespace-nowrap">Published</TableHead>
+                    <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {content.map((item) => (
+                    <TableRow
+                      key={item.id}
+                      className={`h-9 ${
+                        selectedId === item.id ? 'bg-muted/60 hover:bg-muted/70' : 'hover:bg-muted/40'
+                      }`}
+                    >
+                      <TableCell className="align-middle">
+                        <Badge
+                          variant="outline"
+                          className="rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide"
+                        >
+                          {item.content_type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate align-middle text-xs sm:text-sm">
+                        {item.title}
+                      </TableCell>
+                      <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
+                        {item.category || '-'}
+                      </TableCell>
+                      <TableCell className="align-middle">
+                        <Badge
+                          variant={STATUS_VARIANTS[item.status] || 'secondary'}
+                          className="rounded-full px-2 py-0.5 text-[11px] font-medium flex items-center gap-1"
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                          {STATUS_LABELS[item.status] || item.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
+                        {formatDateTime(item.scheduled_at)}
+                      </TableCell>
+                      <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
+                        {formatDateTime(item.published_at)}
+                      </TableCell>
+                      <TableCell className="text-right align-middle">
+                        <div className="inline-flex gap-1 sm:gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => {
+                              setSelectedId(item.id);
+                              resetEditForm(item);
+                              setActiveTab('workflow');
+                            }}
+                            aria-label="Open workflow"
+                          >
+                            <Edit className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            onClick={() => deleteMutation.mutate(item.id)}
+                            aria-label="Delete content"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {content.map((item) => (
-                      <TableRow
-                        key={item.id}
-                        className={`h-9 ${
-                          selectedId === item.id
-                            ? 'bg-muted/60 hover:bg-muted/70'
-                            : 'hover:bg-muted/40'
-                        }`}
-                      >
-                        <TableCell className="align-middle">
-                          <Badge
-                            variant="outline"
-                            className="rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide"
-                          >
-                            {item.content_type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="max-w-[200px] truncate align-middle text-xs sm:text-sm">
-                          {item.title}
-                        </TableCell>
-                        <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
-                          {item.category || '-'}
-                        </TableCell>
-                        <TableCell className="align-middle">
-                          <Badge
-                            variant={STATUS_VARIANTS[item.status] || 'secondary'}
-                            className="rounded-full px-2 py-0.5 text-[11px] font-medium flex items-center gap-1"
-                          >
-                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                            {STATUS_LABELS[item.status] || item.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
-                          {formatDateTime(item.scheduled_at)}
-                        </TableCell>
-                        <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
-                          {formatDateTime(item.published_at)}
-                        </TableCell>
-                        <TableCell className="text-right align-middle">
-                          <div className="inline-flex gap-1 sm:gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => {
-                                setSelectedId(item.id);
-                                resetEditForm(item);
-                                setActiveTab('workflow');
-                              }}
-                              aria-label="Open workflow"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                              onClick={() => deleteMutation.mutate(item.id)}
-                              aria-label="Delete content"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <div
-                className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent sm:hidden"
-                aria-hidden="true"
-              />
-            </div>
+                  ))}
+                </TableBody>
+              </Table>
+            </MobileTableWrapper>
           ) : (
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              No content yet. Create your first item.
-            </p>
+            <p className="text-xs sm:text-sm text-muted-foreground">No content yet. Create your first item.</p>
           )}
-          <p className="mt-1 text-[11px] text-muted-foreground sm:hidden">
-            Swipe horizontally to see all columns.
-          </p>
         </CardContent>
       </Card>
 
@@ -850,53 +838,48 @@ export default function AdminContent() {
             <TabsContent value="versions" className="pt-6 space-y-4 border-t border-border/60 mt-4">
               {selectedContent ? (
                 versions && versions.length > 0 ? (
-                  <>
-                    <div className="-mx-4 sm:mx-0 overflow-x-auto">
-                      <Table className="min-w-[640px] text-xs sm:text-sm">
-                        <TableHeader>
-                          <TableRow className="h-9">
-                            <TableHead className="w-[90px] whitespace-nowrap">Version</TableHead>
-                            <TableHead className="whitespace-nowrap">Title</TableHead>
-                            <TableHead className="w-[180px] whitespace-nowrap">Created At</TableHead>
-                            <TableHead className="whitespace-nowrap">Summary</TableHead>
-                            <TableHead className="w-[140px] text-right whitespace-nowrap">Actions</TableHead>
+                  <MobileTableWrapper>
+                    <Table className="min-w-[640px] text-xs sm:text-sm">
+                      <TableHeader>
+                        <TableRow className="h-9">
+                          <TableHead className="w-[90px] whitespace-nowrap">Version</TableHead>
+                          <TableHead className="whitespace-nowrap">Title</TableHead>
+                          <TableHead className="w-[180px] whitespace-nowrap">Created At</TableHead>
+                          <TableHead className="whitespace-nowrap">Summary</TableHead>
+                          <TableHead className="w-[140px] text-right whitespace-nowrap">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {versions.map((version) => (
+                          <TableRow key={version.id} className="h-9">
+                            <TableCell className="align-middle">{version.version_number}</TableCell>
+                            <TableCell className="max-w-[200px] truncate align-middle text-xs sm:text-sm">
+                              {version.title}
+                            </TableCell>
+                            <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
+                              {formatDateTime(version.created_at)}
+                            </TableCell>
+                            <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
+                              {version.change_summary || '-'}
+                            </TableCell>
+                            <TableCell className="text-right align-middle">
+                              <div className="inline-flex gap-1 sm:gap-2">
+                                <VersionPreviewDialog version={version} />
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 px-2 text-[11px] sm:text-xs"
+                                  onClick={() => handleRollback(version)}
+                                >
+                                  Rollback
+                                </Button>
+                              </div>
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {versions.map((version) => (
-                            <TableRow key={version.id} className="h-9">
-                              <TableCell className="align-middle">{version.version_number}</TableCell>
-                              <TableCell className="max-w-[200px] truncate align-middle text-xs sm:text-sm">
-                                {version.title}
-                              </TableCell>
-                              <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
-                                {formatDateTime(version.created_at)}
-                              </TableCell>
-                              <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
-                                {version.change_summary || '-'}
-                              </TableCell>
-                              <TableCell className="text-right align-middle">
-                                <div className="inline-flex gap-1 sm:gap-2">
-                                  <VersionPreviewDialog version={version} />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-8 px-2 text-[11px] sm:text-xs"
-                                    onClick={() => handleRollback(version)}
-                                  >
-                                    Rollback
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground sm:hidden">
-                      Swipe horizontally to see all columns.
-                    </p>
-                  </>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </MobileTableWrapper>
                 ) : (
                   <p className="text-sm text-muted-foreground">
                     No versions found yet. Versions are created automatically on save.
@@ -912,45 +895,38 @@ export default function AdminContent() {
             <TabsContent value="audit" className="pt-6 space-y-4 border-t border-border/60 mt-4">
               {selectedContent ? (
                 auditLogs && auditLogs.length > 0 ? (
-                  <>
-                    <div className="-mx-4 sm:mx-0 overflow-x-auto">
-                      <Table className="min-w-[640px] text-xs sm:text-sm">
-                        <TableHeader>
-                          <TableRow className="h-9">
-                            <TableHead className="whitespace-nowrap">Action</TableHead>
-                            <TableHead className="whitespace-nowrap">Actor</TableHead>
-                            <TableHead className="whitespace-nowrap">When</TableHead>
-                            <TableHead className="whitespace-nowrap">Metadata</TableHead>
+                  <MobileTableWrapper>
+                    <Table className="min-w-[640px] text-xs sm:text-sm">
+                      <TableHeader>
+                        <TableRow className="h-9">
+                          <TableHead className="whitespace-nowrap">Action</TableHead>
+                          <TableHead className="whitespace-nowrap">Actor</TableHead>
+                          <TableHead className="whitespace-nowrap">When</TableHead>
+                          <TableHead className="whitespace-nowrap">Metadata</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {auditLogs.map((log) => (
+                          <TableRow key={log.id} className="h-9 align-top">
+                            <TableCell className="align-middle">{log.action}</TableCell>
+                            <TableCell className="text-[11px] sm:text-xs font-mono align-middle max-w-[180px] truncate">
+                              {log.actor_id}
+                            </TableCell>
+                            <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
+                              {formatDateTime(log.created_at)}
+                            </TableCell>
+                            <TableCell>
+                              <pre className="text-[11px] sm:text-xs max-w-[260px] overflow-x-auto whitespace-pre-wrap">
+                                {JSON.stringify(log.metadata || {}, null, 2)}
+                              </pre>
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {auditLogs.map((log) => (
-                            <TableRow key={log.id} className="h-9 align-top">
-                              <TableCell className="align-middle">{log.action}</TableCell>
-                              <TableCell className="text-[11px] sm:text-xs font-mono align-middle max-w-[180px] truncate">
-                                {log.actor_id}
-                              </TableCell>
-                              <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
-                                {formatDateTime(log.created_at)}
-                              </TableCell>
-                              <TableCell>
-                                <pre className="text-[11px] sm:text-xs max-w-[260px] overflow-x-auto whitespace-pre-wrap">
-                                  {JSON.stringify(log.metadata || {}, null, 2)}
-                                </pre>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground sm:hidden">
-                      Swipe horizontally to see all columns.
-                    </p>
-                  </>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </MobileTableWrapper>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No audit events recorded for this content yet.
-                  </p>
+                  <p className="text-sm text-muted-foreground">No audit events recorded for this content yet.</p>
                 )
               ) : (
                 <p className="text-sm text-muted-foreground">

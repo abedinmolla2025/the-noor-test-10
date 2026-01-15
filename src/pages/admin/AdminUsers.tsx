@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdmin, AppRole } from '@/contexts/AdminContext';
 import { RoleManagementDialog } from '@/components/admin/RoleManagementDialog';
+import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -119,95 +120,86 @@ export default function AdminUsers() {
           {isLoading ? (
             <p className="text-xs sm:text-sm text-muted-foreground">Loading users…</p>
           ) : users && users.length > 0 ? (
-            <div className="relative -mx-4 sm:mx-0">
-              <div className="overflow-x-auto pb-2">
-                <Table className="min-w-[640px] text-xs sm:text-sm">
-                  <TableHeader>
-                    <TableRow className="h-9">
-                      <TableHead className="whitespace-nowrap">Email</TableHead>
-                      <TableHead className="whitespace-nowrap">Name</TableHead>
-                      <TableHead className="whitespace-nowrap">Role</TableHead>
-                      <TableHead className="whitespace-nowrap">Joined</TableHead>
-                      <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((user) => {
-                      const userRoles = ((user.user_roles as any) || []).map((r: any) => r.role as AppRole);
-                      return (
-                        <TableRow key={user.id} className="h-9">
-                          <TableCell className="max-w-[160px] truncate align-middle text-xs sm:text-sm">
-                            {user.email}
-                          </TableCell>
-                          <TableCell className="max-w-[140px] truncate align-middle text-xs sm:text-sm">
-                            {user.full_name || '-'}
-                          </TableCell>
-                          <TableCell className="align-middle">
-                            <div className="flex flex-wrap gap-1">
-                              {userRoles.length > 0 ? (
-                                userRoles.map((role: AppRole) => (
-                                  <Badge
-                                    key={role}
-                                    variant={getRoleBadgeVariant(role)}
-                                    className="px-1.5 py-0.5 text-[11px] font-medium"
-                                  >
-                                    {role.replace('_', ' ')}
-                                  </Badge>
-                                ))
-                              ) : (
-                                <Badge variant="outline" className="px-1.5 py-0.5 text-[11px] font-medium">
-                                  No roles
+            <MobileTableWrapper>
+              <Table className="min-w-[640px] text-xs sm:text-sm">
+                <TableHeader>
+                  <TableRow className="h-9">
+                    <TableHead className="whitespace-nowrap">Email</TableHead>
+                    <TableHead className="whitespace-nowrap">Name</TableHead>
+                    <TableHead className="whitespace-nowrap">Role</TableHead>
+                    <TableHead className="whitespace-nowrap">Joined</TableHead>
+                    <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => {
+                    const userRoles = ((user.user_roles as any) || []).map((r: any) => r.role as AppRole);
+                    return (
+                      <TableRow key={user.id} className="h-9">
+                        <TableCell className="max-w-[160px] truncate align-middle text-xs sm:text-sm">
+                          {user.email}
+                        </TableCell>
+                        <TableCell className="max-w-[140px] truncate align-middle text-xs sm:text-sm">
+                          {user.full_name || '-'}
+                        </TableCell>
+                        <TableCell className="align-middle">
+                          <div className="flex flex-wrap gap-1">
+                            {userRoles.length > 0 ? (
+                              userRoles.map((role: AppRole) => (
+                                <Badge
+                                  key={role}
+                                  variant={getRoleBadgeVariant(role)}
+                                  className="px-1.5 py-0.5 text-[11px] font-medium"
+                                >
+                                  {role.replace('_', ' ')}
                                 </Badge>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell className="whitespace-nowrap align-middle text-[11px] sm:text-xs text-muted-foreground">
-                            {new Date(user.created_at).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell className="text-right align-middle">
-                            <div className="flex justify-end gap-1 sm:gap-2">
-                              {isSuperAdmin && (
-                                <>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-8 px-2 text-[11px] sm:text-xs"
-                                    onClick={() => openRoleDialog(user.id, user.email || '', userRoles)}
-                                  >
-                                    <Settings className="h-3.5 w-3.5 mr-1" />
-                                    <span className="hidden sm:inline">Manage Roles</span>
-                                    <span className="sm:hidden">Roles</span>
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => openDeleteDialog(user.id, user.email || '')}
-                                    aria-label="Delete user"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-              <div
-                className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent sm:hidden"
-                aria-hidden="true"
-              />
-            </div>
+                              ))
+                            ) : (
+                              <Badge variant="outline" className="px-1.5 py-0.5 text-[11px] font-medium">
+                                No roles
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap align-middle text-[11px] sm:text-xs text-muted-foreground">
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right align-middle">
+                          <div className="flex justify-end gap-1 sm:gap-2">
+                            {isSuperAdmin && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 px-2 text-[11px] sm:text-xs"
+                                  onClick={() => openRoleDialog(user.id, user.email || '', userRoles)}
+                                >
+                                  <Settings className="h-3.5 w-3.5 mr-1" />
+                                  <span className="hidden sm:inline">Manage Roles</span>
+                                  <span className="sm:hidden">Roles</span>
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => openDeleteDialog(user.id, user.email || '')}
+                                  aria-label="Delete user"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </MobileTableWrapper>
           ) : (
             <p className="text-xs sm:text-sm text-muted-foreground">No users found.</p>
           )}
-          <p className="mt-1 text-[11px] text-muted-foreground sm:hidden">
-            Swipe horizontally to see all columns.
-          </p>
         </CardContent>
       </Card>
 

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 
 const formatDateTime = (value: string | null | undefined) => {
   if (!value) return '-';
@@ -109,45 +110,49 @@ export default function AdminAuditPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Events</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Action</TableHead>
-                <TableHead>Actor</TableHead>
-                <TableHead>Resource</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Metadata</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logs?.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell>{log.action}</TableCell>
-                  <TableCell className="text-xs font-mono max-w-[140px] truncate">
-                    {log.actor_id}
-                  </TableCell>
-                  <TableCell className="text-xs font-mono max-w-[140px] truncate">
-                    {log.resource_id || '-'}
-                  </TableCell>
-                  <TableCell>{log.resource_type || '-'}</TableCell>
-                  <TableCell>{formatDateTime(log.created_at)}</TableCell>
-                  <TableCell>
-                    <pre className="text-xs max-w-xs overflow-x-auto whitespace-pre-wrap">
-                      {JSON.stringify(log.metadata || {}, null, 2)}
-                    </pre>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Events</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MobileTableWrapper>
+              <Table className="min-w-[900px] text-xs sm:text-sm">
+                <TableHeader>
+                  <TableRow className="h-9">
+                    <TableHead className="whitespace-nowrap">Action</TableHead>
+                    <TableHead className="whitespace-nowrap">Actor</TableHead>
+                    <TableHead className="whitespace-nowrap">Resource</TableHead>
+                    <TableHead className="whitespace-nowrap">Type</TableHead>
+                    <TableHead className="whitespace-nowrap">Time</TableHead>
+                    <TableHead className="whitespace-nowrap">Metadata</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {logs?.map((log) => (
+                    <TableRow key={log.id} className="h-9 align-top">
+                      <TableCell className="align-middle">{log.action}</TableCell>
+                      <TableCell className="text-[11px] sm:text-xs font-mono max-w-[140px] truncate align-middle">
+                        {log.actor_id}
+                      </TableCell>
+                      <TableCell className="text-[11px] sm:text-xs font-mono max-w-[140px] truncate align-middle">
+                        {log.resource_id || '-'}
+                      </TableCell>
+                      <TableCell className="align-middle">{log.resource_type || '-'}</TableCell>
+                      <TableCell className="align-middle whitespace-nowrap text-[11px] sm:text-xs text-muted-foreground">
+                        {formatDateTime(log.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <pre className="text-[11px] sm:text-xs max-w-xs overflow-x-auto whitespace-pre-wrap">
+                          {JSON.stringify(log.metadata || {}, null, 2)}
+                        </pre>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </MobileTableWrapper>
+          </CardContent>
+        </Card>
     </div>
   );
 }

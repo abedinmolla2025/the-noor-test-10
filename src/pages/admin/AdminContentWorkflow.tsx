@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 
 const STATUS_LABELS: Record<string, string> = {
   draft: 'Draft',
@@ -161,28 +162,38 @@ export default function AdminContentWorkflowPage() {
             </p>
 
             {approvals && approvals.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Requested By</TableHead>
-                    <TableHead>Approved By</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Updated</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {approvals.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{row.status}</TableCell>
-                      <TableCell className="text-xs font-mono">{row.requested_by}</TableCell>
-                      <TableCell className="text-xs font-mono">{row.approved_by || '-'}</TableCell>
-                      <TableCell>{formatDateTime(row.created_at)}</TableCell>
-                      <TableCell>{formatDateTime(row.updated_at)}</TableCell>
+              <MobileTableWrapper>
+                <Table className="min-w-[720px] text-xs sm:text-sm">
+                  <TableHeader>
+                    <TableRow className="h-9">
+                      <TableHead className="whitespace-nowrap">Status</TableHead>
+                      <TableHead className="whitespace-nowrap">Requested By</TableHead>
+                      <TableHead className="whitespace-nowrap">Approved By</TableHead>
+                      <TableHead className="whitespace-nowrap">Created</TableHead>
+                      <TableHead className="whitespace-nowrap">Updated</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {approvals.map((row) => (
+                      <TableRow key={row.id} className="h-9">
+                        <TableCell className="align-middle">{row.status}</TableCell>
+                        <TableCell className="text-[11px] sm:text-xs font-mono align-middle max-w-[220px] truncate">
+                          {row.requested_by}
+                        </TableCell>
+                        <TableCell className="text-[11px] sm:text-xs font-mono align-middle max-w-[220px] truncate">
+                          {row.approved_by || '-'}
+                        </TableCell>
+                        <TableCell className="align-middle whitespace-nowrap text-[11px] sm:text-xs text-muted-foreground">
+                          {formatDateTime(row.created_at)}
+                        </TableCell>
+                        <TableCell className="align-middle whitespace-nowrap text-[11px] sm:text-xs text-muted-foreground">
+                          {formatDateTime(row.updated_at)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </MobileTableWrapper>
             ) : (
               <p className="text-sm text-muted-foreground">No approvals recorded yet.</p>
             )}
@@ -232,24 +243,28 @@ export default function AdminContentWorkflowPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {versions && versions.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Version</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Created</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {versions.slice(0, 5).map((v) => (
-                    <TableRow key={v.id}>
-                      <TableCell>{v.version_number}</TableCell>
-                      <TableCell>{v.title}</TableCell>
-                      <TableCell>{formatDateTime(v.created_at)}</TableCell>
+              <MobileTableWrapper>
+                <Table className="min-w-[560px] text-xs sm:text-sm">
+                  <TableHeader>
+                    <TableRow className="h-9">
+                      <TableHead className="whitespace-nowrap">Version</TableHead>
+                      <TableHead className="whitespace-nowrap">Title</TableHead>
+                      <TableHead className="whitespace-nowrap">Created</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {versions.slice(0, 5).map((v) => (
+                      <TableRow key={v.id} className="h-9">
+                        <TableCell className="align-middle">{v.version_number}</TableCell>
+                        <TableCell className="align-middle max-w-[260px] truncate">{v.title}</TableCell>
+                        <TableCell className="align-middle whitespace-nowrap text-[11px] sm:text-xs text-muted-foreground">
+                          {formatDateTime(v.created_at)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </MobileTableWrapper>
             ) : (
               <p className="text-sm text-muted-foreground">No versions recorded yet.</p>
             )}
@@ -262,22 +277,26 @@ export default function AdminContentWorkflowPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {auditLogs && auditLogs.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Action</TableHead>
-                    <TableHead>When</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {auditLogs.slice(0, 5).map((log) => (
-                    <TableRow key={log.id}>
-                      <TableCell>{log.action}</TableCell>
-                      <TableCell>{formatDateTime(log.created_at)}</TableCell>
+              <MobileTableWrapper>
+                <Table className="min-w-[520px] text-xs sm:text-sm">
+                  <TableHeader>
+                    <TableRow className="h-9">
+                      <TableHead className="whitespace-nowrap">Action</TableHead>
+                      <TableHead className="whitespace-nowrap">When</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {auditLogs.slice(0, 5).map((log) => (
+                      <TableRow key={log.id} className="h-9">
+                        <TableCell className="align-middle max-w-[260px] truncate">{log.action}</TableCell>
+                        <TableCell className="align-middle whitespace-nowrap text-[11px] sm:text-xs text-muted-foreground">
+                          {formatDateTime(log.created_at)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </MobileTableWrapper>
             ) : (
               <p className="text-sm text-muted-foreground">No audit events yet.</p>
             )}
