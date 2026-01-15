@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react";
+import { Loader2, ShieldAlert, ShieldCheck, Trash2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getDeviceFingerprint } from "@/lib/adminSecurity";
@@ -111,6 +111,30 @@ const AdminSecurity = () => {
     }
   };
 
+  const clearLocalAdminUnlock = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem("noor_admin_unlocked");
+    localStorage.removeItem("noor_admin_last_activity");
+    localStorage.removeItem("noor_admin_device_fingerprint");
+  };
+
+  const handleLockAdmin = async () => {
+    setRevoking(true);
+    try {
+      const { error } = await supabase.functions.invoke("admin-security", {
+        body: { action: "revoke_sessions" },
+      });
+      if (error) throw error;
+      toast({ title: "Admin locked" });
+    } catch (e) {
+      toast({ title: "Failed to lock admin", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+    } finally {
+      await clearLocalAdminUnlock();
+      navigate("/");
+      setRevoking(false);
+    }
+  };
+
   const handleRevokeAllSessions = async () => {
     setRevoking(true);
     try {
@@ -119,13 +143,11 @@ const AdminSecurity = () => {
       });
       if (error) throw error;
       toast({ title: "All sessions revoked" });
-      await supabase.auth.signOut();
-      localStorage.removeItem("noor_admin_unlocked");
-      localStorage.removeItem("noor_admin_last_activity");
-      localStorage.removeItem("noor_admin_device_fingerprint");
     } catch (e) {
       toast({ title: "Failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
     } finally {
+      await clearLocalAdminUnlock();
+      navigate("/");
       setRevoking(false);
     }
   };
@@ -202,10 +224,17 @@ const AdminSecurity = () => {
 
           <Separator />
 
-          <Button variant="destructive" onClick={handleRevokeAllSessions} disabled={revoking}>
-            {revoking ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-            Revoke all sessions
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={handleLockAdmin} disabled={revoking} className="sm:flex-1">
+              {revoking ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+              Lock admin
+            </Button>
+
+            <Button variant="destructive" onClick={handleRevokeAllSessions} disabled={revoking} className="sm:flex-1">
+              {revoking ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Revoke all sessions
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
