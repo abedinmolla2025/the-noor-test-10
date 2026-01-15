@@ -253,6 +253,51 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_security_config: {
+        Row: {
+          admin_email: string
+          id: number
+          passcode_hash: string
+          require_fingerprint: boolean
+          updated_at: string
+        }
+        Insert: {
+          admin_email?: string
+          id?: number
+          passcode_hash: string
+          require_fingerprint?: boolean
+          updated_at?: string
+        }
+        Update: {
+          admin_email?: string
+          id?: number
+          passcode_hash?: string
+          require_fingerprint?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_unlock_attempts: {
+        Row: {
+          created_at: string
+          device_fingerprint: string
+          id: string
+          success: boolean
+        }
+        Insert: {
+          created_at?: string
+          device_fingerprint: string
+          id?: string
+          success?: boolean
+        }
+        Update: {
+          created_at?: string
+          device_fingerprint?: string
+          id?: string
+          success?: boolean
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           description: string | null
@@ -575,6 +620,14 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      verify_admin_passcode: {
+        Args: { device_fingerprint: string; passcode: string }
+        Returns: {
+          locked_until: string
+          ok: boolean
+          reason: string
+        }[]
+      }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "editor" | "user"
