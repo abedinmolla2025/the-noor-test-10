@@ -12,12 +12,15 @@ interface AdminPageHeaderProps {
   title: string;
   description?: string;
   icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  /** Right-side slot for page actions (buttons, dropdowns, etc.). */
+  actions?: React.ReactNode;
 }
 
 export const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
   title,
   description,
   icon: Icon,
+  actions,
 }) => {
   return (
     <header className="mb-4 space-y-2 sm:mb-6 sm:space-y-3">
@@ -47,6 +50,10 @@ export const AdminPageHeader: React.FC<AdminPageHeaderProps> = ({
             <p className="max-w-2xl text-xs text-muted-foreground sm:text-sm">{description}</p>
           )}
         </div>
+
+        {actions ? (
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">{actions}</div>
+        ) : null}
       </div>
     </header>
   );

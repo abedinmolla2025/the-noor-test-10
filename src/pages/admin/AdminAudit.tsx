@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState';
+import { Activity, Info } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const formatDateTime = (value: string | null | undefined) => {
   if (!value) return '-';
@@ -20,6 +23,19 @@ export default function AdminAuditPage() {
   const [resourceFilter, setResourceFilter] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedLog, setSelectedLog] = useState<any | null>(null);
+
+  const hasFilters = useMemo(() => {
+    return !!(
+      actorFilter.trim() ||
+      actionFilter.trim() ||
+      resourceFilter.trim() ||
+      fromDate ||
+      toDate
+    );
+  }, [actorFilter, actionFilter, resourceFilter, fromDate, toDate]);
 
   const { data: logs, refetch, isFetching } = useQuery({
     queryKey: ['admin-audit-log', actorFilter, actionFilter, resourceFilter, fromDate, toDate],
@@ -37,6 +53,14 @@ export default function AdminAuditPage() {
       return data as any[];
     },
   });
+
+  const resetFilters = () => {
+    setActorFilter('');
+    setActionFilter('');
+    setResourceFilter('');
+    setFromDate('');
+    setToDate('');
+  };
 
   return (
     <div className="space-y-6">
@@ -102,7 +126,12 @@ export default function AdminAuditPage() {
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end gap-2">
+            {hasFilters && (
+              <Button variant="outline" onClick={resetFilters} disabled={isFetching}>
+                Reset
+              </Button>
+            )}
             <Button onClick={() => refetch()} disabled={isFetching}>
               {isFetching ? 'Filtering...' : 'Apply Filters'}
             </Button>
@@ -110,49 +139,123 @@ export default function AdminAuditPage() {
         </CardContent>
       </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <MobileTableWrapper>
+      <Card>
+        <CardHeader>
+          <CardTitle>Events</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {logs && logs.length > 0 ? (
+            <MobileTableWrapper helperText="Swipe to see more, or open Details on mobile.">
               <Table className="min-w-[900px] text-xs sm:text-sm">
                 <TableHeader>
                   <TableRow className="h-9">
                     <TableHead className="whitespace-nowrap">Action</TableHead>
-                    <TableHead className="whitespace-nowrap">Actor</TableHead>
-                    <TableHead className="whitespace-nowrap">Resource</TableHead>
-                    <TableHead className="whitespace-nowrap">Type</TableHead>
+                    <TableHead className="whitespace-nowrap hidden sm:table-cell">Actor</TableHead>
+                    <TableHead className="whitespace-nowrap hidden sm:table-cell">Resource</TableHead>
+                    <TableHead className="whitespace-nowrap hidden sm:table-cell">Type</TableHead>
                     <TableHead className="whitespace-nowrap">Time</TableHead>
-                    <TableHead className="whitespace-nowrap">Metadata</TableHead>
+                    <TableHead className="whitespace-nowrap hidden sm:table-cell">Metadata</TableHead>
+                    <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {logs?.map((log) => (
                     <TableRow key={log.id} className="h-9 align-top">
                       <TableCell className="align-middle">{log.action}</TableCell>
-                      <TableCell className="text-[11px] sm:text-xs font-mono max-w-[140px] truncate align-middle">
+                      <TableCell className="text-[11px] sm:text-xs font-mono max-w-[140px] truncate align-middle hidden sm:table-cell">
                         {log.actor_id}
                       </TableCell>
-                      <TableCell className="text-[11px] sm:text-xs font-mono max-w-[140px] truncate align-middle">
+                      <TableCell className="text-[11px] sm:text-xs font-mono max-w-[140px] truncate align-middle hidden sm:table-cell">
                         {log.resource_id || '-'}
                       </TableCell>
-                      <TableCell className="align-middle">{log.resource_type || '-'}</TableCell>
+                      <TableCell className="align-middle hidden sm:table-cell">{log.resource_type || '-'}</TableCell>
                       <TableCell className="align-middle whitespace-nowrap text-[11px] sm:text-xs text-muted-foreground">
                         {formatDateTime(log.created_at)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <pre className="text-[11px] sm:text-xs max-w-xs overflow-x-auto whitespace-pre-wrap">
                           {JSON.stringify(log.metadata || {}, null, 2)}
                         </pre>
+                      </TableCell>
+                      <TableCell className="text-right align-middle">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2 text-[11px] sm:hidden"
+                          onClick={() => {
+                            setSelectedLog(log);
+                            setDetailsOpen(true);
+                          }}
+                        >
+                          <Info className="h-3.5 w-3.5 mr-1" />
+                          Details
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </MobileTableWrapper>
-          </CardContent>
-        </Card>
+          ) : (
+            <AdminEmptyState
+              title={hasFilters ? 'No events match your filters' : 'No audit events yet'}
+              description={
+                hasFilters
+                  ? 'Broaden your filters or reset to see all events.'
+                  : 'When admins perform actions, events will show up here.'
+              }
+              icon={<Activity className="h-4 w-4" />}
+              primaryAction={
+                hasFilters
+                  ? {
+                      label: 'Reset filters',
+                      onClick: resetFilters,
+                      variant: 'outline',
+                    }
+                  : undefined
+              }
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Audit event details</DialogTitle>
+          </DialogHeader>
+          {selectedLog ? (
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="text-xs text-muted-foreground">Action</p>
+                <p className="font-medium">{selectedLog.action}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Time</p>
+                <p className="font-medium">{formatDateTime(selectedLog.created_at)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Actor</p>
+                <p className="font-mono text-xs break-all">{selectedLog.actor_id}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Resource</p>
+                <p className="font-mono text-xs break-all">{selectedLog.resource_id || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Type</p>
+                <p className="font-medium">{selectedLog.resource_type || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Metadata</p>
+                <pre className="mt-1 max-h-[260px] overflow-auto rounded-md bg-muted p-3 text-[11px]">
+                  {JSON.stringify(selectedLog.metadata || {}, null, 2)}
+                </pre>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

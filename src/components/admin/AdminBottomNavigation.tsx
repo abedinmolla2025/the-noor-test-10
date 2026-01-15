@@ -89,7 +89,7 @@ export function AdminBottomNavigation() {
               className={cn(
                 "relative flex flex-1 flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-[11px] font-medium transition-colors",
                 active
-                  ? "text-primary"
+                  ? "bg-muted text-foreground"
                   : "text-muted-foreground hover:text-foreground",
               )}
               aria-current={active ? "page" : undefined}
@@ -97,13 +97,11 @@ export function AdminBottomNavigation() {
               {active && (
                 <motion.div
                   layoutId="adminActiveTab"
-                  className="absolute -top-1 left-1/2 h-1 w-8 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-accent"
+                  className="absolute top-1 left-1/2 h-0.5 w-10 -translate-x-1/2 rounded-full bg-primary"
                   transition={{ type: "spring", stiffness: 320, damping: 28 }}
                 />
               )}
-              <div className={cn("transition-transform", active && "scale-110")}>
-                {item.icon}
-              </div>
+              <div className={cn("transition-transform", active && "scale-110")}>{item.icon}</div>
               <span className={active ? "font-semibold" : undefined}>{item.label}</span>
             </motion.button>
           );
