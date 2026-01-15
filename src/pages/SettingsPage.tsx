@@ -398,6 +398,22 @@ const SettingsPage = () => {
                 </div>
               </div>
               <Separator className="my-4" />
+
+              <button
+                type="button"
+                onClick={() => navigate("/backend-status")}
+                className="w-full rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-left"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">Backend status</span>
+                  <span className="text-xs text-muted-foreground">Diagnostics</span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Read-only checks for tables, RLS, and auth session health.
+                </p>
+              </button>
+
+              <Separator className="my-4" />
               <p className="text-xs text-muted-foreground text-center mb-1">
                 All praise is due to Allah alone 🤲
               </p>
