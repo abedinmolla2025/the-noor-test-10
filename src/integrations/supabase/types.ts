@@ -253,24 +253,48 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_passcode_history: {
+        Row: {
+          created_at: string
+          id: string
+          passcode_hash: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          passcode_hash: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          passcode_hash?: string
+        }
+        Relationships: []
+      }
       admin_security_config: {
         Row: {
           admin_email: string
+          failed_attempts: number
           id: number
+          locked_until: string | null
           passcode_hash: string
           require_fingerprint: boolean
           updated_at: string
         }
         Insert: {
           admin_email?: string
+          failed_attempts?: number
           id?: number
+          locked_until?: string | null
           passcode_hash: string
           require_fingerprint?: boolean
           updated_at?: string
         }
         Update: {
           admin_email?: string
+          failed_attempts?: number
           id?: number
+          locked_until?: string | null
           passcode_hash?: string
           require_fingerprint?: boolean
           updated_at?: string

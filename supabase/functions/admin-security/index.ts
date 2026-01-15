@@ -183,12 +183,11 @@ Deno.serve(async (req) => {
     }
 
     if (action === "change_passcode") {
-      const currentPasscode = String(payload?.current_passcode ?? "");
-      const newPasscode = String(payload?.new_passcode ?? "");
-      const deviceFingerprint = String(payload?.device_fingerprint ?? "");
+      const current = String(payload?.current_passcode ?? "");
+      const next = String(payload?.new_passcode ?? "");
 
-      if (newPasscode.trim().length < 6 || newPasscode.length > 128) {
-        return json({ ok: false, error: "invalid_new_passcode" }, 400);
+      if (next.trim().length < 6 || next.length > 128) {
+        return json({ ok: false, error: "weak_passcode" }, 400);
       }
 
       // Require a valid authenticated caller (admin)
@@ -200,31 +199,63 @@ Deno.serve(async (req) => {
       const sub = (claimsRes.data?.claims as any)?.sub as string | undefined;
       if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
 
-      const { data: verifyRes } = await supabase.rpc("verify_admin_passcode", {
-        passcode: currentPasscode,
-        device_fingerprint: deviceFingerprint || "(none)",
-      });
-      const row = Array.isArray(verifyRes) ? verifyRes[0] : verifyRes;
-      if (!row?.ok) {
+      const { data: cfgRow, error: cfgRowErr } = await supabase
+        .from("admin_security_config")
+        .select("passcode_hash")
+        .eq("id", 1)
+        .maybeSingle();
+
+      if (cfgRowErr || !cfgRow?.passcode_hash) {
+        return json({ ok: false, error: "not_configured" }, 500);
+      }
+
+      const bcrypt = await import("https://deno.land/x/bcrypt@v0.4.1/mod.ts");
+
+      const valid = await bcrypt.compare(current, String(cfgRow.passcode_hash));
+      if (!valid) {
         await logAudit(sub, "unlock_failed", {
           reason: "change_passcode_invalid_current",
           ip: getIp(req),
         });
-        return json({ ok: false });
+        return json({ ok: false, error: "invalid_current" }, 403);
       }
 
-      // Update hashed passcode in DB (bcrypt)
-      const { data: rotated, error: rotateErr } = await supabase.rpc("set_admin_passcode", {
-        new_passcode: newPasscode,
-      });
-      if (rotateErr || rotated !== true) {
-        await logAudit(sub, "forced_lock", { reason: "passcode_rotate_failed", ip: getIp(req) });
-        return json({ ok: false, error: "rotate_failed" }, 500);
+      const { data: historyData, error: historyErr } = await supabase
+        .from("admin_passcode_history")
+        .select("passcode_hash")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (historyErr) return json({ ok: false, error: "history_error" }, 500);
+
+      for (const h of historyData ?? []) {
+        if (await bcrypt.compare(next, String((h as any).passcode_hash))) {
+          return json({ ok: false, error: "passcode_reused" }, 409);
+        }
       }
+
+      const newHash = await bcrypt.hash(next);
+
+      const { error: insertErr } = await supabase.from("admin_passcode_history").insert({
+        passcode_hash: newHash,
+      });
+      if (insertErr) return json({ ok: false, error: "history_insert_failed" }, 500);
+
+      const { error: updateErr } = await supabase
+        .from("admin_security_config")
+        .update({
+          passcode_hash: newHash,
+          failed_attempts: 0,
+          locked_until: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", 1);
+
+      if (updateErr) return json({ ok: false, error: "config_update_failed" }, 500);
 
       // Keep the dedicated admin user's auth password in sync
       const adminUser = await ensureAdminUser();
-      await supabase.auth.admin.updateUserById(adminUser.id, { password: newPasscode });
+      await supabase.auth.admin.updateUserById(adminUser.id, { password: next });
 
       await logAudit(sub, "passcode_changed", { ip: getIp(req) });
       return json({ ok: true });
