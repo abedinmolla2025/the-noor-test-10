@@ -6,7 +6,7 @@ export const getDeviceFingerprint = async (): Promise<string> => {
     navigator.userAgent,
     navigator.language,
     String(navigator.hardwareConcurrency ?? ""),
-    String(navigator.deviceMemory ?? ""),
+    String((navigator as any).deviceMemory ?? ""),
     `${screen.width}x${screen.height}x${window.devicePixelRatio ?? 1}`,
     Intl.DateTimeFormat().resolvedOptions().timeZone ?? "",
   ].join("|");

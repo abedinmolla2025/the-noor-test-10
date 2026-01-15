@@ -57,12 +57,20 @@ Deno.serve(async (req) => {
 
     // Ensure admin user exists (so audit logs can reference actor_id even for failed unlocks)
     const ensureAdminUser = async (passwordForSync?: string) => {
-      const { data: existing } = await supabase.auth.admin.getUserByEmail(adminEmail);
-      if (existing?.user) {
+      // auth admin API doesn't expose getUserByEmail in all builds; use listUsers and filter.
+      const { data: listData, error: listErr } = await supabase.auth.admin.listUsers({
+        page: 1,
+        perPage: 200,
+      });
+      if (listErr) throw listErr;
+
+      const existing = (listData?.users ?? []).find((u) => (u.email ?? "").toLowerCase() === adminEmail.toLowerCase());
+
+      if (existing) {
         if (passwordForSync) {
-          await supabase.auth.admin.updateUserById(existing.user.id, { password: passwordForSync });
+          await supabase.auth.admin.updateUserById(existing.id, { password: passwordForSync });
         }
-        return existing.user;
+        return existing;
       }
 
       const created = await supabase.auth.admin.createUser({
@@ -89,20 +97,39 @@ Deno.serve(async (req) => {
       return json({ ok: true, require_fingerprint: Boolean(cfg.require_fingerprint) });
     }
 
+    if (action === "log_event") {
+      const actionName = String(payload?.action_name ?? "");
+      const authHeader = req.headers.get("authorization") ?? "";
+      const authed = createClient(SUPABASE_URL, SERVICE_KEY, {
+        global: { headers: { authorization: authHeader } },
+      });
+      const claimsRes = await authed.auth.getClaims();
+      const sub = (claimsRes.data?.claims as any)?.sub as string | undefined;
+
+      // If not authenticated, still record attempt with the dedicated admin actor.
+      const actor = sub ?? (await ensureAdminUser()).id;
+      await logAudit(actor, actionName || "security_event", { ip: getIp(req) });
+      return json({ ok: true });
+    }
+
+
     if (action === "set_require_fingerprint") {
       const requireFingerprint = Boolean(payload?.require_fingerprint);
-      // only allow if current caller is already authenticated (admin)
+
       const authHeader = req.headers.get("authorization") ?? "";
-      const authed = createClient(SUPABASE_URL, SERVICE_KEY, { global: { headers: { authorization: authHeader } } });
-      const { data: claims } = await authed.auth.getClaims();
-      if (!claims?.sub) return json({ ok: false, error: "permission_denied" }, 401);
+      const authed = createClient(SUPABASE_URL, SERVICE_KEY, {
+        global: { headers: { authorization: authHeader } },
+      });
+      const claimsRes = await authed.auth.getClaims();
+      const sub = (claimsRes.data?.claims as any)?.sub as string | undefined;
+      if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
 
       await supabase
         .from("admin_security_config")
         .update({ require_fingerprint: requireFingerprint, updated_at: new Date().toISOString() })
         .eq("id", 1);
 
-      await logAudit(claims.sub, "security_setting_updated", { requireFingerprint, ip: getIp(req) });
+      await logAudit(sub, "security_setting_updated", { requireFingerprint, ip: getIp(req) });
       return json({ ok: true });
     }
 
@@ -166,9 +193,12 @@ Deno.serve(async (req) => {
 
       // Require a valid authenticated caller (admin)
       const authHeader = req.headers.get("authorization") ?? "";
-      const authed = createClient(SUPABASE_URL, SERVICE_KEY, { global: { headers: { authorization: authHeader } } });
-      const { data: claims } = await authed.auth.getClaims();
-      if (!claims?.sub) return json({ ok: false, error: "permission_denied" }, 401);
+      const authed = createClient(SUPABASE_URL, SERVICE_KEY, {
+        global: { headers: { authorization: authHeader } },
+      });
+      const claimsRes = await authed.auth.getClaims();
+      const sub = (claimsRes.data?.claims as any)?.sub as string | undefined;
+      if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
 
       const { data: verifyRes } = await supabase.rpc("verify_admin_passcode", {
         passcode: currentPasscode,
@@ -176,40 +206,53 @@ Deno.serve(async (req) => {
       });
       const row = Array.isArray(verifyRes) ? verifyRes[0] : verifyRes;
       if (!row?.ok) {
-        await logAudit(claims.sub, "unlock_failed", { reason: "change_passcode_invalid_current", ip: getIp(req) });
+        await logAudit(sub, "unlock_failed", {
+          reason: "change_passcode_invalid_current",
+          ip: getIp(req),
+        });
         return json({ ok: false });
       }
 
-      // Update config hash
-      await supabase
-        .from("admin_security_config")
-        .update({ passcode_hash: await supabase.rpc("crypt", { password: newPasscode, salt: "" }).catch(() => null) });
+      // Update hashed passcode in DB (bcrypt)
+      const { data: rotated, error: rotateErr } = await supabase.rpc("set_admin_passcode", {
+        new_passcode: newPasscode,
+      });
+      if (rotateErr || rotated !== true) {
+        await logAudit(sub, "forced_lock", { reason: "passcode_rotate_failed", ip: getIp(req) });
+        return json({ ok: false, error: "rotate_failed" }, 500);
+      }
 
-      // Fallback: do bcrypt in SQL via direct update expression (no raw SQL allowed here), so we use Postgres crypt via RPC is not available.
-      // Instead: keep passcode hash update in the DB function route using SQL. Since we can't run raw SQL here,
-      // we update via a stored procedure. We'll do that by calling a dedicated RPC if present.
+      // Keep the dedicated admin user's auth password in sync
+      const adminUser = await ensureAdminUser();
+      await supabase.auth.admin.updateUserById(adminUser.id, { password: newPasscode });
 
-      return json({ ok: false, error: "not_implemented" }, 501);
+      await logAudit(sub, "passcode_changed", { ip: getIp(req) });
+      return json({ ok: true });
     }
 
     if (action === "revoke_sessions") {
       const authHeader = req.headers.get("authorization") ?? "";
-      const authed = createClient(SUPABASE_URL, SERVICE_KEY, { global: { headers: { authorization: authHeader } } });
-      const { data: claims } = await authed.auth.getClaims();
-      if (!claims?.sub) return json({ ok: false, error: "permission_denied" }, 401);
+      const authed = createClient(SUPABASE_URL, SERVICE_KEY, {
+        global: { headers: { authorization: authHeader } },
+      });
+      const claimsRes = await authed.auth.getClaims();
+      const sub = (claimsRes.data?.claims as any)?.sub as string | undefined;
+      if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
 
       const adminUser = await ensureAdminUser();
       await supabase.auth.admin.signOut(adminUser.id);
-      await logAudit(claims.sub, "forced_lock", { ip: getIp(req) });
+      await logAudit(sub, "forced_lock", { ip: getIp(req) });
       return json({ ok: true });
     }
 
     if (action === "history") {
-      // Require a valid authenticated caller (admin)
       const authHeader = req.headers.get("authorization") ?? "";
-      const authed = createClient(SUPABASE_URL, SERVICE_KEY, { global: { headers: { authorization: authHeader } } });
-      const { data: claims } = await authed.auth.getClaims();
-      if (!claims?.sub) return json({ ok: false, error: "permission_denied" }, 401);
+      const authed = createClient(SUPABASE_URL, SERVICE_KEY, {
+        global: { headers: { authorization: authHeader } },
+      });
+      const claimsRes = await authed.auth.getClaims();
+      const sub = (claimsRes.data?.claims as any)?.sub as string | undefined;
+      if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
 
       const { data: events } = await supabase
         .from("admin_audit_log")
