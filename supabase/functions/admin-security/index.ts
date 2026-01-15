@@ -188,10 +188,14 @@ Deno.serve(async (req) => {
           _device_fingerprint: deviceFingerprint ?? "(none)",
         });
 
-      if (rpcErr) {
-        await logAudit(adminUser.id, "unlock_failed", { reason: "rpc_error", ip: getIp(req), message: rpcErr.message });
-        return json({ ok: false, error: "rpc_error" }, 500);
-      }
+       if (rpcErr) {
+         await logAudit(adminUser.id, "unlock_failed", {
+           reason: "rpc_error",
+           ip: getIp(req),
+           message: rpcErr.message,
+         });
+         return json({ ok: false, error: "rpc_error", details: rpcErr.message }, 500);
+       }
 
       const row = Array.isArray(res) ? res[0] : res;
       const ok = Boolean(row?.ok);
