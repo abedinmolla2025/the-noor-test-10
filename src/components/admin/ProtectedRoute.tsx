@@ -12,9 +12,12 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isAdmin, loading } = useAdmin();
 
+  // ONE SINGLE SOURCE OF TRUTH for admin unlock state
+  const unlocked = localStorage.getItem("noor_admin_unlocked") === "1";
+
   // Sliding inactivity timeout (30 min) for admin panel
   useEffect(() => {
-    if (!user || !isAdmin) return;
+    if (!user || !isAdmin || !unlocked) return;
 
     let cancelled = false;
 
@@ -73,9 +76,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Admin access requires both: backend-authenticated admin + local unlock state + not expired
-  const unlocked = localStorage.getItem("noor_admin_unlocked") === "1";
-
+  // Admin access requires: backend-authenticated admin + local unlock state + not expired
   if (!user || !isAdmin || !unlocked) {
     return <Navigate to="/" replace />;
   }

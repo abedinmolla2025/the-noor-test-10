@@ -82,6 +82,19 @@ const AdminSecurity = () => {
     if (!canChange) return;
     setSaving(true);
     try {
+      // Verify we have a valid session before calling edge function
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) {
+        toast({ 
+          title: "Session expired", 
+          description: "Please unlock admin again.", 
+          variant: "destructive" 
+        });
+        localStorage.removeItem("noor_admin_unlocked");
+        navigate("/");
+        return;
+      }
+
       const fingerprint = await getDeviceFingerprint();
       const { data, error } = await supabase.functions.invoke("admin-security", {
         body: {
@@ -93,19 +106,30 @@ const AdminSecurity = () => {
       });
       if (error) throw error;
 
+      if (!data?.ok) {
+        toast({
+          title: "Failed",
+          description: data?.error === "invalid_current" ? "Invalid current passcode." : "Passcode change failed.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
-        title: data?.ok ? "Passcode updated" : "Failed",
-        description: data?.ok ? "Your admin passcode has been changed." : "Invalid current passcode.",
-        variant: data?.ok ? "default" : "destructive",
+        title: "Passcode updated",
+        description: "Your admin passcode has been changed.",
       });
 
-      if (data?.ok) {
-        setCurrentPasscode("");
-        setNewPasscode("");
-        await load();
-      }
+      setCurrentPasscode("");
+      setNewPasscode("");
+      await load();
     } catch (e) {
-      toast({ title: "Failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+      const msg = e instanceof Error ? e.message : String(e);
+      toast({ 
+        title: "Failed", 
+        description: msg.includes("401") ? "Session expired. Please unlock admin again." : msg, 
+        variant: "destructive" 
+      });
     } finally {
       setSaving(false);
     }

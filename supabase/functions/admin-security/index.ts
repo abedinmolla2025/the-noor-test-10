@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
       const requireFingerprint = Boolean(payload?.require_fingerprint);
 
       const sub = await getRequesterId();
-      if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
+      if (!sub) return json({ ok: false, error: "not_authenticated" }, 200);
 
       await supabase
         .from("admin_security_config")
@@ -236,7 +236,7 @@ Deno.serve(async (req) => {
 
       // Require a valid authenticated caller (admin)
       const sub = await getRequesterId();
-      if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
+      if (!sub) return json({ ok: false, error: "not_authenticated" }, 200);
 
       const { data: cfgRow, error: cfgRowErr } = await supabase
         .from("admin_security_config")
@@ -302,7 +302,7 @@ Deno.serve(async (req) => {
 
     if (action === "revoke_sessions") {
       const sub = await getRequesterId();
-      if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
+      if (!sub) return json({ ok: false, error: "not_authenticated" }, 200);
 
       const adminUser = await ensureAdminUser();
       await supabase.auth.admin.signOut(adminUser.id);
@@ -312,7 +312,7 @@ Deno.serve(async (req) => {
 
     if (action === "history") {
       const sub = await getRequesterId();
-      if (!sub) return json({ ok: false, error: "permission_denied" }, 401);
+      if (!sub) return json({ ok: false, error: "not_authenticated" }, 200);
 
       const { data: events } = await supabase
         .from("admin_audit_log")

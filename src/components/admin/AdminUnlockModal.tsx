@@ -76,6 +76,13 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
         return;
       }
 
+      // CRITICAL: Wait for session to fully establish before setting unlock state
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) {
+        setError("Session failed to establish. Please try again.");
+        return;
+      }
+
       if (fingerprint) {
         localStorage.setItem("noor_admin_device_fingerprint", fingerprint);
       } else {
