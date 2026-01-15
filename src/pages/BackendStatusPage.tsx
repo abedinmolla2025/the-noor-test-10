@@ -45,6 +45,8 @@ const statusLabel = (status: CheckStatus) => {
 const BackendStatusPage = () => {
   const navigate = useNavigate();
   const [running, setRunning] = useState(false);
+  const [setupRunning, setSetupRunning] = useState<null | "ensure" | "bootstrap_admin">(null);
+  const [setupNote, setSetupNote] = useState<string | null>(null);
   const [checks, setChecks] = useState<DiagnosticCheck[]>([
     { key: "auth_session", label: "Auth session available", status: "pending" },
     { key: "auth_user", label: "Auth user fetch", status: "pending" },
@@ -180,6 +182,42 @@ const BackendStatusPage = () => {
     }
   };
 
+  const handleEnsureProfileAndRole = async () => {
+    setSetupRunning("ensure");
+    setSetupNote(null);
+    try {
+      const { error } = await supabase.rpc("ensure_profile_and_user_role");
+      if (error) throw error;
+      setSetupNote("Profile + default role ensured for current user.");
+      await run();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setSetupNote(`Failed: ${msg}`);
+    } finally {
+      setSetupRunning(null);
+    }
+  };
+
+  const handleBootstrapFirstSuperAdmin = async () => {
+    setSetupRunning("bootstrap_admin");
+    setSetupNote(null);
+    try {
+      const { data, error } = await supabase.rpc("bootstrap_first_super_admin");
+      if (error) throw error;
+      setSetupNote(
+        data === true
+          ? "You are now the first super admin for this backend."
+          : "A super admin already exists on this backend (no changes made)."
+      );
+      await run();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setSetupNote(`Failed: ${msg}`);
+    } finally {
+      setSetupRunning(null);
+    }
+  };
+
   useEffect(() => {
     void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -231,6 +269,40 @@ const BackendStatusPage = () => {
             <p className="text-xs text-muted-foreground">
               This screen performs non-destructive reads only. If you’re not signed in, authenticated RLS checks will fail by design.
             </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/70 border border-border/60 rounded-2xl shadow-soft">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Setup helpers</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-3">
+            <p className="text-xs text-muted-foreground">
+              These buttons are optional and only affect the <span className="font-medium">currently signed-in</span> user.
+              They’re useful if roles/profiles didn’t get created during a migration.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={Boolean(setupRunning)}
+                onClick={handleEnsureProfileAndRole}
+              >
+                {setupRunning === "ensure" ? "Working…" : "Ensure my profile + default role"}
+              </Button>
+
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={Boolean(setupRunning)}
+                onClick={handleBootstrapFirstSuperAdmin}
+              >
+                {setupRunning === "bootstrap_admin" ? "Working…" : "Become first super admin (one-time)"}
+              </Button>
+            </div>
+
+            {setupNote ? <p className="text-xs text-muted-foreground break-words">{setupNote}</p> : null}
           </CardContent>
         </Card>
 

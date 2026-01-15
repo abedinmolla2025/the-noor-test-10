@@ -565,6 +565,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bootstrap_first_super_admin: { Args: never; Returns: boolean }
+      ensure_profile_and_user_role: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
