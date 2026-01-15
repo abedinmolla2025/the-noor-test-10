@@ -147,7 +147,54 @@
   .bottom-nav-item.active {
     @apply text-primary;
   }
+
+  /* Admin: global compact density preset (applies only inside .admin-compact wrapper) */
+  .admin-compact [data-ui="card-header"] {
+    @apply p-4 space-y-1;
+  }
+
+  .admin-compact [data-ui="card-title"] {
+    @apply text-lg;
+  }
+
+  .admin-compact [data-ui="card-description"] {
+    @apply text-xs;
+  }
+
+  .admin-compact [data-ui="card-content"],
+  .admin-compact [data-ui="card-footer"] {
+    @apply p-4 pt-0;
+  }
+
+  .admin-compact [data-ui="table"] {
+    @apply text-xs;
+  }
+
+  .admin-compact [data-ui="table-head"] {
+    @apply h-10 px-3 text-[11px];
+  }
+
+  .admin-compact [data-ui="table-cell"] {
+    @apply p-3;
+  }
+
+  .admin-compact [data-ui="label"] {
+    @apply text-xs;
+  }
+
+  .admin-compact [data-ui="input"] {
+    @apply h-9 text-sm;
+  }
+
+  .admin-compact [data-ui="button"][data-size="default"] {
+    @apply h-9 px-3;
+  }
+
+  .admin-compact [data-ui="button"][data-size="icon"] {
+    @apply h-9 w-9;
+  }
 }
+
 
 /* Gold Shimmer Animation */
 @keyframes shimmer {

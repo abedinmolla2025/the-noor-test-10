@@ -29,7 +29,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen bg-background">
+      <div className="admin-compact flex min-h-screen bg-background">
         {/* Desktop sidebar */}
         <div className="hidden md:block">
           <AdminSidebar />
