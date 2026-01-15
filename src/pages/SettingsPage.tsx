@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Moon, Sun, Bell, BellOff, Globe, Volume2, VolumeX, Palette, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useAppSettings } from "@/context/AppSettingsContext";
+import { AdminUnlockModal } from "@/components/admin/AdminUnlockModal";
+
 
 const OFFSET_OPTIONS = [-20, -15, -10, -5, 0, 5, 10, 15, 20];
 
@@ -22,14 +24,21 @@ const SettingsPage = () => {
   const [notifications, setNotifications] = useState(true);
   const [athanSound, setAthanSound] = useState(true);
 
+  // Hidden admin unlock (7 taps on Version)
+  const [versionTapCount, setVersionTapCount] = useState(0);
+  const [unlockOpen, setUnlockOpen] = useState(false);
+  const tapResetTimer = useRef<number | null>(null);
+
   // Detailed notification preferences (local only)
   const [quizNotifications, setQuizNotifications] = useState(true);
   const [dailyReminder, setDailyReminder] = useState(false);
   const [marketingNotifications, setMarketingNotifications] = useState(false);
+
   // Sync context theme with document class on first mount
   useEffect(() => {
     // ensure current theme is applied (context already handles this on mount)
   }, []);
+
 
   const handleDarkModeToggle = (checked: boolean) => {
     setTheme(checked ? "dark" : "light");
@@ -131,12 +140,34 @@ const SettingsPage = () => {
       description: `${prayer} ${sign}${minutes} মিনিট offset করা হয়েছে`,
     });
   };
+
+  const handleVersionTap = () => {
+    // reset window to avoid accidental unlocks
+    if (tapResetTimer.current) window.clearTimeout(tapResetTimer.current);
+
+    const next = versionTapCount + 1;
+    if (next >= 7) {
+      setVersionTapCount(0);
+      setUnlockOpen(true);
+      return;
+    }
+
+    setVersionTapCount(next);
+    tapResetTimer.current = window.setTimeout(() => setVersionTapCount(0), 1500);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (tapResetTimer.current) window.clearTimeout(tapResetTimer.current);
+    };
+  }, []);
  
   const settingsGroups = [
     {
       title: "Appearance",
       icon: "🎨",
       items: [
+
         {
           id: "darkMode",
           label: "Dark mode",
@@ -371,8 +402,16 @@ const SettingsPage = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold">NOOR – Islamic App</h3>
-                  <p className="text-xs text-muted-foreground text-left">Version 1.0.0</p>
+                  <button
+                    type="button"
+                    onClick={handleVersionTap}
+                    className="text-xs text-muted-foreground text-left"
+                    aria-label="Version (tap 7 times to unlock admin)"
+                  >
+                    Version 1.0.0
+                  </button>
                 </div>
+
               </div>
               <p className="text-xs text-muted-foreground text-center mb-1">
                 All praise is due to Allah alone 🤲
@@ -400,10 +439,17 @@ const SettingsPage = () => {
             </CardContent>
           </Card>
         </motion.div>
+
+        <AdminUnlockModal
+          open={unlockOpen}
+          onOpenChange={setUnlockOpen}
+          onUnlocked={() => navigate("/admin")}
+        />
       </div>
 
       <BottomNavigation />
     </div>
+
   );
 };
 
