@@ -14,18 +14,91 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_events: {
+        Row: {
+          ad_id: string
+          created_at: string
+          event_type: string
+          id: string
+          placement: string
+          platform: string
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          placement: string
+          platform: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          placement?: string
+          platform?: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_events_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "admin_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_ad_controls: {
+        Row: {
+          app_enabled: boolean
+          id: number
+          kill_switch: boolean
+          updated_at: string
+          web_enabled: boolean
+        }
+        Insert: {
+          app_enabled?: boolean
+          id?: number
+          kill_switch?: boolean
+          updated_at?: string
+          web_enabled?: boolean
+        }
+        Update: {
+          app_enabled?: boolean
+          id?: number
+          kill_switch?: boolean
+          updated_at?: string
+          web_enabled?: boolean
+        }
+        Relationships: []
+      }
       admin_ads: {
         Row: {
           ad_code: string
           ad_type: string
+          button_text: string | null
           created_at: string
           end_at: string | null
           frequency: number | null
+          frequency_per_session: number | null
           id: string
+          image_path: string | null
+          link_url: string | null
+          max_daily_views: number | null
+          placement: string | null
           platform: string
           priority: number
+          show_after_n_items: number | null
           start_at: string | null
           status: string
+          target_platform: string
           title: string
           updated_at: string
           zone: string
@@ -33,14 +106,22 @@ export type Database = {
         Insert: {
           ad_code: string
           ad_type: string
+          button_text?: string | null
           created_at?: string
           end_at?: string | null
           frequency?: number | null
+          frequency_per_session?: number | null
           id?: string
+          image_path?: string | null
+          link_url?: string | null
+          max_daily_views?: number | null
+          placement?: string | null
           platform?: string
           priority?: number
+          show_after_n_items?: number | null
           start_at?: string | null
           status?: string
+          target_platform?: string
           title: string
           updated_at?: string
           zone: string
@@ -48,14 +129,22 @@ export type Database = {
         Update: {
           ad_code?: string
           ad_type?: string
+          button_text?: string | null
           created_at?: string
           end_at?: string | null
           frequency?: number | null
+          frequency_per_session?: number | null
           id?: string
+          image_path?: string | null
+          link_url?: string | null
+          max_daily_views?: number | null
+          placement?: string | null
           platform?: string
           priority?: number
+          show_after_n_items?: number | null
           start_at?: string | null
           status?: string
+          target_platform?: string
           title?: string
           updated_at?: string
           zone?: string
