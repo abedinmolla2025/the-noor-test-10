@@ -1,7 +1,1 @@
-project_id = "uxsfpgwkzmjvoykhyldw"
-
-[functions.admin-security]
-verify_jwt = false
-
-[functions.generate-quiz-sfx]
-verify_jwt = true
+project_id = "pmrlebsragkguhjskyax"
