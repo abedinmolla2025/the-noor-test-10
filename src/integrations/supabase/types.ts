@@ -725,6 +725,43 @@ export type Database = {
     Functions: {
       bootstrap_first_super_admin: { Args: never; Returns: boolean }
       ensure_profile_and_user_role: { Args: never; Returns: undefined }
+      fetch_ads_for_slot: {
+        Args: {
+          _limit?: number
+          _placement: string
+          _platform: string
+          _session_id: string
+        }
+        Returns: {
+          ad_code: string
+          ad_type: string
+          button_text: string | null
+          created_at: string
+          end_at: string | null
+          frequency: number | null
+          frequency_per_session: number | null
+          id: string
+          image_path: string | null
+          link_url: string | null
+          max_daily_views: number | null
+          placement: string | null
+          platform: string
+          priority: number
+          show_after_n_items: number | null
+          start_at: string | null
+          status: string
+          target_platform: string
+          title: string
+          updated_at: string
+          zone: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "admin_ads"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

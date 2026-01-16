@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import DuaAudioPlayer from "@/components/DuaAudioPlayer";
 import { supabase } from "@/integrations/supabase/client";
+import { AdSlot } from "@/components/ads/AdSlot";
 
 type Language = "bengali" | "english" | "hindi" | "urdu";
 
@@ -183,6 +184,13 @@ const DuaPage = () => {
           </div>
         </div>
       </motion.header>
+
+      {/* Web Ad Slot */}
+      {!loading && !error && (
+        <div className="px-4 pt-4">
+          <AdSlot placement="web_dua_middle" />
+        </div>
+      )}
 
       {loading && (
         <div className="p-4 text-center text-white/70 text-sm">Loading duas...</div>

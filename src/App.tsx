@@ -30,6 +30,7 @@ import AdminMedia from "./pages/admin/AdminMedia";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminSecurity from "./pages/admin/AdminSecurity";
+import AdminAds from "./pages/admin/AdminAds";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
 import { AdminLayout } from "./components/admin/AdminLayout";
@@ -95,12 +96,12 @@ const AppRoutes = () => (
         </AdminLayout>
       }
     />
-    {/* Ads, Reports, Finance map to existing Monetization/Analytics pages for now */}
+    {/* Ads, Reports, Finance */}
     <Route
       path="/admin/ads"
       element={
         <AdminLayout>
-          <AdminMonetization />
+          <AdminAds />
         </AdminLayout>
       }
     />

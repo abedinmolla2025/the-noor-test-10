@@ -14,6 +14,7 @@ import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGlobalConfig } from "@/context/GlobalConfigContext";
+import { AdSlot } from "@/components/ads/AdSlot";
  
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
@@ -81,6 +82,11 @@ const Index = () => {
         {/* Feature Icons */}
         <section className="animate-fade-in" style={{ animationDelay: "100ms" }}>
           <FeatureIcons />
+        </section>
+
+        {/* Web Ad Slot */}
+        <section className="animate-fade-in" style={{ animationDelay: "120ms" }}>
+          <AdSlot placement="web_home_top" />
         </section>
 
         {/* Audio & Quiz Premium Section */}
