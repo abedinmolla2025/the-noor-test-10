@@ -31,6 +31,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminSecurity from "./pages/admin/AdminSecurity";
 import AdminAds from "./pages/admin/AdminAds";
+import AdminLayoutControl from "./pages/admin/AdminLayoutControl";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
 import { AdminLayout } from "./components/admin/AdminLayout";
@@ -151,6 +152,14 @@ const AppRoutes = () => (
       element={
         <AdminLayout>
           <AdminAnalytics />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/layout"
+      element={
+        <AdminLayout>
+          <AdminLayoutControl />
         </AdminLayout>
       }
     />
