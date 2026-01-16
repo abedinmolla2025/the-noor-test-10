@@ -4,7 +4,7 @@
 // - Ensure a dedicated admin user exists and has super_admin role
 // - Log events to admin_audit_log
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import { createClient } from "npm:@supabase/supabase-js@2.89.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -181,7 +181,8 @@ Deno.serve(async (req) => {
         // hard requirement enforced by backend
         const adminUser = await ensureAdminUser();
         await logAudit(adminUser.id, "unlock_failed", { reason: "fingerprint_required", ip: getIp(req) });
-        return json({ ok: false, reason: "fingerprint_required" }, 400);
+        // Return 200 so the client can show a specific message (avoid generic non-2xx error)
+        return json({ ok: false, reason: "fingerprint_required" }, 200);
       }
 
       const adminUser = await ensureAdminUser(passcode);
@@ -326,7 +327,7 @@ Deno.serve(async (req) => {
       return json({ ok: true, events: events ?? [] });
     }
 
-    return json({ ok: false, error: "unknown_action" }, 400);
+    return json({ ok: false, error: "unknown_action" }, 200);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return json({ ok: false, error: msg }, 500);
