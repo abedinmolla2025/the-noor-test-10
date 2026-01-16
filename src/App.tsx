@@ -16,6 +16,7 @@ import PrayerTimesPage from "./pages/PrayerTimesPage";
 import BukhariPage from "./pages/BukhariPage";
 import IslamicCalendarPage from "./pages/IslamicCalendarPage";
 import SettingsPage from "./pages/SettingsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import BackendStatusPage from "./pages/BackendStatusPage";
 import QuizPage from "./pages/QuizPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
@@ -56,6 +57,7 @@ const AppRoutes = () => (
     <Route path="/bukhari" element={<BukhariPage />} />
     <Route path="/calendar" element={<IslamicCalendarPage />} />
     <Route path="/settings" element={<SettingsPage />} />
+    <Route path="/notifications" element={<NotificationsPage />} />
     <Route path="/quiz" element={<QuizPage />} />
     <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
     <Route path="/terms" element={<TermsPage />} />

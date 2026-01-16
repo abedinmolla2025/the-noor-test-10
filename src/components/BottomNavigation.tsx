@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Home, BookOpen, ScrollText, CalendarDays, Settings2 } from "lucide-react";
+import { Home, BookOpen, ScrollText, CalendarDays, Settings2, Bell } from "lucide-react";
 import type React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGlobalConfig } from "@/context/GlobalConfigContext";
@@ -45,6 +45,13 @@ const navItems: NavItem[] = [
     labelBn: "ক্যালেন্ডার",
     path: "/calendar",
     moduleKey: "calendar",
+  },
+  {
+    id: "notifications",
+    icon: <Bell className="w-5 h-5" />,
+    label: "Inbox",
+    labelBn: "ইনবক্স",
+    path: "/notifications",
   },
   {
     id: "settings",

@@ -321,6 +321,10 @@ const Index = () => {
                 <ListChecks className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
                 <span>নামাজের সময়</span>
               </button>
+              <button onClick={() => navigate("/notifications")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
+                <BellRing className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+                <span>ইনবক্স</span>
+              </button>
               <button onClick={() => navigate("/settings")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
                 <Settings className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
                 <span>সেটিংস</span>
