@@ -16,10 +16,12 @@ const pageTitleFromPath = (pathname: string) => {
   if (pathname.startsWith('/admin/content')) return 'Content';
   if (pathname.startsWith('/admin/notifications')) return 'Notifications';
   if (pathname.startsWith('/admin/analytics') || pathname.startsWith('/admin/reports')) return 'Reports';
+  if (pathname.startsWith('/admin/layout')) return 'Layout';
   if (pathname.startsWith('/admin/ads')) return 'Ads';
   if (pathname.startsWith('/admin/finance') || pathname.startsWith('/admin/monetization')) return 'Finance';
   if (pathname.startsWith('/admin/audit')) return 'Audit';
   if (pathname.startsWith('/admin/settings')) return 'Settings';
+  if (pathname.startsWith('/admin/security')) return 'Security';
   return 'Dashboard';
 };
 

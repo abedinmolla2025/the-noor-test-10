@@ -12,6 +12,7 @@ import {
   Activity,
   Zap,
   Shield,
+  LayoutGrid,
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -67,6 +68,7 @@ export const AdminSidebar = ({ showQuickShortcuts = false }: AdminSidebarProps) 
     {
       title: "System",
       items: [
+        { to: "/admin/layout", icon: LayoutGrid, label: "Layout" },
         { to: "/admin/ads", icon: DollarSign, label: "Ads" },
         { to: "/admin/finance", icon: DollarSign, label: "Finance" },
         { to: "/admin/settings", icon: Settings, label: "Settings" },

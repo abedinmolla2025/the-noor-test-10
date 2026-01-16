@@ -1,11 +1,24 @@
-import { useState } from "react";
-import { BellRing, Sparkles, Trophy, Home, BookOpen, ScrollText, CalendarDays, Settings, ListChecks, PlayCircle, Facebook, MessageCircle, Mail } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  BellRing,
+  Sparkles,
+  Trophy,
+  Home,
+  BookOpen,
+  ScrollText,
+  CalendarDays,
+  Settings,
+  ListChecks,
+  PlayCircle,
+  Facebook,
+  MessageCircle,
+  Mail,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PrayerHeroCard from "@/components/PrayerHeroCard";
 import FeatureIcons from "@/components/FeatureIcons";
 import AudioRecitationCard from "@/components/AudioRecitationCard";
-import PrayerTimesList from "@/components/PrayerTimesList";
 import BottomNavigation from "@/components/BottomNavigation";
 import DailyHadith from "@/components/DailyHadith";
 import AthanSettingsModal from "@/components/AthanSettingsModal";
@@ -15,13 +28,19 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { useGlobalConfig } from "@/context/GlobalConfigContext";
 import { AdSlot } from "@/components/ads/AdSlot";
+import type { LayoutPlatform } from "@/lib/layout";
+import { detectLayoutPlatform } from "@/lib/layout";
+import { useLayoutSettings } from "@/hooks/useLayoutSettings";
  
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
+  const [layoutPlatform, setLayoutPlatform] = useState<LayoutPlatform>("web");
   const { prayerTimes } = usePrayerTimes();
   const navigate = useNavigate();
-  const { modules, system, branding } = useGlobalConfig();
-  
+  const { system, branding } = useGlobalConfig();
+
+  const layoutQuery = useLayoutSettings("home", layoutPlatform);
+
   const {
     settings,
     updateSettings,
@@ -33,12 +52,132 @@ const Index = () => {
     requestNotificationPermission,
   } = useAthanNotification(prayerTimes);
 
+  useEffect(() => {
+    detectLayoutPlatform().then(setLayoutPlatform).catch(() => setLayoutPlatform("web"));
+  }, []);
+
+
+  const defaultSections = useMemo(
+    () =>
+      [
+        { key: "prayer_hero", el: (
+          <PrayerHeroCard
+            athanSettings={{
+              enabled: settings.enabled,
+              isPlaying,
+              onOpenSettings: () => setAthanModalOpen(true),
+            }}
+          />
+        ) },
+        { key: "feature_icons", el: <FeatureIcons /> },
+        { key: "ad_home_top", el: <AdSlot placement="web_home_top" /> },
+        { key: "focus_zone", el: (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-primary" />
+                  Focus zone
+                </p>
+                <h2 className="text-sm font-semibold">Audio Recitation & Daily Quiz</h2>
+              </div>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="animate-fade-in" style={{ animationDelay: "180ms" }}>
+                <AudioRecitationCard />
+              </div>
+
+              <Card className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/20 via-background to-emerald-500/15 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-200">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_transparent_60%)]" />
+                <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-primary/20 blur-2xl" />
+                <CardHeader className="relative z-10 pb-3 flex flex-row items-start justify-between gap-2">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-primary flex items-center gap-1">
+                      <Trophy className="w-3.5 h-3.5" />
+                      Daily Challenge
+                    </p>
+                    <CardTitle className="mt-1 text-base">Daily Islamic Quiz</CardTitle>
+                    <CardDescription className="mt-1 text-xs leading-relaxed">
+                      প্রতিদিন ৩টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
+                    </CardDescription>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      Build your daily Islamic habit
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center rounded-full border border-primary/30 bg-background/60 px-2 py-0.5 text-[10px] font-medium text-primary backdrop-blur-sm">
+                    PRO
+                  </span>
+                </CardHeader>
+                <CardContent className="relative z-10 flex flex-col gap-3 pb-4">
+                  <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span>Streak &amp; points saved on this device</span>
+                    <span className="rounded-full bg-background/50 px-2 py-0.5">Daily • 3 Qs</span>
+                  </div>
+                  <Button
+                    className="group w-full h-10 text-sm justify-between bg-gradient-to-r from-primary via-primary to-amber-500 text-primary-foreground shadow-md shadow-primary/40 hover:shadow-lg hover:shadow-primary/60 hover:brightness-[1.03] border border-white/10 px-3"
+                    onClick={() => navigate("/quiz")}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Trophy className="w-4 h-4 group-hover:scale-110 group-hover:-translate-y-px transition-transform" />
+                      আজকের কুইজ দিন
+                    </span>
+                    <span className="text-[10px] uppercase tracking-wide text-primary-foreground/80 group-hover:translate-x-0.5 transition-transform">
+                      Start • 3 questions
+                    </span>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+        ) },
+        { key: "daily_hadith", el: <DailyHadith /> },
+        { key: "footer", el: null },
+      ] as const,
+    [
+      isPlaying,
+      navigate,
+      settings.enabled,
+      stopAthan,
+      currentPrayer,
+      playAthan,
+      togglePrayer,
+      updateSettings,
+      requestNotificationPermission,
+    ],
+  );
+
+  const sectionMap = useMemo(() => {
+    const map = new Map<string, React.ReactNode>();
+    defaultSections.forEach((s) => map.set(s.key, s.el));
+    return map;
+  }, [defaultSections]);
+
+  const getSectionSpacing = (size?: string) => {
+    if (size === "compact") return "mb-2";
+    if (size === "large") return "mb-6";
+    return "mb-4";
+  };
+
+  const layoutRows = layoutQuery.data ?? [];
+  const hasLayout = layoutRows.length > 0;
+
+  const orderedSections = hasLayout
+    ? layoutRows
+        .filter((r) => r.visible !== false)
+        .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
+        .map((r) => ({ key: r.section_key, size: r.size, el: sectionMap.get(r.section_key) }))
+        .filter((s) => s.el !== undefined)
+    : defaultSections
+        .filter((s) => s.key !== "footer")
+        .map((s) => ({ key: s.key, size: "normal", el: s.el }));
+
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
       {/* Maintenance banner */}
       {system.maintenanceMode && (
         <div className="w-full bg-amber-500/90 text-amber-950 text-center text-xs py-2 px-3">
-          {branding.tagline || 'The app is currently in maintenance mode. Some features may be limited.'}
+          {branding.tagline || "The app is currently in maintenance mode. Some features may be limited."}
         </div>
       )}
 
@@ -52,9 +191,7 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <BellRing className="w-5 h-5 text-white animate-pulse" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-white">
-                {currentPrayer} আযান চলছে...
-              </p>
+              <p className="text-sm font-medium text-white">{currentPrayer} আযান চলছে...</p>
             </div>
             <button
               onClick={stopAthan}
@@ -70,14 +207,15 @@ const Index = () => {
       <main className="w-full px-3 py-4 space-y-4">
         {/* Prayer Hero Card */}
         <section className="animate-fade-in" style={{ animationDelay: "0ms" }}>
-          <PrayerHeroCard 
+          <PrayerHeroCard
             athanSettings={{
               enabled: settings.enabled,
               isPlaying,
-              onOpenSettings: () => setAthanModalOpen(true)
+              onOpenSettings: () => setAthanModalOpen(true),
             }}
           />
         </section>
+
 
         {/* Feature Icons */}
         <section className="animate-fade-in" style={{ animationDelay: "100ms" }}>
