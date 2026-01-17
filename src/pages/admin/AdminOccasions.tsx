@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -11,6 +13,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 import {
   DndContext,
@@ -42,9 +47,16 @@ type OccasionRow = {
   updated_at: string;
 };
 
-function toISODateTimeLocal(value: string) {
-  const d = new Date(value);
-  return isNaN(d.getTime()) ? null : d.toISOString();
+function toLocalStartOfDayIso(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x.toISOString();
+}
+
+function toLocalEndOfDayIso(d: Date) {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x.toISOString();
 }
 
 function SortableOccasionRow({
@@ -144,8 +156,7 @@ export default function AdminOccasions() {
       dua_text: "",
       platform: "both" as OccasionPlatform,
       is_active: true,
-      start_date: "",
-      end_date: "",
+      dateRange: undefined as DateRange | undefined,
       imageFile: null as File | null,
       image_url: "",
     }),
@@ -154,15 +165,18 @@ export default function AdminOccasions() {
 
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const openCreate = () => {
     setEditing(null);
+    setDateError(null);
     setForm(emptyForm);
     setDialogOpen(true);
   };
 
   const openEdit = (row: OccasionRow) => {
     setEditing(row);
+    setDateError(null);
     setForm({
       ...emptyForm,
       title: row.title ?? "",
@@ -171,8 +185,10 @@ export default function AdminOccasions() {
       platform: row.platform ?? "both",
       is_active: !!row.is_active,
       image_url: row.image_url ?? "",
-      start_date: "",
-      end_date: "",
+      dateRange: {
+        from: row.start_date ? new Date(row.start_date) : undefined,
+        to: row.end_date ? new Date(row.end_date) : undefined,
+      },
       imageFile: null,
     });
     setDialogOpen(true);
@@ -195,9 +211,22 @@ export default function AdminOccasions() {
   const save = async () => {
     setSaving(true);
     try {
-      const startIso = form.start_date ? toISODateTimeLocal(form.start_date) : null;
-      const endIso = form.end_date ? toISODateTimeLocal(form.end_date) : null;
-      if (!startIso || !endIso) throw new Error("Start & end date required");
+      setDateError(null);
+
+      const from = form.dateRange?.from;
+      const to = form.dateRange?.to;
+
+      if (!from || !to) {
+        setDateError("Start ও End তারিখ নির্বাচন করুন");
+        throw new Error("Start & end date required");
+      }
+      if (to.getTime() < from.getTime()) {
+        setDateError("End তারিখ, Start-এর পরে হতে হবে");
+        throw new Error("End date must be after start date");
+      }
+
+      const startIso = toLocalStartOfDayIso(from);
+      const endIso = toLocalEndOfDayIso(to);
 
       const image_url = await uploadImageIfNeeded();
 
@@ -337,22 +366,48 @@ export default function AdminOccasions() {
                   <Switch checked={form.is_active} onCheckedChange={(v) => setForm((p) => ({ ...p, is_active: v }))} />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Start date</Label>
-                  <Input
-                    type="datetime-local"
-                    value={form.start_date}
-                    onChange={(e) => setForm((p) => ({ ...p, start_date: e.target.value }))}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>End date</Label>
-                  <Input
-                    type="datetime-local"
-                    value={form.end_date}
-                    onChange={(e) => setForm((p) => ({ ...p, end_date: e.target.value }))}
-                  />
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Date range</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !form.dateRange?.from && "text-muted-foreground",
+                        )}
+                      >
+                        <CalendarDays className="mr-2 h-4 w-4" />
+                        {form.dateRange?.from ? (
+                          form.dateRange?.to ? (
+                            <>
+                              {format(form.dateRange.from, "PPP")} – {format(form.dateRange.to, "PPP")}
+                            </>
+                          ) : (
+                            format(form.dateRange.from, "PPP")
+                          )
+                        ) : (
+                          <span>তারিখ নির্বাচন করুন</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="range"
+                        selected={form.dateRange}
+                        onSelect={(range) => {
+                          setDateError(null);
+                          setForm((p) => ({ ...p, dateRange: range }));
+                        }}
+                        numberOfMonths={1}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {dateError ? <p className="text-sm font-medium text-destructive">{dateError}</p> : null}
+                  <p className="text-xs text-muted-foreground">Home carousel দেখাতে এই তারিখের মধ্যে থাকতে হবে।</p>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
