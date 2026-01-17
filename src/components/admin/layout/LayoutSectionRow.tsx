@@ -69,24 +69,30 @@ export function LayoutSectionRow({ item, platform, onChange }: Props) {
       className="rounded-xl border border-border bg-card p-3"
     >
       <Collapsible open={open} onOpenChange={setOpen}>
-        <div className="flex items-center gap-3">
-          <div className="cursor-grab text-muted-foreground">
-            <GripVertical className="h-4 w-4" />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium leading-tight">{item.label}</p>
-              {hasSettings && (
-                <span className="rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                  settings
-                </span>
-              )}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3 sm:flex-1 sm:min-w-0">
+            <div className="cursor-grab text-muted-foreground">
+              <GripVertical className="h-4 w-4" />
             </div>
-            <p className="text-[11px] text-muted-foreground">{item.section_key}</p>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start gap-2">
+                <p className="min-w-0 flex-1 text-sm font-medium leading-tight break-words">
+                  {item.label}
+                </p>
+                {hasSettings && (
+                  <span className="shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    settings
+                  </span>
+                )}
+              </div>
+              <p className="mt-0.5 break-all text-[11px] text-muted-foreground">
+                {item.section_key}
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap sm:justify-end">
             <div className="w-32">
               <Select value={item.size} onValueChange={(v) => onChange({ ...item, size: v as UiSize })}>
                 <SelectTrigger>
@@ -102,7 +108,10 @@ export function LayoutSectionRow({ item, platform, onChange }: Props) {
 
             <div className="flex items-center gap-2">
               <Label className="text-xs text-muted-foreground">Show</Label>
-              <Switch checked={item.visible} onCheckedChange={(checked) => onChange({ ...item, visible: checked })} />
+              <Switch
+                checked={item.visible}
+                onCheckedChange={(checked) => onChange({ ...item, visible: checked })}
+              />
             </div>
 
             <CollapsibleTrigger asChild>
