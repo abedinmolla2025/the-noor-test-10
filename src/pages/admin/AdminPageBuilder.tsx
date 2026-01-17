@@ -7,6 +7,16 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Sheet,
   SheetContent,
@@ -227,6 +237,13 @@ export default function AdminPageBuilder() {
   const [savingOrder, setSavingOrder] = useState(false);
   const [resetting, setResetting] = useState(false);
 
+  const [exportOpen, setExportOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [exportJson, setExportJson] = useState<string>("");
+  const [importJson, setImportJson] = useState<string>("");
+  const [importing, setImporting] = useState(false);
+  const [replaceAllAndPlatform, setReplaceAllAndPlatform] = useState(false);
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   const load = async () => {
@@ -326,6 +343,95 @@ export default function AdminPageBuilder() {
     }
   };
 
+  const buildExportPayload = () => {
+    const sections = items
+      .slice()
+      .sort((a, b) => a.position - b.position)
+      .map((s) => ({
+        page: "home",
+        platform: s.platform,
+        section_key: s.section_key,
+        title: s.title,
+        position: s.position,
+        visible: s.visible,
+        settings: s.settings ?? {},
+      }));
+
+    return {
+      version: 1,
+      page: "home",
+      exported_at: new Date().toISOString(),
+      sections,
+    };
+  };
+
+  const openExport = () => {
+    setExportJson(JSON.stringify(buildExportPayload(), null, 2));
+    setExportOpen(true);
+  };
+
+  const copyExportToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(exportJson);
+      toast({ title: "Copied to clipboard" });
+    } catch {
+      toast({ title: "Copy failed", description: "Your browser blocked clipboard access.", variant: "destructive" });
+    }
+  };
+
+  const applyImport = async () => {
+    setImporting(true);
+    try {
+      const raw = JSON.parse(importJson);
+      const incoming: any[] = Array.isArray(raw) ? raw : Array.isArray((raw as any)?.sections) ? (raw as any).sections : [];
+      if (!incoming.length) throw new Error("Invalid JSON: expected an array or { sections: [...] }.");
+
+      const normalized = incoming
+        .filter((x) => x && typeof x === "object")
+        .map((x, idx) => {
+          const sectionKey = String((x as any).section_key ?? "").trim();
+          if (!sectionKey) throw new Error("Each section must have section_key");
+
+          const incomingPlatform = String((x as any).platform ?? platform);
+          const platformToUse = replaceAllAndPlatform ? incomingPlatform : platform;
+
+          return {
+            page: "home",
+            platform: platformToUse,
+            section_key: sectionKey,
+            title: String((x as any).title ?? sectionKey),
+            position: typeof (x as any).position === "number" ? (x as any).position : idx,
+            visible: typeof (x as any).visible === "boolean" ? (x as any).visible : true,
+            settings: (x as any).settings && typeof (x as any).settings === "object" ? (x as any).settings : {},
+          };
+        })
+        .sort((a, b) => a.position - b.position)
+        .map((s, idx) => ({ ...s, position: idx }));
+
+      let del = supabase.from("admin_page_sections").delete().eq("page", "home");
+      if (replaceAllAndPlatform) {
+        del = del.in("platform", ["all", platform]);
+      } else {
+        del = del.eq("platform", platform);
+      }
+
+      const { error: delErr } = await del;
+      if (delErr) throw delErr;
+
+      const { error: insErr } = await supabase.from("admin_page_sections").insert(normalized);
+      if (insErr) throw insErr;
+
+      toast({ title: "Import complete" });
+      setImportOpen(false);
+      setImportJson("");
+      await load();
+    } catch (e: any) {
+      toast({ title: "Import failed", description: e?.message ?? "", variant: "destructive" });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const orderedIds = useMemo(() => items.map((i) => i.id), [items]);
 
   const persistOrder = async (next: AdminPageSection[]) => {
@@ -411,6 +517,73 @@ export default function AdminPageBuilder() {
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Refresh
             </Button>
+
+            <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" onClick={openExport} disabled={loading}>
+                  Export JSON
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Export Home config (JSON)</DialogTitle>
+                  <DialogDescription>
+                    Copy this JSON into git or share it. It includes both <code>all</code> and the selected platform rows.
+                  </DialogDescription>
+                </DialogHeader>
+                <Textarea value={exportJson} readOnly className="min-h-[360px] font-mono text-xs" />
+                <DialogFooter className="gap-2 sm:gap-2">
+                  <Button variant="outline" onClick={copyExportToClipboard} disabled={!exportJson}>
+                    Copy
+                  </Button>
+                  <Button onClick={() => setExportOpen(false)}>Close</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={importOpen} onOpenChange={setImportOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">Import JSON</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Import Home config (JSON)</DialogTitle>
+                  <DialogDescription>
+                    Paste JSON exported from another environment. Import replaces the current platform config.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-3">
+                  <Textarea
+                    value={importJson}
+                    onChange={(e) => setImportJson(e.target.value)}
+                    placeholder='{"version":1,"page":"home","sections":[...]}'
+                    className="min-h-[320px] font-mono text-xs"
+                  />
+
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">Replace “all” rows too</p>
+                      <p className="text-xs text-muted-foreground">
+                        If enabled, we will also delete/replace shared <code>all</code> rows.
+                      </p>
+                    </div>
+                    <Switch checked={replaceAllAndPlatform} onCheckedChange={setReplaceAllAndPlatform} />
+                  </div>
+                </div>
+
+                <DialogFooter className="gap-2 sm:gap-2">
+                  <Button variant="outline" onClick={() => setImportOpen(false)} disabled={importing}>
+                    Cancel
+                  </Button>
+                  <Button onClick={applyImport} disabled={importing || !importJson.trim()}>
+                    {importing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Import & Replace
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             <Button variant="outline" onClick={resetToDefaults} disabled={resetting || loading || savingOrder}>
               {resetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Reset to defaults
