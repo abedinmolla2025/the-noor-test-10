@@ -59,6 +59,57 @@ function toLocalEndOfDayIso(d: Date) {
   return x.toISOString();
 }
 
+async function compressImageFile(file: File, opts?: { maxDimension?: number; quality?: number }) {
+  // Don't recompress GIFs (keep animation)
+  if (file.type === "image/gif") return file;
+  if (!file.type.startsWith("image/")) return file;
+
+  const maxDimension = opts?.maxDimension ?? 1600;
+  const quality = opts?.quality ?? 0.82;
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const ratio = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * ratio));
+    const height = Math.max(1, Math.round(bitmap.height * ratio));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+
+    ctx.drawImage(bitmap, 0, 0, width, height);
+
+    const supportsWebp = (() => {
+      try {
+        return canvas.toDataURL("image/webp").startsWith("data:image/webp");
+      } catch {
+        return false;
+      }
+    })();
+
+    const outType = supportsWebp ? "image/webp" : "image/jpeg";
+
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob((b) => resolve(b), outType, quality),
+    );
+
+    // If something went wrong, fall back
+    if (!blob) return file;
+
+    // If compression didn't reduce size, keep original
+    if (blob.size >= file.size) return file;
+
+    const baseName = file.name.replace(/\.[^.]+$/, "");
+    const ext = outType === "image/webp" ? "webp" : "jpg";
+    return new File([blob], `${baseName}.${ext}`, { type: outType });
+  } catch {
+    return file;
+  }
+}
+
+
 type OccasionTemplate = {
   id: string;
   label: string;
@@ -268,6 +319,7 @@ export default function AdminOccasions() {
 
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [imageProcessing, setImageProcessing] = useState(false);
   const [dateError, setDateError] = useState<string | null>(null);
   const [templateId, setTemplateId] = useState<string>("");
   const [localImagePreviewUrl, setLocalImagePreviewUrl] = useState<string | null>(null);
@@ -668,25 +720,42 @@ export default function AdminOccasions() {
                   <Input
                     type="file"
                     accept="image/*,image/gif"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] ?? null;
-                      setForm((p) => ({ ...p, imageFile: file }));
+                    onChange={async (e) => {
+                      const raw = e.target.files?.[0] ?? null;
+                      if (!raw) {
+                        setForm((p) => ({ ...p, imageFile: null }));
+                        if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
+                        setLocalImagePreviewUrl(null);
+                        return;
+                      }
 
-                      // Local preview for UI only
-                      if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
-                      setLocalImagePreviewUrl(file ? URL.createObjectURL(file) : null);
+                      setImageProcessing(true);
+                      try {
+                        const optimized = await compressImageFile(raw);
+                        setForm((p) => ({ ...p, imageFile: optimized }));
+
+                        // Local preview for UI only
+                        if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
+                        setLocalImagePreviewUrl(URL.createObjectURL(optimized));
+                      } finally {
+                        setImageProcessing(false);
+                      }
                     }}
                   />
-                  <p className="text-xs text-muted-foreground">Optional. Uploads to storage bucket “occasions-assets”.</p>
+                  {imageProcessing ? (
+                    <p className="text-xs text-muted-foreground">Optimizing image…</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Optional. Uploads to storage bucket “occasions-assets”.</p>
+                  )}
                 </div>
               </div>
 
-              <DialogFooter className="mt-2">
-                <Button onClick={save} disabled={saving} className="gap-2">
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  Save
-                </Button>
-              </DialogFooter>
+               <DialogFooter className="mt-2">
+                 <Button onClick={save} disabled={saving || imageProcessing} className="gap-2">
+                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                   Save
+                 </Button>
+               </DialogFooter>
             </DialogContent>
           </Dialog>
         }
