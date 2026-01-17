@@ -14,6 +14,7 @@ import {
   Shield,
   LayoutGrid,
   Globe,
+  History as HistoryIcon,
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,7 +57,8 @@ export const AdminSidebar = ({ showQuickShortcuts = false }: AdminSidebarProps) 
       items: [
         { to: '/admin/users', icon: Users, label: 'Users' },
         { to: '/admin/content', icon: BookOpen, label: 'Content' },
-        { to: '/admin/notifications', icon: Bell, label: 'Notifications' },
+        { to: '/admin/notifications', icon: Bell, label: 'Send Notification' },
+        { to: '/admin/notifications/history', icon: HistoryIcon, label: 'Notification History' },
       ],
     },
     {
