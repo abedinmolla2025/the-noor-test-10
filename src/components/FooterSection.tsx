@@ -125,21 +125,36 @@ export default function FooterSection({
             >
               <span>Visit our website</span>
             </a>
-          ) : playStoreUrl ? (
-            <a
-              href={playStoreUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale"
-            >
-              <PlayCircle className="h-3.5 w-3.5" />
-              <span>Get it on Play Store</span>
-            </a>
           ) : (
-            <button className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale">
-              <PlayCircle className="h-3.5 w-3.5" />
-              <span>Get it on Play Store (Soon)</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              {playStoreUrl ? (
+                <a
+                  href={playStoreUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale"
+                >
+                  <PlayCircle className="h-3.5 w-3.5" />
+                  <span>Play Store</span>
+                </a>
+              ) : (
+                <button className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale">
+                  <PlayCircle className="h-3.5 w-3.5" />
+                  <span>Play Store (Soon)</span>
+                </button>
+              )}
+
+              {appStoreUrl && (
+                <a
+                  href={appStoreUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] font-medium text-foreground shadow-sm hover:bg-muted transition-all hover-scale"
+                >
+                  <span>App Store</span>
+                </a>
+              )}
+            </div>
           )}
 
           <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
@@ -175,14 +190,6 @@ export default function FooterSection({
             </div>
           </div>
         </div>
-
-        {appStoreUrl && (
-          <div className="text-center text-[11px]">
-            <a href={appStoreUrl} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground">
-              App Store
-            </a>
-          </div>
-        )}
 
         <div className="h-px w-20 mx-auto bg-border/70 rounded-full" />
 
