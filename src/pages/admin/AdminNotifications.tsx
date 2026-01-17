@@ -114,6 +114,12 @@ export default function AdminNotifications() {
                 History
               </Link>
             </Button>
+            <Button asChild variant="outline" className="gap-2">
+              <Link to="/admin/notifications/diagnostics">
+                <Send className="h-4 w-4" />
+                Diagnostics
+              </Link>
+            </Button>
           </div>
         </div>
       </header>
