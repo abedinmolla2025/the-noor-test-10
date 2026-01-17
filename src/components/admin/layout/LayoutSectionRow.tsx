@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -62,13 +63,20 @@ export function LayoutSectionRow({
   const dragControls = useDragControls();
   const isAdSection = useMemo(() => item.section_key.startsWith("ad_"), [item.section_key]);
   const isFeatureIcons = useMemo(() => item.section_key === "feature_icons", [item.section_key]);
+  const isFooter = useMemo(() => item.section_key === "footer", [item.section_key]);
 
   const hasSettings = useMemo(() => {
     const s = item.settings ?? {};
     const hasGrid = isFeatureIcons && Boolean(s.gridColumns);
     const hasPlacement = isAdSection && Boolean(s.adPlacement);
-    return Boolean(hasGrid || hasPlacement || s.styleVariant);
-  }, [isAdSection, isFeatureIcons, item.settings]);
+    const hasFooterLinks =
+      isFooter &&
+      Boolean(
+        s.playStoreUrl || s.appStoreUrl || s.contactEmail || s.facebookUrl || s.whatsappUrl,
+      );
+
+    return Boolean(hasGrid || hasPlacement || hasFooterLinks || s.styleVariant);
+  }, [isAdSection, isFeatureIcons, isFooter, item.settings]);
 
   const updateSettings = (patch: Partial<SectionSettings>) => {
     onChange({
@@ -186,79 +194,148 @@ export function LayoutSectionRow({
           </div>
         </div>
 
-        <CollapsibleContent className="pt-3">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {isFeatureIcons && (
+          <CollapsibleContent className="pt-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {isFeatureIcons && (
+                <div className="space-y-1">
+                  <Label className="text-xs">Grid columns</Label>
+                  <Select
+                    value={item.settings?.gridColumns ? String(item.settings.gridColumns) : "auto"}
+                    onValueChange={(v) =>
+                      updateSettings({ gridColumns: v === "auto" ? undefined : Number(v) })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Auto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Auto</SelectItem>
+                      {GRID_OPTIONS.map((n) => (
+                        <SelectItem key={n} value={String(n)}>
+                          {n}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {isAdSection && (
+                <div className="space-y-1">
+                  <Label className="text-xs">Ad placement</Label>
+                  <Select
+                    value={item.settings?.adPlacement ?? "auto"}
+                    onValueChange={(v) =>
+                      updateSettings({ adPlacement: v === "auto" ? undefined : v })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Auto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Auto</SelectItem>
+                      {getAdPlacementOptions(platform).map((p) => (
+                        <SelectItem key={p} value={p}>
+                          {p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">Optional — only used by ad sections.</p>
+                </div>
+              )}
+
+              {isFooter && (
+                <div className="space-y-3 sm:col-span-2">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Play Store URL</Label>
+                      <Input
+                        value={typeof item.settings?.playStoreUrl === "string" ? item.settings.playStoreUrl : ""}
+                        onChange={(e) => {
+                          const v = e.target.value.trim();
+                          updateSettings({ playStoreUrl: v ? v : undefined });
+                        }}
+                        placeholder="https://play.google.com/store/apps/details?id=..."
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs">App Store URL</Label>
+                      <Input
+                        value={typeof item.settings?.appStoreUrl === "string" ? item.settings.appStoreUrl : ""}
+                        onChange={(e) => {
+                          const v = e.target.value.trim();
+                          updateSettings({ appStoreUrl: v ? v : undefined });
+                        }}
+                        placeholder="https://apps.apple.com/app/..."
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs">Contact email</Label>
+                      <Input
+                        value={typeof item.settings?.contactEmail === "string" ? item.settings.contactEmail : ""}
+                        onChange={(e) => {
+                          const v = e.target.value.trim();
+                          updateSettings({ contactEmail: v ? v : undefined });
+                        }}
+                        placeholder="noor-app@example.com"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs">Facebook URL</Label>
+                      <Input
+                        value={typeof item.settings?.facebookUrl === "string" ? item.settings.facebookUrl : ""}
+                        onChange={(e) => {
+                          const v = e.target.value.trim();
+                          updateSettings({ facebookUrl: v ? v : undefined });
+                        }}
+                        placeholder="https://facebook.com/yourpage"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs">WhatsApp/Chat link</Label>
+                      <Input
+                        value={typeof item.settings?.whatsappUrl === "string" ? item.settings.whatsappUrl : ""}
+                        onChange={(e) => {
+                          const v = e.target.value.trim();
+                          updateSettings({ whatsappUrl: v ? v : undefined });
+                        }}
+                        placeholder="https://wa.me/... অথবা অন্য chat link"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    এই লিংকগুলো শুধু Footer section‑এ ব্যবহার হবে।
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-1">
-                <Label className="text-xs">Grid columns</Label>
+                <Label className="text-xs">Style variant</Label>
                 <Select
-                  value={item.settings?.gridColumns ? String(item.settings.gridColumns) : "auto"}
+                  value={item.settings?.styleVariant ?? "default"}
                   onValueChange={(v) =>
-                    updateSettings({ gridColumns: v === "auto" ? undefined : Number(v) })
+                    updateSettings({ styleVariant: (v as StyleVariant) || "default" })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Auto" />
+                    <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="auto">Auto</SelectItem>
-                    {GRID_OPTIONS.map((n) => (
-                      <SelectItem key={n} value={String(n)}>
-                        {n}
+                    {VARIANTS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            )}
-
-            {isAdSection && (
-              <div className="space-y-1">
-                <Label className="text-xs">Ad placement</Label>
-                <Select
-                  value={item.settings?.adPlacement ?? "auto"}
-                  onValueChange={(v) =>
-                    updateSettings({ adPlacement: v === "auto" ? undefined : v })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Auto" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="auto">Auto</SelectItem>
-                    {getAdPlacementOptions(platform).map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-[11px] text-muted-foreground">Optional — only used by ad sections.</p>
-              </div>
-            )}
-
-            <div className="space-y-1">
-              <Label className="text-xs">Style variant</Label>
-              <Select
-                value={item.settings?.styleVariant ?? "default"}
-                onValueChange={(v) =>
-                  updateSettings({ styleVariant: (v as StyleVariant) || "default" })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Default" />
-                </SelectTrigger>
-                <SelectContent>
-                  {VARIANTS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
-          </div>
-        </CollapsibleContent>
+          </CollapsibleContent>
       </Collapsible>
     </Reorder.Item>
   );

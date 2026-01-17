@@ -1,19 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  BellRing,
-  Sparkles,
-  Trophy,
-  Home,
-  BookOpen,
-  ScrollText,
-  CalendarDays,
-  Settings,
-  ListChecks,
-  PlayCircle,
-  Facebook,
-  MessageCircle,
-  Mail,
-} from "lucide-react";
+import { BellRing } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import PrayerHeroCard from "@/components/PrayerHeroCard";
@@ -22,6 +8,7 @@ import AudioRecitationCard from "@/components/AudioRecitationCard";
 import BottomNavigation from "@/components/BottomNavigation";
 import DailyHadith from "@/components/DailyHadith";
 import AthanSettingsModal from "@/components/AthanSettingsModal";
+import FooterSection from "@/components/FooterSection";
 import { useAthanNotification } from "@/hooks/useAthanNotification";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -135,7 +122,10 @@ const Index = () => {
           ),
         },
         { section_key: "daily_hadith", el: <DailyHadith /> },
-        // footer is rendered below (not part of content blocks here)
+        {
+          section_key: "footer",
+          el: <FooterSection onNavigate={(path) => navigate(path)} />,
+        },
       ] as const,
     [getDefaultPlacementForSection, isPlaying, navigate, settings.enabled],
   );
@@ -172,7 +162,30 @@ const Index = () => {
             const layout = cols ? "grid" : "scroll";
             return {
               key: r.id,
-              el: wrapWithVariant(<FeatureIcons layout={layout as any} columns={cols} />, rowSettings?.styleVariant),
+              el: wrapWithVariant(
+                <FeatureIcons layout={layout as any} columns={cols} />,
+                rowSettings?.styleVariant,
+              ),
+              pad: sizeToPad(r.size as any),
+            };
+          }
+
+          // Footer: allow links via settings
+          if (r.section_key === "footer") {
+            const footerSettings = {
+              playStoreUrl: typeof rowSettings?.playStoreUrl === "string" ? rowSettings.playStoreUrl : undefined,
+              appStoreUrl: typeof rowSettings?.appStoreUrl === "string" ? rowSettings.appStoreUrl : undefined,
+              contactEmail: typeof rowSettings?.contactEmail === "string" ? rowSettings.contactEmail : undefined,
+              facebookUrl: typeof rowSettings?.facebookUrl === "string" ? rowSettings.facebookUrl : undefined,
+              whatsappUrl: typeof rowSettings?.whatsappUrl === "string" ? rowSettings.whatsappUrl : undefined,
+            };
+
+            return {
+              key: r.id,
+              el: wrapWithVariant(
+                <FooterSection settings={footerSettings} onNavigate={(path) => navigate(path)} />,
+                rowSettings?.styleVariant,
+              ),
               pad: sizeToPad(r.size as any),
             };
           }
@@ -231,78 +244,6 @@ const Index = () => {
             </section>
           ))}
 
-          {/* Footer Navigation (not part of builder yet) */}
-          <footer className="mt-6 pt-5 border-top border-border/70">
-            <div className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-t from-primary/10 via-background to-background/80 border border-border/60 px-3 py-3 shadow-sm shadow-primary/10 animate-fade-in space-y-3">
-              <p className="text-[11px] text-center text-muted-foreground">
-                Noor — আপনার দৈনিক নামাজ, কুরআন ও দ্বীনি রুটিনকে এক জায়গায় সহজ করে রাখার ছোট সাথী।
-              </p>
-
-              <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
-                <button onClick={() => navigate("/")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <Home className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span>হোম</span>
-                </button>
-                <button onClick={() => navigate("/quran")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <BookOpen className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span>কুরআন</span>
-                </button>
-                <button onClick={() => navigate("/bukhari")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <ScrollText className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span>হাদিস</span>
-                </button>
-                <button onClick={() => navigate("/calendar")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <CalendarDays className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span>ইসলামিক ক্যালেন্ডার</span>
-                </button>
-                <button onClick={() => navigate("/prayer-times")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <ListChecks className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span>নামাজের সময়</span>
-                </button>
-                <button onClick={() => navigate("/notifications")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <BellRing className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span>ইনবক্স</span>
-                </button>
-                <button onClick={() => navigate("/settings")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <Settings className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span>সেটিংস</span>
-                </button>
-                <button onClick={() => navigate("/privacy-policy")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <span>Privacy Policy</span>
-                </button>
-                <button onClick={() => navigate("/terms")} className="group inline-flex items-center gap-1.5 hover:text-foreground hover-scale">
-                  <span>Terms &amp; Conditions</span>
-                </button>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border border-border/60 rounded-xl px-3 py-2 bg-background/80">
-                <button className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale">
-                  <PlayCircle className="h-3.5 w-3.5" />
-                  <span>Get it on Play Store (Soon)</span>
-                </button>
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span className="hidden sm:inline">Contact &amp; Feedback:</span>
-                  <div className="flex items-center gap-2">
-                    <a href="mailto:noor-app@example.com" className="hover:text-foreground hover-scale inline-flex">
-                      <Mail className="h-3.5 w-3.5" />
-                    </a>
-                    <a href="#" className="hover:text-foreground hover-scale inline-flex">
-                      <Facebook className="h-3.5 w-3.5" />
-                    </a>
-                    <a href="#" className="hover:text-foreground hover-scale inline-flex">
-                      <MessageCircle className="h-3.5 w-3.5" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <div className="h-px w-20 mx-auto bg-border/70 rounded-full" />
-
-              <p className="text-[11px] text-center text-muted-foreground">
-                Developed by <span className="font-semibold">ABEDIN MOLLA</span> – India
-              </p>
-            </div>
-          </footer>
         </div>
       </main>
 
