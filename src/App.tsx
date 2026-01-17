@@ -36,6 +36,7 @@ import AdminSecurity from "./pages/admin/AdminSecurity";
 import AdminAds from "./pages/admin/AdminAds";
 import AdminLayoutControl from "./pages/admin/AdminLayoutControl";
 import AdminSeoPage from "./pages/admin/AdminSeo";
+import AdminPageBuilder from "./pages/admin/AdminPageBuilder";
 import { AppSettingsProvider } from "./context/AppSettingsContext";
 import { AdminProvider } from "./contexts/AdminContext";
 import { AdminLayout } from "./components/admin/AdminLayout";
@@ -176,6 +177,14 @@ const AppRoutes = () => (
       element={
         <AdminLayout>
           <AdminLayoutControl />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/page-builder"
+      element={
+        <AdminLayout>
+          <AdminPageBuilder />
         </AdminLayout>
       }
     />

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -303,9 +303,10 @@ export default function AdminPageBuilder() {
   };
 
   // initial + reload on platform
-  useState(() => {
+  useEffect(() => {
     void load();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platform]);
 
   return (
     <div className="space-y-6">
