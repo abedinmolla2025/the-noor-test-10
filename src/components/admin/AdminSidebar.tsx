@@ -71,6 +71,7 @@ export const AdminSidebar = ({ showQuickShortcuts = false }: AdminSidebarProps) 
     {
       title: "System",
       items: [
+        { to: "/admin/page-builder", icon: LayoutGrid, label: "Page Builder" },
         { to: "/admin/layout", icon: LayoutGrid, label: "Layout" },
         { to: "/admin/seo", icon: Globe, label: "SEO" },
         { to: "/admin/ads", icon: DollarSign, label: "Ads" },

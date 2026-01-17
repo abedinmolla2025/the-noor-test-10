@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Users, BookOpen, Bell, Settings } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, Bell, Settings, LayoutGrid } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,13 @@ const adminNavItems: AdminNavItem[] = [
     path: "/admin/content",
     icon: <BookOpen className="h-5 w-5" />,
     matchPrefixes: ["/admin/content"],
+  },
+  {
+    id: "builder",
+    label: "Builder",
+    path: "/admin/page-builder",
+    icon: <LayoutGrid className="h-5 w-5" />,
+    matchPrefixes: ["/admin/page-builder"],
   },
   {
     id: "notifications",
