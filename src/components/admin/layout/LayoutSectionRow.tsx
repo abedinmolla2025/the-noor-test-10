@@ -75,6 +75,7 @@ export function LayoutSectionRow({
       Boolean(
         s.playStoreUrl ||
           s.appStoreUrl ||
+          s.websiteUrl ||
           s.contactEmail ||
           s.facebookUrl ||
           s.whatsappUrl ||
@@ -276,6 +277,18 @@ export function LayoutSectionRow({
                           updateSettings({ appStoreUrl: v ? v : undefined });
                         }}
                         placeholder="https://apps.apple.com/app/..."
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs">Website URL (for app users)</Label>
+                      <Input
+                        value={typeof item.settings?.websiteUrl === "string" ? item.settings.websiteUrl : ""}
+                        onChange={(e) => {
+                          const v = e.target.value.trim();
+                          updateSettings({ websiteUrl: v ? v : undefined });
+                        }}
+                        placeholder="https://yourdomain.com"
                       />
                     </div>
 

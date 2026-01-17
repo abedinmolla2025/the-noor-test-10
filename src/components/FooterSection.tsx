@@ -9,6 +9,7 @@ import { useMemo } from "react";
 export type FooterLinksSettings = {
   playStoreUrl?: string;
   appStoreUrl?: string;
+  websiteUrl?: string;
   contactEmail?: string;
   facebookUrl?: string;
   whatsappUrl?: string;
@@ -33,20 +34,24 @@ function normalizeEmail(raw?: string) {
 export default function FooterSection({
   settings,
   onNavigate,
+  platform,
 }: {
   settings?: FooterLinksSettings;
   onNavigate: (path: string) => void;
+  platform: "web" | "app";
 }) {
   const playStoreUrl = useMemo(() => normalizeUrl(settings?.playStoreUrl), [settings?.playStoreUrl]);
   const appStoreUrl = useMemo(() => normalizeUrl(settings?.appStoreUrl), [settings?.appStoreUrl]);
+  const websiteUrl = useMemo(() => normalizeUrl(settings?.websiteUrl) ?? window.location.origin, [settings?.websiteUrl]);
   const mailto = useMemo(() => normalizeEmail(settings?.contactEmail), [settings?.contactEmail]);
   const facebookUrl = useMemo(() => normalizeUrl(settings?.facebookUrl), [settings?.facebookUrl]);
   const whatsappUrl = useMemo(() => normalizeUrl(settings?.whatsappUrl), [settings?.whatsappUrl]);
 
-  const footerText = (settings?.footerText ?? "").trim() ||
+  const footerText =
+    (settings?.footerText ?? "").trim() ||
     "Noor — আপনার দৈনিক নামাজ, কুরআন ও দ্বীনি রুটিনকে এক জায়গায় সহজ করে রাখার ছোট সাথী।";
-  const developerLine = (settings?.developerLine ?? "").trim() ||
-    "Developed by ABEDIN MOLLA – India";
+  const developerLine =
+    (settings?.developerLine ?? "").trim() || "Developed by ABEDIN MOLLA – India";
 
   return (
     <footer className="mt-6 pt-5 border-top border-border/70">
@@ -111,7 +116,16 @@ export default function FooterSection({
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border border-border/60 rounded-xl px-3 py-2 bg-background/80">
-          {playStoreUrl ? (
+          {platform === "app" ? (
+            <a
+              href={websiteUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium shadow-sm hover:brightness-[1.03] transition-all hover-scale"
+            >
+              <span>Visit our website</span>
+            </a>
+          ) : playStoreUrl ? (
             <a
               href={playStoreUrl}
               target="_blank"
