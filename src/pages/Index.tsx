@@ -32,7 +32,7 @@ import type { AdPlacement } from "@/lib/ads";
 import { APP_PLACEMENTS, WEB_PLACEMENTS } from "@/lib/ads";
 import type { LayoutPlatform } from "@/lib/layout";
 import { detectLayoutPlatform } from "@/lib/layout";
-import { usePageSections } from "@/hooks/usePageSections";
+import { useLayoutSettings } from "@/hooks/useLayoutSettings";
 
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
@@ -41,7 +41,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { system, branding } = useGlobalConfig();
 
-  const layoutQuery = usePageSections("home", layoutPlatform);
+  const layoutQuery = useLayoutSettings("home", layoutPlatform);
 
   const resolveAdPlacement = (raw: unknown): AdPlacement => {
     const allowed = layoutPlatform === "app" ? APP_PLACEMENTS : WEB_PLACEMENTS;
@@ -68,7 +68,7 @@ const Index = () => {
     () =>
       [
         {
-          section_key: "banner",
+          section_key: "prayer_hero",
           el: (
             <PrayerHeroCard
               athanSettings={{
@@ -79,25 +79,36 @@ const Index = () => {
             />
           ),
         },
-        { section_key: "dua", el: <FeatureIcons /> },
-        { section_key: "hadith", el: <DailyHadith /> },
+        { section_key: "feature_icons", el: <FeatureIcons /> },
         {
-          section_key: "tasbih",
+          section_key: "ad_home_top",
+          el: <AdSlot placement={layoutPlatform === "app" ? "app_home_top" : "web_home_top"} />,
+        },
+        {
+          section_key: "focus_zone",
           el: (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Tasbih</CardTitle>
-                <CardDescription className="text-sm">Tap to open the digital tasbih.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={() => navigate("/tasbih")} className="w-full">Open Tasbih</Button>
-              </CardContent>
-            </Card>
+            <div className="space-y-4">
+              <AudioRecitationCard />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Quiz</CardTitle>
+                  <CardDescription className="text-sm">
+                    আপনার জ্ঞান যাচাই করুন — ছোট ইসলামিক কুইজ খেলুন।
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={() => navigate("/quiz")} className="w-full">
+                    Start Quiz
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           ),
         },
-        { section_key: "ads_1", el: <AdSlot placement="web_home_top" /> },
+        { section_key: "daily_hadith", el: <DailyHadith /> },
+        // footer is rendered below (not part of content blocks here)
       ] as const,
-    [isPlaying, navigate, settings.enabled],
+    [isPlaying, layoutPlatform, navigate, settings.enabled],
   );
 
   const sectionMap = useMemo(() => {
@@ -106,39 +117,32 @@ const Index = () => {
     return map;
   }, [defaultSections]);
 
-  const getSectionWrapper = (styleVariant?: string, gridColumns?: number, cardSize?: string) => {
-    const grid = gridColumns ? `grid gap-3 md:grid-cols-${Math.min(Math.max(gridColumns, 1), 4)}` : "";
-    const pad = cardSize === "lg" ? "space-y-5" : cardSize === "sm" ? "space-y-2" : "space-y-4";
-    const variant = styleVariant === "glass" ? "rounded-2xl border border-border/60 bg-background/60 backdrop-blur" : "";
-    return { grid, pad, variant };
+  const sizeToPad = (size?: string) => {
+    if (size === "compact") return "space-y-2";
+    if (size === "large") return "space-y-5";
+    return "space-y-4";
   };
 
-  const hasConfig = layoutQuery.rows.length > 0;
+  const hasConfig = (layoutQuery.data?.length ?? 0) > 0;
 
   const orderedSections = hasConfig
-    ? layoutQuery.rows
+    ? (layoutQuery.data ?? [])
         .filter((r) => r.visible !== false)
-        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+        .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
         .map((r) => {
-          const settingsJson = (r.settings ?? {}) as any;
-          const styleVariant = settingsJson.styleVariant as string | undefined;
-          const gridColumns = settingsJson.gridColumns as number | undefined;
-          const cardSize = settingsJson.cardSize as string | undefined;
-          const adPlacement = resolveAdPlacement(settingsJson.adPlacement);
-
-          // section_key switch
-          if (r.section_key === "ads_1") {
+          // Special-case ad slot to allow optional placement override in the future
+          if (r.section_key === "ad_home_top") {
             return {
               key: r.id,
-              el: <AdSlot placement={adPlacement} />,
-              wrap: getSectionWrapper(styleVariant, gridColumns, cardSize),
+              el: <AdSlot placement={resolveAdPlacement((r as any).settings?.adPlacement)} />,
+              pad: sizeToPad(r.size as any),
             };
           }
 
-          return { key: r.id, el: sectionMap.get(r.section_key), wrap: getSectionWrapper(styleVariant, gridColumns, cardSize) };
+          return { key: r.id, el: sectionMap.get(r.section_key), pad: sizeToPad(r.size as any) };
         })
         .filter((s) => s.el !== undefined)
-    : defaultSections.map((s, idx) => ({ key: String(idx), el: s.el, wrap: getSectionWrapper("default", undefined, "md") }));
+    : defaultSections.map((s, idx) => ({ key: String(idx), el: s.el, pad: "space-y-4" }));
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
@@ -177,12 +181,10 @@ const Index = () => {
           {orderedSections.map((s, idx) => (
             <section
               key={s.key}
-              className={"animate-fade-in " + (s.wrap?.variant ? s.wrap.variant : "")}
+              className="animate-fade-in"
               style={{ animationDelay: `${Math.min(idx * 80, 420)}ms` }}
             >
-              <div className={s.wrap?.pad ?? "space-y-4"}>
-                {s.el}
-              </div>
+              <div className={s.pad ?? "space-y-4"}>{s.el}</div>
             </section>
           ))}
 
