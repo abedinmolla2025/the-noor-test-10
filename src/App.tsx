@@ -28,6 +28,7 @@ import AdminContentWorkflowPage from "./pages/admin/AdminContentWorkflow";
 import AdminAuditPage from "./pages/admin/AdminAudit";
 import AdminMonetization from "./pages/admin/AdminMonetization";
 import AdminNotifications from "./pages/admin/AdminNotifications";
+import AdminNotificationsHistory from "./pages/admin/AdminNotificationsHistory";
 import AdminMedia from "./pages/admin/AdminMedia";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -143,6 +144,14 @@ const AppRoutes = () => (
       element={
         <AdminLayout>
           <AdminNotifications />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/notifications/history"
+      element={
+        <AdminLayout>
+          <AdminNotificationsHistory />
         </AdminLayout>
       }
     />
