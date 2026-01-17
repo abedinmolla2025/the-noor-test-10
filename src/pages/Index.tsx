@@ -9,6 +9,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import DailyHadith from "@/components/DailyHadith";
 import AthanSettingsModal from "@/components/AthanSettingsModal";
 import FooterSection from "@/components/FooterSection";
+import { OccasionCarousel } from "@/components/OccasionCarousel";
 import { useAthanNotification } from "@/hooks/useAthanNotification";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -83,6 +84,10 @@ const Index = () => {
   const defaultSections = useMemo(
     () =>
       [
+        {
+          section_key: "occasions",
+          el: <OccasionCarousel platform={layoutPlatform} />,
+        },
         {
           section_key: "prayer_hero",
           el: (

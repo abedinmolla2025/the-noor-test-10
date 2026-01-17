@@ -414,6 +414,51 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_occasions: {
+        Row: {
+          created_at: string
+          display_order: number
+          dua_text: string | null
+          end_date: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          message: string
+          platform: Database["public"]["Enums"]["occasion_platform"]
+          start_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          dua_text?: string | null
+          end_date: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          message: string
+          platform?: Database["public"]["Enums"]["occasion_platform"]
+          start_date: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          dua_text?: string | null
+          end_date?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          message?: string
+          platform?: Database["public"]["Enums"]["occasion_platform"]
+          start_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_page_sections: {
         Row: {
           created_at: string
@@ -1117,6 +1162,7 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "admin" | "editor" | "user"
+      occasion_platform: "web" | "app" | "both"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1245,6 +1291,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "admin", "editor", "user"],
+      occasion_platform: ["web", "app", "both"],
     },
   },
 } as const

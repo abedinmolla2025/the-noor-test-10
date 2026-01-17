@@ -15,6 +15,7 @@ import {
   LayoutGrid,
   Globe,
   History as HistoryIcon,
+  CalendarDays,
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -57,6 +58,7 @@ export const AdminSidebar = ({ showQuickShortcuts = false }: AdminSidebarProps) 
       items: [
         { to: '/admin/users', icon: Users, label: 'Users' },
         { to: '/admin/content', icon: BookOpen, label: 'Content' },
+        { to: '/admin/occasions', icon: CalendarDays, label: 'Occasions' },
         { to: '/admin/notifications', icon: Bell, label: 'Send Notification' },
         { to: '/admin/notifications/history', icon: HistoryIcon, label: 'Notification History' },
         { to: '/admin/notifications/diagnostics', icon: Zap, label: 'Notification Diagnostics' },
