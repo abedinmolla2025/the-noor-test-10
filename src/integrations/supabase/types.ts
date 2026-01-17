@@ -411,6 +411,45 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_page_sections: {
+        Row: {
+          created_at: string
+          id: string
+          page: string
+          platform: string
+          position: number
+          section_key: string
+          settings: Json
+          title: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page: string
+          platform?: string
+          position?: number
+          section_key: string
+          settings?: Json
+          title?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page?: string
+          platform?: string
+          position?: number
+          section_key?: string
+          settings?: Json
+          title?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       admin_passcode_history: {
         Row: {
           created_at: string
