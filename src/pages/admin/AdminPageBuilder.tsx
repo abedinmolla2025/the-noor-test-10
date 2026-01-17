@@ -225,6 +225,7 @@ export default function AdminPageBuilder() {
   const [items, setItems] = useState<AdminPageSection[]>([]);
   const [loading, setLoading] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -244,6 +245,84 @@ export default function AdminPageBuilder() {
       toast({ title: "Failed to load page sections", description: e?.message ?? "", variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const resetToDefaults = async () => {
+    const ok = window.confirm(
+      `Reset Home sections for ${platform.toUpperCase()} to defaults? This will replace the current platform-specific configuration.`,
+    );
+    if (!ok) return;
+
+    setResetting(true);
+    try {
+      // Replace only the selected platform rows (keep any "all" rows intact)
+      const { error: delErr } = await supabase
+        .from("admin_page_sections")
+        .delete()
+        .eq("page", "home")
+        .eq("platform", platform);
+      if (delErr) throw delErr;
+
+      const defaultRows = [
+        {
+          page: "home",
+          platform,
+          section_key: "banner",
+          title: "Banner",
+          position: 0,
+          visible: true,
+          settings: {},
+        },
+        {
+          page: "home",
+          platform,
+          section_key: "dua",
+          title: "Daily Dua",
+          position: 1,
+          visible: true,
+          settings: {},
+        },
+        {
+          page: "home",
+          platform,
+          section_key: "hadith",
+          title: "Daily Hadith",
+          position: 2,
+          visible: true,
+          settings: {},
+        },
+        {
+          page: "home",
+          platform,
+          section_key: "tasbih",
+          title: "Tasbih",
+          position: 3,
+          visible: true,
+          settings: {},
+        },
+        {
+          page: "home",
+          platform,
+          section_key: "ads_1",
+          title: "Ad Slot",
+          position: 4,
+          visible: true,
+          settings: {
+            adPlacement: platform === "app" ? "app_home_top" : "web_home_top",
+          },
+        },
+      ];
+
+      const { error: insErr } = await supabase.from("admin_page_sections").insert(defaultRows);
+      if (insErr) throw insErr;
+
+      toast({ title: "Reset complete", description: "Default Home sections have been restored." });
+      await load();
+    } catch (e: any) {
+      toast({ title: "Reset failed", description: e?.message ?? "", variant: "destructive" });
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -331,6 +410,10 @@ export default function AdminPageBuilder() {
             <Button variant="outline" onClick={load} disabled={loading}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Refresh
+            </Button>
+            <Button variant="outline" onClick={resetToDefaults} disabled={resetting || loading || savingOrder}>
+              {resetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Reset to defaults
             </Button>
             <Button variant="outline" onClick={() => persistOrder(items)} disabled={savingOrder || !items.length}>
               {savingOrder ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
