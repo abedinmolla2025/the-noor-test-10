@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { Loader2, ShieldAlert, ShieldCheck, Trash2, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -31,12 +32,35 @@ const AdminSecurity = () => {
   const [requireFingerprint, setRequireFingerprint] = useState(false);
   const [currentPasscode, setCurrentPasscode] = useState("");
   const [newPasscode, setNewPasscode] = useState("");
+  const [confirmPasscode, setConfirmPasscode] = useState("");
   const [events, setEvents] = useState<AuditRow[]>([]);
 
-  const canChange = useMemo(
-    () => currentPasscode.trim().length >= 6 && newPasscode.trim().length >= 6 && newPasscode.length <= 128,
-    [currentPasscode, newPasscode]
-  );
+  const passcodeStrength = useMemo(() => {
+    const p = newPasscode;
+    if (!p) return { score: 0, label: "" };
+
+    let score = 0;
+    const hasLower = /[a-z]/.test(p);
+    const hasUpper = /[A-Z]/.test(p);
+    const hasDigit = /\d/.test(p);
+    const hasSymbol = /[^A-Za-z0-9]/.test(p);
+
+    if (p.trim().length >= 6) score++;
+    if (p.length >= 10) score++;
+    if ([hasLower, hasUpper, hasDigit, hasSymbol].filter(Boolean).length >= 2) score++;
+    if ([hasLower, hasUpper, hasDigit, hasSymbol].filter(Boolean).length >= 3) score++;
+
+    score = Math.max(0, Math.min(4, score));
+    const label = score <= 1 ? "Weak" : score === 2 ? "Okay" : score === 3 ? "Good" : "Strong";
+    return { score, label };
+  }, [newPasscode]);
+
+  const canChange = useMemo(() => {
+    const curOk = currentPasscode.trim().length >= 6;
+    const nextOk = newPasscode.trim().length >= 6 && newPasscode.length <= 128;
+    const confirmOk = newPasscode.length > 0 && newPasscode === confirmPasscode;
+    return curOk && nextOk && confirmOk;
+  }, [currentPasscode, newPasscode, confirmPasscode]);
 
   const load = async () => {
     setLoading(true);
@@ -106,29 +130,35 @@ const AdminSecurity = () => {
       });
       if (error) throw error;
 
-       if (!data?.ok) {
-         const err = String(data?.error ?? "");
-         toast({
-           title: "Failed",
-           description:
-             err === "invalid_current"
-               ? "Invalid current passcode."
-               : err === "passcode_reused"
-                 ? "You recently used this passcode. Choose a different one."
-                 : err === "weak_passcode"
-                   ? "Passcode must be at least 6 characters."
-                   : err === "not_authenticated"
-                     ? "Session expired. Please unlock admin again."
-                     : "Passcode change failed.",
-           variant: "destructive",
-         });
+      if (!data?.ok) {
+        const err = String(data?.error ?? "");
+        const description =
+          err === "invalid_current"
+            ? "Current passcode is incorrect."
+            : err === "passcode_reused"
+              ? "You recently used this passcode. Choose a different one."
+              : err === "weak_passcode"
+                ? "New passcode must be at least 6 characters (max 128)."
+                : err === "not_authenticated"
+                  ? "Session expired. Please unlock admin again."
+                  : err === "not_configured"
+                    ? "Admin security is not configured yet. Re-initialize the admin passcode in backend settings."
+                    : err === "history_error"
+                      ? "Could not check passcode history. Please try again."
+                      : err === "config_update_failed"
+                        ? "Could not update passcode. Please try again."
+                        : err === "verify_failed"
+                          ? "Could not verify current passcode. Please try again."
+                          : "Passcode change failed.";
 
-         // If auth is missing, clear local unlock so ProtectedRoute will prompt unlock again.
-         if (err === "not_authenticated") {
-           localStorage.removeItem("noor_admin_unlocked");
-         }
-         return;
-       }
+        toast({ title: "Failed", description, variant: "destructive" });
+
+        // If auth is missing, clear local unlock so ProtectedRoute will prompt unlock again.
+        if (err === "not_authenticated") {
+          localStorage.removeItem("noor_admin_unlocked");
+        }
+        return;
+      }
 
       toast({
         title: "Passcode updated",
@@ -137,13 +167,15 @@ const AdminSecurity = () => {
 
       setCurrentPasscode("");
       setNewPasscode("");
+      setConfirmPasscode("");
       await load();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      toast({ 
-        title: "Failed", 
-        description: msg.includes("401") ? "Session expired. Please unlock admin again." : msg, 
-        variant: "destructive" 
+      const isAuth = msg.includes("401") || msg.toLowerCase().includes("jwt") || msg.toLowerCase().includes("not authenticated");
+      toast({
+        title: "Failed",
+        description: isAuth ? "Session expired. Please unlock admin again." : msg,
+        variant: "destructive",
       });
     } finally {
       setSaving(false);
@@ -235,7 +267,7 @@ const AdminSecurity = () => {
 
           <Separator />
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="current">Current passcode</Label>
               <Input
@@ -243,8 +275,10 @@ const AdminSecurity = () => {
                 type="password"
                 value={currentPasscode}
                 onChange={(e) => setCurrentPasscode(e.target.value)}
+                autoComplete="current-password"
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="next">New passcode</Label>
               <Input
@@ -252,7 +286,33 @@ const AdminSecurity = () => {
                 type="password"
                 value={newPasscode}
                 onChange={(e) => setNewPasscode(e.target.value)}
+                autoComplete="new-password"
               />
+
+              {newPasscode.length > 0 ? (
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Strength</span>
+                    <span className="text-xs text-muted-foreground">{passcodeStrength.label}</span>
+                  </div>
+                  <Progress value={(passcodeStrength.score / 4) * 100} />
+                  <p className="text-[11px] text-muted-foreground">Tip: 10+ chars + mix letters/numbers/symbols.</p>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirm">Confirm new passcode</Label>
+              <Input
+                id="confirm"
+                type="password"
+                value={confirmPasscode}
+                onChange={(e) => setConfirmPasscode(e.target.value)}
+                autoComplete="new-password"
+              />
+              {confirmPasscode.length > 0 && newPasscode !== confirmPasscode ? (
+                <p className="text-xs text-destructive">Passcodes do not match.</p>
+              ) : null}
             </div>
           </div>
 
