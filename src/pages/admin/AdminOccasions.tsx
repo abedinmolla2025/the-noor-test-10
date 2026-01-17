@@ -59,6 +59,108 @@ function toLocalEndOfDayIso(d: Date) {
   return x.toISOString();
 }
 
+type OccasionTemplate = {
+  id: string;
+  label: string;
+  style: "minimal" | "festive" | "editorial" | "playful";
+  title: string;
+  message: string;
+  dua_text?: string;
+  daysActive?: number;
+};
+
+const OCCASION_TEMPLATES: OccasionTemplate[] = [
+  {
+    id: "eid_festive_1",
+    label: "Eid Mubarak — Festive",
+    style: "festive",
+    title: "ঈদ মোবারক",
+    message: "আপনার ঈদ হোক আনন্দ, রহমত ও বরকতে ভরা।",
+    dua_text: "তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম",
+    daysActive: 3,
+  },
+  {
+    id: "ramadan_editorial_1",
+    label: "Ramadan Kareem — Editorial",
+    style: "editorial",
+    title: "রমজান কারীম",
+    message: "এই মাস হোক তিলাওয়াত, ইবাদত ও আত্মশুদ্ধির নতুন শুরু।",
+    dua_text: "আল্লাহুম্মা বারিক লানা ফি রমাদান",
+    daysActive: 30,
+  },
+  {
+    id: "jumuah_minimal_1",
+    label: "Jumu'ah — Minimal",
+    style: "minimal",
+    title: "জুমু'আ মোবারক",
+    message: "আজকের দিনটি কাটুক দোয়া, দরুদ ও নেক আমলে।",
+    dua_text: "আল্লাহুম্মা সল্লি আলা মুহাম্মাদ",
+    daysActive: 1,
+  },
+  {
+    id: "shabebarat_festive_1",
+    label: "Shab-e-Barat — Festive",
+    style: "festive",
+    title: "শবে বরাত",
+    message: "ক্ষমা ও মাগফিরাতের রাত—আসুন তাওবা ও ইস্তিগফারে মন দিই।",
+    dua_text: "রব্বিগফিরলি ওয়ারহামনি",
+    daysActive: 2,
+  },
+  {
+    id: "milad_editorial_1",
+    label: "Milad-un-Nabi — Editorial",
+    style: "editorial",
+    title: "মিলাদুন্নবী ﷺ",
+    message: "সুন্নাহর আলোয় জীবন সাজাই—দরুদে মুখর হোক হৃদয়।",
+    dua_text: "সাল্লাল্লাহু আলাইহি ওয়া সাল্লাম",
+    daysActive: 3,
+  },
+  {
+    id: "dua_minimal_1",
+    label: "Daily Dua — Minimal",
+    style: "minimal",
+    title: "আজকের দোয়া",
+    message: "একটু থামুন—দোয়ার মাধ্যমে আল্লাহর কাছে চাইুন হেদায়াত ও শান্তি।",
+    dua_text: "রব্বানা আতিনা ফিদ্দুনিয়া হাসানাহ",
+    daysActive: 7,
+  },
+  {
+    id: "quran_editorial_1",
+    label: "Qur'an Reminder — Editorial",
+    style: "editorial",
+    title: "কুরআন রিমাইন্ডার",
+    message: "প্রতিদিন কিছু আয়াত—হৃদয়কে রাখুন নূরের সাথে সংযুক্ত।",
+    dua_text: "ইহদিনাস সিরাতাল মুস্তাকীম",
+    daysActive: 7,
+  },
+  {
+    id: "charity_playful_1",
+    label: "Sadaqah — Playful",
+    style: "playful",
+    title: "সদকা জারিয়া",
+    message: "আজ ছোট্ট একটা সাহায্য—কারও জীবনে বড় হাসি হয়ে ফিরবে।",
+    dua_text: "আল্লাহুম্মা তকাব্বাল মিন্না",
+    daysActive: 10,
+  },
+  {
+    id: "learning_playful_1",
+    label: "Learn Sunnah — Playful",
+    style: "playful",
+    title: "সুন্নাহ শিখি",
+    message: "আজ একটি সুন্নাহ—কাল এক অভ্যাস। ধীরে ধীরে বদলে যাক জীবন।",
+    daysActive: 14,
+  },
+  {
+    id: "gratitude_minimal_1",
+    label: "Gratitude — Minimal",
+    style: "minimal",
+    title: "আলহামদুলিল্লাহ",
+    message: "যা আছে তার জন্য শোকর—আর যা চাই তার জন্য দোয়া।",
+    dua_text: "আলহামদুলিল্লাহি আলা কুল্লি হাল",
+    daysActive: 7,
+  },
+];
+
 function SortableOccasionRow({
   item,
   onEdit,
@@ -166,10 +268,29 @@ export default function AdminOccasions() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [dateError, setDateError] = useState<string | null>(null);
+  const [templateId, setTemplateId] = useState<string>("");
+
+  const applyTemplate = (id: string) => {
+    const tpl = OCCASION_TEMPLATES.find((t) => t.id === id);
+    if (!tpl) return;
+
+    const today = new Date();
+    const to = new Date(today);
+    to.setDate(to.getDate() + Math.max(0, (tpl.daysActive ?? 7) - 1));
+
+    setForm((p) => ({
+      ...p,
+      title: tpl.title,
+      message: tpl.message,
+      dua_text: tpl.dua_text ?? "",
+      dateRange: { from: today, to },
+    }));
+  };
 
   const openCreate = () => {
     setEditing(null);
     setDateError(null);
+    setTemplateId("");
     setForm(emptyForm);
     setDialogOpen(true);
   };
@@ -177,6 +298,7 @@ export default function AdminOccasions() {
   const openEdit = (row: OccasionRow) => {
     setEditing(row);
     setDateError(null);
+    setTemplateId("");
     setForm({
       ...emptyForm,
       title: row.title ?? "",
@@ -324,8 +446,46 @@ export default function AdminOccasions() {
                 <DialogTitle>{editing ? "Edit occasion" : "Create occasion"}</DialogTitle>
               </DialogHeader>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2 md:col-span-2">
+               <div className="grid gap-4 md:grid-cols-2">
+                 <div className="space-y-2 md:col-span-2">
+                   <Label>Template (optional)</Label>
+                   <div className="flex flex-col gap-2 sm:flex-row">
+                     <Select
+                       value={templateId}
+                       onValueChange={(v) => {
+                         setTemplateId(v);
+                         applyTemplate(v);
+                       }}
+                     >
+                       <SelectTrigger className="sm:w-[320px]">
+                         <SelectValue placeholder="Choose a template" />
+                       </SelectTrigger>
+                       <SelectContent>
+                         {OCCASION_TEMPLATES.map((t) => (
+                           <SelectItem key={t.id} value={t.id}>
+                             {t.label}
+                           </SelectItem>
+                         ))}
+                       </SelectContent>
+                     </Select>
+                     <Button
+                       type="button"
+                       variant="outline"
+                       disabled={!templateId}
+                       onClick={() => {
+                         setDateError(null);
+                         applyTemplate(templateId);
+                       }}
+                     >
+                       Apply
+                     </Button>
+                   </div>
+                   <p className="text-xs text-muted-foreground">
+                     টেমপ্লেট সিলেক্ট করলে Title/Message/Dua + Date range auto-fill হবে।
+                   </p>
+                 </div>
+
+                 <div className="space-y-2 md:col-span-2">
                   <Label>Title</Label>
                   <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
                 </div>
