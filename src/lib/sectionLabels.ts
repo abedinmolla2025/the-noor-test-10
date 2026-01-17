@@ -4,6 +4,7 @@ export type SectionLabelPair = {
 };
 
 const SECTION_LABELS: Record<string, SectionLabelPair> = {
+  occasions: { en: "Occasions", bn: "অকেশন" },
   prayer_hero: { en: "Prayer hero", bn: "নামাজের হিরো" },
   feature_icons: { en: "Feature icons", bn: "ফিচার আইকন" },
   ad_home_top: { en: "Home ad slot", bn: "হোম বিজ্ঞাপন" },
