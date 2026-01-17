@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Reorder } from "framer-motion";
+import { Reorder, useDragControls } from "framer-motion";
 import {
   ChevronDown,
   ChevronUp,
@@ -59,7 +59,7 @@ export function LayoutSectionRow({
   canMoveDown,
 }: Props) {
   const [open, setOpen] = useState(false);
-
+  const dragControls = useDragControls();
   const isAdSection = useMemo(() => item.section_key.startsWith("ad_"), [item.section_key]);
   const isFeatureIcons = useMemo(() => item.section_key === "feature_icons", [item.section_key]);
 
@@ -84,12 +84,19 @@ export function LayoutSectionRow({
     <Reorder.Item
       key={item.section_key}
       value={item}
-      className="rounded-xl border border-border bg-card p-3"
+      dragListener={false}
+      dragControls={dragControls}
+      className="rounded-xl border border-border bg-card p-3 touch-pan-y"
     >
       <Collapsible open={open} onOpenChange={setOpen}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="flex items-center gap-3 sm:flex-1 sm:min-w-0">
-            <div className="cursor-grab text-muted-foreground">
+            <div
+              className="cursor-grab text-muted-foreground touch-none"
+              onPointerDown={(e) => dragControls.start(e)}
+              aria-label="Drag to reorder"
+              title="Drag to reorder"
+            >
               <GripVertical className="h-4 w-4" />
             </div>
 
