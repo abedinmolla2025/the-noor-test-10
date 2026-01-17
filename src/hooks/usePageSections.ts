@@ -16,7 +16,8 @@ export type PageSectionRow = {
 };
 
 function mapLayoutPlatformToPageBuilderPlatform(p: LayoutPlatform): PageBuilderPlatform {
-  return p === "android" || p === "ios" ? "app" : "web";
+  // LayoutPlatform in this codebase is already "web" | "app"
+  return p;
 }
 
 export function usePageSections(page: string, layoutPlatform: LayoutPlatform) {

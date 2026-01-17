@@ -28,10 +28,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { useGlobalConfig } from "@/context/GlobalConfigContext";
 import { AdSlot } from "@/components/ads/AdSlot";
+import type { AdPlacement } from "@/lib/ads";
+import { APP_PLACEMENTS, WEB_PLACEMENTS } from "@/lib/ads";
 import type { LayoutPlatform } from "@/lib/layout";
 import { detectLayoutPlatform } from "@/lib/layout";
-import { useLayoutSettings } from "@/hooks/useLayoutSettings";
- 
+import { usePageSections } from "@/hooks/usePageSections";
+
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
   const [layoutPlatform, setLayoutPlatform] = useState<LayoutPlatform>("web");
@@ -40,6 +42,12 @@ const Index = () => {
   const { system, branding } = useGlobalConfig();
 
   const layoutQuery = usePageSections("home", layoutPlatform);
+
+  const resolveAdPlacement = (raw: unknown): AdPlacement => {
+    const allowed = layoutPlatform === "app" ? APP_PLACEMENTS : WEB_PLACEMENTS;
+    if (typeof raw === "string" && (allowed as readonly string[]).includes(raw)) return raw as AdPlacement;
+    return layoutPlatform === "app" ? "app_home_top" : "web_home_top";
+  };
 
   const {
     settings,
@@ -116,11 +124,15 @@ const Index = () => {
           const styleVariant = settingsJson.styleVariant as string | undefined;
           const gridColumns = settingsJson.gridColumns as number | undefined;
           const cardSize = settingsJson.cardSize as string | undefined;
-          const adPlacement = (settingsJson.adPlacement as string | undefined) ?? "web_home_top";
+          const adPlacement = resolveAdPlacement(settingsJson.adPlacement);
 
           // section_key switch
           if (r.section_key === "ads_1") {
-            return { key: r.id, el: <AdSlot placement={adPlacement} />, wrap: getSectionWrapper(styleVariant, gridColumns, cardSize) };
+            return {
+              key: r.id,
+              el: <AdSlot placement={adPlacement} />,
+              wrap: getSectionWrapper(styleVariant, gridColumns, cardSize),
+            };
           }
 
           return { key: r.id, el: sectionMap.get(r.section_key), wrap: getSectionWrapper(styleVariant, gridColumns, cardSize) };
