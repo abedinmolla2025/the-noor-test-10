@@ -259,6 +259,7 @@ export default function AdminOccasions() {
       platform: "both" as OccasionPlatform,
       is_active: true,
       dateRange: undefined as DateRange | undefined,
+      templateStyle: null as OccasionTemplate["style"] | null,
       imageFile: null as File | null,
       image_url: "",
     }),
@@ -284,7 +285,86 @@ export default function AdminOccasions() {
       message: tpl.message,
       dua_text: tpl.dua_text ?? "",
       dateRange: { from: today, to },
+      templateStyle: tpl.style,
     }));
+  };
+
+  const getTemplateStyleLabel = (s: OccasionTemplate["style"]) => {
+    switch (s) {
+      case "minimal":
+        return "Minimal";
+      case "festive":
+        return "Festive";
+      case "editorial":
+        return "Editorial";
+      case "playful":
+        return "Playful";
+      default:
+        return "Template";
+    }
+  };
+
+  const getPreviewVariant = (s: OccasionTemplate["style"] | null) => {
+    if (!s) {
+      return {
+        frame: "rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-background to-accent/10",
+        banner: "bg-muted",
+        overlay: "bg-gradient-to-t from-background/90 via-background/30 to-transparent",
+        badge: "border-border bg-background/70 text-foreground",
+        title: "text-lg font-semibold",
+        message: "text-sm text-muted-foreground",
+        dua: "bg-primary/20 text-foreground",
+      };
+    }
+
+    const common = {
+      title: "text-lg font-semibold",
+      message: "text-sm",
+      dua: "text-sm italic",
+    };
+
+    switch (s) {
+      case "minimal":
+        return {
+          frame: "rounded-2xl border border-border bg-background",
+          banner: "bg-muted",
+          overlay: "bg-gradient-to-t from-background/95 via-background/40 to-transparent",
+          badge: "border-border bg-muted text-muted-foreground",
+          title: cn(common.title, "tracking-tight"),
+          message: cn(common.message, "text-muted-foreground"),
+          dua: cn(common.dua, "bg-muted text-foreground"),
+        };
+      case "festive":
+        return {
+          frame: "rounded-2xl border border-border bg-gradient-to-br from-primary/15 via-background to-accent/15",
+          banner: "bg-gradient-to-br from-primary/20 via-muted to-accent/20",
+          overlay: "bg-gradient-to-t from-background/85 via-background/25 to-transparent",
+          badge: "border-border bg-primary/20 text-foreground",
+          title: cn(common.title, "tracking-tight"),
+          message: cn(common.message, "text-muted-foreground"),
+          dua: cn(common.dua, "bg-primary/20 text-foreground"),
+        };
+      case "editorial":
+        return {
+          frame: "rounded-2xl border border-border bg-background",
+          banner: "bg-gradient-to-br from-muted via-background to-muted",
+          overlay: "bg-gradient-to-t from-background/95 via-background/35 to-transparent",
+          badge: "border-border bg-background/80 text-foreground",
+          title: "text-xl font-semibold tracking-tight",
+          message: "text-sm text-muted-foreground",
+          dua: "bg-accent/20 text-foreground text-sm italic",
+        };
+      case "playful":
+        return {
+          frame: "rounded-3xl border border-border bg-gradient-to-br from-accent/15 via-background to-primary/10",
+          banner: "bg-gradient-to-br from-accent/25 via-muted to-primary/15",
+          overlay: "bg-gradient-to-t from-background/90 via-background/25 to-transparent",
+          badge: "border-border bg-accent/25 text-foreground",
+          title: cn(common.title, "tracking-tight"),
+          message: cn(common.message, "text-muted-foreground"),
+          dua: cn(common.dua, "bg-accent/20 text-foreground"),
+        };
+    }
   };
 
   const openCreate = () => {
@@ -311,6 +391,7 @@ export default function AdminOccasions() {
         from: row.start_date ? new Date(row.start_date) : undefined,
         to: row.end_date ? new Date(row.end_date) : undefined,
       },
+      templateStyle: null,
       imageFile: null,
     });
     setDialogOpen(true);
@@ -622,28 +703,42 @@ export default function AdminOccasions() {
 
         <Card>
           <CardContent className="p-4">
-            <div className="rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
-              <p className="text-sm font-semibold">Preview</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                This is roughly how it will look at the top of Home.
-              </p>
+            {(() => {
+              const previewStyle = form.templateStyle;
+              const v = getPreviewVariant(previewStyle);
+              const title = (editing ? editing.title : form.title) || "ঈদ মোবারক";
+              const message = (editing ? editing.message : form.message) || "আপনার দিন কাটুক আনন্দ ও বরকতে।";
+              const dua = (editing ? editing.dua_text : form.dua_text) || "তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম";
 
-              <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
-                <div className="relative">
-                  <div className="h-44 w-full bg-muted" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-                  <div className="absolute bottom-0 p-4">
-                    <p className="text-lg font-semibold">{(editing ? editing.title : form.title) || "ঈদ মোবারক"}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {(editing ? editing.message : form.message) || "আপনার দিন কাটুক আনন্দ ও বরকতে।"}
-                    </p>
-                    <p className="mt-2 inline-flex rounded-full bg-primary/20 px-3 py-1 text-sm italic">
-                      {(editing ? editing.dua_text : form.dua_text) || "তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম"}
-                    </p>
+              return (
+                <div className={cn("p-4", v.frame)}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold">Preview</p>
+                      <p className="mt-1 text-xs text-muted-foreground">This is roughly how it will look at the top of Home.</p>
+                    </div>
+                    {previewStyle ? (
+                      <span className={cn("inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium", v.badge)}>
+                        {getTemplateStyleLabel(previewStyle)}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className={cn("mt-4 overflow-hidden border border-border", previewStyle === "playful" ? "rounded-3xl" : "rounded-2xl", "bg-card")}>
+                    <div className="relative">
+                      <div className={cn("h-44 w-full", v.banner)} />
+                      <div className={cn("absolute inset-0", v.overlay)} />
+                      <div className={cn("absolute bottom-0 p-4", previewStyle === "editorial" ? "space-y-2" : "")}
+                      >
+                        <p className={v.title}>{title}</p>
+                        <p className={cn("mt-1", v.message)}>{message}</p>
+                        <p className={cn("mt-2 inline-flex rounded-full px-3 py-1", v.dua)}>{dua}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
