@@ -43,10 +43,39 @@ const Index = () => {
 
   const layoutQuery = useLayoutSettings("home", layoutPlatform);
 
-  const resolveAdPlacement = (raw: unknown): AdPlacement => {
+  const resolveAdPlacement = (raw: unknown, fallback: AdPlacement): AdPlacement => {
     const allowed = layoutPlatform === "app" ? APP_PLACEMENTS : WEB_PLACEMENTS;
     if (typeof raw === "string" && (allowed as readonly string[]).includes(raw)) return raw as AdPlacement;
+    return fallback;
+  };
+
+  const getDefaultPlacementForSection = (sectionKey: string): AdPlacement => {
+    // Currently we only ship one home ad block; keep this predictable.
+    if (sectionKey === "ad_home_top") return layoutPlatform === "app" ? "app_home_top" : "web_home_top";
+    // Safe fallback
     return layoutPlatform === "app" ? "app_home_top" : "web_home_top";
+  };
+
+  const sizeToPad = (size?: string) => {
+    if (size === "compact") return "space-y-2";
+    if (size === "large") return "space-y-5";
+    return "space-y-4";
+  };
+
+  const variantToWrapper = (variant?: string) => {
+    if (variant === "glass") {
+      return "rounded-2xl border border-border bg-background/60 backdrop-blur";
+    }
+    if (variant === "soft") {
+      return "rounded-2xl border border-border bg-card";
+    }
+    return "";
+  };
+
+  const wrapWithVariant = (node: React.ReactNode, variant?: string) => {
+    const cls = variantToWrapper(variant);
+    if (!cls) return node;
+    return <div className={cls}>{node}</div>;
   };
 
   const {
@@ -82,7 +111,7 @@ const Index = () => {
         { section_key: "feature_icons", el: <FeatureIcons /> },
         {
           section_key: "ad_home_top",
-          el: <AdSlot placement={layoutPlatform === "app" ? "app_home_top" : "web_home_top"} />,
+          el: <AdSlot placement={getDefaultPlacementForSection("ad_home_top")} />,
         },
         {
           section_key: "focus_zone",
@@ -108,7 +137,7 @@ const Index = () => {
         { section_key: "daily_hadith", el: <DailyHadith /> },
         // footer is rendered below (not part of content blocks here)
       ] as const,
-    [isPlaying, layoutPlatform, navigate, settings.enabled],
+    [getDefaultPlacementForSection, isPlaying, navigate, settings.enabled],
   );
 
   const sectionMap = useMemo(() => {
@@ -117,12 +146,6 @@ const Index = () => {
     return map;
   }, [defaultSections]);
 
-  const sizeToPad = (size?: string) => {
-    if (size === "compact") return "space-y-2";
-    if (size === "large") return "space-y-5";
-    return "space-y-4";
-  };
-
   const hasConfig = (layoutQuery.data?.length ?? 0) > 0;
 
   const orderedSections = hasConfig
@@ -130,16 +153,36 @@ const Index = () => {
         .filter((r) => r.visible !== false)
         .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
         .map((r) => {
-          // Special-case ad slot to allow optional placement override in the future
-          if (r.section_key === "ad_home_top") {
+          const rowSettings = (r as any).settings ?? {};
+
+          // Ad slot: placement override via settings.adPlacement
+          if (typeof r.section_key === "string" && r.section_key.startsWith("ad_")) {
+            const fallbackPlacement = getDefaultPlacementForSection(r.section_key);
+            const placement = resolveAdPlacement(rowSettings?.adPlacement, fallbackPlacement);
             return {
               key: r.id,
-              el: <AdSlot placement={resolveAdPlacement((r as any).settings?.adPlacement)} />,
+              el: wrapWithVariant(<AdSlot placement={placement} />, rowSettings?.styleVariant),
               pad: sizeToPad(r.size as any),
             };
           }
 
-          return { key: r.id, el: sectionMap.get(r.section_key), pad: sizeToPad(r.size as any) };
+          // Feature icons: allow gridColumns
+          if (r.section_key === "feature_icons") {
+            const cols = typeof rowSettings?.gridColumns === "number" ? rowSettings.gridColumns : undefined;
+            const layout = cols ? "grid" : "scroll";
+            return {
+              key: r.id,
+              el: wrapWithVariant(<FeatureIcons layout={layout as any} columns={cols} />, rowSettings?.styleVariant),
+              pad: sizeToPad(r.size as any),
+            };
+          }
+
+          const base = sectionMap.get(r.section_key);
+          return {
+            key: r.id,
+            el: wrapWithVariant(base, rowSettings?.styleVariant),
+            pad: sizeToPad(r.size as any),
+          };
         })
         .filter((s) => s.el !== undefined)
     : defaultSections.map((s, idx) => ({ key: String(idx), el: s.el, pad: "space-y-4" }));
