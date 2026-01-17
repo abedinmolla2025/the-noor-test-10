@@ -170,6 +170,39 @@ export default function AdminLayoutControl() {
     await persist(defaults, { snapshot: true });
   };
 
+  const handleSyncFromPageBuilder = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("admin_page_sections")
+        .select("section_key,title,position,visible,platform")
+        .eq("page", LAYOUT_KEY)
+        .in("platform", ["all", platform])
+        .order("position", { ascending: true });
+
+      if (error) throw error;
+
+      const rows = data ?? [];
+      if (rows.length === 0) {
+        toast.error("No Page Builder sections found to sync");
+        return;
+      }
+
+      const synced: UiSection[] = rows.map((r, i) => ({
+        section_key: r.section_key,
+        label: r.title || r.section_key,
+        visible: r.visible ?? true,
+        order_index: i,
+        size: "normal",
+      }));
+
+      setItems(synced);
+      await persist(synced, { snapshot: true });
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Failed to sync from Page Builder");
+    }
+  };
+
   const handleRestore = async (snapshot: any) => {
     const rows = Array.isArray(snapshot) ? snapshot : [];
     const restored = toUiSections(
@@ -208,6 +241,10 @@ export default function AdminLayoutControl() {
               </SelectContent>
             </Select>
           </div>
+
+          <Button variant="outline" onClick={handleSyncFromPageBuilder} disabled={busy}>
+            Sync from Page Builder
+          </Button>
 
           <Button onClick={handlePublish} disabled={busy}>
             Publish
