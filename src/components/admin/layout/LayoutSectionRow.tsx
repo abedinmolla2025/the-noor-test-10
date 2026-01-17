@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/collapsible";
 import type { LayoutPlatform } from "@/lib/layout";
 import { APP_PLACEMENTS, WEB_PLACEMENTS } from "@/lib/ads";
+import { getSectionTitleBnEn } from "@/lib/sectionLabels";
 
 import type { SectionSettings, UiSection, UiSize, StyleVariant } from "./types";
 
@@ -76,19 +77,33 @@ export function LayoutSectionRow({ item, platform, onChange }: Props) {
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="flex items-start gap-2">
-                <p className="min-w-0 flex-1 text-sm font-medium leading-tight break-words">
-                  {item.label}
-                </p>
-                {hasSettings && (
-                  <span className="shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                    settings
-                  </span>
-                )}
-              </div>
-              <p className="mt-0.5 break-all text-[11px] text-muted-foreground">
-                {item.section_key}
-              </p>
+              {(() => {
+                const { primary, secondary } = getSectionTitleBnEn(item.section_key, item.label);
+                return (
+                  <>
+                    <div className="flex items-start gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="min-w-0 text-sm font-medium leading-tight break-words">
+                          {primary}
+                        </p>
+                        {secondary && (
+                          <p className="mt-0.5 text-[11px] text-muted-foreground break-words">
+                            {secondary}
+                          </p>
+                        )}
+                      </div>
+                      {hasSettings && (
+                        <span className="shrink-0 rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                          settings
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-0.5 break-all text-[11px] text-muted-foreground">
+                      {item.section_key}
+                    </p>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
