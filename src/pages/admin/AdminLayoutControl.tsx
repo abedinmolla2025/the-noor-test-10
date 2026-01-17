@@ -23,6 +23,7 @@ import type { UiSection } from "@/components/admin/layout/types";
 const LAYOUT_KEY = "home";
 
 const DEFAULT_SECTIONS: Array<Pick<UiSection, "section_key" | "label">> = [
+  { section_key: "occasions", label: "Occasions" },
   { section_key: "prayer_hero", label: "Prayer hero" },
   { section_key: "feature_icons", label: "Feature icons" },
   { section_key: "ad_home_top", label: "Home ad slot" },
