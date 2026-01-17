@@ -157,6 +157,9 @@ export default function AdminNotificationsHistory() {
             <Button asChild>
               <Link to="/admin/notifications/history">History</Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link to="/admin/notifications/diagnostics">Diagnostics</Link>
+            </Button>
           </div>
         </div>
       </header>

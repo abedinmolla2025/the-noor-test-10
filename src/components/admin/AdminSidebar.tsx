@@ -59,6 +59,7 @@ export const AdminSidebar = ({ showQuickShortcuts = false }: AdminSidebarProps) 
         { to: '/admin/content', icon: BookOpen, label: 'Content' },
         { to: '/admin/notifications', icon: Bell, label: 'Send Notification' },
         { to: '/admin/notifications/history', icon: HistoryIcon, label: 'Notification History' },
+        { to: '/admin/notifications/diagnostics', icon: Zap, label: 'Notification Diagnostics' },
       ],
     },
     {

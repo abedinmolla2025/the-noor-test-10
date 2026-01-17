@@ -29,6 +29,7 @@ import AdminAuditPage from "./pages/admin/AdminAudit";
 import AdminMonetization from "./pages/admin/AdminMonetization";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminNotificationsHistory from "./pages/admin/AdminNotificationsHistory";
+import AdminNotificationsDiagnostics from "./pages/admin/AdminNotificationsDiagnostics";
 import AdminMedia from "./pages/admin/AdminMedia";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -153,6 +154,14 @@ const AppRoutes = () => (
       element={
         <AdminLayout>
           <AdminNotificationsHistory />
+        </AdminLayout>
+      }
+    />
+    <Route
+      path="/admin/notifications/diagnostics"
+      element={
+        <AdminLayout>
+          <AdminNotificationsDiagnostics />
         </AdminLayout>
       }
     />
