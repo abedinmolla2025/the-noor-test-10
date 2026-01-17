@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import type { DateRange } from "react-day-picker";
@@ -331,6 +331,7 @@ export default function AdminOccasions() {
   const [templateId, setTemplateId] = useState<string>("");
   const [templateImages, setTemplateImages] = useState<Record<string, string>>({});
   const [templatePhotoUploading, setTemplatePhotoUploading] = useState(false);
+  const templatePhotoInputRef = useRef<HTMLInputElement | null>(null);
   const [localImagePreviewUrl, setLocalImagePreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -698,13 +699,19 @@ export default function AdminOccasions() {
                        value={templateId}
                        onValueChange={(v) => {
                          setTemplateId(v);
-                         applyTemplate(v);
+                         setDateError(null);
+                         if (v === "blank") {
+                           applyBlankTemplate();
+                         } else {
+                           applyTemplate(v);
+                         }
                        }}
                      >
                        <SelectTrigger className="sm:w-[320px]">
                          <SelectValue placeholder="Choose a template" />
                        </SelectTrigger>
                        <SelectContent>
+                         <SelectItem value="blank">Blank (custom)</SelectItem>
                          {OCCASION_TEMPLATES.map((t) => (
                            <SelectItem key={t.id} value={t.id}>
                              {t.label}
@@ -712,59 +719,67 @@ export default function AdminOccasions() {
                          ))}
                        </SelectContent>
                      </Select>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={!templateId || templateId === "blank"}
-                        onClick={() => {
-                          setDateError(null);
-                          if (templateId) applyTemplate(templateId);
-                        }}
-                      >
-                        Apply
-                      </Button>
-                    </div>
+                     <Button
+                       type="button"
+                       variant="outline"
+                       disabled={!templateId}
+                       onClick={() => {
+                         setDateError(null);
+                         if (templateId === "blank") applyBlankTemplate();
+                         else applyTemplate(templateId);
+                       }}
+                     >
+                       Apply
+                     </Button>
+                   </div>
 
-                    {templateId && templateId !== "blank" ? (
-                      <div className="mt-3 rounded-lg border border-border p-3">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium">Template photo (optional)</p>
-                            <p className="text-xs text-muted-foreground">
-                              এই টেমপ্লেট সিলেক্ট করলে এই ফটোটা auto-fill হবে। চাইলে পরে Image/GIF ফিল্ড থেকে override করতে পারবেন।
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">
-                              {templateImages[templateId] ? "Saved" : "Not set"}
-                            </span>
-                          </div>
-                        </div>
+                   {templateId && templateId !== "blank" ? (
+                     <div className="mt-3 rounded-lg border border-border p-3">
+                       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                         <div className="min-w-0">
+                           <p className="text-sm font-medium">Template photo (optional)</p>
+                           <p className="text-xs text-muted-foreground">
+                             এই টেমপ্লেট সিলেক্ট করলে এই ফটোটা auto-fill হবে। চাইলে পরে Image/GIF ফিল্ড থেকে override করতে পারবেন।
+                           </p>
+                         </div>
+                         <div className="flex items-center gap-2">
+                           <span className="text-xs text-muted-foreground">
+                             {templateImages[templateId] ? "Saved" : "Not set"}
+                           </span>
+                         </div>
+                       </div>
 
-                        <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
-                          <Input
-                            type="file"
-                            accept="image/*,image/gif"
-                            disabled={templatePhotoUploading}
-                            onChange={(e) => {
-                              const f = e.target.files?.[0];
-                              if (!f) return;
-                              void uploadTemplatePhoto(templateId, f);
-                              // allow re-selecting same file later
-                              e.currentTarget.value = "";
-                            }}
-                          />
-                          <Button type="button" variant="outline" disabled className="gap-2">
-                            {templatePhotoUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                            {templatePhotoUploading ? "Uploading…" : "Upload"}
-                          </Button>
-                        </div>
-                      </div>
-                    ) : null}
+                       <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
+                         <Input
+                           ref={templatePhotoInputRef}
+                           type="file"
+                           accept="image/*,image/gif"
+                           disabled={templatePhotoUploading}
+                           onChange={(e) => {
+                             const f = e.target.files?.[0];
+                             if (!f) return;
+                             void uploadTemplatePhoto(templateId, f);
+                             // allow re-selecting same file later
+                             e.currentTarget.value = "";
+                           }}
+                         />
+                         <Button
+                           type="button"
+                           variant="outline"
+                           disabled={templatePhotoUploading}
+                           className="gap-2"
+                           onClick={() => templatePhotoInputRef.current?.click()}
+                         >
+                           {templatePhotoUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                           {templatePhotoUploading ? "Uploading…" : "Upload"}
+                         </Button>
+                       </div>
+                     </div>
+                   ) : null}
 
-                    <p className="text-xs text-muted-foreground">
-                      টেমপ্লেট সিলেক্ট করলে Title/Message/Dua + Date range auto-fill হবে।
-                    </p>
+                   <p className="text-xs text-muted-foreground">
+                     টেমপ্লেট সিলেক্ট করলে Title/Message/Dua + Date range auto-fill হবে।
+                   </p>
                  </div>
 
                  <div className="space-y-2 md:col-span-2">
