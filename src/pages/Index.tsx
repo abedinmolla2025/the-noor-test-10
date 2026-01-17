@@ -173,11 +173,20 @@ const Index = () => {
           // Footer: allow links via settings
           if (r.section_key === "footer") {
             const footerSettings = {
-              playStoreUrl: typeof rowSettings?.playStoreUrl === "string" ? rowSettings.playStoreUrl : undefined,
-              appStoreUrl: typeof rowSettings?.appStoreUrl === "string" ? rowSettings.appStoreUrl : undefined,
-              contactEmail: typeof rowSettings?.contactEmail === "string" ? rowSettings.contactEmail : undefined,
-              facebookUrl: typeof rowSettings?.facebookUrl === "string" ? rowSettings.facebookUrl : undefined,
-              whatsappUrl: typeof rowSettings?.whatsappUrl === "string" ? rowSettings.whatsappUrl : undefined,
+              playStoreUrl:
+                typeof rowSettings?.playStoreUrl === "string" ? rowSettings.playStoreUrl : undefined,
+              appStoreUrl:
+                typeof rowSettings?.appStoreUrl === "string" ? rowSettings.appStoreUrl : undefined,
+              contactEmail:
+                typeof rowSettings?.contactEmail === "string" ? rowSettings.contactEmail : undefined,
+              facebookUrl:
+                typeof rowSettings?.facebookUrl === "string" ? rowSettings.facebookUrl : undefined,
+              whatsappUrl:
+                typeof rowSettings?.whatsappUrl === "string" ? rowSettings.whatsappUrl : undefined,
+              footerText:
+                typeof rowSettings?.footerText === "string" ? rowSettings.footerText : undefined,
+              developerLine:
+                typeof rowSettings?.developerLine === "string" ? rowSettings.developerLine : undefined,
             };
 
             return {

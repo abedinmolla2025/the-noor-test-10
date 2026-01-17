@@ -9,6 +9,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -72,7 +73,13 @@ export function LayoutSectionRow({
     const hasFooterLinks =
       isFooter &&
       Boolean(
-        s.playStoreUrl || s.appStoreUrl || s.contactEmail || s.facebookUrl || s.whatsappUrl,
+        s.playStoreUrl ||
+          s.appStoreUrl ||
+          s.contactEmail ||
+          s.facebookUrl ||
+          s.whatsappUrl ||
+          s.footerText ||
+          s.developerLine,
       );
 
     return Boolean(hasGrid || hasPlacement || hasFooterLinks || s.styleVariant);
@@ -307,9 +314,34 @@ export function LayoutSectionRow({
                         placeholder="https://wa.me/... অথবা অন্য chat link"
                       />
                     </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs">Developer line</Label>
+                      <Input
+                        value={typeof item.settings?.developerLine === "string" ? item.settings.developerLine : ""}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          updateSettings({ developerLine: v.trim() ? v : undefined });
+                        }}
+                        placeholder="Developed by ABEDIN MOLLA – India"
+                      />
+                    </div>
+
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs">Footer text / Tagline</Label>
+                      <Textarea
+                        value={typeof item.settings?.footerText === "string" ? item.settings.footerText : ""}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          updateSettings({ footerText: v.trim() ? v : undefined });
+                        }}
+                        placeholder="Noor — ..."
+                        className="min-h-[80px]"
+                      />
+                    </div>
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    এই লিংকগুলো শুধু Footer section‑এ ব্যবহার হবে।
+                    এই লেখা/লিংকগুলো শুধু Footer section‑এ ব্যবহার হবে।
                   </p>
                 </div>
               )}

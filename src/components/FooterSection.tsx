@@ -12,6 +12,8 @@ export type FooterLinksSettings = {
   contactEmail?: string;
   facebookUrl?: string;
   whatsappUrl?: string;
+  footerText?: string;
+  developerLine?: string;
 };
 
 function normalizeUrl(raw?: string) {
@@ -41,12 +43,15 @@ export default function FooterSection({
   const facebookUrl = useMemo(() => normalizeUrl(settings?.facebookUrl), [settings?.facebookUrl]);
   const whatsappUrl = useMemo(() => normalizeUrl(settings?.whatsappUrl), [settings?.whatsappUrl]);
 
+  const footerText = (settings?.footerText ?? "").trim() ||
+    "Noor — আপনার দৈনিক নামাজ, কুরআন ও দ্বীনি রুটিনকে এক জায়গায় সহজ করে রাখার ছোট সাথী।";
+  const developerLine = (settings?.developerLine ?? "").trim() ||
+    "Developed by ABEDIN MOLLA – India";
+
   return (
     <footer className="mt-6 pt-5 border-top border-border/70">
       <div className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-t from-primary/10 via-background to-background/80 border border-border/60 px-3 py-3 shadow-sm shadow-primary/10 animate-fade-in space-y-3">
-        <p className="text-[11px] text-center text-muted-foreground">
-          Noor — আপনার দৈনিক নামাজ, কুরআন ও দ্বীনি রুটিনকে এক জায়গায় সহজ করে রাখার ছোট সাথী।
-        </p>
+        <p className="text-[11px] text-center text-muted-foreground">{footerText}</p>
 
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground">
           <button
@@ -167,9 +172,7 @@ export default function FooterSection({
 
         <div className="h-px w-20 mx-auto bg-border/70 rounded-full" />
 
-        <p className="text-[11px] text-center text-muted-foreground">
-          Developed by <span className="font-semibold">ABEDIN MOLLA</span> – India
-        </p>
+        <p className="text-[11px] text-center text-muted-foreground">{developerLine}</p>
       </div>
     </footer>
   );
