@@ -124,7 +124,7 @@ const Index = () => {
         { section_key: "daily_hadith", el: <DailyHadith /> },
         {
           section_key: "footer",
-          el: <FooterSection onNavigate={(path) => navigate(path)} />,
+          el: <FooterSection platform={layoutPlatform} onNavigate={(path) => navigate(path)} />,
         },
       ] as const,
     [getDefaultPlacementForSection, isPlaying, navigate, settings.enabled],
@@ -177,6 +177,8 @@ const Index = () => {
                 typeof rowSettings?.playStoreUrl === "string" ? rowSettings.playStoreUrl : undefined,
               appStoreUrl:
                 typeof rowSettings?.appStoreUrl === "string" ? rowSettings.appStoreUrl : undefined,
+              websiteUrl:
+                typeof rowSettings?.websiteUrl === "string" ? rowSettings.websiteUrl : undefined,
               contactEmail:
                 typeof rowSettings?.contactEmail === "string" ? rowSettings.contactEmail : undefined,
               facebookUrl:
@@ -192,7 +194,11 @@ const Index = () => {
             return {
               key: r.id,
               el: wrapWithVariant(
-                <FooterSection settings={footerSettings} onNavigate={(path) => navigate(path)} />,
+                <FooterSection
+                  platform={layoutPlatform}
+                  settings={footerSettings}
+                  onNavigate={(path) => navigate(path)}
+                />,
                 rowSettings?.styleVariant,
               ),
               pad: sizeToPad(r.size as any),
