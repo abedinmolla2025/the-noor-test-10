@@ -14,12 +14,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 
 import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 import { NameBulkImportDialog } from '@/components/admin/NameBulkImportDialog';
+import { DuaBulkImportDialog } from '@/components/admin/DuaBulkImportDialog';
 
 interface AdminContentRow {
   id: string;
@@ -126,6 +126,7 @@ export default function AdminContent() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'edit' | 'workflow' | 'versions' | 'audit'>('edit');
   const [isNameImportOpen, setIsNameImportOpen] = useState(false);
+  const [isDuaImportOpen, setIsDuaImportOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     content_type: 'dua',
     title: '',
@@ -177,6 +178,18 @@ export default function AdminContent() {
     const set = new Set<string>();
     for (const item of content ?? []) {
       if (item.content_type !== 'name') continue;
+      set.add(keyOf(item.title, item.title_arabic));
+    }
+    return set;
+  }, [content]);
+
+  const existingDuaKeys = useMemo(() => {
+    const keyOf = (title: string, titleArabic?: string | null) =>
+      `${title.trim().toLowerCase()}||${(titleArabic ?? '').trim().toLowerCase()}`;
+
+    const set = new Set<string>();
+    for (const item of content ?? []) {
+      if (item.content_type !== 'dua') continue;
       set.add(keyOf(item.title, item.title_arabic));
     }
     return set;
@@ -585,6 +598,17 @@ export default function AdminContent() {
               <Upload className="h-4 w-4 mr-2" />
               Import Names (JSON)
             </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsDuaImportOpen(true)}
+              disabled={!canEdit}
+              title={!canEdit ? 'No permission' : undefined}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Import Dua (JSON)
+            </Button>
           </>
         }
       />
@@ -594,6 +618,16 @@ export default function AdminContent() {
         onOpenChange={setIsNameImportOpen}
         canEdit={canEdit}
         existingKeys={existingNameKeys}
+        onImported={() => {
+          queryClient.invalidateQueries({ queryKey: ['admin-content'] });
+        }}
+      />
+
+      <DuaBulkImportDialog
+        open={isDuaImportOpen}
+        onOpenChange={setIsDuaImportOpen}
+        canEdit={canEdit}
+        existingKeys={existingDuaKeys}
         onImported={() => {
           queryClient.invalidateQueries({ queryKey: ['admin-content'] });
         }}
