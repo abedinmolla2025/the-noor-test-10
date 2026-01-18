@@ -1112,23 +1112,18 @@ export default function AdminContent() {
                     </div>
                   )}
 
-                  <div>
-                    <Label>
-                      {editForm.content_type === 'name' ? 'Meaning (Arabic)' : 'Content (Arabic)'}
-                    </Label>
-                    <Textarea
-                      value={editForm.content_arabic}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({ ...prev, content_arabic: e.target.value }))
-                      }
-                      rows={4}
-                      placeholder={
-                        editForm.content_type === 'name'
-                          ? 'আরবি অর্থ লিখুন...'
-                          : undefined
-                      }
-                    />
-                  </div>
+                  {editForm.content_type !== 'name' && (
+                    <div>
+                      <Label>Content (Arabic)</Label>
+                      <Textarea
+                        value={editForm.content_arabic}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({ ...prev, content_arabic: e.target.value }))
+                        }
+                        rows={4}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
