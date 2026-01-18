@@ -35,6 +35,7 @@ interface AdminContentRow {
   content_ur: string | null;
   content_pronunciation: string | null;
   category: string | null;
+  metadata: any | null;
   is_published: boolean | null;
   status: string;
   scheduled_at: string | null;
@@ -89,6 +90,32 @@ const formatDateTime = (value: string | null | undefined) => {
   return new Date(value).toLocaleString();
 };
 
+const readMetaString = (meta: unknown, key: string) => {
+  if (!meta || typeof meta !== 'object') return '';
+  const obj = meta as Record<string, unknown>;
+  return typeof obj[key] === 'string' ? (obj[key] as string) : '';
+};
+
+const buildNameMetadata = (
+  existing: unknown,
+  patch: { source?: string; origin?: string; reference?: string }
+) => {
+  const base = existing && typeof existing === 'object' ? { ...(existing as any) } : {};
+  const next: Record<string, any> = { ...base };
+
+  const setOrDelete = (k: string, v?: string) => {
+    const val = (v ?? '').trim();
+    if (val) next[k] = val;
+    else delete next[k];
+  };
+
+  setOrDelete('source', patch.source);
+  setOrDelete('origin', patch.origin);
+  setOrDelete('reference', patch.reference);
+
+  return next;
+};
+
 export default function AdminContent() {
   const { user, roles, isAdmin, isSuperAdmin } = useAdmin();
   const { toast } = useToast();
@@ -110,6 +137,10 @@ export default function AdminContent() {
     content_ur: '',
     content_pronunciation: '',
     category: '',
+    // Name-only metadata
+    meta_source: '',
+    meta_origin: '',
+    meta_reference: '',
   });
   const [isSaving, setIsSaving] = useState(false);
   const [rollbackVersion, setRollbackVersion] = useState<ContentVersionRow | null>(null);
@@ -202,6 +233,9 @@ export default function AdminContent() {
         content_ur: '',
         content_pronunciation: '',
         category: '',
+        meta_source: '',
+        meta_origin: '',
+        meta_reference: '',
       });
       setSelectedId(null);
       return;
@@ -221,6 +255,9 @@ export default function AdminContent() {
       content_ur: item.content_ur ?? '',
       content_pronunciation: item.content_pronunciation ?? '',
       category: item.category ?? '',
+      meta_source: readMetaString(item.metadata, 'source'),
+      meta_origin: readMetaString(item.metadata, 'origin'),
+      meta_reference: readMetaString(item.metadata, 'reference'),
     });
     setSelectedId(item.id);
   };
@@ -265,6 +302,15 @@ export default function AdminContent() {
         content_ur: editForm.content_ur || null,
         content_pronunciation: editForm.content_pronunciation || null,
         category: editForm.category || null,
+        ...(editForm.content_type === 'name'
+          ? {
+              metadata: buildNameMetadata(selectedContent?.metadata, {
+                source: editForm.meta_source,
+                origin: editForm.meta_origin,
+                reference: editForm.meta_reference,
+              }),
+            }
+          : {}),
       };
 
       if (!contentId) {
@@ -702,6 +748,45 @@ export default function AdminContent() {
                       }
                     />
                   </div>
+
+                  {editForm.content_type === 'name' && (
+                    <div className="rounded-lg border border-border/70 bg-muted/20 p-3 space-y-3">
+                      <div className="text-xs font-medium text-muted-foreground">Name metadata</div>
+
+                      <div>
+                        <Label>Source</Label>
+                        <Input
+                          value={editForm.meta_source}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, meta_source: e.target.value }))
+                          }
+                          placeholder="যেমন: Quran/Hadith/Dictionary/Local"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Origin</Label>
+                        <Input
+                          value={editForm.meta_origin}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, meta_origin: e.target.value }))
+                          }
+                          placeholder="যেমন: Arabic, Persian, Turkish"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Reference</Label>
+                        <Input
+                          value={editForm.meta_reference}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, meta_reference: e.target.value }))
+                          }
+                          placeholder="লিংক/বইয়ের নাম/হাদিস নম্বর (optional)"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">
