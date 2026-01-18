@@ -98,7 +98,7 @@ const readMetaString = (meta: unknown, key: string) => {
 
 const buildNameMetadata = (
   existing: unknown,
-  patch: { source?: string; origin?: string; reference?: string }
+  patch: { bn_name?: string; source?: string; origin?: string; reference?: string }
 ) => {
   const base = existing && typeof existing === 'object' ? { ...(existing as any) } : {};
   const next: Record<string, any> = { ...base };
@@ -109,6 +109,7 @@ const buildNameMetadata = (
     else delete next[k];
   };
 
+  setOrDelete('bn_name', patch.bn_name);
   setOrDelete('source', patch.source);
   setOrDelete('origin', patch.origin);
   setOrDelete('reference', patch.reference);
@@ -138,6 +139,7 @@ export default function AdminContent() {
     content_pronunciation: '',
     category: '',
     // Name-only metadata
+    meta_bn_name: '',
     meta_source: '',
     meta_origin: '',
     meta_reference: '',
@@ -233,6 +235,7 @@ export default function AdminContent() {
         content_ur: '',
         content_pronunciation: '',
         category: '',
+        meta_bn_name: '',
         meta_source: '',
         meta_origin: '',
         meta_reference: '',
@@ -255,6 +258,7 @@ export default function AdminContent() {
       content_ur: item.content_ur ?? '',
       content_pronunciation: item.content_pronunciation ?? '',
       category: item.category ?? '',
+      meta_bn_name: readMetaString(item.metadata, 'bn_name'),
       meta_source: readMetaString(item.metadata, 'source'),
       meta_origin: readMetaString(item.metadata, 'origin'),
       meta_reference: readMetaString(item.metadata, 'reference'),
@@ -305,6 +309,7 @@ export default function AdminContent() {
         ...(editForm.content_type === 'name'
           ? {
               metadata: buildNameMetadata(selectedContent?.metadata, {
+                bn_name: editForm.meta_bn_name,
                 source: editForm.meta_source,
                 origin: editForm.meta_origin,
                 reference: editForm.meta_reference,
@@ -766,6 +771,17 @@ export default function AdminContent() {
                   {editForm.content_type === 'name' && (
                     <div className="rounded-lg border border-border/70 bg-muted/20 p-3 space-y-3">
                       <div className="text-xs font-medium text-muted-foreground">Name metadata</div>
+
+                      <div>
+                        <Label>Title (Bangla name)</Label>
+                        <Input
+                          value={editForm.meta_bn_name}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, meta_bn_name: e.target.value }))
+                          }
+                          placeholder="যেমন: আব্দুল্লাহ / আয়েশা"
+                        />
+                      </div>
 
                       <div>
                         <Label>Source</Label>

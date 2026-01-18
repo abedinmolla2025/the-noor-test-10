@@ -35,6 +35,7 @@ type NameContentRow = {
 };
 
 type NameMeta = {
+  bn_name?: string;
   source?: string;
   origin?: string;
   reference?: string;
@@ -45,6 +46,7 @@ const safeParseMeta = (meta: unknown): NameMeta => {
   const m = meta as Record<string, unknown>;
   const pick = (k: string) => (typeof m[k] === "string" ? (m[k] as string) : undefined);
   return {
+    bn_name: pick("bn_name"),
     source: pick("source"),
     origin: pick("origin"),
     reference: pick("reference"),
@@ -52,18 +54,22 @@ const safeParseMeta = (meta: unknown): NameMeta => {
 };
 
 const buildShareText = (n: NameContentRow) => {
+  const meta = safeParseMeta(n.metadata);
   const arabicName = n.title_arabic?.trim() || "";
   const englishName = n.title?.trim() || "";
+  const banglaName = meta.bn_name?.trim() || "";
   const meaningBn = n.content?.trim() || "";
   const meaningEn = n.content_en?.trim() || "";
   const meaningAr = n.content_arabic?.trim() || "";
 
   const lines: string[] = [];
   if (arabicName || englishName) lines.push([arabicName, englishName].filter(Boolean).join(" — "));
+  if (banglaName) lines.push(`নাম (বাংলা): ${banglaName}`);
   if (meaningBn) lines.push(`অর্থ (বাংলা): ${meaningBn}`);
   if (meaningEn) lines.push(`Meaning (English): ${meaningEn}`);
   if (meaningAr) lines.push(`المعنى (عربي): ${meaningAr}`);
   if (n.category?.trim()) lines.push(`Category: ${n.category.trim()}`);
+  if (meta.source?.trim()) lines.push(`Source: ${meta.source.trim()}`);
 
   return lines.join("\n").trim();
 };
@@ -116,6 +122,7 @@ const NamesPage = () => {
       const parts = [
         n.title,
         n.title_arabic ?? "",
+        meta.bn_name ?? "",
         n.content ?? "",
         n.content_en ?? "",
         n.content_arabic ?? "",
@@ -270,6 +277,9 @@ const NamesPage = () => {
                 <span className="ml-2 text-sm font-medium text-muted-foreground">({selected?.title})</span>
               ) : null}
             </DialogTitle>
+            {selectedMeta.bn_name?.trim() ? (
+              <p className="text-sm text-muted-foreground">{selectedMeta.bn_name}</p>
+            ) : null}
           </DialogHeader>
 
           {selected?.category?.trim() ? (
@@ -332,11 +342,18 @@ const NamesPage = () => {
               </div>
             ) : null}
 
-            {(selectedMeta.source || selectedMeta.origin || selectedMeta.reference) && (
+            {(selectedMeta.bn_name || selectedMeta.source || selectedMeta.origin || selectedMeta.reference) && (
               <>
                 <Separator />
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-foreground">Source</p>
+
+                  {selectedMeta.bn_name ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Bangla name</p>
+                      <p className="font-medium break-words">{selectedMeta.bn_name}</p>
+                    </div>
+                  ) : null}
 
                   {selectedMeta.source ? (
                     <div>
