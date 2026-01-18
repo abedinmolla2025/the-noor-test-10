@@ -662,124 +662,173 @@ export default function AdminContent() {
           {isLoading ? (
             <p className="text-xs sm:text-sm text-muted-foreground">Loading content…</p>
           ) : content && content.length > 0 ? (
-            <MobileTableWrapper>
-              <Table className="min-w-[720px] text-xs sm:text-sm">
-                <TableHeader>
-                  <TableRow className="h-9">
-                    <TableHead className="w-[90px] whitespace-nowrap">Type</TableHead>
-                    <TableHead className="whitespace-nowrap">Title</TableHead>
-                    <TableHead className="w-[140px] whitespace-nowrap">Category</TableHead>
-                    <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
-                    <TableHead className="w-[150px] whitespace-nowrap">Scheduled</TableHead>
-                    <TableHead className="w-[150px] whitespace-nowrap">Published</TableHead>
-                    <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {content.map((item) => (
-                    <TableRow
+            <>
+              {/* Mobile: compact card-row list */}
+              <div className="space-y-2 sm:hidden">
+                {content.map((item) => {
+                  const isSelected = selectedId === item.id;
+
+                  return (
+                    <div
                       key={item.id}
-                      className={`h-9 ${
-                        selectedId === item.id ? 'bg-muted/60 hover:bg-muted/70' : 'hover:bg-muted/40'
-                      }`}
+                      className={
+                        "flex items-start justify-between gap-3 rounded-lg border border-border/80 bg-background p-3 shadow-sm " +
+                        (isSelected ? "ring-2 ring-ring/40" : "")
+                      }
                     >
-                      <TableCell className="align-middle">
-                        <Badge
-                          variant="outline"
-                          className="rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide"
+                      <button
+                        type="button"
+                        className="min-w-0 flex-1 text-left"
+                        onClick={() => {
+                          setSelectedId(item.id);
+                          resetEditForm(item);
+                          setActiveTab('edit');
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide"
+                          >
+                            {item.content_type}
+                          </Badge>
+                          <p className="min-w-0 truncate text-sm font-medium text-foreground">{item.title}</p>
+                        </div>
+
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                          <Badge
+                            variant={STATUS_VARIANTS[item.status] || 'secondary'}
+                            className="rounded-full px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1"
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                            {STATUS_LABELS[item.status] || item.status}
+                          </Badge>
+                          <span className="truncate">{item.category || '-'}</span>
+                        </div>
+                      </button>
+
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 w-9 shrink-0 p-0"
+                            aria-label="Row actions"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" sideOffset={6} className="z-50 w-44">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedId(item.id);
+                              resetEditForm(item);
+                              setActiveTab('workflow');
+                            }}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Open workflow
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => deleteMutation.mutate(item.id)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop: table */}
+              <div className="hidden sm:block">
+                <MobileTableWrapper>
+                  <Table className="min-w-[720px] text-xs sm:text-sm">
+                    <TableHeader>
+                      <TableRow className="h-9">
+                        <TableHead className="w-[90px] whitespace-nowrap">Type</TableHead>
+                        <TableHead className="whitespace-nowrap">Title</TableHead>
+                        <TableHead className="w-[140px] whitespace-nowrap">Category</TableHead>
+                        <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
+                        <TableHead className="w-[150px] whitespace-nowrap">Scheduled</TableHead>
+                        <TableHead className="w-[150px] whitespace-nowrap">Published</TableHead>
+                        <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {content.map((item) => (
+                        <TableRow
+                          key={item.id}
+                          className={`h-9 ${
+                            selectedId === item.id ? 'bg-muted/60 hover:bg-muted/70' : 'hover:bg-muted/40'
+                          }`}
                         >
-                          {item.content_type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-[200px] truncate align-middle text-xs sm:text-sm">
-                        {item.title}
-                      </TableCell>
-                      <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
-                        {item.category || '-'}
-                      </TableCell>
-                      <TableCell className="align-middle">
-                        <Badge
-                          variant={STATUS_VARIANTS[item.status] || 'secondary'}
-                          className="rounded-full px-2 py-0.5 text-[11px] font-medium flex items-center gap-1"
-                        >
-                          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                          {STATUS_LABELS[item.status] || item.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
-                        {formatDateTime(item.scheduled_at)}
-                      </TableCell>
-                      <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
-                        {formatDateTime(item.published_at)}
-                      </TableCell>
-                      <TableCell className="text-right align-middle">
-                        {/* Mobile: single kebab menu for row actions */}
-                        <div className="flex justify-end">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                          <TableCell className="align-middle">
+                            <Badge
+                              variant="outline"
+                              className="rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide"
+                            >
+                              {item.content_type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="max-w-[200px] truncate align-middle text-xs sm:text-sm">
+                            {item.title}
+                          </TableCell>
+                          <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
+                            {item.category || '-'}
+                          </TableCell>
+                          <TableCell className="align-middle">
+                            <Badge
+                              variant={STATUS_VARIANTS[item.status] || 'secondary'}
+                              className="rounded-full px-2 py-0.5 text-[11px] font-medium flex items-center gap-1"
+                            >
+                              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                              {STATUS_LABELS[item.status] || item.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
+                            {formatDateTime(item.scheduled_at)}
+                          </TableCell>
+                          <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
+                            {formatDateTime(item.published_at)}
+                          </TableCell>
+                          <TableCell className="text-right align-middle">
+                            <div className="inline-flex gap-2">
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-9 w-9 p-0 sm:hidden"
-                                aria-label="Row actions"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" sideOffset={6} className="z-50 w-44">
-                              <DropdownMenuItem
+                                className="h-8 w-8 p-0"
                                 onClick={() => {
                                   setSelectedId(item.id);
                                   resetEditForm(item);
                                   setActiveTab('workflow');
                                 }}
+                                aria-label="Open workflow"
                               >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Open workflow
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
+                                <Edit className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                                 onClick={() => deleteMutation.mutate(item.id)}
+                                aria-label="Delete content"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-
-                          {/* Desktop: icon buttons */}
-                          <div className="hidden sm:inline-flex gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={() => {
-                                setSelectedId(item.id);
-                                resetEditForm(item);
-                                setActiveTab('workflow');
-                              }}
-                              aria-label="Open workflow"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                              onClick={() => deleteMutation.mutate(item.id)}
-                              aria-label="Delete content"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </MobileTableWrapper>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </MobileTableWrapper>
+              </div>
+            </>
           ) : (
             <p className="text-xs sm:text-sm text-muted-foreground">No content yet. Create your first item.</p>
           )}
