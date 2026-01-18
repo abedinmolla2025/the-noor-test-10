@@ -1,27 +1,30 @@
 import { NavLink } from '@/components/NavLink';
 import { useAdmin } from '@/contexts/AdminContext';
 import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  DollarSign,
-  Bell,
-  BarChart3,
-  Settings,
-  LogOut,
   Activity,
-  Zap,
-  Shield,
-  LayoutGrid,
+  BarChart3,
+  Bell,
+  BookOpen,
+  CalendarDays,
+  ChevronDown,
+  DollarSign,
   Globe,
   History as HistoryIcon,
-  CalendarDays,
+  LayoutDashboard,
+  LayoutGrid,
+  LogOut,
+  Settings,
+  Shield,
+  Users,
+  Zap,
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type AdminSidebarProps = {
   /** Only used inside the mobile sheet: shows a compact shortcut row */
@@ -44,6 +47,9 @@ type NavSection = {
 export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSidebarProps) => {
   const { user } = useAdmin();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const navRef = useRef<HTMLElement | null>(null);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -87,6 +93,40 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
       ],
     },
   ];
+
+  const isActivePath = useMemo(() => {
+    const pathname = location.pathname;
+    return (to: string) => pathname === to || pathname.startsWith(`${to}/`);
+  }, [location.pathname]);
+
+  const activeSectionTitle = useMemo(() => {
+    return sections.find((s) => s.items.some((i) => isActivePath(i.to)))?.title;
+  }, [isActivePath, sections]);
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(sections.map((s) => [s.title, s.title === activeSectionTitle])),
+  );
+
+  // Keep the active group expanded when route changes
+  useEffect(() => {
+    if (!activeSectionTitle) return;
+    setOpenSections((prev) => ({ ...prev, [activeSectionTitle]: true }));
+  }, [activeSectionTitle]);
+
+  // Scroll active item into view inside the scroll area
+  useEffect(() => {
+    const navEl = navRef.current;
+    if (!navEl) return;
+
+    const raf = requestAnimationFrame(() => {
+      const activeLink = navEl.querySelector<HTMLAnchorElement>('a[aria-current="page"]');
+      if (activeLink) {
+        activeLink.scrollIntoView({ block: 'center', inline: 'nearest' });
+      }
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [location.pathname]);
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-border bg-card">
@@ -161,34 +201,59 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
       </div>
 
       <ScrollArea className="flex-1 px-2 py-3">
-        <nav className="space-y-3">
-          {sections.map((section) => (
-            <div key={section.title} className="space-y-1">
-              <p className="px-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                {section.title}
-              </p>
-              <div className="space-y-1">
-                {section.items.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => onNavigate?.()}
-                    className={cn(
-                      "relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-muted-foreground transition-colors",
-                      "hover:bg-muted hover:text-foreground",
-                    )}
-                    activeClassName={cn(
-                      "bg-muted text-foreground",
-                      "before:absolute before:left-0 before:top-1/2 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-primary",
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span className="truncate">{item.label}</span>
-                  </NavLink>
-                ))}
-              </div>
-            </div>
-          ))}
+        <nav ref={navRef} className="space-y-3">
+          {sections.map((section) => {
+            const isOpen = openSections[section.title] ?? false;
+
+            return (
+              <Collapsible
+                key={section.title}
+                open={isOpen}
+                onOpenChange={(open) =>
+                  setOpenSections((prev) => ({
+                    ...prev,
+                    [section.title]: open,
+                  }))
+                }
+              >
+                <div className="space-y-1">
+                  <CollapsibleTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground hover:bg-muted/50"
+                      aria-label={`${section.title} section`}
+                    >
+                      <span>{section.title}</span>
+                      <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-180')} />
+                    </button>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent>
+                    <div className="space-y-1">
+                      {section.items.map((item) => (
+                        <NavLink
+                          key={item.to}
+                          to={item.to}
+                          onClick={() => onNavigate?.()}
+                          className={cn(
+                            "relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-muted-foreground transition-colors",
+                            "hover:bg-muted hover:text-foreground",
+                          )}
+                          activeClassName={cn(
+                            "bg-muted text-foreground",
+                            "before:absolute before:left-0 before:top-1/2 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-primary",
+                          )}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span className="truncate">{item.label}</span>
+                        </NavLink>
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
+            );
+          })}
         </nav>
       </ScrollArea>
 
