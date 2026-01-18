@@ -825,9 +825,9 @@ export default function AdminContent() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="edit" className="pt-4 space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-4">
+            <TabsContent value="edit" className="pt-3 space-y-3 sm:pt-4 sm:space-y-4">
+              <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <Label>Content Type</Label>
                     <Select
@@ -944,7 +944,7 @@ export default function AdminContent() {
                   )}
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <Label>
                       {editForm.content_type === 'name' ? 'Meaning (Bangla)' : 'Content'}
@@ -1010,7 +1010,7 @@ export default function AdminContent() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t border-border/70">
+              <div className="flex flex-col gap-3 border-t border-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between">
                 {selectedContent && (
                   <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
