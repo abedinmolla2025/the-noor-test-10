@@ -7,6 +7,7 @@ import { SeoHead } from "@/components/seo/SeoHead";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import BabyNamesPage from "./pages/BabyNamesPage";
+import NamesPage from "./pages/NamesPage";
 import QiblaPage from "./pages/QiblaPage";
 import TasbihPage from "./pages/TasbihPage";
 import DuaPage from "./pages/DuaPage";
@@ -52,20 +53,21 @@ const AppRoutes = () => (
     <SeoHead />
     <Routes>
       <Route path="/" element={<Index />} />
-    <Route path="/baby-names" element={<BabyNamesPage />} />
-    <Route path="/qibla" element={<QiblaPage />} />
-    <Route path="/tasbih" element={<TasbihPage />} />
-    <Route path="/dua" element={<DuaPage />} />
-    <Route path="/quran" element={<QuranPage />} />
-    <Route path="/99-names" element={<NamesOfAllahPage />} />
-    <Route path="/prayer-times" element={<PrayerTimesPage />} />
-    <Route path="/bukhari" element={<BukhariPage />} />
-    <Route path="/calendar" element={<IslamicCalendarPage />} />
-    <Route path="/settings" element={<SettingsPage />} />
-    <Route path="/notifications" element={<NotificationsPage />} />
-    <Route path="/quiz" element={<QuizPage />} />
-    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-    <Route path="/terms" element={<TermsPage />} />
+      <Route path="/baby-names" element={<BabyNamesPage />} />
+      <Route path="/names" element={<NamesPage />} />
+      <Route path="/qibla" element={<QiblaPage />} />
+      <Route path="/tasbih" element={<TasbihPage />} />
+      <Route path="/dua" element={<DuaPage />} />
+      <Route path="/quran" element={<QuranPage />} />
+      <Route path="/99-names" element={<NamesOfAllahPage />} />
+      <Route path="/prayer-times" element={<PrayerTimesPage />} />
+      <Route path="/bukhari" element={<BukhariPage />} />
+      <Route path="/calendar" element={<IslamicCalendarPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
+      <Route path="/quiz" element={<QuizPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
 
     {/* Admin Routes - all wrapped with AdminLayout (includes ProtectedRoute) */}
     <Route

@@ -39,7 +39,7 @@ const features: FeatureItem[] = [
     emoji: "👶",
     label: "Names",
     labelBn: "নাম",
-    path: "/baby-names",
+    path: "/names",
     gradient: "from-pink-500/30 to-rose-600/40",
     animation: {
       rotate: [-5, 5, -5],
