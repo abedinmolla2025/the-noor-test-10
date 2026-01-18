@@ -105,6 +105,7 @@ const fetchNames = async (): Promise<NameContentRow[]> => {
 const NamesPage = () => {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selected, setSelected] = useState<NameContentRow | null>(null);
 
   const namesQuery = useQuery({
@@ -112,12 +113,27 @@ const NamesPage = () => {
     queryFn: fetchNames,
   });
 
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    for (const n of namesQuery.data ?? []) {
+      const c = (n.category ?? "").trim();
+      if (c) set.add(c);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [namesQuery.data]);
+
   const filtered = useMemo(() => {
     const list = namesQuery.data ?? [];
     const query = q.trim().toLowerCase();
-    if (!query) return list;
 
-    return list.filter((n) => {
+    const categoryFiltered =
+      activeCategory === "all"
+        ? list
+        : list.filter((n) => (n.category ?? "").trim() === activeCategory);
+
+    if (!query) return categoryFiltered;
+
+    return categoryFiltered.filter((n) => {
       const meta = safeParseMeta(n.metadata);
       const parts = [
         n.title,
@@ -132,7 +148,7 @@ const NamesPage = () => {
       ];
       return parts.join(" ").toLowerCase().includes(query);
     });
-  }, [namesQuery.data, q]);
+  }, [namesQuery.data, q, activeCategory]);
 
   const selectedMeta = useMemo(() => safeParseMeta(selected?.metadata), [selected?.metadata]);
 
@@ -180,6 +196,30 @@ const NamesPage = () => {
               className="pl-9"
               aria-label="Search names"
             />
+          </div>
+
+          <div className="mt-2 flex items-center gap-2 overflow-x-auto pb-1">
+            <Button
+              type="button"
+              size="sm"
+              variant={activeCategory === "all" ? "secondary" : "outline"}
+              onClick={() => setActiveCategory("all")}
+              className="shrink-0"
+            >
+              All
+            </Button>
+            {categories.map((c) => (
+              <Button
+                key={c}
+                type="button"
+                size="sm"
+                variant={activeCategory === c ? "secondary" : "outline"}
+                onClick={() => setActiveCategory(c)}
+                className="shrink-0"
+              >
+                {c}
+              </Button>
+            ))}
           </div>
         </div>
       </header>
