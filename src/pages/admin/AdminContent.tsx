@@ -667,6 +667,7 @@ export default function AdminContent() {
                         <SelectItem value="quran">Quran</SelectItem>
                         <SelectItem value="dua">Dua</SelectItem>
                         <SelectItem value="hadith">Hadith</SelectItem>
+                        <SelectItem value="name">Name</SelectItem>
                         <SelectItem value="article">Article</SelectItem>
                       </SelectContent>
                     </Select>
