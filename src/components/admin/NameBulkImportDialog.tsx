@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -75,6 +76,9 @@ export function NameBulkImportDialog({
   const [rawItems, setRawItems] = useState<unknown[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
 
+  const [previewQuery, setPreviewQuery] = useState("");
+  const [previewCategory, setPreviewCategory] = useState<string>("all");
+
   const parsed = useMemo(() => {
     const valid: NameImportItem[] = [];
     const invalid: string[] = [];
@@ -105,12 +109,46 @@ export function NameBulkImportDialog({
     };
   }, [rawItems, existingKeys]);
 
+  const previewCategories = useMemo(() => {
+    const set = new Set<string>();
+    for (const it of parsed.valid) {
+      const c = (it.category ?? "").trim();
+      if (c) set.add(c);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [parsed.valid]);
+
+  const previewFiltered = useMemo(() => {
+    const q = previewQuery.trim().toLowerCase();
+    const list =
+      previewCategory === "all"
+        ? parsed.valid
+        : parsed.valid.filter((it) => (it.category ?? "").trim() === previewCategory);
+
+    if (!q) return list;
+
+    return list.filter((it) => {
+      const parts = [
+        it.title,
+        it.title_arabic ?? "",
+        it.bn_name ?? "",
+        it.category ?? "",
+        it.meaning_bn ?? "",
+        it.meaning_en ?? "",
+        it.meaning_ar ?? "",
+      ];
+      return parts.join(" ").toLowerCase().includes(q);
+    });
+  }, [parsed.valid, previewCategory, previewQuery]);
+
   const reset = () => {
     setFiles([]);
     setRawItems([]);
     setErrors([]);
     setIsParsing(false);
     setIsImporting(false);
+    setPreviewQuery("");
+    setPreviewCategory("all");
   };
 
   const handleClose = (nextOpen: boolean) => {
@@ -277,12 +315,39 @@ export function NameBulkImportDialog({
 
           {parsed.valid.length ? (
             <Card className="p-3">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium">Preview (first 20)</p>
-                <p className="text-xs text-muted-foreground">Showing {Math.min(20, parsed.valid.length)} of {parsed.valid.length}</p>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm font-medium">Preview (first 20)</p>
+                  <p className="text-xs text-muted-foreground">
+                    Showing {Math.min(20, previewFiltered.length)} of {previewFiltered.length}
+                  </p>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Input
+                    value={previewQuery}
+                    onChange={(e) => setPreviewQuery(e.target.value)}
+                    placeholder="Search title/category/meaning…"
+                    aria-label="Preview search"
+                  />
+
+                  <Select value={previewCategory} onValueChange={setPreviewCategory}>
+                    <SelectTrigger aria-label="Filter by category">
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All categories</SelectItem>
+                      {previewCategories.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="mt-2 overflow-auto">
+              <div className="mt-3 overflow-auto">
                 <Table className="min-w-[980px] text-xs">
                   <TableHeader>
                     <TableRow>
@@ -299,7 +364,7 @@ export function NameBulkImportDialog({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {parsed.valid.slice(0, 20).map((it, idx) => (
+                    {previewFiltered.slice(0, 20).map((it, idx) => (
                       <TableRow key={`${it.title}-${idx}`}>
                         <TableCell className="font-medium whitespace-nowrap">{it.title}</TableCell>
                         <TableCell className="whitespace-nowrap">{it.title_arabic ?? ""}</TableCell>
