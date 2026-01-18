@@ -225,8 +225,10 @@ const NamesPage = () => {
         {!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0 && (
           <div className="space-y-3">
             {filtered.map((n) => {
+              const meta = safeParseMeta(n.metadata);
               const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
               const secondary = n.title_arabic?.trim() ? n.title : null;
+              const bnName = meta.bn_name?.trim() || "";
               const snippet = (n.content_en ?? n.content ?? n.content_arabic ?? "").trim();
 
               return (
@@ -248,6 +250,9 @@ const NamesPage = () => {
                         <span className="ml-2 text-sm font-medium text-muted-foreground">({secondary})</span>
                       ) : null}
                     </CardTitle>
+
+                    {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
+
                     {n.category?.trim() ? (
                       <div className="pt-1">
                         <Badge variant="secondary" className="text-[11px]">
