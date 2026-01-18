@@ -720,21 +720,35 @@ export default function AdminContent() {
                   </div>
 
                   <div>
-                    <Label>Title</Label>
+                    <Label>
+                      {editForm.content_type === 'name' ? 'Title (English / Transliteration)' : 'Title'}
+                    </Label>
                     <Input
                       value={editForm.title}
                       onChange={(e) =>
                         setEditForm((prev) => ({ ...prev, title: e.target.value }))
                       }
+                      placeholder={
+                        editForm.content_type === 'name'
+                          ? 'যেমন: Abdullah / Aisha'
+                          : undefined
+                      }
                     />
                   </div>
 
                   <div>
-                    <Label>Title (Arabic)</Label>
+                    <Label>
+                      {editForm.content_type === 'name' ? 'Title (Arabic name)' : 'Title (Arabic)'}
+                    </Label>
                     <Input
                       value={editForm.title_arabic}
                       onChange={(e) =>
                         setEditForm((prev) => ({ ...prev, title_arabic: e.target.value }))
+                      }
+                      placeholder={
+                        editForm.content_type === 'name'
+                          ? 'যেমন: عبدالله / عائشة'
+                          : undefined
                       }
                     />
                   </div>
@@ -791,35 +805,65 @@ export default function AdminContent() {
 
                 <div className="space-y-4">
                   <div>
-                    <Label>Content</Label>
+                    <Label>
+                      {editForm.content_type === 'name' ? 'Meaning (Bangla)' : 'Content'}
+                    </Label>
                     <Textarea
                       value={editForm.content}
                       onChange={(e) =>
                         setEditForm((prev) => ({ ...prev, content: e.target.value }))
                       }
                       rows={4}
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Bangla Pronunciation</Label>
-                    <Textarea
-                      value={editForm.content_pronunciation}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({ ...prev, content_pronunciation: e.target.value }))
+                      placeholder={
+                        editForm.content_type === 'name'
+                          ? 'বাংলা অর্থ লিখুন...'
+                          : undefined
                       }
-                      rows={3}
                     />
                   </div>
 
+                  {editForm.content_type === 'name' && (
+                    <div>
+                      <Label>Meaning (English)</Label>
+                      <Textarea
+                        value={editForm.content_en}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({ ...prev, content_en: e.target.value }))
+                        }
+                        rows={3}
+                        placeholder="English meaning লিখুন..."
+                      />
+                    </div>
+                  )}
+
+                  {editForm.content_type !== 'name' && (
+                    <div>
+                      <Label>Bangla Pronunciation</Label>
+                      <Textarea
+                        value={editForm.content_pronunciation}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({ ...prev, content_pronunciation: e.target.value }))
+                        }
+                        rows={3}
+                      />
+                    </div>
+                  )}
+
                   <div>
-                    <Label>Content (Arabic)</Label>
+                    <Label>
+                      {editForm.content_type === 'name' ? 'Meaning (Arabic)' : 'Content (Arabic)'}
+                    </Label>
                     <Textarea
                       value={editForm.content_arabic}
                       onChange={(e) =>
                         setEditForm((prev) => ({ ...prev, content_arabic: e.target.value }))
                       }
                       rows={4}
+                      placeholder={
+                        editForm.content_type === 'name'
+                          ? 'আরবি অর্থ লিখুন...'
+                          : undefined
+                      }
                     />
                   </div>
                 </div>
