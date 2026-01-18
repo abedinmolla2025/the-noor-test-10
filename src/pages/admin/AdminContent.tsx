@@ -795,28 +795,31 @@ export default function AdminContent() {
             value={activeTab}
             onValueChange={(value) => setActiveTab(value as typeof activeTab)}
           >
-            <TabsList className="inline-flex h-10 items-center justify-center rounded-full bg-muted/70 p-1 text-xs sm:text-sm">
-              <TabsTrigger className="rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow" value="edit">
+            <TabsList className="w-full gap-1 overflow-x-auto rounded-full bg-muted/70 p-1 text-xs [-webkit-overflow-scrolling:touch] sm:w-auto sm:overflow-visible sm:text-sm">
+              <TabsTrigger
+                className="shrink-0 whitespace-nowrap rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
+                value="edit"
+              >
                 Edit
               </TabsTrigger>
               <TabsTrigger
                 value="workflow"
                 disabled={!selectedContent}
-                className="rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
+                className="shrink-0 whitespace-nowrap rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
               >
                 <Workflow className="h-3 w-3 mr-1" /> Workflow
               </TabsTrigger>
               <TabsTrigger
                 value="versions"
                 disabled={!selectedContent}
-                className="rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
+                className="shrink-0 whitespace-nowrap rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
               >
                 <History className="h-3 w-3 mr-1" /> Versions
               </TabsTrigger>
               <TabsTrigger
                 value="audit"
                 disabled={!selectedContent}
-                className="rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
+                className="shrink-0 whitespace-nowrap rounded-full px-3 py-1 data-[state=active]:bg-background data-[state=active]:shadow"
               >
                 <Activity className="h-3 w-3 mr-1" /> Audit
               </TabsTrigger>
