@@ -1,24 +1,84 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Copy, Search, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 
 type NameContentRow = {
   id: string;
   title: string;
   title_arabic: string | null;
+  /** Bengali meaning (legacy) */
   content: string | null;
+  /** English meaning */
   content_en: string | null;
+  /** Arabic meaning */
   content_arabic: string | null;
   category: string | null;
   metadata: unknown;
   created_at: string | null;
   order_index: number | null;
+};
+
+type NameMeta = {
+  source?: string;
+  origin?: string;
+  reference?: string;
+};
+
+const safeParseMeta = (meta: unknown): NameMeta => {
+  if (!meta || typeof meta !== "object") return {};
+  const m = meta as Record<string, unknown>;
+  const pick = (k: string) => (typeof m[k] === "string" ? (m[k] as string) : undefined);
+  return {
+    source: pick("source"),
+    origin: pick("origin"),
+    reference: pick("reference"),
+  };
+};
+
+const buildShareText = (n: NameContentRow) => {
+  const arabicName = n.title_arabic?.trim() || "";
+  const englishName = n.title?.trim() || "";
+  const meaningBn = n.content?.trim() || "";
+  const meaningEn = n.content_en?.trim() || "";
+  const meaningAr = n.content_arabic?.trim() || "";
+
+  const lines: string[] = [];
+  if (arabicName || englishName) lines.push([arabicName, englishName].filter(Boolean).join(" — "));
+  if (meaningBn) lines.push(`অর্থ (বাংলা): ${meaningBn}`);
+  if (meaningEn) lines.push(`Meaning (English): ${meaningEn}`);
+  if (meaningAr) lines.push(`المعنى (عربي): ${meaningAr}`);
+  if (n.category?.trim()) lines.push(`Category: ${n.category.trim()}`);
+
+  return lines.join("\n").trim();
+};
+
+const copyToClipboard = async (text: string, label = "Copied") => {
+  try {
+    if (!text.trim()) {
+      toast.error("কপি করার মতো টেক্সট নেই");
+      return;
+    }
+    await navigator.clipboard.writeText(text);
+    toast.success(label);
+  } catch {
+    toast.error("Copy failed", { description: "আপনার ব্রাউজার clipboard access ব্লক করেছে।" });
+  }
 };
 
 const fetchNames = async (): Promise<NameContentRow[]> => {
@@ -33,13 +93,13 @@ const fetchNames = async (): Promise<NameContentRow[]> => {
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  // Narrow type locally
   return (data ?? []) as unknown as NameContentRow[];
 };
 
 const NamesPage = () => {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const [selected, setSelected] = useState<NameContentRow | null>(null);
 
   const namesQuery = useQuery({
     queryKey: ["public-names"],
@@ -52,6 +112,7 @@ const NamesPage = () => {
     if (!query) return list;
 
     return list.filter((n) => {
+      const meta = safeParseMeta(n.metadata);
       const parts = [
         n.title,
         n.title_arabic ?? "",
@@ -59,10 +120,35 @@ const NamesPage = () => {
         n.content_en ?? "",
         n.content_arabic ?? "",
         n.category ?? "",
+        meta.source ?? "",
+        meta.origin ?? "",
       ];
       return parts.join(" ").toLowerCase().includes(query);
     });
   }, [namesQuery.data, q]);
+
+  const selectedMeta = useMemo(() => safeParseMeta(selected?.metadata), [selected?.metadata]);
+
+  const onShare = async (n: NameContentRow) => {
+    const text = buildShareText(n);
+    const url = window.location.href;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: n.title_arabic?.trim() ? `${n.title_arabic} (${n.title})` : n.title,
+          text,
+          url,
+        });
+        return;
+      }
+
+      // Fallback
+      await copyToClipboard(`${text}\n\n${url}`, "Copied share text");
+    } catch {
+      // user cancelled share or share failed
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -134,10 +220,20 @@ const NamesPage = () => {
             {filtered.map((n) => {
               const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
               const secondary = n.title_arabic?.trim() ? n.title : null;
-              const meaning = (n.content_en ?? n.content ?? n.content_arabic ?? "").trim();
+              const snippet = (n.content_en ?? n.content ?? n.content_arabic ?? "").trim();
 
               return (
-                <Card key={n.id}>
+                <Card
+                  key={n.id}
+                  className="cursor-pointer transition-colors hover:bg-muted/40"
+                  onClick={() => setSelected(n)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") setSelected(n);
+                  }}
+                  aria-label={`Open details for ${n.title}`}
+                >
                   <CardHeader className="py-3">
                     <CardTitle className="text-base leading-snug">
                       {primary}
@@ -145,10 +241,17 @@ const NamesPage = () => {
                         <span className="ml-2 text-sm font-medium text-muted-foreground">({secondary})</span>
                       ) : null}
                     </CardTitle>
+                    {n.category?.trim() ? (
+                      <div className="pt-1">
+                        <Badge variant="secondary" className="text-[11px]">
+                          {n.category}
+                        </Badge>
+                      </div>
+                    ) : null}
                   </CardHeader>
-                  {meaning ? (
+                  {snippet ? (
                     <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
-                      {meaning}
+                      {snippet}
                     </CardContent>
                   ) : null}
                 </Card>
@@ -157,6 +260,134 @@ const NamesPage = () => {
           </div>
         )}
       </main>
+
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-base">
+              {selected?.title_arabic?.trim() ? selected?.title_arabic : selected?.title}
+              {selected?.title_arabic?.trim() ? (
+                <span className="ml-2 text-sm font-medium text-muted-foreground">({selected?.title})</span>
+              ) : null}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selected?.category?.trim() ? (
+            <div className="-mt-1">
+              <Badge variant="secondary" className="text-[11px]">
+                {selected.category}
+              </Badge>
+            </div>
+          ) : null}
+
+          <div className="space-y-3 text-sm">
+            {selected?.content ? (
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">অর্থ (বাংলা)</p>
+                <p className="whitespace-pre-wrap">{selected.content}</p>
+                <div className="pt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(selected.content ?? "", "বাংলা অর্থ কপি হয়েছে")}
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+
+            {selected?.content_en ? (
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Meaning (English)</p>
+                <p className="whitespace-pre-wrap">{selected.content_en}</p>
+                <div className="pt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(selected.content_en ?? "", "English meaning copied")}
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+
+            {selected?.content_arabic ? (
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">المعنى (عربي)</p>
+                <p className="whitespace-pre-wrap leading-relaxed">{selected.content_arabic}</p>
+                <div className="pt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(selected.content_arabic ?? "", "Arabic meaning copied")}
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+
+            {(selectedMeta.source || selectedMeta.origin || selectedMeta.reference) && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground">Source</p>
+
+                  {selectedMeta.source ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Source</p>
+                      <p className="font-medium break-words">{selectedMeta.source}</p>
+                    </div>
+                  ) : null}
+
+                  {selectedMeta.origin ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Origin</p>
+                      <p className="font-medium break-words">{selectedMeta.origin}</p>
+                    </div>
+                  ) : null}
+
+                  {selectedMeta.reference ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Reference</p>
+                      <p className="font-medium break-words">{selectedMeta.reference}</p>
+                    </div>
+                  ) : null}
+                </div>
+              </>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!selected) return;
+                void copyToClipboard(buildShareText(selected), "Copied");
+              }}
+              disabled={!selected}
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copy all
+            </Button>
+            <Button
+              onClick={() => {
+                if (!selected) return;
+                void onShare(selected);
+              }}
+              disabled={!selected}
+            >
+              <Share2 className="mr-2 h-4 w-4" />
+              Share
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
