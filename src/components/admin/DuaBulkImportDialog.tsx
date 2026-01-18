@@ -23,6 +23,7 @@ import {
 type ImportResult = {
   total: number;
   inserted: number;
+  updated: number;
   skipped: number;
   invalid: number;
 };
@@ -75,16 +76,18 @@ export function DuaBulkImportDialog({
   const [rawItems, setRawItems] = useState<unknown[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
 
+  const [duplicateMode, setDuplicateMode] = useState<"skip" | "update">("skip");
+
   const [previewQuery, setPreviewQuery] = useState("");
   const [previewCategory, setPreviewCategory] = useState<string>("all");
   const [previewOnlyDuplicates, setPreviewOnlyDuplicates] = useState(false);
 
   const parsed = useMemo(() => {
     const valid: DuaImportItem[] = [];
-    const duplicates: DuaImportItem[] = [];
+    const duplicatesExisting: DuaImportItem[] = [];
+    const duplicatesInFile: DuaImportItem[] = [];
     const invalid: string[] = [];
     const seen = new Set<string>();
-    let skipped = 0;
 
     rawItems.forEach((item, idx) => {
       const res = duaImportItemSchema.safeParse(item);
@@ -95,20 +98,27 @@ export function DuaBulkImportDialog({
 
       const it = res.data;
       const key = makeKey(it.title, it.title_arabic);
-      if (existingKeys.has(key) || seen.has(key)) {
-        skipped += 1;
-        duplicates.push(it);
+
+      if (seen.has(key)) {
+        duplicatesInFile.push(it);
         return;
       }
+
+      if (existingKeys.has(key)) {
+        duplicatesExisting.push(it);
+        return;
+      }
+
       seen.add(key);
       valid.push(it);
     });
 
     return {
       valid,
-      duplicates,
+      duplicatesExisting,
+      duplicatesInFile,
+      duplicates: [...duplicatesExisting, ...duplicatesInFile],
       invalid,
-      skipped,
     };
   }, [rawItems, existingKeys]);
 
@@ -154,6 +164,7 @@ export function DuaBulkImportDialog({
     setErrors([]);
     setIsParsing(false);
     setIsImporting(false);
+    setDuplicateMode("skip");
     setPreviewQuery("");
     setPreviewCategory("all");
     setPreviewOnlyDuplicates(false);
@@ -210,47 +221,126 @@ export function DuaBulkImportDialog({
       return;
     }
 
-    if (!parsed.valid.length) {
-      toast({ title: "Import করার মতো valid item নেই", variant: "destructive" });
+    const canInsert = parsed.valid.length > 0;
+    const canUpdate = duplicateMode === "update" && parsed.duplicatesExisting.length > 0;
+
+    if (!canInsert && !canUpdate) {
+      toast({ title: "Import করার মতো item নেই", variant: "destructive" });
       return;
     }
 
+    const normalize = (v: string) => v.trim().toLowerCase();
+    const keyOf = (t: string, a?: string | null) => `${normalize(t)}||${normalize(a ?? "")}`;
+
+    const quote = (v: string) => `"${v.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")}"`;
+
+    const buildOrFilter = (items: DuaImportItem[]) =>
+      items
+        .map((it) => {
+          const t = quote(it.title.trim());
+          const a = (it.title_arabic ?? "").trim();
+          const aPart = a ? `title_arabic.eq.${quote(a)}` : "title_arabic.is.null";
+          return `and(title.eq.${t},${aPart})`;
+        })
+        .join(",");
+
     setIsImporting(true);
     try {
-      const rows = parsed.valid.map((it) => {
-        const meta: Record<string, string> = {};
-        if (it.source?.trim()) meta.source = it.source.trim();
-        if (it.reference?.trim()) meta.reference = it.reference.trim();
+      // 1) Insert new items
+      if (parsed.valid.length) {
+        const rows = parsed.valid.map((it) => {
+          const meta: Record<string, string> = {};
+          if (it.source?.trim()) meta.source = it.source.trim();
+          if (it.reference?.trim()) meta.reference = it.reference.trim();
 
-        return {
-          content_type: "dua",
-          title: it.title.trim(),
-          title_arabic: it.title_arabic?.trim() || null,
-          content: it.content_bn?.trim() || null,
-          content_en: it.content_en?.trim() || null,
-          content_pronunciation: it.pronunciation?.trim() || null,
-          category: it.category?.trim() || null,
-          metadata: Object.keys(meta).length ? meta : null,
-          status: "draft",
-          is_published: false,
-        };
-      });
+          return {
+            content_type: "dua",
+            title: it.title.trim(),
+            title_arabic: it.title_arabic?.trim() || null,
+            content: it.content_bn?.trim() || null,
+            content_en: it.content_en?.trim() || null,
+            content_pronunciation: it.pronunciation?.trim() || null,
+            category: it.category?.trim() || null,
+            metadata: Object.keys(meta).length ? meta : null,
+            status: "draft",
+            is_published: false,
+          };
+        });
 
-      for (const part of chunk(rows, 200)) {
-        const { error } = await supabase.from("admin_content").insert(part);
-        if (error) throw error;
+        for (const part of chunk(rows, 200)) {
+          const { error } = await supabase.from("admin_content").insert(part);
+          if (error) throw error;
+        }
       }
+
+      // 2) Update duplicates (existing rows)
+      let updated = 0;
+      let notFound = 0;
+
+      if (duplicateMode === "update" && parsed.duplicatesExisting.length) {
+        for (const group of chunk(parsed.duplicatesExisting, 25)) {
+          const orFilter = buildOrFilter(group);
+          const { data, error } = await supabase
+            .from("admin_content")
+            .select("id,title,title_arabic,metadata")
+            .eq("content_type", "dua")
+            .or(orFilter);
+
+          if (error) throw error;
+
+          const byKey = new Map<string, { id: string; metadata: unknown }>();
+          (data ?? []).forEach((row: any) => {
+            byKey.set(keyOf(row.title, row.title_arabic), { id: row.id, metadata: row.metadata });
+          });
+
+          // Update sequentially to avoid bursts
+          for (const it of group) {
+            const hit = byKey.get(keyOf(it.title, it.title_arabic ?? null));
+            if (!hit) {
+              notFound += 1;
+              continue;
+            }
+
+            const baseMeta = hit.metadata && typeof hit.metadata === "object" ? { ...(hit.metadata as any) } : {};
+            if (it.source?.trim()) baseMeta.source = it.source.trim();
+            if (it.reference?.trim()) baseMeta.reference = it.reference.trim();
+
+            const payload = {
+              title: it.title.trim(),
+              title_arabic: it.title_arabic?.trim() || null,
+              content: it.content_bn?.trim() || null,
+              content_en: it.content_en?.trim() || null,
+              content_pronunciation: it.pronunciation?.trim() || null,
+              category: it.category?.trim() || null,
+              metadata: Object.keys(baseMeta).length ? baseMeta : null,
+              // keep draft/unpublished to match existing import behavior
+              status: "draft",
+              is_published: false,
+            };
+
+            const { error: updateError } = await supabase
+              .from("admin_content")
+              .update(payload)
+              .eq("id", hit.id);
+            if (updateError) throw updateError;
+            updated += 1;
+          }
+        }
+      }
+
+      const skipped = parsed.duplicatesInFile.length + (duplicateMode === "skip" ? parsed.duplicatesExisting.length : 0) + notFound;
 
       const result: ImportResult = {
         total: rawItems.length,
         inserted: parsed.valid.length,
-        skipped: parsed.skipped,
+        updated,
+        skipped,
         invalid: parsed.invalid.length,
       };
 
       toast({
         title: "Import done",
-        description: `Inserted ${result.inserted}, skipped ${result.skipped}, invalid ${result.invalid}`,
+        description: `Inserted ${result.inserted}, updated ${result.updated}, skipped ${result.skipped}, invalid ${result.invalid}`,
       });
 
       onImported?.(result);
@@ -269,7 +359,7 @@ export function DuaBulkImportDialog({
         <DialogHeader>
           <DialogTitle>Bulk Import — Dua (JSON)</DialogTitle>
           <DialogDescription>
-            এক বা একাধিক JSON ফাইল দিন (root array). Duplicate (title + title_arabic) হলে Skip হবে।
+            এক বা একাধিক JSON ফাইল দিন (root array). Duplicate (title + title_arabic) হলে Skip বা Update হবে (mode অনুযায়ী)।
           </DialogDescription>
         </DialogHeader>
 
@@ -308,16 +398,31 @@ export function DuaBulkImportDialog({
 
           {rawItems.length ? (
             <Card className="p-3 text-sm">
-              <div className="flex flex-wrap gap-x-4 gap-y-1">
-                <span>Total: {rawItems.length}</span>
-                <span className="text-foreground">Valid: {parsed.valid.length}</span>
-                <span className="text-muted-foreground">Skipped: {parsed.skipped}</span>
-                <span className="text-destructive">Invalid: {parsed.invalid.length}</span>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  <span>Total: {rawItems.length}</span>
+                  <span className="text-foreground">New: {parsed.valid.length}</span>
+                  <span className="text-foreground">Dup existing: {parsed.duplicatesExisting.length}</span>
+                  <span className="text-muted-foreground">Dup in file: {parsed.duplicatesInFile.length}</span>
+                  <span className="text-destructive">Invalid: {parsed.invalid.length}</span>
+                </div>
+
+                <div className="w-full sm:w-[220px]">
+                  <Select value={duplicateMode} onValueChange={(v) => setDuplicateMode(v as any)}>
+                    <SelectTrigger aria-label="Duplicate mode">
+                      <SelectValue placeholder="Duplicate mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="skip">Duplicates: Skip</SelectItem>
+                      <SelectItem value="update">Duplicates: Update</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </Card>
           ) : null}
 
-          {parsed.valid.length ? (
+          {parsed.valid.length || parsed.duplicates.length ? (
             <Card className="p-3">
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -325,7 +430,9 @@ export function DuaBulkImportDialog({
                     <p className="text-sm font-medium">Preview (first 20)</p>
                     {previewOnlyDuplicates ? (
                       <p className="text-xs text-muted-foreground">
-                        Showing duplicates that will be skipped ({parsed.duplicates.length})
+                        {duplicateMode === "update"
+                          ? `Showing duplicates (existing: ${parsed.duplicatesExisting.length}, in file: ${parsed.duplicatesInFile.length})`
+                          : `Showing duplicates that will be skipped (${parsed.duplicates.length})`}
                       </p>
                     ) : null}
                   </div>
@@ -360,7 +467,9 @@ export function DuaBulkImportDialog({
                 <div className="flex items-center justify-between gap-3 rounded-md border border-border p-2">
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium">Only duplicates</p>
-                    <p className="text-xs text-muted-foreground">এইগুলো import এ Skip হবে</p>
+                    <p className="text-xs text-muted-foreground">
+                      {duplicateMode === "update" ? "existing duplicates update হবে" : "এইগুলো import এ Skip হবে"}
+                    </p>
                   </div>
                   <Switch
                     checked={previewOnlyDuplicates}
