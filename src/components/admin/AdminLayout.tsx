@@ -34,15 +34,22 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <ProtectedRoute>
-      <div className="admin-compact flex min-h-screen bg-background">
+      <div className="admin-compact flex min-h-screen w-full bg-background">
+        <a
+          href="#admin-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow"
+        >
+          Skip to content
+        </a>
+
         {/* Desktop sidebar */}
         <div className="hidden md:block">
           <AdminSidebar />
         </div>
 
-        <main className="flex-1 overflow-auto">
+        <main className="min-w-0 flex-1 overflow-auto">
           {/* Mobile top app bar */}
-          <div className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background/80 px-3 py-3 backdrop-blur md:hidden">
+          <div className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background/95 px-3 py-2 backdrop-blur md:hidden">
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 NOOR Admin
@@ -52,7 +59,12 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" aria-label="Open admin menu">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="Open admin menu"
+                  className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -63,7 +75,10 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           </div>
 
           {/* Content padding includes mobile bottom-tab safe area */}
-          <div className="container mx-auto px-3 py-4 pb-24 sm:px-4 sm:py-6 md:pb-6 lg:px-6">
+          <div
+            id="admin-content"
+            className="container mx-auto px-3 py-4 pb-24 sm:px-4 sm:py-6 md:pb-6 lg:px-6"
+          >
             {children}
           </div>
 

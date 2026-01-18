@@ -129,14 +129,12 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
   }, [location.pathname]);
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-border bg-card">
-      <div className="border-b border-border px-3 py-3">
+    <aside className="flex h-full w-64 flex-col border-r border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+      <div className="sticky top-0 z-10 border-b border-border bg-card/95 px-3 py-3 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <h2 className="text-sm font-semibold leading-tight text-foreground">NOOR Admin</h2>
-            <p className="mt-1 truncate text-[11px] text-muted-foreground">
-              {user?.email}
-            </p>
+            <p className="mt-1 truncate text-[11px] text-muted-foreground">{user?.email}</p>
           </div>
           <div className="hidden md:flex">
             <Button
@@ -144,6 +142,7 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
               size="icon"
               aria-label="Go to Dashboard"
               onClick={() => navigate('/admin/dashboard')}
+              className="focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Zap className="h-4 w-4" />
             </Button>
@@ -201,9 +200,10 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
       </div>
 
       <ScrollArea className="flex-1 px-2 py-3">
-        <nav ref={navRef} className="space-y-3">
+        <nav ref={navRef} className="space-y-3" aria-label="Admin navigation">
           {sections.map((section) => {
             const isOpen = openSections[section.title] ?? false;
+            const isActiveSection = section.title === activeSectionTitle;
 
             return (
               <Collapsible
@@ -220,11 +220,18 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
                   <CollapsibleTrigger asChild>
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground hover:bg-muted/50"
+                      className={cn(
+                        "flex w-full items-center justify-between gap-2 rounded-md px-2 py-1 text-[11px] font-medium uppercase tracking-wide transition-colors",
+                        "hover:bg-muted/60",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                        isActiveSection ? "bg-muted/60 text-foreground" : "text-muted-foreground",
+                      )}
                       aria-label={`${section.title} section`}
                     >
                       <span>{section.title}</span>
-                      <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-180')} />
+                      <ChevronDown
+                        className={cn('h-3.5 w-3.5 transition-transform', isOpen && 'rotate-180')}
+                      />
                     </button>
                   </CollapsibleTrigger>
 
@@ -238,6 +245,7 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
                           className={cn(
                             "relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] text-muted-foreground transition-colors",
                             "hover:bg-muted hover:text-foreground",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                           )}
                           activeClassName={cn(
                             "bg-muted text-foreground",
