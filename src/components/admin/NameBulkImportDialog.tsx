@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -78,9 +79,11 @@ export function NameBulkImportDialog({
 
   const [previewQuery, setPreviewQuery] = useState("");
   const [previewCategory, setPreviewCategory] = useState<string>("all");
+  const [previewOnlyDuplicates, setPreviewOnlyDuplicates] = useState(false);
 
   const parsed = useMemo(() => {
     const valid: NameImportItem[] = [];
+    const duplicates: NameImportItem[] = [];
     const invalid: string[] = [];
     const seen = new Set<string>();
     let skipped = 0;
@@ -96,6 +99,7 @@ export function NameBulkImportDialog({
       const key = makeKey(it.title, it.title_arabic);
       if (existingKeys.has(key) || seen.has(key)) {
         skipped += 1;
+        duplicates.push(it);
         return;
       }
       seen.add(key);
@@ -104,26 +108,32 @@ export function NameBulkImportDialog({
 
     return {
       valid,
+      duplicates,
       invalid,
       skipped,
     };
   }, [rawItems, existingKeys]);
 
+  const previewBaseList = useMemo(
+    () => (previewOnlyDuplicates ? parsed.duplicates : parsed.valid),
+    [parsed.duplicates, parsed.valid, previewOnlyDuplicates]
+  );
+
   const previewCategories = useMemo(() => {
     const set = new Set<string>();
-    for (const it of parsed.valid) {
+    for (const it of previewBaseList) {
       const c = (it.category ?? "").trim();
       if (c) set.add(c);
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [parsed.valid]);
+  }, [previewBaseList]);
 
   const previewFiltered = useMemo(() => {
     const q = previewQuery.trim().toLowerCase();
     const list =
       previewCategory === "all"
-        ? parsed.valid
-        : parsed.valid.filter((it) => (it.category ?? "").trim() === previewCategory);
+        ? previewBaseList
+        : previewBaseList.filter((it) => (it.category ?? "").trim() === previewCategory);
 
     if (!q) return list;
 
@@ -139,7 +149,7 @@ export function NameBulkImportDialog({
       ];
       return parts.join(" ").toLowerCase().includes(q);
     });
-  }, [parsed.valid, previewCategory, previewQuery]);
+  }, [previewBaseList, previewCategory, previewQuery]);
 
   const reset = () => {
     setFiles([]);
@@ -149,6 +159,7 @@ export function NameBulkImportDialog({
     setIsImporting(false);
     setPreviewQuery("");
     setPreviewCategory("all");
+    setPreviewOnlyDuplicates(false);
   };
 
   const handleClose = (nextOpen: boolean) => {
@@ -317,7 +328,14 @@ export function NameBulkImportDialog({
             <Card className="p-3">
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-sm font-medium">Preview (first 20)</p>
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Preview (first 20)</p>
+                    {previewOnlyDuplicates ? (
+                      <p className="text-xs text-muted-foreground">
+                        Showing duplicates that will be skipped ({parsed.duplicates.length})
+                      </p>
+                    ) : null}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     Showing {Math.min(20, previewFiltered.length)} of {previewFiltered.length}
                   </p>
@@ -344,6 +362,22 @@ export function NameBulkImportDialog({
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 rounded-md border border-border p-2">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Only duplicates</p>
+                    <p className="text-xs text-muted-foreground">এইগুলো import এ Skip হবে</p>
+                  </div>
+                  <Switch
+                    checked={previewOnlyDuplicates}
+                    onCheckedChange={(v) => {
+                      setPreviewOnlyDuplicates(v);
+                      setPreviewCategory("all");
+                      setPreviewQuery("");
+                    }}
+                    aria-label="Only duplicates"
+                  />
                 </div>
               </div>
 
