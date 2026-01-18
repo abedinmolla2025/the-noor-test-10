@@ -16,9 +16,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
-import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen } from 'lucide-react';
+import { Plus, Edit, Trash2, Workflow, History, Activity, BookOpen, Upload } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
+import { NameBulkImportDialog } from '@/components/admin/NameBulkImportDialog';
 
 interface AdminContentRow {
   id: string;
@@ -124,6 +125,7 @@ export default function AdminContent() {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'edit' | 'workflow' | 'versions' | 'audit'>('edit');
+  const [isNameImportOpen, setIsNameImportOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     content_type: 'dua',
     title: '',
@@ -167,6 +169,18 @@ export default function AdminContent() {
     () => content?.find((item) => item.id === selectedId) ?? null,
     [content, selectedId]
   );
+
+  const existingNameKeys = useMemo(() => {
+    const keyOf = (title: string, titleArabic?: string | null) =>
+      `${title.trim().toLowerCase()}||${(titleArabic ?? '').trim().toLowerCase()}`;
+
+    const set = new Set<string>();
+    for (const item of content ?? []) {
+      if (item.content_type !== 'name') continue;
+      set.add(keyOf(item.title, item.title_arabic));
+    }
+    return set;
+  }, [content]);
 
   // Load versions for selected content
   const { data: versions } = useQuery<ContentVersionRow[]>({
@@ -545,24 +559,45 @@ export default function AdminContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex-1">
-          <AdminPageHeader
-            title="Content Management"
-            description="Manage Quran, Dua, Hadith and other content with workflow, versions, and audit."
-            icon={BookOpen}
-          />
-        </div>
-        <Button
-          onClick={() => {
-            resetEditForm();
-            setActiveTab('edit');
-          }}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Content
-        </Button>
-      </div>
+      <AdminPageHeader
+        title="Content Management"
+        description="Manage Quran, Dua, Hadith and other content with workflow, versions, and audit."
+        icon={BookOpen}
+        actions={
+          <>
+            <Button
+              onClick={() => {
+                resetEditForm();
+                setActiveTab('edit');
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Content
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsNameImportOpen(true)}
+              disabled={!canEdit}
+              title={!canEdit ? 'No permission' : undefined}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Import Names (JSON)
+            </Button>
+          </>
+        }
+      />
+
+      <NameBulkImportDialog
+        open={isNameImportOpen}
+        onOpenChange={setIsNameImportOpen}
+        canEdit={canEdit}
+        existingKeys={existingNameKeys}
+        onImported={() => {
+          queryClient.invalidateQueries({ queryKey: ['admin-content'] });
+        }}
+      />
 
       <Card className="shadow-sm border-border/80">
         <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
