@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -271,6 +272,50 @@ export function NameBulkImportDialog({
                   Invalid rows will be ignored (first 5 shown on import error list).
                 </p>
               ) : null}
+            </Card>
+          ) : null}
+
+          {parsed.valid.length ? (
+            <Card className="p-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-medium">Preview (first 20)</p>
+                <p className="text-xs text-muted-foreground">Showing {Math.min(20, parsed.valid.length)} of {parsed.valid.length}</p>
+              </div>
+
+              <div className="mt-2 overflow-auto">
+                <Table className="min-w-[980px] text-xs">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="whitespace-nowrap">Title</TableHead>
+                      <TableHead className="whitespace-nowrap">Arabic</TableHead>
+                      <TableHead className="whitespace-nowrap">Bangla name</TableHead>
+                      <TableHead className="whitespace-nowrap">Meaning (BN)</TableHead>
+                      <TableHead className="whitespace-nowrap">Meaning (EN)</TableHead>
+                      <TableHead className="whitespace-nowrap">Meaning (AR)</TableHead>
+                      <TableHead className="whitespace-nowrap">Category</TableHead>
+                      <TableHead className="whitespace-nowrap">Source</TableHead>
+                      <TableHead className="whitespace-nowrap">Origin</TableHead>
+                      <TableHead className="whitespace-nowrap">Reference</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {parsed.valid.slice(0, 20).map((it, idx) => (
+                      <TableRow key={`${it.title}-${idx}`}>
+                        <TableCell className="font-medium whitespace-nowrap">{it.title}</TableCell>
+                        <TableCell className="whitespace-nowrap">{it.title_arabic ?? ""}</TableCell>
+                        <TableCell className="whitespace-nowrap">{it.bn_name ?? ""}</TableCell>
+                        <TableCell className="min-w-[240px]">{it.meaning_bn ?? ""}</TableCell>
+                        <TableCell className="min-w-[240px]">{it.meaning_en ?? ""}</TableCell>
+                        <TableCell className="min-w-[240px]">{it.meaning_ar ?? ""}</TableCell>
+                        <TableCell className="whitespace-nowrap">{it.category ?? ""}</TableCell>
+                        <TableCell className="whitespace-nowrap">{it.source ?? ""}</TableCell>
+                        <TableCell className="whitespace-nowrap">{it.origin ?? ""}</TableCell>
+                        <TableCell className="whitespace-nowrap">{it.reference ?? ""}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </Card>
           ) : null}
         </div>
