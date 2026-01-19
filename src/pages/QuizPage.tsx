@@ -101,6 +101,8 @@ const QuizPage = () => {
     return saved ?? "mixed";
   });
   const [currentDate, setCurrentDate] = useState(() => new Date().toDateString());
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [isTimeUp, setIsTimeUp] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -145,7 +147,7 @@ const QuizPage = () => {
   }, [currentDate]);
 
   const handleAnswerSelect = (answerIndex: number) => {
-    if (showResult) return;
+    if (showResult || isTimeUp) return;
     setSelectedAnswer(answerIndex);
   };
 
@@ -167,6 +169,8 @@ const QuizPage = () => {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer(null);
       setShowResult(false);
+      setTimeLeft(30);
+      setIsTimeUp(false);
     } else {
       // Quiz completed - add points for each question
       const earnedPoints = score * 10 + (score === 5 ? 20 : 0); // 10 per correct, +20 bonus for perfect score
@@ -194,6 +198,8 @@ const QuizPage = () => {
     setShowResult(false);
     setScore(0);
     setQuizCompleted(false);
+    setTimeLeft(30);
+    setIsTimeUp(false);
   };
 
   if (loading || questionsLoading) {
@@ -219,6 +225,32 @@ const QuizPage = () => {
 
   const currentQuestion = dailyQuestions[currentQuestionIndex];
   const earnedBadges = badges.filter(b => progress.totalPoints >= b.requirement);
+
+  // Timer effect
+  useEffect(() => {
+    if (quizCompleted || playedToday || !currentQuestion || showResult) {
+      return;
+    }
+
+    if (timeLeft === 0) {
+      setIsTimeUp(true);
+      setShowResult(true);
+      playSfx("wrong");
+      
+      // Auto advance to next question after 3 seconds
+      const autoNextTimer = setTimeout(() => {
+        handleNextQuestion();
+      }, 3000);
+      
+      return () => clearTimeout(autoNextTimer);
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, quizCompleted, playedToday, currentQuestion, showResult]);
 
   return (
     <div className="font-quizEn min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
@@ -459,13 +491,31 @@ const QuizPage = () => {
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: -50, opacity: 0 }}
                 >
-                  {/* Progress */}
-                  <div className="mb-4">
+                  {/* Progress & Timer */}
+                  <div className="mb-4 space-y-3">
                     <div className="flex justify-between text-sm mb-2">
                       <span>Question {currentQuestionIndex + 1}/5</span>
                       <span>Score: {score}</span>
                     </div>
                     <Progress value={((currentQuestionIndex + 1) / 5) * 100} className="h-2" />
+                    
+                    {/* Timer */}
+                    <div className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                      timeLeft <= 5 
+                        ? "bg-red-500/10 border-red-500/50 animate-pulse" 
+                        : timeLeft <= 10
+                        ? "bg-amber-500/10 border-amber-500/50"
+                        : "bg-primary/10 border-primary/20"
+                    }`}>
+                      <Clock className={`w-5 h-5 ${
+                        timeLeft <= 5 ? "text-red-500" : timeLeft <= 10 ? "text-amber-500" : "text-primary"
+                      }`} />
+                      <span className={`text-2xl font-bold font-mono ${
+                        timeLeft <= 5 ? "text-red-500" : timeLeft <= 10 ? "text-amber-500" : "text-primary"
+                      }`}>
+                        {timeLeft}s
+                      </span>
+                    </div>
                   </div>
 
                   <Card className="mb-3">
@@ -545,10 +595,30 @@ const QuizPage = () => {
 
                 {showResult && currentQuestion && (
                   <div className="mb-4">
-                    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm">
-                      <p className="font-semibold flex items-center gap-2 mb-1">
-                        <Sparkles className="w-4 h-4 text-emerald-500" />
-                        Correct answer explanation
+                    <div className={`rounded-xl border p-4 text-sm ${
+                      isTimeUp 
+                        ? "border-red-500/30 bg-red-500/5"
+                        : selectedAnswer === currentQuestion.correctAnswer
+                        ? "border-emerald-500/30 bg-emerald-500/5"
+                        : "border-amber-500/30 bg-amber-500/5"
+                    }`}>
+                      <p className="font-semibold flex items-center gap-2 mb-2">
+                        {isTimeUp ? (
+                          <>
+                            <Clock className="w-4 h-4 text-red-500" />
+                            <span className="text-red-600 dark:text-red-400">Time's up!</span>
+                          </>
+                        ) : selectedAnswer === currentQuestion.correctAnswer ? (
+                          <>
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                            <span className="text-emerald-600 dark:text-emerald-400">Correct answer!</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-4 h-4 text-amber-500" />
+                            <span className="text-amber-600 dark:text-amber-400">Wrong answer</span>
+                          </>
+                        )}
                       </p>
                       <p
                         className={`text-muted-foreground text-[13px] ${
@@ -557,10 +627,17 @@ const QuizPage = () => {
                             : "font-quizEn"
                         }`}
                       >
-                        {selectedAnswer === currentQuestion.correctAnswer
+                        {isTimeUp 
+                          ? "সময় শেষ! সঠিক উত্তর দেখানো হচ্ছে।"
+                          : selectedAnswer === currentQuestion.correctAnswer
                           ? "সঠিক! ✓"
-                          : "ভুল উত্তর"}
+                          : "ভুল উত্তর। সঠিক উত্তর দেখানো হচ্ছে।"}
                       </p>
+                      {isTimeUp && (
+                        <p className="text-xs text-muted-foreground mt-2 font-medium">
+                          Auto-advancing in 3 seconds...
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -568,19 +645,19 @@ const QuizPage = () => {
                   {!showResult ? (
                     <Button
                       onClick={handleSubmitAnswer}
-                      disabled={selectedAnswer === null}
+                      disabled={selectedAnswer === null || isTimeUp}
                       className="w-full h-12 text-lg"
                     >
                       Submit answer
                     </Button>
-                  ) : (
+                  ) : !isTimeUp ? (
                     <Button
                       onClick={handleNextQuestion}
                       className="w-full h-12 text-lg bg-gradient-to-r from-primary to-amber-500"
                     >
                       {currentQuestionIndex < 4 ? "Next question" : "View result"}
                     </Button>
-                  )}
+                  ) : null}
                 </motion.div>
               ) : null}
             </motion.div>
