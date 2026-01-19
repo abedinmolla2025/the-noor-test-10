@@ -110,15 +110,18 @@ const Index = () => {
           el: (
             <div className="space-y-4">
               <AudioRecitationCard />
-              <Card>
+              <Card className="bg-gradient-to-br from-emerald-100 via-teal-100 to-amber-100 dark:from-emerald-950 dark:via-teal-950 dark:to-amber-950 border-2 border-emerald-200 dark:border-emerald-800 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-base">Quiz</CardTitle>
-                  <CardDescription className="text-sm">
+                  <CardTitle className="text-base text-emerald-900 dark:text-emerald-100">Quiz</CardTitle>
+                  <CardDescription className="text-sm text-emerald-700 dark:text-emerald-300">
                     আপনার জ্ঞান যাচাই করুন — ছোট ইসলামিক কুইজ খেলুন।
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={() => navigate("/quiz")} className="w-full">
+                  <Button 
+                    onClick={() => navigate("/quiz")} 
+                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md"
+                  >
                     Start Quiz
                   </Button>
                 </CardContent>
