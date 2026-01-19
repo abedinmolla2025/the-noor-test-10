@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import BottomNavigation from "@/components/BottomNavigation";
-import { ArrowLeft, Trophy, Star, Medal, Crown, Zap, CheckCircle2, XCircle, Sparkles, Target, TrendingUp } from "lucide-react";
+import { ArrowLeft, Trophy, Star, Medal, Crown, Zap, CheckCircle2, XCircle, Sparkles, Target, TrendingUp, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { playSfx } from "@/utils/quizSfx";
 import { StarBadge, TrophyBadge, MedalBadge, CrownBadge, SparklesBadge } from "@/components/BadgeIcons";
 import Confetti from "react-confetti";
 import { useQuizProgress } from "@/hooks/useQuizProgress";
+import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
 
 interface QuizQuestion {
   id: number;
@@ -498,6 +499,7 @@ type LanguageMode = "en" | "bn" | "mixed";
 const QuizPage = () => {
   const navigate = useNavigate();
   const { progress, addPoints, hasPlayedToday, getAccuracy } = useQuizProgress();
+  const countdown = useCountdownToMidnight();
   const [activeTab, setActiveTab] = useState<"quiz" | "leaderboard" | "badges">("quiz");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -546,6 +548,13 @@ const QuizPage = () => {
       return Math.sin(hash) - 0.5;
     });
     setDailyQuestions(shuffled.slice(0, 3));
+    
+    // Reset quiz state when date changes (new day = new quiz)
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setShowResult(false);
+    setScore(0);
+    setQuizCompleted(false);
   }, [currentDate]);
 
   const handleAnswerSelect = (answerIndex: number) => {
@@ -727,11 +736,15 @@ const QuizPage = () => {
                 <Card className="text-center py-8">
                   <CardContent>
                     <CheckCircle2 className="w-16 h-16 mx-auto text-emerald-500 mb-4" />
-                    <h2 className="text-xl font-bold mb-2">Today's quiz completed!</h2>
-                    <p className="text-muted-foreground">Come back tomorrow for new questions.</p>
-                    <div className="mt-4 p-4 bg-primary/10 rounded-xl">
-                      <p className="text-sm">Next quiz:</p>
-                      <p className="text-lg font-bold text-primary">Tomorrow 12:00 AM</p>
+                    <h2 className="text-xl font-bold mb-2">আজকের কুইজ সম্পূর্ণ হয়েছে! ✅</h2>
+                    <p className="text-muted-foreground mb-4">আগামীকাল নতুন প্রশ্নের জন্য ফিরে আসুন।</p>
+                    <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-amber-500/10 rounded-xl border border-primary/20">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <Clock className="w-4 h-4 text-primary" />
+                        <p className="text-sm font-medium text-muted-foreground">পরবর্তী কুইজ পাওয়া যাবে:</p>
+                      </div>
+                      <p className="text-2xl font-bold text-primary font-mono">{countdown}</p>
+                      <p className="text-xs text-muted-foreground mt-1">ঘণ্টা:মিনিট:সেকেন্ড</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -818,10 +831,16 @@ const QuizPage = () => {
                         </div>
                       </div>
                       
-                      <p className="text-muted-foreground mb-2">Come back tomorrow for new questions!</p>
-                      <p className="text-xs text-muted-foreground">
-                        Learn slowly, a little improvement every day becomes a big change.
-                      </p>
+                      <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-amber-500/10 rounded-xl border border-primary/20">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Clock className="w-4 h-4 text-primary" />
+                          <p className="text-sm font-medium text-muted-foreground">পরবর্তী কুইজ পাওয়া যাবে:</p>
+                        </div>
+                        <p className="text-2xl font-bold text-primary font-mono">{countdown}</p>
+                        <p className="text-xs text-muted-foreground mt-1">ঘণ্টা:মিনিট:সেকেন্ড</p>
+                      </div>
+
+                      <p className="text-muted-foreground text-sm mt-4">প্রতিদিন একটু একটু উন্নতিই বড় পরিবর্তন আনে।</p>
                     </CardContent>
                   </Card>
                 </motion.div>

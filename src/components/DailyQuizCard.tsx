@@ -2,12 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Zap, Flame } from "lucide-react";
+import { Trophy, Zap, Flame, Clock } from "lucide-react";
 import { useQuizProgress } from "@/hooks/useQuizProgress";
+import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
 
 export const DailyQuizCard = () => {
   const navigate = useNavigate();
   const { progress, hasPlayedToday } = useQuizProgress();
+  const countdown = useCountdownToMidnight();
+  const playedToday = hasPlayedToday();
 
   return (
     <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card to-card/50">
@@ -54,17 +57,30 @@ export const DailyQuizCard = () => {
         </div>
 
         {/* CTA Button */}
-        {hasPlayedToday() ? (
-          <Button
-            disabled
-            className="w-full bg-muted text-muted-foreground font-semibold"
-            size="lg"
-          >
-            <span className="flex items-center gap-2">
-              ✅ আজকের কুইজ সম্পূর্ণ
-              <span className="text-xs opacity-70">• আগামীকাল ফিরে আসুন</span>
-            </span>
-          </Button>
+        {playedToday ? (
+          <div className="space-y-3">
+            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-2xl">✅</span>
+                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                  আজকের কুইজ সম্পূর্ণ!
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <Clock className="w-3 h-3 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">পরবর্তী কুইজ:</p>
+                <p className="text-sm font-bold text-primary font-mono">{countdown}</p>
+              </div>
+            </div>
+            <Button
+              onClick={() => navigate("/quiz")}
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
+              ফলাফল এবং ব্যাজ দেখুন
+            </Button>
+          </div>
         ) : (
           <Button
             onClick={() => navigate("/quiz")}
