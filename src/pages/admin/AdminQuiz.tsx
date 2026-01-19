@@ -29,6 +29,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Upload } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -37,7 +38,11 @@ import { QuizBulkImportDialog } from "@/components/admin/QuizBulkImportDialog";
 type QuizQuestion = {
   id: string;
   question: string;
+  question_en: string | null;
+  question_bn: string | null;
   options: string[];
+  options_en: string[] | null;
+  options_bn: string[] | null;
   correct_answer: number;
   category: string;
   difficulty: string;
@@ -67,11 +72,16 @@ export default function AdminQuiz() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<QuizQuestion | null>(null);
   const [formData, setFormData] = useState({
-    question: "",
-    option1: "",
-    option2: "",
-    option3: "",
-    option4: "",
+    question_en: "",
+    question_bn: "",
+    option1_en: "",
+    option2_en: "",
+    option3_en: "",
+    option4_en: "",
+    option1_bn: "",
+    option2_bn: "",
+    option3_bn: "",
+    option4_bn: "",
     correct_answer: 0,
     category: "Quran",
     difficulty: "medium",
@@ -95,12 +105,26 @@ export default function AdminQuiz() {
     mutationFn: async (newQuestion: any) => {
       const { error } = await supabase.from("quiz_questions").insert([
         {
-          question: newQuestion.question,
+          question: newQuestion.question_en || newQuestion.question_bn || "Untitled",
+          question_en: newQuestion.question_en,
+          question_bn: newQuestion.question_bn,
           options: [
-            newQuestion.option1,
-            newQuestion.option2,
-            newQuestion.option3,
-            newQuestion.option4,
+            newQuestion.option1_en || newQuestion.option1_bn,
+            newQuestion.option2_en || newQuestion.option2_bn,
+            newQuestion.option3_en || newQuestion.option3_bn,
+            newQuestion.option4_en || newQuestion.option4_bn,
+          ],
+          options_en: [
+            newQuestion.option1_en,
+            newQuestion.option2_en,
+            newQuestion.option3_en,
+            newQuestion.option4_en,
+          ],
+          options_bn: [
+            newQuestion.option1_bn,
+            newQuestion.option2_bn,
+            newQuestion.option3_bn,
+            newQuestion.option4_bn,
           ],
           correct_answer: newQuestion.correct_answer,
           category: newQuestion.category,
@@ -128,12 +152,26 @@ export default function AdminQuiz() {
       const { error } = await supabase
         .from("quiz_questions")
         .update({
-          question: updatedQuestion.question,
+          question: updatedQuestion.question_en || updatedQuestion.question_bn || "Untitled",
+          question_en: updatedQuestion.question_en,
+          question_bn: updatedQuestion.question_bn,
           options: [
-            updatedQuestion.option1,
-            updatedQuestion.option2,
-            updatedQuestion.option3,
-            updatedQuestion.option4,
+            updatedQuestion.option1_en || updatedQuestion.option1_bn,
+            updatedQuestion.option2_en || updatedQuestion.option2_bn,
+            updatedQuestion.option3_en || updatedQuestion.option3_bn,
+            updatedQuestion.option4_en || updatedQuestion.option4_bn,
+          ],
+          options_en: [
+            updatedQuestion.option1_en,
+            updatedQuestion.option2_en,
+            updatedQuestion.option3_en,
+            updatedQuestion.option4_en,
+          ],
+          options_bn: [
+            updatedQuestion.option1_bn,
+            updatedQuestion.option2_bn,
+            updatedQuestion.option3_bn,
+            updatedQuestion.option4_bn,
           ],
           correct_answer: updatedQuestion.correct_answer,
           category: updatedQuestion.category,
@@ -172,11 +210,16 @@ export default function AdminQuiz() {
 
   const resetForm = () => {
     setFormData({
-      question: "",
-      option1: "",
-      option2: "",
-      option3: "",
-      option4: "",
+      question_en: "",
+      question_bn: "",
+      option1_en: "",
+      option2_en: "",
+      option3_en: "",
+      option4_en: "",
+      option1_bn: "",
+      option2_bn: "",
+      option3_bn: "",
+      option4_bn: "",
       correct_answer: 0,
       category: "Quran",
       difficulty: "medium",
@@ -186,12 +229,19 @@ export default function AdminQuiz() {
 
   const handleEdit = (question: QuizQuestion) => {
     setEditingQuestion(question);
+    const optionsEn = question.options_en || question.options || [];
+    const optionsBn = question.options_bn || [];
     setFormData({
-      question: question.question,
-      option1: question.options[0] || "",
-      option2: question.options[1] || "",
-      option3: question.options[2] || "",
-      option4: question.options[3] || "",
+      question_en: question.question_en || question.question || "",
+      question_bn: question.question_bn || "",
+      option1_en: optionsEn[0] || "",
+      option2_en: optionsEn[1] || "",
+      option3_en: optionsEn[2] || "",
+      option4_en: optionsEn[3] || "",
+      option1_bn: optionsBn[0] || "",
+      option2_bn: optionsBn[1] || "",
+      option3_bn: optionsBn[2] || "",
+      option4_bn: optionsBn[3] || "",
       correct_answer: question.correct_answer,
       category: question.category,
       difficulty: question.difficulty,
@@ -243,32 +293,66 @@ export default function AdminQuiz() {
                   </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="question">Question</Label>
-                    <Textarea
-                      id="question"
-                      value={formData.question}
-                      onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                      required
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4">
-                    {[1, 2, 3, 4].map((num) => (
-                      <div key={num} className="space-y-2">
-                        <Label htmlFor={`option${num}`}>Option {num}</Label>
-                        <Input
-                          id={`option${num}`}
-                          value={formData[`option${num}` as keyof typeof formData] as string}
-                          onChange={(e) =>
-                            setFormData({ ...formData, [`option${num}`]: e.target.value })
-                          }
-                          required
+                  <Tabs defaultValue="en" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="en">English</TabsTrigger>
+                      <TabsTrigger value="bn">বাংলা</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="en" className="space-y-4 mt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="question_en">Question (English)</Label>
+                        <Textarea
+                          id="question_en"
+                          value={formData.question_en}
+                          onChange={(e) => setFormData({ ...formData, question_en: e.target.value })}
+                          rows={3}
                         />
                       </div>
-                    ))}
-                  </div>
+
+                      <div className="grid grid-cols-1 gap-4">
+                        {[1, 2, 3, 4].map((num) => (
+                          <div key={num} className="space-y-2">
+                            <Label htmlFor={`option${num}_en`}>Option {num} (English)</Label>
+                            <Input
+                              id={`option${num}_en`}
+                              value={formData[`option${num}_en` as keyof typeof formData] as string}
+                              onChange={(e) =>
+                                setFormData({ ...formData, [`option${num}_en`]: e.target.value })
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="bn" className="space-y-4 mt-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="question_bn">প্রশ্ন (বাংলা)</Label>
+                        <Textarea
+                          id="question_bn"
+                          value={formData.question_bn}
+                          onChange={(e) => setFormData({ ...formData, question_bn: e.target.value })}
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4">
+                        {[1, 2, 3, 4].map((num) => (
+                          <div key={num} className="space-y-2">
+                            <Label htmlFor={`option${num}_bn`}>অপশন {num} (বাংলা)</Label>
+                            <Input
+                              id={`option${num}_bn`}
+                              value={formData[`option${num}_bn` as keyof typeof formData] as string}
+                              onChange={(e) =>
+                                setFormData({ ...formData, [`option${num}_bn`]: e.target.value })
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
 
                   <div className="space-y-2">
                     <Label htmlFor="correct_answer">Correct Answer (1-4)</Label>
