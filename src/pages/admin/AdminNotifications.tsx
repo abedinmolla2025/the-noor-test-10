@@ -1,3 +1,4 @@
+// Notification management with template support
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,10 +14,21 @@ import {
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, History as HistoryIcon, Send, Zap, BookOpen, Moon, Star } from "lucide-react";
+import { CalendarClock, History as HistoryIcon, Send, Zap, BookOpen, Moon, Star, Plus, Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { NotificationTemplateDialog } from "@/components/admin/NotificationTemplateDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type TargetPlatform = "all" | "android" | "ios" | "web";
 
@@ -143,6 +155,18 @@ const NOTIFICATION_TEMPLATES: NotificationTemplate[] = [
   },
 ];
 
+type CustomTemplate = {
+  id: string;
+  name: string;
+  title: string;
+  body: string;
+  image_url: string | null;
+  deep_link: string | null;
+  target_platform: string;
+  category: string;
+  created_by: string;
+};
+
 export default function AdminNotifications() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -155,6 +179,12 @@ export default function AdminNotifications() {
     null
   );
   const [loadingTokens, setLoadingTokens] = useState(false);
+  const [customTemplates, setCustomTemplates] = useState<CustomTemplate[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<CustomTemplate | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -162,14 +192,75 @@ export default function AdminNotifications() {
 
   const applyTemplate = (templateId: string) => {
     const template = NOTIFICATION_TEMPLATES.find((t) => t.id === templateId);
-    if (!template) return;
+    if (template) {
+      setTitle(template.title);
+      setBody(template.body);
+      setImageUrl(template.imageUrl ?? "");
+      setDeepLink(template.deepLink ?? "");
+      setTargetPlatform(template.targetPlatform);
+      setSelectedTemplate(templateId);
 
-    setTitle(template.title);
-    setBody(template.body);
-    setImageUrl(template.imageUrl ?? "");
-    setDeepLink(template.deepLink ?? "");
-    setTargetPlatform(template.targetPlatform);
-    setSelectedTemplate(templateId);
+      toast({
+        title: "Template applied",
+        description: `"${template.name}" template loaded. Edit as needed.`,
+      });
+    } else {
+      // Try custom template
+      const customTemplate = customTemplates.find((t) => t.id === templateId);
+      if (!customTemplate) return;
+
+      setTitle(customTemplate.title);
+      setBody(customTemplate.body);
+      setImageUrl(customTemplate.image_url ?? "");
+      setDeepLink(customTemplate.deep_link ?? "");
+      setTargetPlatform(customTemplate.target_platform as TargetPlatform);
+      setSelectedTemplate(templateId);
+
+      toast({
+        title: "Template applied",
+        description: `"${customTemplate.name}" template loaded. Edit as needed.`,
+      });
+    }
+  };
+
+  const handleDeleteTemplate = async () => {
+    if (!templateToDelete) return;
+
+    try {
+      const { error } = await supabase.from("notification_templates").delete().eq("id", templateToDelete);
+
+      if (error) throw error;
+
+      toast({ title: "Template deleted successfully" });
+      loadCustomTemplates();
+    } catch (error: any) {
+      toast({
+        title: "Failed to delete template",
+        description: error?.message || "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setTemplateToDelete(null);
+    }
+  };
+
+  const openEditDialog = (template: CustomTemplate) => {
+    setEditingTemplate(template);
+    setTemplateDialogOpen(true);
+  };
+
+  const openDeleteDialog = (templateId: string) => {
+    setTemplateToDelete(templateId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleTemplateDialogClose = (open: boolean) => {
+    setTemplateDialogOpen(open);
+    if (!open) {
+      setEditingTemplate(null);
+    }
+  };
 
     toast({
       title: "Template applied",
@@ -179,7 +270,25 @@ export default function AdminNotifications() {
 
   useEffect(() => {
     loadTokenCounts();
+    loadCustomTemplates();
   }, []);
+
+  const loadCustomTemplates = async () => {
+    setLoadingTemplates(true);
+    try {
+      const { data, error } = await supabase
+        .from("notification_templates")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setCustomTemplates(data || []);
+    } catch (error: any) {
+      console.error("Failed to load templates", error);
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
 
   const loadTokenCounts = async () => {
     setLoadingTokens(true);
@@ -386,10 +495,77 @@ export default function AdminNotifications() {
       {/* Templates Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Templates</CardTitle>
-          <CardDescription>Choose from preset notification templates for common scenarios</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Quick Templates</CardTitle>
+              <CardDescription>Choose from preset or custom notification templates</CardDescription>
+            </div>
+            <Button onClick={() => setTemplateDialogOpen(true)} size="sm" className="gap-2">
+              <Plus className="h-4 w-4" />
+              Create Custom
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Custom Templates */}
+          {customTemplates.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-primary" />
+                <h3 className="font-medium text-sm">My Custom Templates</h3>
+                <Badge variant="secondary">{customTemplates.length}</Badge>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {customTemplates.map((template) => (
+                  <div
+                    key={template.id}
+                    className={`relative group rounded-lg border p-3 ${
+                      selectedTemplate === template.id ? "border-primary bg-primary/5" : ""
+                    }`}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="h-auto w-full justify-start p-0 text-left"
+                      onClick={() => applyTemplate(template.id)}
+                    >
+                      <div className="flex w-full flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <Star className="h-4 w-4" />
+                          <span className="text-sm font-medium">{template.name}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground line-clamp-1">{template.body}</span>
+                      </div>
+                    </Button>
+                    <div className="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditDialog(template);
+                        }}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDeleteDialog(template.id);
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Prayer Templates */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
@@ -567,6 +743,32 @@ export default function AdminNotifications() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Template Management Dialogs */}
+      <NotificationTemplateDialog
+        open={templateDialogOpen}
+        onOpenChange={handleTemplateDialogClose}
+        onSuccess={loadCustomTemplates}
+        editingTemplate={editingTemplate}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Template?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this custom template. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteTemplate} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+

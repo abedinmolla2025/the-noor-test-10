@@ -883,6 +883,48 @@ export type Database = {
           },
         ]
       }
+      notification_templates: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          created_by: string
+          deep_link: string | null
+          id: string
+          image_url: string | null
+          name: string
+          target_platform: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          created_by: string
+          deep_link?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          target_platform?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          created_by?: string
+          deep_link?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          target_platform?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string
