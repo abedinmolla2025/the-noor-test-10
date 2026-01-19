@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import BottomNavigation from "@/components/BottomNavigation";
-import { ArrowLeft, Trophy, Star, Medal, Crown, Zap, CheckCircle2, XCircle, Sparkles, Target, TrendingUp, Clock } from "lucide-react";
+import { ArrowLeft, Trophy, Star, Medal, Crown, Zap, CheckCircle2, XCircle, Sparkles, Target, TrendingUp, Clock, Eye, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { playSfx } from "@/utils/quizSfx";
 import { StarBadge, TrophyBadge, MedalBadge, CrownBadge, SparklesBadge } from "@/components/BadgeIcons";
@@ -52,6 +52,12 @@ const badges = [
 
 type LanguageMode = "en" | "bn" | "mixed";
 
+interface QuizAnswer {
+  question: Question;
+  userAnswer: number;
+  isCorrect: boolean;
+}
+
 const QuizPage = () => {
   const navigate = useNavigate();
   const countdown = useCountdownToMidnight();
@@ -93,6 +99,8 @@ const QuizPage = () => {
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState<QuizAnswer[]>([]);
+  const [showReview, setShowReview] = useState(false);
   const [dailyQuestions, setDailyQuestions] = useState<Question[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
@@ -146,6 +154,8 @@ const QuizPage = () => {
     setQuizCompleted(false);
     setTimeLeft(30);
     setIsTimeUp(false);
+    setQuizAnswers([]);
+    setShowReview(false);
   }, [currentDate, allQuestions]);
 
   // Timer effect - must be before early returns
@@ -185,7 +195,16 @@ const QuizPage = () => {
     if (selectedAnswer === null) return;
     setShowResult(true);
     
-    const isCorrect = selectedAnswer === dailyQuestions[currentQuestionIndex].correctAnswer;
+    const currentQ = dailyQuestions[currentQuestionIndex];
+    const isCorrect = selectedAnswer === currentQ.correctAnswer;
+    
+    // Store the answer for review
+    setQuizAnswers(prev => [...prev, {
+      question: currentQ,
+      userAnswer: selectedAnswer,
+      isCorrect
+    }]);
+    
     if (isCorrect) {
       setScore(prev => prev + 1);
       playSfx("correct");
@@ -222,12 +241,18 @@ const QuizPage = () => {
     }
   };
 
+  const handleShowReview = () => {
+    setShowReview(true);
+  };
+
   const resetQuiz = () => {
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setShowResult(false);
     setScore(0);
     setQuizCompleted(false);
+    setQuizAnswers([]);
+    setShowReview(false);
     setTimeLeft(30);
     setIsTimeUp(false);
   };
@@ -406,87 +431,200 @@ const QuizPage = () => {
                       gravity={0.3}
                     />
                   )}
-                  <Card className={`text-center py-8 relative overflow-hidden ${
-                    score === 5 
-                      ? "bg-gradient-to-br from-amber-500/20 via-yellow-500/20 to-orange-500/20 border-2 border-amber-500/50" 
-                      : "bg-gradient-to-br from-primary/10 to-amber-500/10"
-                  }`}>
-                    {score === 5 && (
-                      <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 animate-pulse" />
-                    )}
-                    <CardContent className="relative z-10">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", delay: 0.2 }}
-                      >
-                        {score === 5 ? (
-                          <motion.div
-                            animate={{
-                              rotate: [0, -5, 5, -5, 0],
-                              scale: [1, 1.1, 1.1, 1.1, 1],
-                            }}
-                            transition={{ duration: 0.8, repeat: 2, delay: 0.3 }}
-                          >
-                            <Crown className="w-24 h-24 mx-auto text-amber-500 mb-4 drop-shadow-2xl" />
-                          </motion.div>
-                        ) : score >= 3 ? (
-                          <Trophy className="w-20 h-20 mx-auto text-primary mb-4" />
-                        ) : (
-                          <Star className="w-20 h-20 mx-auto text-blue-500 mb-4" />
-                        )}
-                      </motion.div>
-                      
-                      <h2 className="text-2xl font-bold mb-2">
-                        {score === 5
-                          ? "🎉 PERFECT SCORE! 🎉"
-                          : score >= 3
-                          ? "Great job! 👏"
-                          : "Good effort! 💪"}
-                      </h2>
-                      
+                  
+                  {!showReview ? (
+                    <Card className={`text-center py-8 relative overflow-hidden ${
+                      score === 5 
+                        ? "bg-gradient-to-br from-amber-500/20 via-yellow-500/20 to-orange-500/20 border-2 border-amber-500/50" 
+                        : "bg-gradient-to-br from-primary/10 to-amber-500/10"
+                    }`}>
                       {score === 5 && (
-                        <p className="text-lg text-amber-600 dark:text-amber-400 font-semibold mb-2 animate-pulse">
-                          ⭐ You're a Quiz Champion! ⭐
-                        </p>
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 animate-pulse" />
                       )}
-                      
-                      <p className="text-4xl font-bold text-primary my-4">{score}/5</p>
-                      
-                      <div className="bg-background/50 rounded-xl p-4 mb-4 space-y-3">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Points earned</p>
-                          <p className="text-2xl font-bold text-emerald-500">
-                            +{score * 10 + (score === 5 ? 20 : 0)}
-                          </p>
-                          {score === 5 && (
-                            <Badge className="mt-2 bg-amber-500">Perfect bonus +20</Badge>
+                      <CardContent className="relative z-10">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", delay: 0.2 }}
+                        >
+                          {score === 5 ? (
+                            <motion.div
+                              animate={{
+                                rotate: [0, -5, 5, -5, 0],
+                                scale: [1, 1.1, 1.1, 1.1, 1],
+                              }}
+                              transition={{ duration: 0.8, repeat: 2, delay: 0.3 }}
+                            >
+                              <Crown className="w-24 h-24 mx-auto text-amber-500 mb-4 drop-shadow-2xl" />
+                            </motion.div>
+                          ) : score >= 3 ? (
+                            <Trophy className="w-20 h-20 mx-auto text-primary mb-4" />
+                          ) : (
+                            <Star className="w-20 h-20 mx-auto text-blue-500 mb-4" />
                           )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div className="rounded-lg bg-primary/5 p-3">
-                            <p className="text-xs text-muted-foreground">Today streak</p>
-                            <p className="text-lg font-semibold text-primary">{progress.currentStreak} days</p>
+                        </motion.div>
+                        
+                        <h2 className="text-2xl font-bold mb-2">
+                          {score === 5
+                            ? "🎉 PERFECT SCORE! 🎉"
+                            : score >= 3
+                            ? "Great job! 👏"
+                            : "Good effort! 💪"}
+                        </h2>
+                        
+                        {score === 5 && (
+                          <p className="text-lg text-amber-600 dark:text-amber-400 font-semibold mb-2 animate-pulse">
+                            ⭐ You're a Quiz Champion! ⭐
+                          </p>
+                        )}
+                        
+                        <p className="text-4xl font-bold text-primary my-4">{score}/5</p>
+                        
+                        <div className="bg-background/50 rounded-xl p-4 mb-4 space-y-3">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Points earned</p>
+                            <p className="text-2xl font-bold text-emerald-500">
+                              +{score * 10 + (score === 5 ? 20 : 0)}
+                            </p>
+                            {score === 5 && (
+                              <Badge className="mt-2 bg-amber-500">Perfect bonus +20</Badge>
+                            )}
                           </div>
-                          <div className="rounded-lg bg-emerald-500/5 p-3">
-                            <p className="text-xs text-muted-foreground">Total points</p>
-                            <p className="text-lg font-semibold text-emerald-500">{progress.totalPoints}</p>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div className="rounded-lg bg-primary/5 p-3">
+                              <p className="text-xs text-muted-foreground">Today streak</p>
+                              <p className="text-lg font-semibold text-primary">{progress.currentStreak} days</p>
+                            </div>
+                            <div className="rounded-lg bg-emerald-500/5 p-3">
+                              <p className="text-xs text-muted-foreground">Total points</p>
+                              <p className="text-lg font-semibold text-emerald-500">{progress.totalPoints}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-amber-500/10 rounded-xl border border-primary/20">
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <Clock className="w-4 h-4 text-primary" />
-                          <p className="text-sm font-medium text-muted-foreground">পরবর্তী কুইজ পাওয়া যাবে:</p>
+                        
+                        <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-amber-500/10 rounded-xl border border-primary/20">
+                          <div className="flex items-center justify-center gap-2 mb-2">
+                            <Clock className="w-4 h-4 text-primary" />
+                            <p className="text-sm font-medium text-muted-foreground">পরবর্তী কুইজ পাওয়া যাবে:</p>
+                          </div>
+                          <p className="text-2xl font-bold text-primary font-mono">{countdown}</p>
+                          <p className="text-xs text-muted-foreground mt-1">ঘণ্টা:মিনিট:সেকেন্ড</p>
                         </div>
-                        <p className="text-2xl font-bold text-primary font-mono">{countdown}</p>
-                        <p className="text-xs text-muted-foreground mt-1">ঘণ্টা:মিনিট:সেকেন্ড</p>
+
+                        <div className="flex gap-3 justify-center mt-6">
+                          <Button
+                            onClick={handleShowReview}
+                            size="lg"
+                            className="gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Review Answers
+                          </Button>
+                          <Button
+                            onClick={resetQuiz}
+                            variant="outline"
+                            size="lg"
+                            className="gap-2"
+                          >
+                            <RotateCcw className="w-4 h-4" />
+                            Reset Quiz
+                          </Button>
+                        </div>
+
+                        <p className="text-muted-foreground text-sm mt-4">প্রতিদিন একটু একটু উন্নতিই বড় পরিবর্তন আনে।</p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="space-y-4"
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold">Quiz Review</h2>
+                        <Button
+                          onClick={() => setShowReview(false)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <ArrowLeft className="w-4 h-4 mr-2" />
+                          Back
+                        </Button>
                       </div>
 
-                      <p className="text-muted-foreground text-sm mt-4">প্রতিদিন একটু একটু উন্নতিই বড় পরিবর্তন আনে।</p>
-                    </CardContent>
-                  </Card>
+                      {quizAnswers.map((answer, index) => (
+                        <Card key={index} className="p-4">
+                          <div className="space-y-3">
+                            <div className="flex items-start gap-3">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                answer.isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                              }`}>
+                                {answer.isCorrect ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                              </div>
+                              <div className="flex-1">
+                                <div className="mb-3">
+                                  <Badge variant="outline" className="mb-2">প্রশ্ন {index + 1}</Badge>
+                                  <p className="font-semibold text-lg font-bangla">
+                                    {answer.question.question}
+                                  </p>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  {answer.question.options.map((option: string, optIndex: number) => {
+                                    const isUserAnswer = optIndex === answer.userAnswer;
+                                    const isCorrectAnswer = optIndex === answer.question.correctAnswer;
+                                    
+                                    return (
+                                      <div
+                                        key={optIndex}
+                                        className={`p-3 rounded-lg border-2 ${
+                                          isCorrectAnswer
+                                            ? 'bg-green-50 border-green-500 text-green-700'
+                                            : isUserAnswer && !answer.isCorrect
+                                            ? 'bg-red-50 border-red-500 text-red-700'
+                                            : 'bg-muted/30 border-transparent'
+                                        }`}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          {isCorrectAnswer && (
+                                            <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                                          )}
+                                          {isUserAnswer && !answer.isCorrect && (
+                                            <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                                          )}
+                                          <span className="font-bangla">
+                                            {option}
+                                          </span>
+                                          {isCorrectAnswer && (
+                                            <span className="ml-auto text-xs font-semibold text-green-600">সঠিক</span>
+                                          )}
+                                          {isUserAnswer && !answer.isCorrect && (
+                                            <span className="ml-auto text-xs font-semibold text-red-600">আপনার উত্তর</span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+
+                      <div className="flex justify-center pt-4">
+                        <Button
+                          onClick={resetQuiz}
+                          variant="outline"
+                          size="lg"
+                          className="gap-2"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                          Reset Quiz
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
                 </motion.div>
               ) : currentQuestion ? (
                 <motion.div
