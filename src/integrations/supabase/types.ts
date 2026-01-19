@@ -1049,8 +1049,12 @@ export type Database = {
           id: string
           is_active: boolean | null
           options: Json
+          options_bn: Json | null
+          options_en: Json | null
           order_index: number | null
           question: string
+          question_bn: string | null
+          question_en: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1062,8 +1066,12 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           options: Json
+          options_bn?: Json | null
+          options_en?: Json | null
           order_index?: number | null
           question: string
+          question_bn?: string | null
+          question_en?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1075,8 +1083,12 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           options?: Json
+          options_bn?: Json | null
+          options_en?: Json | null
           order_index?: number | null
           question?: string
+          question_bn?: string | null
+          question_en?: string | null
           updated_at?: string | null
         }
         Relationships: []
