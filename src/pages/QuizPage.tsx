@@ -144,7 +144,37 @@ const QuizPage = () => {
     setShowResult(false);
     setScore(0);
     setQuizCompleted(false);
-  }, [currentDate]);
+    setTimeLeft(30);
+    setIsTimeUp(false);
+  }, [currentDate, allQuestions]);
+
+  // Timer effect - must be before early returns
+  useEffect(() => {
+    const currentQuestion = dailyQuestions[currentQuestionIndex];
+    
+    if (quizCompleted || playedToday || !currentQuestion || showResult) {
+      return;
+    }
+
+    if (timeLeft === 0) {
+      setIsTimeUp(true);
+      setShowResult(true);
+      playSfx("wrong");
+      
+      // Auto advance to next question after 3 seconds
+      const autoNextTimer = setTimeout(() => {
+        handleNextQuestion();
+      }, 3000);
+      
+      return () => clearTimeout(autoNextTimer);
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, quizCompleted, playedToday, currentQuestionIndex, dailyQuestions, showResult]);
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (showResult || isTimeUp) return;
@@ -225,32 +255,6 @@ const QuizPage = () => {
 
   const currentQuestion = dailyQuestions[currentQuestionIndex];
   const earnedBadges = badges.filter(b => progress.totalPoints >= b.requirement);
-
-  // Timer effect
-  useEffect(() => {
-    if (quizCompleted || playedToday || !currentQuestion || showResult) {
-      return;
-    }
-
-    if (timeLeft === 0) {
-      setIsTimeUp(true);
-      setShowResult(true);
-      playSfx("wrong");
-      
-      // Auto advance to next question after 3 seconds
-      const autoNextTimer = setTimeout(() => {
-        handleNextQuestion();
-      }, 3000);
-      
-      return () => clearTimeout(autoNextTimer);
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, quizCompleted, playedToday, currentQuestion, showResult]);
 
   return (
     <div className="font-quizEn min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
