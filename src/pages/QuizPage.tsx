@@ -669,23 +669,21 @@ const QuizPage = () => {
                           </span>
                         )}
                         {languageMode === "en" && (
-                          <span className="font-quizEn">
+                          <span className="font-serif text-lg">
                             {currentQuestion.question}
                           </span>
                         )}
                         {languageMode === "mixed" && (
-                          <span className="font-bangla text-2xl leading-relaxed">
-                            {currentQuestion.question}
-                          </span>
+                          <div className="space-y-2">
+                            <p className="font-bangla text-2xl leading-relaxed">
+                              {currentQuestion.question}
+                            </p>
+                            <p className="text-sm text-muted-foreground font-serif">
+                              {currentQuestion.question}
+                            </p>
+                          </div>
                         )}
                       </CardTitle>
-                      {languageMode === "mixed" && (
-                        <div className="mt-1 space-y-0.5">
-                          <p className="text-xs text-muted-foreground font-quizEn">
-                            {currentQuestion.question}
-                          </p>
-                        </div>
-                      )}
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {currentQuestion.options.map((option, index) => (
@@ -707,20 +705,26 @@ const QuizPage = () => {
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <div>
-                              <p
-                                className={`font-semibold leading-snug ${
-                                  languageMode === "bn" || languageMode === "mixed"
-                                    ? "font-bangla text-[16px]"
-                                    : "font-quizEn text-[14px]"
-                                }`}
-                              >
-                                {option}
-                              </p>
-                              {languageMode === "mixed" && (
-                                <p className="text-[11px] text-muted-foreground mt-0.5 font-quizEn">
+                            <div className="flex-1">
+                              {languageMode === "bn" && (
+                                <p className="font-bangla text-lg leading-snug">
                                   {option}
                                 </p>
+                              )}
+                              {languageMode === "en" && (
+                                <p className="font-serif text-base">
+                                  {option}
+                                </p>
+                              )}
+                              {languageMode === "mixed" && (
+                                <div className="space-y-1">
+                                  <p className="font-bangla text-lg leading-snug">
+                                    {option}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground font-serif">
+                                    {option}
+                                  </p>
+                                </div>
                               )}
                             </div>
                             {showResult && index === currentQuestion.correctAnswer && (
@@ -762,18 +766,19 @@ const QuizPage = () => {
                           </>
                         )}
                       </p>
-                      <p
-                        className={`text-muted-foreground text-[13px] ${
-                          languageMode === "bn" || languageMode === "mixed"
-                            ? "font-bangla text-[14px]"
-                            : "font-quizEn"
-                        }`}
-                      >
+                       <p className="text-muted-foreground text-sm">
                         {isTimeUp 
-                          ? "সময় শেষ! সঠিক উত্তর দেখানো হচ্ছে।"
+                          ? languageMode === "bn" ? "সময় শেষ! সঠিক উত্তর দেখানো হচ্ছে।" 
+                            : languageMode === "en" ? "Time's up! Showing correct answer."
+                            : "সময় শেষ! সঠিক উত্তর দেখানো হচ্ছে। / Time's up!"
                           : selectedAnswer === currentQuestion.correctAnswer
-                          ? "সঠিক! ✓"
-                          : "ভুল উত্তর। সঠিক উত্তর দেখানো হচ্ছে।"}
+                          ? languageMode === "bn" ? "সঠিক! ✓"
+                            : languageMode === "en" ? "Correct! ✓"
+                            : "সঠিক! ✓ / Correct!"
+                          : languageMode === "bn" ? "ভুল উত্তর। সঠিক উত্তর দেখানো হচ্ছে।"
+                            : languageMode === "en" ? "Wrong answer. Showing correct answer."
+                            : "ভুল উত্তর। সঠিক উত্তর দেখানো হচ্ছে। / Wrong answer."
+                        }
                       </p>
                       {isTimeUp && (
                         <p className="text-xs text-muted-foreground mt-2 font-medium">

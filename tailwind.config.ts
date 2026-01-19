@@ -18,8 +18,8 @@ export default {
         arabic: ["Cairo", "Scheherazade New", "Noto Naskh Arabic", "Amiri", "serif"],
         display: ["Poppins", "Playfair Display", "serif"],
         premium: ["Cinzel", "Playfair Display", "serif"],
-        bangla: ["Hind Siliguri", "system-ui", "sans-serif"],
-        quizEn: ["DM Sans", "system-ui", "sans-serif"],
+        bangla: ["Noto Serif Bengali", "Hind Siliguri", "system-ui", "sans-serif"],
+        serif: ["Lora", "Playfair Display", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
