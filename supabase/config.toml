@@ -1,7 +1,1 @@
-project_id = "pfzmrqhcnszphdkgzdmg"
-
-[functions.send-push]
-verify_jwt = false
-
-[functions.webpush-public-key]
-verify_jwt = false
+project_id = "fdtpzwtzljseyoqhgeyv"
