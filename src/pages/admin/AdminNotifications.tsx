@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,11 +13,135 @@ import {
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarClock, History as HistoryIcon, Send, Zap } from "lucide-react";
+import { CalendarClock, History as HistoryIcon, Send, Zap, BookOpen, Moon, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 type TargetPlatform = "all" | "android" | "ios" | "web";
+
+type NotificationTemplate = {
+  id: string;
+  name: string;
+  title: string;
+  body: string;
+  imageUrl?: string;
+  deepLink?: string;
+  targetPlatform: TargetPlatform;
+  icon: React.ComponentType<{ className?: string }>;
+  category: "prayer" | "daily" | "special";
+};
+
+const NOTIFICATION_TEMPLATES: NotificationTemplate[] = [
+  {
+    id: "fajr-reminder",
+    name: "Fajr Prayer Reminder",
+    title: "🌅 Fajr Time",
+    body: "Wake up for Fajr prayer. The best time for blessings!",
+    deepLink: "/prayer-times",
+    targetPlatform: "all",
+    icon: Moon,
+    category: "prayer",
+  },
+  {
+    id: "dhuhr-reminder",
+    name: "Dhuhr Prayer Reminder",
+    title: "☀️ Dhuhr Time",
+    body: "It's time for Dhuhr prayer. Take a break and pray.",
+    deepLink: "/prayer-times",
+    targetPlatform: "all",
+    icon: Moon,
+    category: "prayer",
+  },
+  {
+    id: "asr-reminder",
+    name: "Asr Prayer Reminder",
+    title: "🌤️ Asr Time",
+    body: "Don't miss Asr prayer. Connect with Allah now.",
+    deepLink: "/prayer-times",
+    targetPlatform: "all",
+    icon: Moon,
+    category: "prayer",
+  },
+  {
+    id: "maghrib-reminder",
+    name: "Maghrib Prayer Reminder",
+    title: "🌇 Maghrib Time",
+    body: "The sun has set. Time for Maghrib prayer.",
+    deepLink: "/prayer-times",
+    targetPlatform: "all",
+    icon: Moon,
+    category: "prayer",
+  },
+  {
+    id: "isha-reminder",
+    name: "Isha Prayer Reminder",
+    title: "🌙 Isha Time",
+    body: "Complete your daily prayers with Isha.",
+    deepLink: "/prayer-times",
+    targetPlatform: "all",
+    icon: Moon,
+    category: "prayer",
+  },
+  {
+    id: "morning-dua",
+    name: "Morning Dua",
+    title: "☀️ Morning Remembrance",
+    body: "Start your day with morning duas and remembrance of Allah.",
+    deepLink: "/dua",
+    targetPlatform: "all",
+    icon: BookOpen,
+    category: "daily",
+  },
+  {
+    id: "evening-dua",
+    name: "Evening Dua",
+    title: "🌆 Evening Remembrance",
+    body: "Recite your evening duas for protection and blessings.",
+    deepLink: "/dua",
+    targetPlatform: "all",
+    icon: BookOpen,
+    category: "daily",
+  },
+  {
+    id: "friday-reminder",
+    name: "Jummah Reminder",
+    title: "🕌 Jummah Mubarak",
+    body: "It's Friday! Don't forget to read Surah Al-Kahf and send blessings upon the Prophet ﷺ",
+    deepLink: "/quran",
+    targetPlatform: "all",
+    icon: Star,
+    category: "daily",
+  },
+  {
+    id: "ramadan-greeting",
+    name: "Ramadan Greeting",
+    title: "🌙 Ramadan Mubarak",
+    body: "May this blessed month bring peace, prosperity, and spiritual growth. Ramadan Kareem!",
+    targetPlatform: "all",
+    icon: Moon,
+    category: "special",
+  },
+  {
+    id: "eid-greeting",
+    name: "Eid Greeting",
+    title: "✨ Eid Mubarak",
+    body: "Wishing you and your family a blessed Eid filled with joy and happiness. Eid Mubarak!",
+    targetPlatform: "all",
+    icon: Star,
+    category: "special",
+  },
+  {
+    id: "laylatul-qadr",
+    name: "Laylatul Qadr",
+    title: "🌟 Laylatul Qadr",
+    body: "Tonight could be the Night of Power! Increase your worship and make sincere dua.",
+    deepLink: "/dua",
+    targetPlatform: "all",
+    icon: Star,
+    category: "special",
+  },
+];
 
 export default function AdminNotifications() {
   const [title, setTitle] = useState("");
@@ -33,7 +157,25 @@ export default function AdminNotifications() {
   const [loadingTokens, setLoadingTokens] = useState(false);
   const { toast } = useToast();
 
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const canSubmit = title.trim().length > 0 && body.trim().length > 0;
+
+  const applyTemplate = (templateId: string) => {
+    const template = NOTIFICATION_TEMPLATES.find((t) => t.id === templateId);
+    if (!template) return;
+
+    setTitle(template.title);
+    setBody(template.body);
+    setImageUrl(template.imageUrl ?? "");
+    setDeepLink(template.deepLink ?? "");
+    setTargetPlatform(template.targetPlatform);
+    setSelectedTemplate(templateId);
+
+    toast({
+      title: "Template applied",
+      description: `"${template.name}" template loaded. Edit as needed.`,
+    });
+  };
 
   useEffect(() => {
     loadTokenCounts();
@@ -238,6 +380,93 @@ export default function AdminNotifications() {
               </Button>
             </AlertDescription>
           </Alert>
+        </CardContent>
+      </Card>
+
+      {/* Templates Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Templates</CardTitle>
+          <CardDescription>Choose from preset notification templates for common scenarios</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Prayer Templates */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Moon className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-medium text-sm">Prayer Reminders</h3>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {NOTIFICATION_TEMPLATES.filter((t) => t.category === "prayer").map((template) => (
+                <Button
+                  key={template.id}
+                  variant={selectedTemplate === template.id ? "default" : "outline"}
+                  className="h-auto justify-start p-3 text-left"
+                  onClick={() => applyTemplate(template.id)}
+                >
+                  <div className="flex w-full flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <template.icon className="h-4 w-4" />
+                      <span className="text-sm font-medium">{template.name}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground line-clamp-1">{template.body}</span>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Daily Templates */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-medium text-sm">Daily Reminders</h3>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {NOTIFICATION_TEMPLATES.filter((t) => t.category === "daily").map((template) => (
+                <Button
+                  key={template.id}
+                  variant={selectedTemplate === template.id ? "default" : "outline"}
+                  className="h-auto justify-start p-3 text-left"
+                  onClick={() => applyTemplate(template.id)}
+                >
+                  <div className="flex w-full flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <template.icon className="h-4 w-4" />
+                      <span className="text-sm font-medium">{template.name}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground line-clamp-1">{template.body}</span>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Special Occasions */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-medium text-sm">Special Occasions</h3>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {NOTIFICATION_TEMPLATES.filter((t) => t.category === "special").map((template) => (
+                <Button
+                  key={template.id}
+                  variant={selectedTemplate === template.id ? "default" : "outline"}
+                  className="h-auto justify-start p-3 text-left"
+                  onClick={() => applyTemplate(template.id)}
+                >
+                  <div className="flex w-full flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <template.icon className="h-4 w-4" />
+                      <span className="text-sm font-medium">{template.name}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground line-clamp-1">{template.body}</span>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
