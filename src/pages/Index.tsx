@@ -10,6 +10,7 @@ import DailyHadith from "@/components/DailyHadith";
 import AthanSettingsModal from "@/components/AthanSettingsModal";
 import FooterSection from "@/components/FooterSection";
 import { OccasionCarousel } from "@/components/OccasionCarousel";
+import { DailyQuizCard } from "@/components/DailyQuizCard";
 import { useAthanNotification } from "@/hooks/useAthanNotification";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -110,19 +111,7 @@ const Index = () => {
           el: (
             <div className="space-y-4">
               <AudioRecitationCard />
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Quiz</CardTitle>
-                  <CardDescription className="text-sm">
-                    আপনার জ্ঞান যাচাই করুন — ছোট ইসলামিক কুইজ খেলুন।
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button onClick={() => navigate("/quiz")} className="w-full">
-                    Start Quiz
-                  </Button>
-                </CardContent>
-              </Card>
+              <DailyQuizCard />
             </div>
           ),
         },
