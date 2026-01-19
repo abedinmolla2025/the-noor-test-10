@@ -114,12 +114,12 @@ export default function AdminQuiz() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      toast.success("প্রশ্ন সফলভাবে যুক্ত হয়েছে");
+      toast.success("Question added successfully");
       resetForm();
       setIsDialogOpen(false);
     },
     onError: (error: Error) => {
-      toast.error("ত্রুটি: " + error.message);
+      toast.error("Error: " + error.message);
     },
   });
 
@@ -146,13 +146,13 @@ export default function AdminQuiz() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      toast.success("প্রশ্ন সফলভাবে আপডেট হয়েছে");
+      toast.success("Question updated successfully");
       resetForm();
       setEditingQuestion(null);
       setIsDialogOpen(false);
     },
     onError: (error: Error) => {
-      toast.error("ত্রুটি: " + error.message);
+      toast.error("Error: " + error.message);
     },
   });
 
@@ -163,10 +163,10 @@ export default function AdminQuiz() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      toast.success("প্রশ্ন মুছে ফেলা হয়েছে");
+      toast.success("Question deleted successfully");
     },
     onError: (error: Error) => {
-      toast.error("ত্রুটি: " + error.message);
+      toast.error("Error: " + error.message);
     },
   });
 
@@ -216,9 +216,9 @@ export default function AdminQuiz() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">কুইজ ম্যানেজমেন্ট</h1>
+            <h1 className="text-3xl font-bold">Quiz Management</h1>
             <p className="text-muted-foreground mt-1">
-              মোট প্রশ্ন: {questions?.length || 0} | সক্রিয়: {questions?.filter((q) => q.is_active).length || 0} | ইউনিক দিন: {totalDays}
+              Total Questions: {questions?.length || 0} | Active: {questions?.filter((q) => q.is_active).length || 0} | Unique Days: {totalDays}
             </p>
           </div>
           <div className="flex gap-2">
@@ -233,18 +233,18 @@ export default function AdminQuiz() {
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  নতুন প্রশ্ন যুক্ত করুন
+                  Add New Question
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingQuestion ? "প্রশ্ন সম্পাদনা করুন" : "নতুন প্রশ্ন যুক্ত করুন"}
+                    {editingQuestion ? "Edit Question" : "Add New Question"}
                   </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="question">প্রশ্ন</Label>
+                    <Label htmlFor="question">Question</Label>
                     <Textarea
                       id="question"
                       value={formData.question}
@@ -257,7 +257,7 @@ export default function AdminQuiz() {
                   <div className="grid grid-cols-1 gap-4">
                     {[1, 2, 3, 4].map((num) => (
                       <div key={num} className="space-y-2">
-                        <Label htmlFor={`option${num}`}>অপশন {num}</Label>
+                        <Label htmlFor={`option${num}`}>Option {num}</Label>
                         <Input
                           id={`option${num}`}
                           value={formData[`option${num}` as keyof typeof formData] as string}
@@ -271,7 +271,7 @@ export default function AdminQuiz() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="correct_answer">সঠিক উত্তর (১-৪)</Label>
+                    <Label htmlFor="correct_answer">Correct Answer (1-4)</Label>
                     <Select
                       value={String(formData.correct_answer)}
                       onValueChange={(value) =>
@@ -284,7 +284,7 @@ export default function AdminQuiz() {
                       <SelectContent>
                         {[0, 1, 2, 3].map((i) => (
                           <SelectItem key={i} value={String(i)}>
-                            অপশন {i + 1}
+                            Option {i + 1}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -293,7 +293,7 @@ export default function AdminQuiz() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="category">ক্যাটাগরি</Label>
+                      <Label htmlFor="category">Category</Label>
                       <Select
                         value={formData.category}
                         onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -312,7 +312,7 @@ export default function AdminQuiz() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="difficulty">কঠিনতা</Label>
+                      <Label htmlFor="difficulty">Difficulty</Label>
                       <Select
                         value={formData.difficulty}
                         onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
@@ -323,7 +323,7 @@ export default function AdminQuiz() {
                         <SelectContent>
                           {difficulties.map((diff) => (
                             <SelectItem key={diff} value={diff}>
-                              {diff === "easy" ? "সহজ" : diff === "medium" ? "মাধ্যম" : "কঠিন"}
+                              {diff === "easy" ? "Easy" : diff === "medium" ? "Medium" : "Hard"}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -339,7 +339,7 @@ export default function AdminQuiz() {
                         setFormData({ ...formData, is_active: checked })
                       }
                     />
-                    <Label htmlFor="is_active">সক্রিয়</Label>
+                    <Label htmlFor="is_active">Active</Label>
                   </div>
 
                   <div className="flex justify-end gap-2">
@@ -352,10 +352,10 @@ export default function AdminQuiz() {
                         resetForm();
                       }}
                     >
-                      বাতিল
+                      Cancel
                     </Button>
                     <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-                      {editingQuestion ? "আপডেট করুন" : "যুক্ত করুন"}
+                      {editingQuestion ? "Update" : "Add"}
                     </Button>
                   </div>
                 </form>
@@ -366,22 +366,22 @@ export default function AdminQuiz() {
 
         <Card>
           <CardHeader>
-            <CardTitle>প্রশ্ন তালিকা</CardTitle>
+            <CardTitle>Question List</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="text-center py-8">লোড হচ্ছে...</div>
+              <div className="text-center py-8">Loading...</div>
             ) : questions && questions.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12">#</TableHead>
-                      <TableHead>প্রশ্ন</TableHead>
-                      <TableHead>ক্যাটাগরি</TableHead>
-                      <TableHead>কঠিনতা</TableHead>
-                      <TableHead>স্ট্যাটাস</TableHead>
-                      <TableHead className="text-right">অ্যাকশন</TableHead>
+                      <TableHead>Question</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Difficulty</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -392,16 +392,16 @@ export default function AdminQuiz() {
                         <TableCell>{question.category}</TableCell>
                         <TableCell>
                           {question.difficulty === "easy"
-                            ? "সহজ"
+                            ? "Easy"
                             : question.difficulty === "medium"
-                            ? "মাধ্যম"
-                            : "কঠিন"}
+                            ? "Medium"
+                            : "Hard"}
                         </TableCell>
                         <TableCell>
                           {question.is_active ? (
-                            <span className="text-green-600">সক্রিয়</span>
+                            <span className="text-green-600">Active</span>
                           ) : (
-                            <span className="text-red-600">নিষ্ক্রিয়</span>
+                            <span className="text-red-600">Inactive</span>
                           )}
                         </TableCell>
                         <TableCell className="text-right">
@@ -417,7 +417,7 @@ export default function AdminQuiz() {
                               variant="destructive"
                               size="icon"
                               onClick={() => {
-                                if (confirm("আপনি কি নিশ্চিত এই প্রশ্নটি মুছে ফেলতে চান?")) {
+                                if (confirm("Are you sure you want to delete this question?")) {
                                   deleteMutation.mutate(question.id);
                                 }
                               }}
@@ -433,7 +433,7 @@ export default function AdminQuiz() {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                কোনো প্রশ্ন নেই। নতুন প্রশ্ন যুক্ত করুন।
+                No questions found. Add a new question.
               </div>
             )}
           </CardContent>

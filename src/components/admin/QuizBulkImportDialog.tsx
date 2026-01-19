@@ -16,10 +16,10 @@ import { Upload } from "lucide-react";
 import { z } from "zod";
 
 const QuizQuestionSchema = z.object({
-  question: z.string().min(1, "প্রশ্ন খালি হতে পারবে না"),
-  options: z.array(z.string()).length(4, "৪টি অপশন থাকতে হবে"),
+  question: z.string().min(1, "Question cannot be empty"),
+  options: z.array(z.string()).length(4, "Must have 4 options"),
   correct_answer: z.number().min(0).max(3),
-  category: z.string().min(1, "ক্যাটাগরি দিতে হবে"),
+  category: z.string().min(1, "Category is required"),
   difficulty: z.enum(["easy", "medium", "hard"]).optional().default("medium"),
   is_active: z.boolean().optional().default(true),
 });
@@ -58,13 +58,13 @@ export function QuizBulkImportDialog() {
     },
     onSuccess: (_, questions) => {
       queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      toast.success(`${questions.length}টি প্রশ্ন সফলভাবে যুক্ত হয়েছে`);
+      toast.success(`${questions.length} questions added successfully`);
       setIsOpen(false);
       setJsonInput("");
       setPreview([]);
     },
     onError: (error: Error) => {
-      toast.error("ত্রুটি: " + error.message);
+      toast.error("Error: " + error.message);
     },
   });
 
@@ -79,7 +79,7 @@ export function QuizBulkImportDialog() {
         } catch (err) {
           if (err instanceof z.ZodError) {
             throw new Error(
-              `প্রশ্ন #${index + 1}: ${err.errors.map((e) => e.message).join(", ")}`
+              `Question #${index + 1}: ${err.errors.map((e) => e.message).join(", ")}`
             );
           }
           throw err;
@@ -87,12 +87,12 @@ export function QuizBulkImportDialog() {
       });
 
       setPreview(validated);
-      toast.success(`${validated.length}টি প্রশ্ন যাচাই হয়েছে`);
+      toast.success(`${validated.length} questions validated`);
     } catch (error) {
       if (error instanceof Error) {
-        toast.error("JSON ত্রুটি: " + error.message);
+        toast.error("JSON Error: " + error.message);
       } else {
-        toast.error("অবৈধ JSON ফরম্যাট");
+        toast.error("Invalid JSON format");
       }
       setPreview([]);
     }
@@ -100,7 +100,7 @@ export function QuizBulkImportDialog() {
 
   const handleImport = () => {
     if (preview.length === 0) {
-      toast.error("প্রথমে প্রিভিউ দেখুন");
+      toast.error("Please preview first");
       return;
     }
     importMutation.mutate(preview);
@@ -108,16 +108,16 @@ export function QuizBulkImportDialog() {
 
   const exampleJson = `[
   {
-    "question": "কুরআন কত সূরা নিয়ে গঠিত?",
-    "options": ["১১৪", "১১৫", "১১৩", "১১২"],
+    "question": "How many surahs are in the Quran?",
+    "options": ["114", "115", "113", "112"],
     "correct_answer": 0,
     "category": "Quran",
     "difficulty": "easy",
     "is_active": true
   },
   {
-    "question": "ইসলামের পাঁচ স্তম্ভের প্রথমটি কী?",
-    "options": ["নামাজ", "রোজা", "শাহাদাহ", "যাকাত"],
+    "question": "What is the first pillar of Islam?",
+    "options": ["Prayer", "Fasting", "Shahada", "Zakat"],
     "correct_answer": 2,
     "category": "Pillars",
     "difficulty": "easy"
@@ -129,29 +129,29 @@ export function QuizBulkImportDialog() {
       <DialogTrigger asChild>
         <Button variant="outline">
           <Upload className="h-4 w-4 mr-2" />
-          বাল্ক ইম্পোর্ট
+          Bulk Import
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>বাল্ক প্রশ্ন ইম্পোর্ট (JSON)</DialogTitle>
+          <DialogTitle>Bulk Question Import (JSON)</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>JSON ফরম্যাট উদাহরণ:</Label>
+            <Label>JSON Format Example:</Label>
             <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto">
               {exampleJson}
             </pre>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="json-input">JSON ডেটা পেস্ট করুন:</Label>
+            <Label htmlFor="json-input">Paste JSON data:</Label>
             <Textarea
               id="json-input"
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
-              placeholder="JSON ডেটা এখানে পেস্ট করুন..."
+              placeholder="Paste JSON data here..."
               rows={10}
               className="font-mono text-sm"
             />
@@ -159,7 +159,7 @@ export function QuizBulkImportDialog() {
 
           {preview.length > 0 && (
             <div className="space-y-2">
-              <Label>প্রিভিউ ({preview.length}টি প্রশ্ন):</Label>
+              <Label>Preview ({preview.length} questions):</Label>
               <div className="bg-muted p-4 rounded-lg max-h-60 overflow-y-auto space-y-4">
                 {preview.map((q, index) => (
                   <div key={index} className="border-b border-border pb-2 last:border-0">
@@ -178,7 +178,7 @@ export function QuizBulkImportDialog() {
                       ))}
                     </ul>
                     <p className="text-xs text-muted-foreground mt-1">
-                      ক্যাটাগরি: {q.category} | কঠিনতা: {q.difficulty}
+                      Category: {q.category} | Difficulty: {q.difficulty}
                     </p>
                   </div>
                 ))}
@@ -188,16 +188,16 @@ export function QuizBulkImportDialog() {
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setIsOpen(false)}>
-              বাতিল
+              Cancel
             </Button>
             <Button variant="secondary" onClick={handlePreview}>
-              প্রিভিউ দেখুন
+              Preview
             </Button>
             <Button
               onClick={handleImport}
               disabled={preview.length === 0 || importMutation.isPending}
             >
-              {importMutation.isPending ? "ইম্পোর্ট হচ্ছে..." : "ইম্পোর্ট করুন"}
+              {importMutation.isPending ? "Importing..." : "Import"}
             </Button>
           </div>
         </div>
