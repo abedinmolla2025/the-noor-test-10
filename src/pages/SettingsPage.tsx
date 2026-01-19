@@ -12,6 +12,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { useAppSettings } from "@/context/AppSettingsContext";
 import { AdminUnlockModal } from "@/components/admin/AdminUnlockModal";
 import { PrayerNotificationSettings } from "@/components/PrayerNotificationSettings";
+import { QuizReminderSettings } from "@/components/QuizReminderSettings";
 
 
 const OFFSET_OPTIONS = [-20, -15, -10, -5, 0, 5, 10, 15, 20];
@@ -396,6 +397,15 @@ const SettingsPage = () => {
           transition={{ delay: 0.4 }}
         >
           <PrayerNotificationSettings />
+        </motion.div>
+
+        {/* Quiz Reminder Settings */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+        >
+          <QuizReminderSettings />
         </motion.div>
 
         {/* App Info */}
