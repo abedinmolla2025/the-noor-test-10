@@ -17,7 +17,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface Question {
   question: string;
+  question_bn?: string;
+  question_en?: string;
   options: string[];
+  options_bn?: string[];
+  options_en?: string[];
   correctAnswer: number;
   category: string;
 }
@@ -85,7 +89,11 @@ const QuizPage = () => {
 
       return (data || []).map((q) => ({
         question: q.question,
+        question_bn: q.question_bn || q.question,
+        question_en: q.question_en || q.question,
         options: q.options as string[],
+        options_bn: q.options_bn as string[] || q.options as string[],
+        options_en: q.options_en as string[] || q.options as string[],
         correctAnswer: q.correct_answer,
         category: q.category,
       }));
@@ -704,21 +712,21 @@ const QuizPage = () => {
                       <CardTitle className="text-xl leading-relaxed">
                         {languageMode === "bn" && (
                           <span className="font-bangla text-2xl leading-relaxed">
-                            {currentQuestion.question}
+                            {currentQuestion.question_bn || currentQuestion.question}
                           </span>
                         )}
                         {languageMode === "en" && (
                           <span className="font-serif text-lg">
-                            {currentQuestion.question}
+                            {currentQuestion.question_en || currentQuestion.question}
                           </span>
                         )}
                         {languageMode === "mixed" && (
                           <div className="space-y-2">
                             <p className="font-bangla text-2xl leading-relaxed">
-                              {currentQuestion.question}
+                              {currentQuestion.question_bn || currentQuestion.question}
                             </p>
                             <p className="text-sm text-muted-foreground font-serif">
-                              {currentQuestion.question}
+                              {currentQuestion.question_en || currentQuestion.question}
                             </p>
                           </div>
                         )}
@@ -747,21 +755,21 @@ const QuizPage = () => {
                             <div className="flex-1">
                               {languageMode === "bn" && (
                                 <p className="font-bangla text-lg leading-snug">
-                                  {option}
+                                  {currentQuestion.options_bn?.[index] || option}
                                 </p>
                               )}
                               {languageMode === "en" && (
                                 <p className="font-serif text-base">
-                                  {option}
+                                  {currentQuestion.options_en?.[index] || option}
                                 </p>
                               )}
                               {languageMode === "mixed" && (
                                 <div className="space-y-1">
                                   <p className="font-bangla text-lg leading-snug">
-                                    {option}
+                                    {currentQuestion.options_bn?.[index] || option}
                                   </p>
                                   <p className="text-xs text-muted-foreground font-serif">
-                                    {option}
+                                    {currentQuestion.options_en?.[index] || option}
                                   </p>
                                 </div>
                               )}
