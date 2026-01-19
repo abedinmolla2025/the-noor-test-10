@@ -106,7 +106,14 @@ const readMetaString = (meta: unknown, key: string) => {
 
 const buildNameMetadata = (
   existing: unknown,
-  patch: { bn_name?: string; source?: string; origin?: string; reference?: string }
+  patch: {
+    bn_name?: string;
+    pronunciation?: string;
+    gender?: string;
+    source?: string;
+    origin?: string;
+    reference?: string;
+  }
 ) => {
   const base = existing && typeof existing === 'object' ? { ...(existing as any) } : {};
   const next: Record<string, any> = { ...base };
@@ -118,6 +125,8 @@ const buildNameMetadata = (
   };
 
   setOrDelete('bn_name', patch.bn_name);
+  setOrDelete('pronunciation', patch.pronunciation);
+  setOrDelete('gender', patch.gender);
   setOrDelete('source', patch.source);
   setOrDelete('origin', patch.origin);
   setOrDelete('reference', patch.reference);
@@ -155,6 +164,8 @@ export default function AdminContent() {
     category: '',
     // Name-only metadata
     meta_bn_name: '',
+    meta_pronunciation: '',
+    meta_gender: '',
     meta_source: '',
     meta_origin: '',
     meta_reference: '',
@@ -297,6 +308,8 @@ export default function AdminContent() {
         content_pronunciation: '',
         category: '',
         meta_bn_name: '',
+        meta_pronunciation: '',
+        meta_gender: '',
         meta_source: '',
         meta_origin: '',
         meta_reference: '',
@@ -320,6 +333,8 @@ export default function AdminContent() {
       content_pronunciation: item.content_pronunciation ?? '',
       category: item.category ?? '',
       meta_bn_name: readMetaString(item.metadata, 'bn_name'),
+      meta_pronunciation: readMetaString(item.metadata, 'pronunciation'),
+      meta_gender: readMetaString(item.metadata, 'gender'),
       meta_source: readMetaString(item.metadata, 'source'),
       meta_origin: readMetaString(item.metadata, 'origin'),
       meta_reference: readMetaString(item.metadata, 'reference'),
@@ -371,6 +386,8 @@ export default function AdminContent() {
           ? {
               metadata: buildNameMetadata(selectedContent?.metadata, {
                 bn_name: editForm.meta_bn_name,
+                pronunciation: editForm.meta_pronunciation,
+                gender: editForm.meta_gender,
                 source: editForm.meta_source,
                 origin: editForm.meta_origin,
                 reference: editForm.meta_reference,
@@ -1028,6 +1045,40 @@ export default function AdminContent() {
                           }
                           placeholder="যেমন: আব্দুল্লাহ / আয়েশা"
                         />
+                      </div>
+
+                      <div>
+                        <Label>Pronunciation (Bangla)</Label>
+                        <Input
+                          value={editForm.meta_pronunciation}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, meta_pronunciation: e.target.value }))
+                          }
+                          placeholder="যেমন: আব্দুল্লাহ"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Gender</Label>
+                        <Select
+                          value={editForm.meta_gender || 'unknown'}
+                          onValueChange={(v) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              meta_gender: v === 'unknown' ? '' : v,
+                            }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="unknown">Unspecified</SelectItem>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="unisex">Unisex</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div>

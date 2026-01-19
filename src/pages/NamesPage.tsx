@@ -22,12 +22,10 @@ type NameContentRow = {
   id: string;
   title: string;
   title_arabic: string | null;
-  /** Bengali meaning (legacy) */
+  /** Bengali meaning */
   content: string | null;
   /** English meaning */
   content_en: string | null;
-  /** Arabic meaning */
-  content_arabic: string | null;
   category: string | null;
   metadata: unknown;
   created_at: string | null;
@@ -36,6 +34,8 @@ type NameContentRow = {
 
 type NameMeta = {
   bn_name?: string;
+  pronunciation?: string;
+  gender?: string;
   source?: string;
   origin?: string;
   reference?: string;
@@ -47,6 +47,8 @@ const safeParseMeta = (meta: unknown): NameMeta => {
   const pick = (k: string) => (typeof m[k] === "string" ? (m[k] as string) : undefined);
   return {
     bn_name: pick("bn_name"),
+    pronunciation: pick("pronunciation"),
+    gender: pick("gender"),
     source: pick("source"),
     origin: pick("origin"),
     reference: pick("reference"),
@@ -58,16 +60,18 @@ const buildShareText = (n: NameContentRow) => {
   const arabicName = n.title_arabic?.trim() || "";
   const englishName = n.title?.trim() || "";
   const banglaName = meta.bn_name?.trim() || "";
+  const pronunciation = meta.pronunciation?.trim() || "";
+  const gender = meta.gender?.trim() || "";
   const meaningBn = n.content?.trim() || "";
   const meaningEn = n.content_en?.trim() || "";
-  const meaningAr = n.content_arabic?.trim() || "";
 
   const lines: string[] = [];
   if (arabicName || englishName) lines.push([arabicName, englishName].filter(Boolean).join(" — "));
   if (banglaName) lines.push(`নাম (বাংলা): ${banglaName}`);
+  if (pronunciation) lines.push(`উচ্চারণ: ${pronunciation}`);
+  if (gender) lines.push(`Gender: ${gender}`);
   if (meaningBn) lines.push(`অর্থ (বাংলা): ${meaningBn}`);
   if (meaningEn) lines.push(`Meaning (English): ${meaningEn}`);
-  if (meaningAr) lines.push(`المعنى (عربي): ${meaningAr}`);
   if (n.category?.trim()) lines.push(`Category: ${n.category.trim()}`);
   if (meta.source?.trim()) lines.push(`Source: ${meta.source.trim()}`);
 
@@ -90,9 +94,7 @@ const copyToClipboard = async (text: string, label = "Copied") => {
 const fetchNames = async (): Promise<NameContentRow[]> => {
   const { data, error } = await supabase
     .from("admin_content")
-    .select(
-      "id,title,title_arabic,content,content_en,content_arabic,category,metadata,created_at,order_index,is_published,content_type",
-    )
+    .select("id,title,title_arabic,content,content_en,category,metadata,created_at,order_index,is_published,content_type")
     .eq("content_type", "name")
     .eq("is_published", true)
     .order("order_index", { ascending: true, nullsFirst: false })
@@ -139,12 +141,14 @@ const NamesPage = () => {
         n.title,
         n.title_arabic ?? "",
         meta.bn_name ?? "",
+        meta.pronunciation ?? "",
+        meta.gender ?? "",
         n.content ?? "",
         n.content_en ?? "",
-        n.content_arabic ?? "",
         n.category ?? "",
         meta.source ?? "",
         meta.origin ?? "",
+        meta.reference ?? "",
       ];
       return parts.join(" ").toLowerCase().includes(query);
     });
@@ -269,7 +273,7 @@ const NamesPage = () => {
               const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
               const secondary = n.title_arabic?.trim() ? n.title : null;
               const bnName = meta.bn_name?.trim() || "";
-              const snippet = (n.content_en ?? n.content ?? n.content_arabic ?? "").trim();
+              const snippet = (n.content_en ?? n.content ?? "").trim();
 
               return (
                 <Card
@@ -370,33 +374,36 @@ const NamesPage = () => {
               </div>
             ) : null}
 
-            {selected?.content_arabic ? (
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">المعنى (عربي)</p>
-                <p className="whitespace-pre-wrap leading-relaxed">{selected.content_arabic}</p>
-                <div className="pt-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(selected.content_arabic ?? "", "Arabic meaning copied")}
-                  >
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy
-                  </Button>
-                </div>
-              </div>
-            ) : null}
 
-            {(selectedMeta.bn_name || selectedMeta.source || selectedMeta.origin || selectedMeta.reference) && (
+            {(selectedMeta.bn_name ||
+              selectedMeta.pronunciation ||
+              selectedMeta.gender ||
+              selectedMeta.source ||
+              selectedMeta.origin ||
+              selectedMeta.reference) && (
               <>
                 <Separator />
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-foreground">Source</p>
+                  <p className="text-xs font-medium text-foreground">Details</p>
 
                   {selectedMeta.bn_name ? (
                     <div>
                       <p className="text-xs text-muted-foreground">Bangla name</p>
                       <p className="font-medium break-words">{selectedMeta.bn_name}</p>
+                    </div>
+                  ) : null}
+
+                  {selectedMeta.pronunciation ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Pronunciation</p>
+                      <p className="font-medium break-words">{selectedMeta.pronunciation}</p>
+                    </div>
+                  ) : null}
+
+                  {selectedMeta.gender ? (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Gender</p>
+                      <p className="font-medium break-words">{selectedMeta.gender}</p>
                     </div>
                   ) : null}
 
