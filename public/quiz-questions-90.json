@@ -1,0 +1,611 @@
+[
+  {
+    "question": "কুরআন কত সূরা নিয়ে গঠিত?",
+    "options": ["১১৪", "১১৫", "১১৩", "১১২"],
+    "correct_answer": 0,
+    "category": "Quran",
+    "difficulty": "easy"
+  },
+  {
+    "question": "ইসলামের পাঁচ স্তম্ভের প্রথমটি কী?",
+    "options": ["নামাজ", "রোজা", "শাহাদাহ", "যাকাত"],
+    "correct_answer": 2,
+    "category": "Pillars",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কুরআন কোন মাসে নাযিল হয়েছিল?",
+    "options": ["শাবান", "রজব", "রমজান", "মুহররম"],
+    "correct_answer": 2,
+    "category": "History",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কুরআনের সবচেয়ে দীর্ঘ সূরা কোনটি?",
+    "options": ["আল-ইমরান", "আন-নিসা", "আল-বাকারাহ", "আল-মায়িদাহ"],
+    "correct_answer": 2,
+    "category": "Quran",
+    "difficulty": "easy"
+  },
+  {
+    "question": "ইসলামে প্রতিদিন কতটি ফরজ নামাজ?",
+    "options": ["৩", "৪", "৫", "৬"],
+    "correct_answer": 2,
+    "category": "Pillars",
+    "difficulty": "easy"
+  },
+  {
+    "question": "হজ্জের সময় কোন স্থানে যেতে হয়?",
+    "options": ["মদিনা", "মক্কা", "জেরুজালেম", "কায়রো"],
+    "correct_answer": 1,
+    "category": "Pillars",
+    "difficulty": "easy"
+  },
+  {
+    "question": "নবী মুহাম্মদ (সা.) কত বছর বয়সে নবুওয়াত পান?",
+    "options": ["৩০", "৩৫", "৪০", "৪৫"],
+    "correct_answer": 2,
+    "category": "History",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কুরআনের সবচেয়ে ছোট সূরা কোনটি?",
+    "options": ["আল-ফাতিহা", "আল-ইখলাস", "আল-কাউসার", "আল-আসর"],
+    "correct_answer": 2,
+    "category": "Quran",
+    "difficulty": "medium"
+  },
+  {
+    "question": "ইসলামের প্রথম খলিফা কে ছিলেন?",
+    "options": ["উমর (রা.)", "আবু বকর (রা.)", "উসমান (রা.)", "আলী (রা.)"],
+    "correct_answer": 1,
+    "category": "History",
+    "difficulty": "easy"
+  },
+  {
+    "question": "জান্নাতের কতটি স্তর আছে?",
+    "options": ["৫", "৭", "৮", "১০"],
+    "correct_answer": 1,
+    "category": "Basics",
+    "difficulty": "medium"
+  },
+  {
+    "question": "ওহী বহনকারী ফেরেশতার নাম কী?",
+    "options": ["মিকাইল", "জিবরীল", "ইস্রাফিল", "আজরাইল"],
+    "correct_answer": 1,
+    "category": "Angels",
+    "difficulty": "easy"
+  },
+  {
+    "question": "রমজান মাসের শেষ ১০ দিনের মধ্যে কোন রাত?",
+    "options": ["লাইলাতুল মিরাজ", "লাইলাতুল বারাআত", "লাইলাতুল কদর", "লাইলাতুল ইসরা"],
+    "correct_answer": 2,
+    "category": "Special Days",
+    "difficulty": "easy"
+  },
+  {
+    "question": "যাকাত প্রদান করা ফরজ হওয়ার জন্য ন্যূনতম সম্পদের পরিমাণ কী বলা হয়?",
+    "options": ["নিসাব", "সাদাকাহ", "ফিতরা", "খুমুস"],
+    "correct_answer": 0,
+    "category": "Pillars",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হযরত ইব্রাহিম (আ.) এর পুত্রের নাম কী যাকে তিনি কুরবানি করতে চেয়েছিলেন?",
+    "options": ["ইসহাক (আ.)", "ইসমাইল (আ.)", "ইয়াকুব (আ.)", "ইউসুফ (আ.)"],
+    "correct_answer": 1,
+    "category": "Prophets",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কুরআনে কতটি পারা আছে?",
+    "options": ["২৮", "৩০", "৩২", "৩৫"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "easy"
+  },
+  {
+    "question": "মুসলমানদের প্রথম মসজিদের নাম কী?",
+    "options": ["মসজিদুল হারাম", "মসজিদে নবভী", "মসজিদে কুবা", "মসজিদুল আকসা"],
+    "correct_answer": 2,
+    "category": "History",
+    "difficulty": "medium"
+  },
+  {
+    "question": "তাহাজ্জুদ নামাজ কখন পড়া হয়?",
+    "options": ["ফজরের আগে", "রাতের শেষাংশে", "মাগরিবের পরে", "ইশার পরে"],
+    "correct_answer": 1,
+    "category": "Prayer",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হিজরি সালের প্রথম মাস কোনটি?",
+    "options": ["রমজান", "মুহররম", "সফর", "রবিউল আউয়াল"],
+    "correct_answer": 1,
+    "category": "Basics",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কোন নবীকে 'কালিমুল্লাহ' বলা হয়?",
+    "options": ["মুহাম্মদ (সা.)", "ইব্রাহিম (আ.)", "মূসা (আ.)", "ঈসা (আ.)"],
+    "correct_answer": 2,
+    "category": "Prophets",
+    "difficulty": "medium"
+  },
+  {
+    "question": "ইসলামের পাঁচ স্তম্ভের শেষটি কী?",
+    "options": ["নামাজ", "যাকাত", "রোজা", "হজ্জ"],
+    "correct_answer": 3,
+    "category": "Pillars",
+    "difficulty": "easy"
+  },
+  {
+    "question": "সূরা আল-ফাতিহায় কতটি আয়াত আছে?",
+    "options": ["৫", "৬", "৭", "৮"],
+    "correct_answer": 2,
+    "category": "Quran",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কোন ফেরেশতা বৃষ্টি ও রিজিকের দায়িত্বে আছেন?",
+    "options": ["জিবরীল", "মিকাইল", "ইস্রাফিল", "মালাকুল মাউত"],
+    "correct_answer": 1,
+    "category": "Angels",
+    "difficulty": "medium"
+  },
+  {
+    "question": "জুমআর নামাজে কতটি রাকাত ফরজ?",
+    "options": ["২", "৩", "৪", "৬"],
+    "correct_answer": 0,
+    "category": "Prayer",
+    "difficulty": "easy"
+  },
+  {
+    "question": "হযরত নূহ (আ.) কত বছর তাঁর জাতির কাছে দাওয়াত দিয়েছিলেন?",
+    "options": ["৫০০", "৭০০", "৯৫০", "১০০০"],
+    "correct_answer": 2,
+    "category": "Prophets",
+    "difficulty": "medium"
+  },
+  {
+    "question": "কুরআনে কতবার 'আল্লাহ' শব্দটি এসেছে?",
+    "options": ["২,০০০", "২,৬৯৮", "৩,০০০", "৩,৫০০"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "hard"
+  },
+  {
+    "question": "ঈদুল ফিতরের নামাজ কখন পড়া হয়?",
+    "options": ["ফজরের সময়", "সূর্যোদয়ের পর", "যোহরের সময়", "মাগরিবের সময়"],
+    "correct_answer": 1,
+    "category": "Special Days",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কোন সূরাকে 'কুরআনের হৃদয়' বলা হয়?",
+    "options": ["আল-ফাতিহা", "আল-বাকারাহ", "ইয়াসীন", "আর-রহমান"],
+    "correct_answer": 2,
+    "category": "Quran",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হজ্জের সময় কোন পাহাড়ে ওকুফ করতে হয়?",
+    "options": ["জাবালে নূর", "জাবালে উহুদ", "আরাফাত", "সাফা"],
+    "correct_answer": 2,
+    "category": "Hajj",
+    "difficulty": "medium"
+  },
+  {
+    "question": "মদিনায় হিজরতের বছর থেকে হিজরি সাল শুরু হয়। এটি কোন খ্রিস্টীয় সালে?",
+    "options": ["৬১০", "৬২২", "৬৩০", "৬৪০"],
+    "correct_answer": 1,
+    "category": "History",
+    "difficulty": "medium"
+  },
+  {
+    "question": "আল্লাহর কতটি সুন্দর নাম রয়েছে?",
+    "options": ["৭৭", "৮৮", "৯৯", "১০০"],
+    "correct_answer": 2,
+    "category": "Names of Allah",
+    "difficulty": "easy"
+  },
+  {
+    "question": "সিয়ামের আরবি অর্থ কী?",
+    "options": ["উপবাস", "বিরত থাকা", "ধৈর্য ধরা", "ত্যাগ করা"],
+    "correct_answer": 1,
+    "category": "Fasting",
+    "difficulty": "medium"
+  },
+  {
+    "question": "কোন যুদ্ধকে 'ফুরকান দিবস' বলা হয়?",
+    "options": ["উহুদ", "খন্দক", "বদর", "খাইবার"],
+    "correct_answer": 2,
+    "category": "History",
+    "difficulty": "medium"
+  },
+  {
+    "question": "তাওয়াফ করার সময় কোন পাথরের দিক থেকে শুরু করতে হয়?",
+    "options": ["হাজরে আসওয়াদ", "রুকনে ইয়ামানি", "মাকামে ইব্রাহিম", "মিনা"],
+    "correct_answer": 0,
+    "category": "Hajj",
+    "difficulty": "medium"
+  },
+  {
+    "question": "কোন নবী সবচেয়ে বেশিবার কুরআনে উল্লেখ করা হয়েছে?",
+    "options": ["মুহাম্মদ (সা.)", "ইব্রাহিম (আ.)", "মূসা (আ.)", "ঈসা (আ.)"],
+    "correct_answer": 2,
+    "category": "Prophets",
+    "difficulty": "medium"
+  },
+  {
+    "question": "সাহাবীদের মধ্যে কাকে 'ফারুক' উপাধি দেওয়া হয়েছিল?",
+    "options": ["আবু বকর (রা.)", "উমর (রা.)", "উসমান (রা.)", "আলী (রা.)"],
+    "correct_answer": 1,
+    "category": "History",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কোন সূরায় বিসমিল্লাহ নেই?",
+    "options": ["আল-ফাতিহা", "আত-তাওবাহ", "আল-ইখলাস", "আন-নাস"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "medium"
+  },
+  {
+    "question": "যাকাতের হার কত শতাংশ?",
+    "options": ["২%", "২.৫%", "৫%", "১০%"],
+    "correct_answer": 1,
+    "category": "Zakat",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কোন মাসে শবে মিরাজ হয়েছিল?",
+    "options": ["রজব", "শাবান", "রমজান", "যিলহজ্জ"],
+    "correct_answer": 0,
+    "category": "Special Days",
+    "difficulty": "medium"
+  },
+  {
+    "question": "নামাজে সর্বপ্রথম কোনটি পড়তে হয়?",
+    "options": ["সূরা ফাতিহা", "তাকবীর", "দোয়া ইস্তিফতাহ", "সানা"],
+    "correct_answer": 1,
+    "category": "Prayer",
+    "difficulty": "easy"
+  },
+  {
+    "question": "আয়াতুল কুরসি কোন সূরায় আছে?",
+    "options": ["আল-ফাতিহা", "আল-বাকারাহ", "আলে-ইমরান", "আন-নিসা"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কোন ফেরেশতা কিয়ামতের দিন শিঙ্গায় ফুঁক দেবেন?",
+    "options": ["জিবরীল", "মিকাইল", "ইস্রাফিল", "আজরাইল"],
+    "correct_answer": 2,
+    "category": "Angels",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হজ্জের কোন দিন কুরবানি করা হয়?",
+    "options": ["৮ যিলহজ্জ", "৯ যিলহজ্জ", "১০ যিলহজ্জ", "১১ যিলহজ্জ"],
+    "correct_answer": 2,
+    "category": "Hajj",
+    "difficulty": "easy"
+  },
+  {
+    "question": "সাদাকাতুল ফিতর কখন প্রদান করতে হয়?",
+    "options": ["রমজানের শুরুতে", "ঈদের নামাজের আগে", "ঈদের দিন", "রমজানের যেকোনো সময়"],
+    "correct_answer": 1,
+    "category": "Fasting",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কুরআনে কতটি সিজদায়ে তিলাওয়াত আছে?",
+    "options": ["১০", "১২", "১৪", "১৬"],
+    "correct_answer": 2,
+    "category": "Quran",
+    "difficulty": "medium"
+  },
+  {
+    "question": "'আর-রহমান' নামের অর্থ কী?",
+    "options": ["পরম দয়ালু", "সর্বশক্তিমান", "পরম জ্ঞানী", "সর্বশ্রোতা"],
+    "correct_answer": 0,
+    "category": "Names of Allah",
+    "difficulty": "easy"
+  },
+  {
+    "question": "খন্দকের যুদ্ধ কত হিজরিতে সংঘটিত হয়?",
+    "options": ["৩", "৪", "৫", "৬"],
+    "correct_answer": 2,
+    "category": "History",
+    "difficulty": "hard"
+  },
+  {
+    "question": "রোজার নিয়ত কখন করতে হয়?",
+    "options": ["সেহরির আগে", "সেহরির সময়", "ফজরের আগে", "ফজরের পর"],
+    "correct_answer": 2,
+    "category": "Fasting",
+    "difficulty": "medium"
+  },
+  {
+    "question": "তাশাহহুদে কোন নবীর প্রতি সালাম পাঠ করা হয়?",
+    "options": ["শুধু মুহাম্মদ (সা.)", "মুহাম্মদ (সা.) ও ইব্রাহিম (আ.)", "সকল নবী", "শুধু উলুল আজম নবীগণ"],
+    "correct_answer": 1,
+    "category": "Prayer",
+    "difficulty": "medium"
+  },
+  {
+    "question": "মক্কা বিজয় কোন হিজরি সালে হয়?",
+    "options": ["৬", "৭", "৮", "৯"],
+    "correct_answer": 2,
+    "category": "History",
+    "difficulty": "medium"
+  },
+  {
+    "question": "কোন দুই পাহাড়ের মধ্যে সাঈ করতে হয়?",
+    "options": ["আরাফাত ও মুজদালিফা", "সাফা ও মারওয়া", "মিনা ও আরাফাত", "জাবালে নূর ও হেরা"],
+    "correct_answer": 1,
+    "category": "Hajj",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কুরআনের কোন সূরায় 'বিসমিল্লাহ' দুইবার এসেছে?",
+    "options": ["আল-ফাতিহা", "আল-নমল", "আন-নাহল", "আল-বাকারাহ"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "hard"
+  },
+  {
+    "question": "ফরজ নামাজে কত রাকাত সুন্নত?",
+    "options": ["১২", "১৪", "১৬", "১৮"],
+    "correct_answer": 0,
+    "category": "Prayer",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হযরত ইউসুফ (আ.) কোন দেশের বাদশাহ হয়েছিলেন?",
+    "options": ["ফিলিস্তিন", "মিশর", "ইরাক", "সিরিয়া"],
+    "correct_answer": 1,
+    "category": "Prophets",
+    "difficulty": "easy"
+  },
+  {
+    "question": "রমজানের কোন রাতকে 'হাজার মাসের চেয়ে উত্তম' বলা হয়েছে?",
+    "options": ["১ রমজান", "১৫ রমজান", "লাইলাতুল কদর", "২৭ রমজান"],
+    "correct_answer": 2,
+    "category": "Special Days",
+    "difficulty": "easy"
+  },
+  {
+    "question": "'আল-মালিক' নামের অর্থ কী?",
+    "options": ["পরম মালিক", "পরম দয়ালু", "সর্বশক্তিমান", "সর্বজ্ঞ"],
+    "correct_answer": 0,
+    "category": "Names of Allah",
+    "difficulty": "easy"
+  },
+  {
+    "question": "ইসলামে প্রথম মুয়াজ্জিন কে ছিলেন?",
+    "options": ["আবু বকর (রা.)", "উমর (রা.)", "বিলাল (রা.)", "আলী (রা.)"],
+    "correct_answer": 2,
+    "category": "History",
+    "difficulty": "easy"
+  },
+  {
+    "question": "হজ্জের সময় শয়তানকে পাথর মারার স্থানকে কী বলা হয়?",
+    "options": ["মিনা", "জামারাত", "মুজদালিফা", "আরাফাত"],
+    "correct_answer": 1,
+    "category": "Hajj",
+    "difficulty": "medium"
+  },
+  {
+    "question": "তারাবিহ নামাজ কোন মাসে পড়া হয়?",
+    "options": ["শাবান", "রমজান", "রজব", "যিলকদ"],
+    "correct_answer": 1,
+    "category": "Prayer",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কুরআনে কতজন নবীর নাম উল্লেখ আছে?",
+    "options": ["২০", "২৫", "৩০", "৩৫"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "medium"
+  },
+  {
+    "question": "জাকাতুল মাল কাদের উপর ফরজ?",
+    "options": ["সবার উপর", "ধনী ব্যক্তিদের উপর", "নিসাব পরিমাণ সম্পদের মালিকদের উপর", "ব্যবসায়ীদের উপর"],
+    "correct_answer": 2,
+    "category": "Zakat",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হযরত আদম (আ.) কে কী দিয়ে সৃষ্টি করা হয়েছিল?",
+    "options": ["আগুন", "মাটি", "পানি", "বাতাস"],
+    "correct_answer": 1,
+    "category": "Prophets",
+    "difficulty": "easy"
+  },
+  {
+    "question": "ঈদুল আযহা কোন মাসে পালন করা হয়?",
+    "options": ["রমজান", "শাওয়াল", "যিলকদ", "যিলহজ্জ"],
+    "correct_answer": 3,
+    "category": "Special Days",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কোন সূরাকে 'উম্মুল কুরআন' বলা হয়?",
+    "options": ["আল-বাকারাহ", "আল-ফাতিহা", "ইয়াসীন", "আর-রহমান"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "medium"
+  },
+  {
+    "question": "'আল-কুদ্দুস' নামের অর্থ কী?",
+    "options": ["পবিত্র", "দয়ালু", "ক্ষমাশীল", "মহান"],
+    "correct_answer": 0,
+    "category": "Names of Allah",
+    "difficulty": "medium"
+  },
+  {
+    "question": "মুসলমানদের প্রথম কিবলা কোনটি ছিল?",
+    "options": ["কাবা", "মসজিদুল আকসা", "মসজিদে নবভী", "মসজিদে কুবা"],
+    "correct_answer": 1,
+    "category": "History",
+    "difficulty": "medium"
+  },
+  {
+    "question": "রোজা ভাঙার জন্য কী দিয়ে ইফতার করা সুন্নত?",
+    "options": ["পানি", "খেজুর", "দুধ", "রুটি"],
+    "correct_answer": 1,
+    "category": "Fasting",
+    "difficulty": "easy"
+  },
+  {
+    "question": "জান্নাতুল ফিরদাউস কী?",
+    "options": ["জান্নাতের নাম", "জান্নাতের সর্বোচ্চ স্তর", "জান্নাতের দরজা", "জান্নাতের নদী"],
+    "correct_answer": 1,
+    "category": "Basics",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হজ্জের ইহরাম বাঁধার সময় পুরুষদের কোন রঙের কাপড় পরতে হয়?",
+    "options": ["সাদা", "সবুজ", "কালো", "নীল"],
+    "correct_answer": 0,
+    "category": "Hajj",
+    "difficulty": "easy"
+  },
+  {
+    "question": "তাকবীরে তাহরিমা কোথায় বলা হয়?",
+    "options": ["নামাজের শেষে", "নামাজের শুরুতে", "রুকুতে যাওয়ার সময়", "সিজদায় যাওয়ার সময়"],
+    "correct_answer": 1,
+    "category": "Prayer",
+    "difficulty": "easy"
+  },
+  {
+    "question": "কুরআনের কোন সূরায় আল্লাহর ৯৯টি নামের উল্লেখ আছে?",
+    "options": ["আল-হাশর", "আল-আরাফ", "তা-হা", "আল-আনআম"],
+    "correct_answer": 0,
+    "category": "Names of Allah",
+    "difficulty": "hard"
+  },
+  {
+    "question": "হযরত সুলাইমান (আ.) এর পিতার নাম কী?",
+    "options": ["দাউদ (আ.)", "ইসহাক (আ.)", "ইয়াকুব (আ.)", "মূসা (আ.)"],
+    "correct_answer": 0,
+    "category": "Prophets",
+    "difficulty": "medium"
+  },
+  {
+    "question": "কোন সাহাবীকে 'সাইফুল্লাহ' উপাধি দেওয়া হয়েছিল?",
+    "options": ["আবু উবাইদা (রা.)", "খালিদ বিন ওয়ালিদ (রা.)", "সাদ বিন আবি ওয়াক্কাস (রা.)", "আলী (রা.)"],
+    "correct_answer": 1,
+    "category": "History",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হজ্জের তাওয়াফ কতবার কাবা ঘুরতে হয়?",
+    "options": ["৫", "৭", "৯", "১১"],
+    "correct_answer": 1,
+    "category": "Hajj",
+    "difficulty": "easy"
+  },
+  {
+    "question": "সূরা আল-মুলক কত পারায় আছে?",
+    "options": ["২৮", "২৯", "৩০", "২৭"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "medium"
+  },
+  {
+    "question": "কোন নবীকে 'রূহুল্লাহ' বলা হয়?",
+    "options": ["মুহাম্মদ (সা.)", "মূসা (আ.)", "ঈসা (আ.)", "ইব্রাহিম (আ.)"],
+    "correct_answer": 2,
+    "category": "Prophets",
+    "difficulty": "medium"
+  },
+  {
+    "question": "ফজরের নামাজে কত রাকাত সুন্নত ও ফরজ?",
+    "options": ["২ সুন্নত ২ ফরজ", "৪ সুন্নত ২ ফরজ", "২ সুন্নত ৪ ফরজ", "৪ সুন্নত ৪ ফরজ"],
+    "correct_answer": 0,
+    "category": "Prayer",
+    "difficulty": "easy"
+  },
+  {
+    "question": "'আল-আলিম' নামের অর্থ কী?",
+    "options": ["সর্বজ্ঞ", "পরম দয়ালু", "মহাশক্তিধর", "সর্বশ্রোতা"],
+    "correct_answer": 0,
+    "category": "Names of Allah",
+    "difficulty": "easy"
+  },
+  {
+    "question": "হিজরতের সময় নবী (সা.) এর সাথে কোন সাহাবী ছিলেন?",
+    "options": ["উমর (রা.)", "আবু বকর (রা.)", "আলী (রা.)", "উসমান (রা.)"],
+    "correct_answer": 1,
+    "category": "History",
+    "difficulty": "easy"
+  },
+  {
+    "question": "রোজা রাখার নিয়তের সময় কোন দোয়া পড়া হয়?",
+    "options": ["সুবহানাল্লাহ", "আলহামদুলিল্লাহ", "নাওয়াইতু আন আসুমা", "বিসমিল্লাহ"],
+    "correct_answer": 2,
+    "category": "Fasting",
+    "difficulty": "medium"
+  },
+  {
+    "question": "কুরআনে সবচেয়ে ছোট আয়াত কোনটি?",
+    "options": ["সূরা আল-কাউসার এর ১ম আয়াত", "সূরা আর-রহমান এর ১ম আয়াত", "সূরা আল-মুদ্দাসসির এর ৩য় আয়াত", "সূরা আল-আসর এর ১ম আয়াত"],
+    "correct_answer": 1,
+    "category": "Quran",
+    "difficulty": "hard"
+  },
+  {
+    "question": "মসজিদুল হারামে কতটি মিনারেট আছে?",
+    "options": ["৭", "৯", "১১", "১৩"],
+    "correct_answer": 1,
+    "category": "Basics",
+    "difficulty": "hard"
+  },
+  {
+    "question": "হযরত ইউনুস (আ.) কোন প্রাণীর পেটে ছিলেন?",
+    "options": ["তিমি মাছ", "হাঙ্গর", "ডলফিন", "তিমি"],
+    "correct_answer": 0,
+    "category": "Prophets",
+    "difficulty": "easy"
+  },
+  {
+    "question": "শবে বরাত কোন মাসে পালন করা হয়?",
+    "options": ["রজব", "শাবান", "রমজান", "শাওয়াল"],
+    "correct_answer": 1,
+    "category": "Special Days",
+    "difficulty": "easy"
+  },
+  {
+    "question": "জান্নাতে প্রবেশের জন্য কতটি দরজা আছে?",
+    "options": ["৫", "৭", "৮", "১০"],
+    "correct_answer": 2,
+    "category": "Basics",
+    "difficulty": "medium"
+  },
+  {
+    "question": "'আল-হাকিম' নামের অর্থ কী?",
+    "options": ["প্রজ্ঞাময়", "দয়ালু", "ক্ষমাশীল", "শক্তিশালী"],
+    "correct_answer": 0,
+    "category": "Names of Allah",
+    "difficulty": "medium"
+  },
+  {
+    "question": "হযরত মুহাম্মদ (সা.) কত বছর জীবিত ছিলেন?",
+    "options": ["৬০", "৬৩", "৬৫", "৭০"],
+    "correct_answer": 1,
+    "category": "History",
+    "difficulty": "easy"
+  },
+  {
+    "question": "ইসলামে সর্বপ্রথম শহীদ মহিলা কে?",
+    "options": ["খাদিজা (রা.)", "সুমাইয়া (রা.)", "ফাতিমা (রা.)", "আয়েশা (রা.)"],
+    "correct_answer": 1,
+    "category": "History",
+    "difficulty": "medium"
+  }
+]
