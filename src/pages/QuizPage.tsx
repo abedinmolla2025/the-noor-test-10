@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -111,6 +111,9 @@ const QuizPage = () => {
   const [currentDate, setCurrentDate] = useState(() => new Date().toDateString());
   const [timeLeft, setTimeLeft] = useState(30);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  
+  const nextButtonRef = useRef<HTMLDivElement>(null);
+  const questionCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -171,6 +174,11 @@ const QuizPage = () => {
       setShowResult(true);
       playSfx("wrong");
       
+      // Scroll to show result
+      setTimeout(() => {
+        nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+      
       // Auto advance to next question after 3 seconds
       const autoNextTimer = setTimeout(() => {
         handleNextQuestion();
@@ -211,9 +219,17 @@ const QuizPage = () => {
     } else {
       playSfx("wrong");
     }
+    
+    // Scroll to next button after short delay
+    setTimeout(() => {
+      nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
   };
 
   const handleNextQuestion = () => {
+    // Scroll to top of question card smoothly
+    questionCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    
     if (currentQuestionIndex < dailyQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer(null);
@@ -634,7 +650,7 @@ const QuizPage = () => {
                   exit={{ x: -50, opacity: 0 }}
                 >
                   {/* Progress & Timer */}
-                  <div className="mb-4 space-y-3">
+                  <div ref={questionCardRef} className="mb-4 space-y-3">
                     <div className="flex justify-between text-sm mb-2">
                       <span>Question {currentQuestionIndex + 1}/5</span>
                       <span>Score: {score}</span>
@@ -789,22 +805,24 @@ const QuizPage = () => {
                   </div>
                 )}
 
-                  {!showResult ? (
-                    <Button
-                      onClick={handleSubmitAnswer}
-                      disabled={selectedAnswer === null || isTimeUp}
-                      className="w-full h-12 text-lg"
-                    >
-                      Submit answer
-                    </Button>
-                  ) : !isTimeUp ? (
-                    <Button
-                      onClick={handleNextQuestion}
-                      className="w-full h-12 text-lg bg-gradient-to-r from-primary to-amber-500"
-                    >
-                      {currentQuestionIndex < 4 ? "Next question" : "View result"}
-                    </Button>
-                  ) : null}
+                  <div ref={nextButtonRef}>
+                    {!showResult ? (
+                      <Button
+                        onClick={handleSubmitAnswer}
+                        disabled={selectedAnswer === null || isTimeUp}
+                        className="w-full h-12 text-lg"
+                      >
+                        Submit answer
+                      </Button>
+                    ) : !isTimeUp ? (
+                      <Button
+                        onClick={handleNextQuestion}
+                        className="w-full h-12 text-lg bg-gradient-to-r from-primary to-amber-500"
+                      >
+                        {currentQuestionIndex < 4 ? "Next question" : "View result"}
+                      </Button>
+                    ) : null}
+                  </div>
                 </motion.div>
               ) : null}
             </motion.div>
