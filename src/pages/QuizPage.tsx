@@ -551,10 +551,23 @@ const QuizPage = () => {
   useEffect(() => {
     // Get 3 deterministic questions for the current day based on date seed
     const dateSeed = currentDate;
-    const shuffled = [...allQuestions].sort(() => {
-      const hash = dateSeed.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
-      return Math.sin(hash) - 0.5;
-    });
+    
+    // Create a seeded random number generator
+    const seededRandom = (seed: string, index: number) => {
+      const combined = seed + index;
+      let hash = 0;
+      for (let i = 0; i < combined.length; i++) {
+        hash = ((hash << 5) - hash) + combined.charCodeAt(i);
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(Math.sin(hash));
+    };
+    
+    // Create array with indices and shuffle using seeded random
+    const questionsWithIndices = allQuestions.map((q, i) => ({ question: q, index: i, randomValue: seededRandom(dateSeed, i) }));
+    questionsWithIndices.sort((a, b) => a.randomValue - b.randomValue);
+    
+    const shuffled = questionsWithIndices.map(item => item.question);
     setDailyQuestions(shuffled.slice(0, 3));
   }, [currentDate]);
 
