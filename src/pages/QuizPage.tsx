@@ -210,28 +210,36 @@ const QuizPage = () => {
   const handleSubmitAnswer = () => {
     if (selectedAnswer === null) return;
     setShowResult(true);
-    
+
     const currentQ = dailyQuestions[currentQuestionIndex];
     const isCorrect = selectedAnswer === currentQ.correctAnswer;
-    
+
     // Store the answer for review
-    setQuizAnswers(prev => [...prev, {
-      question: currentQ,
-      userAnswer: selectedAnswer,
-      isCorrect
-    }]);
-    
+    setQuizAnswers((prev) => [
+      ...prev,
+      {
+        question: currentQ,
+        userAnswer: selectedAnswer,
+        isCorrect,
+      },
+    ]);
+
     if (isCorrect) {
-      setScore(prev => prev + 1);
+      setScore((prev) => prev + 1);
       playSfx("correct");
     } else {
       playSfx("wrong");
     }
-    
-    // Scroll to next button at the top of the screen after short delay
+
+    // Scroll to the action area (top of screen)
     setTimeout(() => {
       nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 300);
+    }, 250);
+
+    // Auto-go to next question (no Next button)
+    setTimeout(() => {
+      handleNextQuestion();
+    }, 1500);
   };
 
   const handleNextQuestion = () => {
@@ -841,14 +849,15 @@ const QuizPage = () => {
                       >
                         Submit answer
                       </Button>
-                    ) : !isTimeUp ? (
-                      <Button
-                        onClick={handleNextQuestion}
-                        className="w-full h-12 text-lg bg-gradient-to-r from-primary to-amber-500"
-                      >
-                        {currentQuestionIndex < 4 ? "Next question" : "View result"}
-                      </Button>
-                    ) : null}
+                    ) : isTimeUp ? null : (
+                      <p className="text-sm text-muted-foreground text-center py-3">
+                        {languageMode === "bn"
+                          ? "পরবর্তী প্রশ্নে যাচ্ছে..."
+                          : languageMode === "en"
+                          ? "Moving to next question..."
+                          : "পরবর্তী প্রশ্নে যাচ্ছে... / Moving to next question..."}
+                      </p>
+                    )}
                   </div>
                 </motion.div>
               ) : null}
