@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface Question {
   question: string;
-  question_bn?: string;
-  question_en?: string;
   options: string[];
-  options_bn?: string[];
-  options_en?: string[];
   correctAnswer: number;
   category: string;
 }
@@ -89,11 +85,7 @@ const QuizPage = () => {
 
       return (data || []).map((q) => ({
         question: q.question,
-        question_bn: q.question_bn || q.question,
-        question_en: q.question_en || q.question,
         options: q.options as string[],
-        options_bn: q.options_bn as string[] || q.options as string[],
-        options_en: q.options_en as string[] || q.options as string[],
         correctAnswer: q.correct_answer,
         category: q.category,
       }));
@@ -119,9 +111,6 @@ const QuizPage = () => {
   const [currentDate, setCurrentDate] = useState(() => new Date().toDateString());
   const [timeLeft, setTimeLeft] = useState(30);
   const [isTimeUp, setIsTimeUp] = useState(false);
-  
-  const nextButtonRef = useRef<HTMLDivElement>(null);
-  const questionCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -182,11 +171,6 @@ const QuizPage = () => {
       setShowResult(true);
       playSfx("wrong");
       
-      // Scroll to show result at top
-      setTimeout(() => {
-        nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 300);
-      
       // Auto advance to next question after 3 seconds
       const autoNextTimer = setTimeout(() => {
         handleNextQuestion();
@@ -202,57 +186,34 @@ const QuizPage = () => {
     return () => clearInterval(timer);
   }, [timeLeft, quizCompleted, playedToday, currentQuestionIndex, dailyQuestions, showResult]);
 
-  const submitAnswer = (answerIndex: number) => {
-    if (showResult || isTimeUp) return;
-
-    setSelectedAnswer(answerIndex);
-    setShowResult(true);
-
-    const currentQ = dailyQuestions[currentQuestionIndex];
-    const isCorrect = answerIndex === currentQ.correctAnswer;
-
-    // Store the answer for review
-    setQuizAnswers((prev) => [
-      ...prev,
-      {
-        question: currentQ,
-        userAnswer: answerIndex,
-        isCorrect,
-      },
-    ]);
-
-    if (isCorrect) {
-      setScore((prev) => prev + 1);
-      playSfx("correct");
-    } else {
-      playSfx("wrong");
-    }
-
-    // Scroll to the action area (top of screen)
-    setTimeout(() => {
-      nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 250);
-
-    // Auto-go to next question
-    setTimeout(() => {
-      handleNextQuestion();
-    }, 1500);
-  };
-
   const handleAnswerSelect = (answerIndex: number) => {
     if (showResult || isTimeUp) return;
-    submitAnswer(answerIndex);
+    setSelectedAnswer(answerIndex);
   };
 
   const handleSubmitAnswer = () => {
     if (selectedAnswer === null) return;
-    submitAnswer(selectedAnswer);
+    setShowResult(true);
+    
+    const currentQ = dailyQuestions[currentQuestionIndex];
+    const isCorrect = selectedAnswer === currentQ.correctAnswer;
+    
+    // Store the answer for review
+    setQuizAnswers(prev => [...prev, {
+      question: currentQ,
+      userAnswer: selectedAnswer,
+      isCorrect
+    }]);
+    
+    if (isCorrect) {
+      setScore(prev => prev + 1);
+      playSfx("correct");
+    } else {
+      playSfx("wrong");
+    }
   };
 
   const handleNextQuestion = () => {
-    // Scroll to top of question card smoothly
-    questionCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    
     if (currentQuestionIndex < dailyQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedAnswer(null);
@@ -673,73 +634,52 @@ const QuizPage = () => {
                   exit={{ x: -50, opacity: 0 }}
                 >
                   {/* Progress & Timer */}
-                  <div ref={questionCardRef} className="mb-4 space-y-3">
+                  <div className="mb-4 space-y-3">
                     <div className="flex justify-between text-sm mb-2">
                       <span>Question {currentQuestionIndex + 1}/5</span>
                       <span>Score: {score}</span>
                     </div>
                     <Progress value={((currentQuestionIndex + 1) / 5) * 100} className="h-2" />
                     
-                    {/* Timer with Progress Bar */}
-                    <div className="space-y-2">
-                      <div className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                        timeLeft <= 5 
-                          ? "bg-red-500/10 border-red-500/50" 
-                          : timeLeft <= 10
-                          ? "bg-amber-500/10 border-amber-500/50"
-                          : "bg-primary/10 border-primary/20"
+                    {/* Timer */}
+                    <div className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                      timeLeft <= 5 
+                        ? "bg-red-500/10 border-red-500/50 animate-pulse" 
+                        : timeLeft <= 10
+                        ? "bg-amber-500/10 border-amber-500/50"
+                        : "bg-primary/10 border-primary/20"
+                    }`}>
+                      <Clock className={`w-5 h-5 ${
+                        timeLeft <= 5 ? "text-red-500" : timeLeft <= 10 ? "text-amber-500" : "text-primary"
+                      }`} />
+                      <span className={`text-2xl font-bold font-mono ${
+                        timeLeft <= 5 ? "text-red-500" : timeLeft <= 10 ? "text-amber-500" : "text-primary"
                       }`}>
-                        <Clock className={`w-5 h-5 ${
-                          timeLeft <= 5 ? "text-red-500" : timeLeft <= 10 ? "text-amber-500" : "text-primary"
-                        }`} />
-                        <span className={`text-2xl font-bold font-mono ${
-                          timeLeft <= 5 ? "text-red-500" : timeLeft <= 10 ? "text-amber-500" : "text-primary"
-                        }`}>
-                          {timeLeft}s
-                        </span>
-                      </div>
-                      
-                      {/* Animated Progress Bar */}
-                      <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-                        <motion.div
-                          className={`h-full rounded-full ${
-                            timeLeft <= 5 
-                              ? "bg-gradient-to-r from-red-500 to-red-600" 
-                              : timeLeft <= 10
-                              ? "bg-gradient-to-r from-amber-500 to-amber-600"
-                              : "bg-gradient-to-r from-primary to-emerald-500"
-                          }`}
-                          initial={{ width: "100%" }}
-                          animate={{ 
-                            width: `${(timeLeft / 30) * 100}%`,
-                          }}
-                          transition={{ 
-                            duration: 0.5,
-                            ease: "easeInOut"
-                          }}
-                        />
-                      </div>
+                        {timeLeft}s
+                      </span>
                     </div>
                   </div>
 
                   <Card className="mb-3">
                     <CardHeader>
-                      <CardTitle className="leading-relaxed">
-                        {languageMode === "bn" ? (
+                      <CardTitle className="text-xl leading-relaxed">
+                        {languageMode === "bn" && (
                           <span className="font-bangla text-2xl leading-relaxed">
-                            {currentQuestion.question_bn || currentQuestion.question}
+                            {currentQuestion.question}
                           </span>
-                        ) : languageMode === "en" ? (
+                        )}
+                        {languageMode === "en" && (
                           <span className="font-serif text-lg">
-                            {currentQuestion.question_en || currentQuestion.question}
+                            {currentQuestion.question}
                           </span>
-                        ) : (
+                        )}
+                        {languageMode === "mixed" && (
                           <div className="space-y-2">
                             <p className="font-bangla text-2xl leading-relaxed">
-                              {currentQuestion.question_bn || currentQuestion.question}
+                              {currentQuestion.question}
                             </p>
                             <p className="text-sm text-muted-foreground font-serif">
-                              {currentQuestion.question_en || currentQuestion.question}
+                              {currentQuestion.question}
                             </p>
                           </div>
                         )}
@@ -766,21 +706,23 @@ const QuizPage = () => {
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
-                              {languageMode === "bn" ? (
+                              {languageMode === "bn" && (
                                 <p className="font-bangla text-lg leading-snug">
-                                  {currentQuestion.options_bn?.[index] || option}
+                                  {option}
                                 </p>
-                              ) : languageMode === "en" ? (
+                              )}
+                              {languageMode === "en" && (
                                 <p className="font-serif text-base">
-                                  {currentQuestion.options_en?.[index] || option}
+                                  {option}
                                 </p>
-                              ) : (
+                              )}
+                              {languageMode === "mixed" && (
                                 <div className="space-y-1">
                                   <p className="font-bangla text-lg leading-snug">
-                                    {currentQuestion.options_bn?.[index] || option}
+                                    {option}
                                   </p>
                                   <p className="text-xs text-muted-foreground font-serif">
-                                    {currentQuestion.options_en?.[index] || option}
+                                    {option}
                                   </p>
                                 </div>
                               )}
@@ -847,25 +789,22 @@ const QuizPage = () => {
                   </div>
                 )}
 
-                  <div ref={nextButtonRef}>
-                    {!showResult ? (
-                      <p className="text-sm text-muted-foreground text-center py-3">
-                        {languageMode === "bn"
-                          ? "উত্তর দিতে যেকোনো অপশনে ট্যাপ করুন"
-                          : languageMode === "en"
-                          ? "Tap an option to answer"
-                          : "উত্তর দিতে অপশনে ট্যাপ করুন / Tap an option"}
-                      </p>
-                    ) : isTimeUp ? null : (
-                      <p className="text-sm text-muted-foreground text-center py-3">
-                        {languageMode === "bn"
-                          ? "পরবর্তী প্রশ্নে যাচ্ছে..."
-                          : languageMode === "en"
-                          ? "Moving to next question..."
-                          : "পরবর্তী প্রশ্নে যাচ্ছে... / Moving to next question..."}
-                      </p>
-                    )}
-                  </div>
+                  {!showResult ? (
+                    <Button
+                      onClick={handleSubmitAnswer}
+                      disabled={selectedAnswer === null || isTimeUp}
+                      className="w-full h-12 text-lg"
+                    >
+                      Submit answer
+                    </Button>
+                  ) : !isTimeUp ? (
+                    <Button
+                      onClick={handleNextQuestion}
+                      className="w-full h-12 text-lg bg-gradient-to-r from-primary to-amber-500"
+                    >
+                      {currentQuestionIndex < 4 ? "Next question" : "View result"}
+                    </Button>
+                  ) : null}
                 </motion.div>
               ) : null}
             </motion.div>
