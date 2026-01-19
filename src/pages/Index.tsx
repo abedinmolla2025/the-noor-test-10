@@ -110,48 +110,16 @@ const Index = () => {
           el: (
             <div className="space-y-4">
               <AudioRecitationCard />
-              
-              {/* Daily Quiz Challenge Card */}
-              <Card className="bg-gradient-to-br from-teal-50/80 via-emerald-50/80 to-cyan-50/80 dark:from-teal-950/50 dark:via-emerald-950/50 dark:to-cyan-950/50 border border-teal-200/50 dark:border-teal-800/50 shadow-md overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <svg className="w-4 h-4 text-teal-600 dark:text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    <span className="text-xs font-semibold tracking-wider text-teal-700 dark:text-teal-300 uppercase">
-                      Daily Challenge
-                    </span>
-                  </div>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                        Daily Islamic Quiz
-                      </CardTitle>
-                      <CardDescription className="text-sm mt-2 text-gray-700 dark:text-gray-300">
-                        প্রতিদিন ৩টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
-                      </CardDescription>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        Build your daily Islamic habit
-                      </p>
-                    </div>
-                    <span className="px-2 py-1 text-xs font-semibold bg-amber-400 text-amber-900 rounded-md">
-                      PRO
-                    </span>
-                  </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Quiz</CardTitle>
+                  <CardDescription className="text-sm">
+                    আপনার জ্ঞান যাচাই করুন — ছোট ইসলামিক কুইজ খেলুন।
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                    <span>Streak & points saved on this device</span>
-                    <span className="font-medium">Daily • 3 Qs</span>
-                  </div>
-                  <Button 
-                    onClick={() => navigate("/quiz")} 
-                    className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-amber-500 hover:from-emerald-700 hover:via-teal-700 hover:to-amber-600 text-white font-semibold py-6 shadow-lg transition-all duration-300"
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                    </svg>
-                    আজকের কুইজ দিন • START • 3 QUESTIONS
+                <CardContent>
+                  <Button onClick={() => navigate("/quiz")} className="w-full">
+                    Start Quiz
                   </Button>
                 </CardContent>
               </Card>
