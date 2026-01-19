@@ -12,17 +12,14 @@ import { StarBadge, TrophyBadge, MedalBadge, CrownBadge, SparklesBadge } from "@
 import Confetti from "react-confetti";
 import { useQuizProgress } from "@/hooks/useQuizProgress";
 import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-interface QuizQuestion {
-  id: number;
+interface Question {
   question: string;
-  questionBn: string;
   options: string[];
-  optionsBn: string[];
   correctAnswer: number;
   category: string;
-  explanation: string;
-  explanationBn: string;
 }
 
 interface LeaderboardEntry {
@@ -32,7 +29,7 @@ interface LeaderboardEntry {
   badges: number;
 }
 
-const allQuestions: QuizQuestion[] = [
+const allQuestions: Question[] = [
   {
     id: 1,
     question: "How many times is the word 'Allah' mentioned in the Quran?",
@@ -1048,15 +1045,46 @@ type LanguageMode = "en" | "bn" | "mixed";
 
 const QuizPage = () => {
   const navigate = useNavigate();
-  const { progress, addPoints, hasPlayedToday, getAccuracy } = useQuizProgress();
   const countdown = useCountdownToMidnight();
+  
+  const {
+    progress,
+    isLoading: loading,
+    addPoints,
+    hasPlayedToday,
+    getAccuracy,
+    updateStreak,
+  } = useQuizProgress();
+
+  // Fetch questions from database
+  const { data: allQuestions = [], isLoading: questionsLoading } = useQuery({
+    queryKey: ["quiz-questions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("quiz_questions")
+        .select("*")
+        .eq("is_active", true)
+        .order("order_index", { ascending: true });
+
+      if (error) throw error;
+
+      return (data || []).map((q) => ({
+        question: q.question,
+        options: q.options as string[],
+        correctAnswer: q.correct_answer,
+        category: q.category,
+      }));
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+  
   const [activeTab, setActiveTab] = useState<"quiz" | "leaderboard" | "badges">("quiz");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
-  const [dailyQuestions, setDailyQuestions] = useState<QuizQuestion[]>([]);
+  const [dailyQuestions, setDailyQuestions] = useState<Question[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [languageMode, setLanguageMode] = useState<LanguageMode>(() => {
@@ -1158,6 +1186,27 @@ const QuizPage = () => {
     setScore(0);
     setQuizCompleted(false);
   };
+
+  if (loading || questionsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
+        <div className="max-w-2xl mx-auto pt-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">লোড হচ্ছে...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!questionsLoading && allQuestions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
+        <div className="max-w-2xl mx-auto pt-8 text-center">
+          <p className="text-muted-foreground">কোনো প্রশ্ন পাওয়া যায়নি।</p>
+        </div>
+      </div>
+    );
+  }
 
   const currentQuestion = dailyQuestions[currentQuestionIndex];
   const earnedBadges = badges.filter(b => progress.totalPoints >= b.requirement);

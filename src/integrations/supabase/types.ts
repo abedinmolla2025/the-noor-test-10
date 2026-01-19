@@ -1039,6 +1039,48 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_questions: {
+        Row: {
+          category: string
+          correct_answer: number
+          created_at: string | null
+          created_by: string | null
+          difficulty: string | null
+          id: string
+          is_active: boolean | null
+          options: Json
+          order_index: number | null
+          question: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          correct_answer: number
+          created_at?: string | null
+          created_by?: string | null
+          difficulty?: string | null
+          id?: string
+          is_active?: boolean | null
+          options: Json
+          order_index?: number | null
+          question: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          correct_answer?: number
+          created_at?: string | null
+          created_by?: string | null
+          difficulty?: string | null
+          id?: string
+          is_active?: boolean | null
+          options?: Json
+          order_index?: number | null
+          question?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       role_capabilities: {
         Row: {
           allowed: boolean
