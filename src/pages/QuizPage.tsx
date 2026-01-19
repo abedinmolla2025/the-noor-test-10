@@ -182,9 +182,9 @@ const QuizPage = () => {
       setShowResult(true);
       playSfx("wrong");
       
-      // Scroll to show result
+      // Scroll to show result at top
       setTimeout(() => {
-        nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 300);
       
       // Auto advance to next question after 3 seconds
@@ -228,9 +228,9 @@ const QuizPage = () => {
       playSfx("wrong");
     }
     
-    // Scroll to next button after short delay
+    // Scroll to next button at the top of the screen after short delay
     setTimeout(() => {
-      nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 300);
   };
 
