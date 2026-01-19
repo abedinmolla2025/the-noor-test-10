@@ -128,13 +128,13 @@ const QuizPage = () => {
   const playedToday = hasPlayedToday();
 
   useEffect(() => {
-    // Get 3 deterministic questions for the current day based on date seed
+    // Get 5 deterministic questions for the current day based on date seed
     const dateSeed = currentDate;
     const shuffled = [...allQuestions].sort(() => {
       const hash = dateSeed.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
       return Math.sin(hash) - 0.5;
     });
-    setDailyQuestions(shuffled.slice(0, 3));
+    setDailyQuestions(shuffled.slice(0, 5));
     
     // Reset quiz state when date changes (new day = new quiz)
     setCurrentQuestionIndex(0);
@@ -169,7 +169,7 @@ const QuizPage = () => {
       setShowResult(false);
     } else {
       // Quiz completed - add points for each question
-      const earnedPoints = score * 10 + (score === 3 ? 20 : 0); // 10 per correct, +20 bonus for perfect score
+      const earnedPoints = score * 10 + (score === 5 ? 20 : 0); // 10 per correct, +20 bonus for perfect score
       
       // Add points for each correct answer
       for (let i = 0; i < score; i++) {
@@ -177,7 +177,7 @@ const QuizPage = () => {
       }
       
       // Add bonus for perfect score
-      if (score === 3) {
+      if (score === 5) {
         addPoints(20, true);
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 5000);
@@ -361,7 +361,7 @@ const QuizPage = () => {
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                 >
-                  {score === 3 && showConfetti && (
+                  {score === 5 && showConfetti && (
                     <Confetti
                       width={windowSize.width}
                       height={windowSize.height}
@@ -371,11 +371,11 @@ const QuizPage = () => {
                     />
                   )}
                   <Card className={`text-center py-8 relative overflow-hidden ${
-                    score === 3 
+                    score === 5 
                       ? "bg-gradient-to-br from-amber-500/20 via-yellow-500/20 to-orange-500/20 border-2 border-amber-500/50" 
                       : "bg-gradient-to-br from-primary/10 to-amber-500/10"
                   }`}>
-                    {score === 3 && (
+                    {score === 5 && (
                       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 animate-pulse" />
                     )}
                     <CardContent className="relative z-10">
@@ -384,7 +384,7 @@ const QuizPage = () => {
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", delay: 0.2 }}
                       >
-                        {score === 3 ? (
+                        {score === 5 ? (
                           <motion.div
                             animate={{
                               rotate: [0, -5, 5, -5, 0],
@@ -394,7 +394,7 @@ const QuizPage = () => {
                           >
                             <Crown className="w-24 h-24 mx-auto text-amber-500 mb-4 drop-shadow-2xl" />
                           </motion.div>
-                        ) : score >= 2 ? (
+                        ) : score >= 3 ? (
                           <Trophy className="w-20 h-20 mx-auto text-primary mb-4" />
                         ) : (
                           <Star className="w-20 h-20 mx-auto text-blue-500 mb-4" />
@@ -402,28 +402,28 @@ const QuizPage = () => {
                       </motion.div>
                       
                       <h2 className="text-2xl font-bold mb-2">
-                        {score === 3
+                        {score === 5
                           ? "🎉 PERFECT SCORE! 🎉"
-                          : score >= 2
+                          : score >= 3
                           ? "Great job! 👏"
                           : "Good effort! 💪"}
                       </h2>
                       
-                      {score === 3 && (
+                      {score === 5 && (
                         <p className="text-lg text-amber-600 dark:text-amber-400 font-semibold mb-2 animate-pulse">
                           ⭐ You're a Quiz Champion! ⭐
                         </p>
                       )}
                       
-                      <p className="text-4xl font-bold text-primary my-4">{score}/3</p>
+                      <p className="text-4xl font-bold text-primary my-4">{score}/5</p>
                       
                       <div className="bg-background/50 rounded-xl p-4 mb-4 space-y-3">
                         <div>
                           <p className="text-sm text-muted-foreground">Points earned</p>
                           <p className="text-2xl font-bold text-emerald-500">
-                            +{score * 10 + (score === 3 ? 20 : 0)}
+                            +{score * 10 + (score === 5 ? 20 : 0)}
                           </p>
-                          {score === 3 && (
+                          {score === 5 && (
                             <Badge className="mt-2 bg-amber-500">Perfect bonus +20</Badge>
                           )}
                         </div>
@@ -462,10 +462,10 @@ const QuizPage = () => {
                   {/* Progress */}
                   <div className="mb-4">
                     <div className="flex justify-between text-sm mb-2">
-                      <span>Question {currentQuestionIndex + 1}/3</span>
+                      <span>Question {currentQuestionIndex + 1}/5</span>
                       <span>Score: {score}</span>
                     </div>
-                    <Progress value={((currentQuestionIndex + 1) / 3) * 100} className="h-2" />
+                    <Progress value={((currentQuestionIndex + 1) / 5) * 100} className="h-2" />
                   </div>
 
                   <Card className="mb-3">
@@ -578,7 +578,7 @@ const QuizPage = () => {
                       onClick={handleNextQuestion}
                       className="w-full h-12 text-lg bg-gradient-to-r from-primary to-amber-500"
                     >
-                      {currentQuestionIndex < 2 ? "Next question" : "View result"}
+                      {currentQuestionIndex < 4 ? "Next question" : "View result"}
                     </Button>
                   )}
                 </motion.div>

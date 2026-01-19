@@ -34,7 +34,7 @@ export const DailyQuizCard = () => {
             Daily Islamic Quiz
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            প্রতিদিন ৩টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
+            প্রতিদিন ৫টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
           </p>
           <p className="text-xs text-muted-foreground/80 italic">
             Build your daily Islamic habit
@@ -53,7 +53,7 @@ export const DailyQuizCard = () => {
               <span className="font-semibold text-foreground">{progress.totalPoints}</span> pts
             </span>
           </div>
-          <span className="font-medium">Daily • 3 Qs</span>
+          <span className="font-medium">Daily • 5 Qs</span>
         </div>
 
         {/* CTA Button */}
@@ -89,7 +89,7 @@ export const DailyQuizCard = () => {
           >
             <span className="flex items-center gap-2">
               আজকের কুইজ দিন
-              <span className="text-xs opacity-90">• START • 3 QUESTIONS</span>
+              <span className="text-xs opacity-90">• START • 5 QUESTIONS</span>
             </span>
           </Button>
         )}
