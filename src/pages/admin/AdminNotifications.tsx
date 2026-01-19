@@ -262,12 +262,6 @@ export default function AdminNotifications() {
     }
   };
 
-    toast({
-      title: "Template applied",
-      description: `"${template.name}" template loaded. Edit as needed.`,
-    });
-  };
-
   useEffect(() => {
     loadTokenCounts();
     loadCustomTemplates();
@@ -771,4 +765,3 @@ export default function AdminNotifications() {
     </div>
   );
 }
-
