@@ -625,22 +625,22 @@ const QuizPage = () => {
   const earnedBadges = badges.filter(b => totalPoints >= b.requirement);
 
   return (
-    <div className="font-quizEn min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
+    <div className="font-quizEn min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-amber-50 dark:from-slate-900 dark:via-emerald-950 dark:to-slate-900 pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border/50">
+      <div className="sticky top-0 z-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-b border-emerald-200/50 dark:border-emerald-900/50 shadow-sm">
         <div className="flex items-center justify-between p-4">
           <button
             onClick={() => navigate("/")}
-            className="p-2 rounded-full bg-muted/50 hover:bg-muted transition-colors"
+            className="p-2 rounded-full bg-emerald-100 dark:bg-emerald-900/40 hover:bg-emerald-200 dark:hover:bg-emerald-800/60 transition-colors shadow-sm"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-emerald-700 dark:text-emerald-300" />
           </button>
           <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-amber-500 bg-clip-text text-transparent">
             Daily Quiz
           </h1>
-          <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full">
-            <Zap className="w-4 h-4 text-primary" />
-            <span className="font-bold text-primary">{totalPoints}</span>
+          <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/40 px-3 py-1.5 rounded-full border border-emerald-300 dark:border-emerald-700 shadow-sm">
+            <Zap className="w-4 h-4 text-amber-500" />
+            <span className="font-bold text-emerald-700 dark:text-emerald-300">{totalPoints}</span>
           </div>
         </div>
 
@@ -656,8 +656,8 @@ const QuizPage = () => {
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl transition-all ${
                 activeTab === tab.id
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "bg-muted/50 hover:bg-muted"
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30"
+                  : "bg-emerald-100/60 dark:bg-emerald-900/30 hover:bg-emerald-200/80 dark:hover:bg-emerald-900/50"
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -670,7 +670,7 @@ const QuizPage = () => {
         {activeTab === "quiz" && (
           <div className="flex items-center justify-between px-4 pb-3 text-xs">
             <span className="text-muted-foreground">Question language</span>
-            <div className="inline-flex rounded-full bg-muted/60 p-1">
+            <div className="inline-flex rounded-full bg-emerald-100/80 dark:bg-emerald-900/40 p-1 border border-emerald-200 dark:border-emerald-800">
               {(
                 [
                   { id: "en", label: "English" },
@@ -683,8 +683,8 @@ const QuizPage = () => {
                   onClick={() => setLanguageMode(mode.id)}
                   className={`px-3 py-1 rounded-full transition-all ${
                     languageMode === mode.id
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md"
+                      : "text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300"
                   }`}
                 >
                   {mode.label}
@@ -706,7 +706,7 @@ const QuizPage = () => {
               exit={{ opacity: 0, y: -20 }}
             >
               {/* Stats Card */}
-              <Card className="mb-4 bg-gradient-to-r from-primary/10 to-amber-500/10 border-primary/20">
+              <Card className="mb-4 bg-gradient-to-r from-emerald-100 via-teal-100 to-amber-100 dark:from-emerald-900/40 dark:via-teal-900/40 dark:to-amber-900/40 border-emerald-300/50 dark:border-emerald-700/50 shadow-md">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center">
                     <div className="text-center">
@@ -753,8 +753,8 @@ const QuizPage = () => {
                   )}
                   <Card className={`text-center py-8 relative overflow-hidden ${
                     score === 3 
-                      ? "bg-gradient-to-br from-amber-500/20 via-yellow-500/20 to-orange-500/20 border-2 border-amber-500/50" 
-                      : "bg-gradient-to-br from-primary/10 to-amber-500/10"
+                      ? "bg-gradient-to-br from-amber-200 via-yellow-200 to-orange-200 dark:from-amber-900/60 dark:via-yellow-900/60 dark:to-orange-900/60 border-2 border-amber-400 dark:border-amber-600 shadow-lg shadow-amber-500/30" 
+                      : "bg-gradient-to-br from-emerald-100 to-amber-100 dark:from-emerald-900/40 dark:to-amber-900/40 border-emerald-300 dark:border-emerald-700"
                   }`}>
                     {score === 3 && (
                       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-yellow-500/10 to-orange-500/10 animate-pulse" />
@@ -843,7 +843,7 @@ const QuizPage = () => {
                     <Progress value={((currentQuestionIndex + 1) / 3) * 100} className="h-2" />
                   </div>
 
-                  <Card className="mb-3">
+                  <Card className="mb-3 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-emerald-200 dark:border-emerald-800 shadow-lg">
                     <CardHeader>
                       <CardTitle className="text-xl leading-relaxed">
                         {languageMode === "bn" && (
@@ -880,13 +880,13 @@ const QuizPage = () => {
                           className={`w-full p-4 rounded-xl text-left transition-all border-2 ${
                             showResult
                               ? index === currentQuestion.correctAnswer
-                                ? "bg-emerald-500/20 border-emerald-500 text-emerald-700 dark:text-emerald-300"
+                                ? "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-md"
                                 : selectedAnswer === index
-                                ? "bg-red-500/20 border-red-500 text-red-700 dark:text-red-300"
-                                : "bg-muted/30 border-transparent"
+                                ? "bg-red-100 dark:bg-red-900/40 border-red-500 text-red-700 dark:text-red-300 shadow-md"
+                                : "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
                               : selectedAnswer === index
-                              ? "bg-primary/20 border-primary"
-                              : "bg-muted/50 border-transparent hover:bg-muted"
+                              ? "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-500 shadow-md shadow-emerald-500/20"
+                              : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-300 dark:hover:border-emerald-700"
                           }`}
                         >
                           <div className="flex items-center justify-between">
@@ -976,7 +976,7 @@ const QuizPage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-                <Card className="mb-4 bg-gradient-to-r from-amber-500/20 to-primary/20 border-amber-500/30">
+                <Card className="mb-4 bg-gradient-to-r from-amber-100 via-yellow-100 to-emerald-100 dark:from-amber-900/40 dark:via-yellow-900/40 dark:to-emerald-900/40 border-amber-400 dark:border-amber-700 shadow-lg">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1001,8 +1001,8 @@ const QuizPage = () => {
                   >
                     <Card className={`${
                       entry.rank <= 3 
-                        ? "bg-gradient-to-r from-amber-500/10 to-transparent border-amber-500/30" 
-                        : ""
+                        ? "bg-gradient-to-r from-amber-100 to-yellow-50 dark:from-amber-900/30 dark:to-yellow-900/20 border-amber-400 dark:border-amber-700 shadow-md" 
+                        : "bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700"
                     }`}>
                       <CardContent className="p-4 flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
@@ -1044,7 +1044,7 @@ const QuizPage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <Card className="mb-4 bg-gradient-to-br from-primary/5 to-amber-500/5">
+              <Card className="mb-4 bg-gradient-to-br from-emerald-100 to-amber-100 dark:from-emerald-900/40 dark:to-amber-900/40 border-emerald-300 dark:border-emerald-700 shadow-lg">
                 <CardContent className="p-6 text-center">
                   <p className="text-sm text-muted-foreground mb-2">Badges collected</p>
                   <p className="text-5xl font-bold text-primary mb-1">{earnedBadges.length}/{badges.length}</p>
@@ -1068,10 +1068,10 @@ const QuizPage = () => {
                     >
                       <Card className={`relative overflow-hidden transition-all ${
                         isEarned 
-                          ? `bg-gradient-to-br ${badge.bgGradient} border-2 border-primary/30 shadow-lg` 
+                          ? `bg-gradient-to-br ${badge.bgGradient} border-2 border-emerald-400 dark:border-emerald-600 shadow-lg shadow-emerald-500/20` 
                           : isNext
-                          ? "bg-muted/30 border-2 border-dashed border-primary/20"
-                          : "bg-muted/10 opacity-60"
+                          ? "bg-emerald-50 dark:bg-emerald-900/20 border-2 border-dashed border-emerald-400 dark:border-emerald-700"
+                          : "bg-slate-50 dark:bg-slate-800/30 opacity-60 border border-slate-200 dark:border-slate-700"
                       }`}>
                         <CardContent className="p-5">
                           <div className="flex items-start gap-4">
