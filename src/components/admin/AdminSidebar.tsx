@@ -67,6 +67,7 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
       items: [
         { to: '/admin/users', icon: Users, label: 'Users' },
         { to: '/admin/content', icon: BookOpen, label: 'Content' },
+        { to: '/admin/quiz', icon: BookOpen, label: 'Quiz Questions' },
         { to: '/admin/occasions', icon: CalendarDays, label: 'Occasions' },
         { to: '/admin/notifications', icon: Bell, label: 'Send Notification' },
         { to: '/admin/notifications/history', icon: HistoryIcon, label: 'Notification History' },
