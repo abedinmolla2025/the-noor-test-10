@@ -2,10 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Zap } from "lucide-react";
+import { Trophy, Zap, Flame } from "lucide-react";
+import { useQuizProgress } from "@/hooks/useQuizProgress";
 
 export const DailyQuizCard = () => {
   const navigate = useNavigate();
+  const { progress, hasPlayedToday } = useQuizProgress();
 
   return (
     <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card to-card/50">
@@ -38,24 +40,43 @@ export const DailyQuizCard = () => {
 
         {/* Stats */}
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
-          <span className="flex items-center gap-1">
-            <Zap className="w-3 h-3" />
-            Streak & points saved on this device
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <Flame className="w-3 h-3 text-orange-500" />
+              <span className="font-semibold text-foreground">{progress.currentStreak}</span> day streak
+            </span>
+            <span className="flex items-center gap-1">
+              <Zap className="w-3 h-3 text-primary" />
+              <span className="font-semibold text-foreground">{progress.totalPoints}</span> pts
+            </span>
+          </div>
           <span className="font-medium">Daily • 3 Qs</span>
         </div>
 
         {/* CTA Button */}
-        <Button
-          onClick={() => navigate("/quiz")}
-          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg"
-          size="lg"
-        >
-          <span className="flex items-center gap-2">
-            আজকের কুইজ দিন
-            <span className="text-xs opacity-90">• START • 3 QUESTIONS</span>
-          </span>
-        </Button>
+        {hasPlayedToday() ? (
+          <Button
+            disabled
+            className="w-full bg-muted text-muted-foreground font-semibold"
+            size="lg"
+          >
+            <span className="flex items-center gap-2">
+              ✅ আজকের কুইজ সম্পূর্ণ
+              <span className="text-xs opacity-70">• আগামীকাল ফিরে আসুন</span>
+            </span>
+          </Button>
+        ) : (
+          <Button
+            onClick={() => navigate("/quiz")}
+            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg"
+            size="lg"
+          >
+            <span className="flex items-center gap-2">
+              আজকের কুইজ দিন
+              <span className="text-xs opacity-90">• START • 3 QUESTIONS</span>
+            </span>
+          </Button>
+        )}
       </CardContent>
     </Card>
   );

@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import BottomNavigation from "@/components/BottomNavigation";
-import { ArrowLeft, Trophy, Star, Medal, Crown, Zap, CheckCircle2, XCircle, Sparkles } from "lucide-react";
+import { ArrowLeft, Trophy, Star, Medal, Crown, Zap, CheckCircle2, XCircle, Sparkles, Target, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { playSfx } from "@/utils/quizSfx";
 import { StarBadge, TrophyBadge, MedalBadge, CrownBadge, SparklesBadge } from "@/components/BadgeIcons";
 import Confetti from "react-confetti";
+import { useQuizProgress } from "@/hooks/useQuizProgress";
 
 interface QuizQuestion {
   id: number;
@@ -496,6 +497,7 @@ type LanguageMode = "en" | "bn" | "mixed";
 
 const QuizPage = () => {
   const navigate = useNavigate();
+  const { progress, addPoints, hasPlayedToday, getAccuracy } = useQuizProgress();
   const [activeTab, setActiveTab] = useState<"quiz" | "leaderboard" | "badges">("quiz");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -503,17 +505,6 @@ const QuizPage = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [dailyQuestions, setDailyQuestions] = useState<QuizQuestion[]>([]);
-  const [totalPoints, setTotalPoints] = useState(() => {
-    const saved = localStorage.getItem("quizPoints");
-    return saved ? parseInt(saved) : 0;
-  });
-  const [streak, setStreak] = useState(() => {
-    const saved = localStorage.getItem("quizStreak");
-    return saved ? parseInt(saved) : 0;
-  });
-  const [lastPlayedDate, setLastPlayedDate] = useState(() => {
-    return localStorage.getItem("lastQuizDate") || "";
-  });
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [languageMode, setLanguageMode] = useState<LanguageMode>(() => {
@@ -545,8 +536,7 @@ const QuizPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const today = currentDate;
-  const hasPlayedToday = lastPlayedDate === today;
+  const playedToday = hasPlayedToday();
 
   useEffect(() => {
     // Get 3 deterministic questions for the current day based on date seed
@@ -582,34 +572,23 @@ const QuizPage = () => {
       setSelectedAnswer(null);
       setShowResult(false);
     } else {
-      // Quiz completed
-      const earnedPoints = score * 10 + (score === 3 ? 20 : 0);
-      const newTotal = totalPoints + earnedPoints;
-      setTotalPoints(newTotal);
-      localStorage.setItem("quizPoints", newTotal.toString());
-      localStorage.setItem("lastQuizDate", today);
+      // Quiz completed - add points for each question
+      const earnedPoints = score * 10 + (score === 3 ? 20 : 0); // 10 per correct, +20 bonus for perfect score
       
-      // Update streak
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      if (lastPlayedDate === yesterday.toDateString()) {
-        const newStreak = streak + 1;
-        setStreak(newStreak);
-        localStorage.setItem("quizStreak", newStreak.toString());
-      } else if (lastPlayedDate !== today) {
-        setStreak(1);
-        localStorage.setItem("quizStreak", "1");
+      // Add points for each correct answer
+      for (let i = 0; i < score; i++) {
+        addPoints(10, true);
       }
       
-      setLastPlayedDate(today);
-      setQuizCompleted(true);
-      playSfx("result");
-      
-      // Show confetti for perfect score
+      // Add bonus for perfect score
       if (score === 3) {
+        addPoints(20, true);
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 5000);
       }
+      
+      setQuizCompleted(true);
+      playSfx("result");
     }
   };
 
@@ -622,7 +601,7 @@ const QuizPage = () => {
   };
 
   const currentQuestion = dailyQuestions[currentQuestionIndex];
-  const earnedBadges = badges.filter(b => totalPoints >= b.requirement);
+  const earnedBadges = badges.filter(b => progress.totalPoints >= b.requirement);
 
   return (
     <div className="font-quizEn min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
@@ -640,7 +619,7 @@ const QuizPage = () => {
           </h1>
           <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full">
             <Zap className="w-4 h-4 text-primary" />
-            <span className="font-bold text-primary">{totalPoints}</span>
+            <span className="font-bold text-primary">{progress.totalPoints}</span>
           </div>
         </div>
 
@@ -708,24 +687,43 @@ const QuizPage = () => {
               {/* Stats Card */}
               <Card className="mb-4 bg-gradient-to-r from-primary/10 to-amber-500/10 border-primary/20">
                 <CardContent className="p-4">
-                  <div className="flex justify-between items-center">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-primary">{streak}</p>
-                      <p className="text-xs text-muted-foreground">Day streak 🔥</p>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="text-center p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5">
+                      <p className="text-2xl font-bold text-primary">{progress.currentStreak}</p>
+                      <p className="text-xs text-muted-foreground">Day Streak 🔥</p>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center p-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5">
                       <p className="text-2xl font-bold text-amber-500">{earnedBadges.length}</p>
-                      <p className="text-xs text-muted-foreground">Badges earned</p>
+                      <p className="text-xs text-muted-foreground">Badges</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-emerald-500">{totalPoints}</p>
-                      <p className="text-xs text-muted-foreground">Total points</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="text-center p-2 rounded-lg bg-emerald-500/10">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Zap className="w-3 h-3 text-emerald-500" />
+                      </div>
+                      <p className="text-lg font-bold text-emerald-500">{progress.totalPoints}</p>
+                      <p className="text-[10px] text-muted-foreground">Points</p>
+                    </div>
+                    <div className="text-center p-2 rounded-lg bg-blue-500/10">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Target className="w-3 h-3 text-blue-500" />
+                      </div>
+                      <p className="text-lg font-bold text-blue-500">{getAccuracy()}%</p>
+                      <p className="text-[10px] text-muted-foreground">Accuracy</p>
+                    </div>
+                    <div className="text-center p-2 rounded-lg bg-purple-500/10">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <TrendingUp className="w-3 h-3 text-purple-500" />
+                      </div>
+                      <p className="text-lg font-bold text-purple-500">{progress.longestStreak}</p>
+                      <p className="text-[10px] text-muted-foreground">Best</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {hasPlayedToday && !quizCompleted ? (
+              {playedToday && !quizCompleted ? (
                 <Card className="text-center py-8">
                   <CardContent>
                     <CheckCircle2 className="w-16 h-16 mx-auto text-emerald-500 mb-4" />
@@ -811,11 +809,11 @@ const QuizPage = () => {
                         <div className="grid grid-cols-2 gap-3 text-sm">
                           <div className="rounded-lg bg-primary/5 p-3">
                             <p className="text-xs text-muted-foreground">Today streak</p>
-                            <p className="text-lg font-semibold text-primary">{streak} days</p>
+                            <p className="text-lg font-semibold text-primary">{progress.currentStreak} days</p>
                           </div>
                           <div className="rounded-lg bg-emerald-500/5 p-3">
                             <p className="text-xs text-muted-foreground">Total points</p>
-                            <p className="text-lg font-semibold text-emerald-500">{totalPoints}</p>
+                            <p className="text-lg font-semibold text-emerald-500">{progress.totalPoints}</p>
                           </div>
                         </div>
                       </div>
@@ -985,7 +983,7 @@ const QuizPage = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-muted-foreground">Your points</p>
-                        <p className="text-3xl font-bold text-primary">{totalPoints}</p>
+                        <p className="text-3xl font-bold text-primary">{progress.totalPoints}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -1054,10 +1052,10 @@ const QuizPage = () => {
 
               <div className="grid grid-cols-1 gap-4">
                 {badges.map((badge, index) => {
-                  const isEarned = totalPoints >= badge.requirement;
-                  const isNext = !isEarned && (index === 0 || totalPoints >= badges[index - 1].requirement);
-                  const pointsNeeded = badge.requirement - totalPoints;
-                  const progress = isEarned ? 100 : Math.min(100, (totalPoints / badge.requirement) * 100);
+                  const isEarned = progress.totalPoints >= badge.requirement;
+                  const isNext = !isEarned && (index === 0 || progress.totalPoints >= badges[index - 1].requirement);
+                  const pointsNeeded = badge.requirement - progress.totalPoints;
+                  const badgeProgress = isEarned ? 100 : Math.min(100, (progress.totalPoints / badge.requirement) * 100);
 
                   return (
                     <motion.div
@@ -1111,10 +1109,10 @@ const QuizPage = () => {
                               {!isEarned && (
                                 <div className="space-y-1">
                                   <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>{totalPoints} points</span>
+                                    <span>{progress.totalPoints} points</span>
                                     <span>{badge.requirement} needed</span>
                                   </div>
-                                  <Progress value={progress} className="h-1.5" />
+                                  <Progress value={badgeProgress} className="h-1.5" />
                                   {isNext && (
                                     <p className="text-xs text-primary font-medium">
                                       {pointsNeeded} points to unlock
