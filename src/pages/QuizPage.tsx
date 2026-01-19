@@ -202,24 +202,21 @@ const QuizPage = () => {
     return () => clearInterval(timer);
   }, [timeLeft, quizCompleted, playedToday, currentQuestionIndex, dailyQuestions, showResult]);
 
-  const handleAnswerSelect = (answerIndex: number) => {
+  const submitAnswer = (answerIndex: number) => {
     if (showResult || isTimeUp) return;
-    setSelectedAnswer(answerIndex);
-  };
 
-  const handleSubmitAnswer = () => {
-    if (selectedAnswer === null) return;
+    setSelectedAnswer(answerIndex);
     setShowResult(true);
 
     const currentQ = dailyQuestions[currentQuestionIndex];
-    const isCorrect = selectedAnswer === currentQ.correctAnswer;
+    const isCorrect = answerIndex === currentQ.correctAnswer;
 
     // Store the answer for review
     setQuizAnswers((prev) => [
       ...prev,
       {
         question: currentQ,
-        userAnswer: selectedAnswer,
+        userAnswer: answerIndex,
         isCorrect,
       },
     ]);
@@ -236,10 +233,20 @@ const QuizPage = () => {
       nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 250);
 
-    // Auto-go to next question (no Next button)
+    // Auto-go to next question
     setTimeout(() => {
       handleNextQuestion();
     }, 1500);
+  };
+
+  const handleAnswerSelect = (answerIndex: number) => {
+    if (showResult || isTimeUp) return;
+    submitAnswer(answerIndex);
+  };
+
+  const handleSubmitAnswer = () => {
+    if (selectedAnswer === null) return;
+    submitAnswer(selectedAnswer);
   };
 
   const handleNextQuestion = () => {
@@ -842,13 +849,13 @@ const QuizPage = () => {
 
                   <div ref={nextButtonRef}>
                     {!showResult ? (
-                      <Button
-                        onClick={handleSubmitAnswer}
-                        disabled={selectedAnswer === null || isTimeUp}
-                        className="w-full h-12 text-lg"
-                      >
-                        Submit answer
-                      </Button>
+                      <p className="text-sm text-muted-foreground text-center py-3">
+                        {languageMode === "bn"
+                          ? "উত্তর দিতে যেকোনো অপশনে ট্যাপ করুন"
+                          : languageMode === "en"
+                          ? "Tap an option to answer"
+                          : "উত্তর দিতে অপশনে ট্যাপ করুন / Tap an option"}
+                      </p>
                     ) : isTimeUp ? null : (
                       <p className="text-sm text-muted-foreground text-center py-3">
                         {languageMode === "bn"
