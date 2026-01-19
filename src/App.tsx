@@ -46,6 +46,7 @@ import { AdminLayout } from "./components/admin/AdminLayout";
 import { GlobalConfigProvider } from "./context/GlobalConfigContext";
 import { usePushTokenRegistration } from "@/hooks/usePushTokenRegistration";
 import { useWebPushRegistration } from "@/hooks/useWebPushRegistration";
+import { useQuizReminder } from "@/hooks/useQuizReminder";
 
 const queryClient = new QueryClient();
 
@@ -259,6 +260,8 @@ const App = () => {
   usePushTokenRegistration();
   // Web-only: register browser for web push notifications.
   useWebPushRegistration();
+  // Quiz reminder notifications
+  useQuizReminder();
 
   return (
     <QueryClientProvider client={queryClient}>
