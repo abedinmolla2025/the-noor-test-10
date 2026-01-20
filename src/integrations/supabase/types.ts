@@ -520,6 +520,7 @@ export type Database = {
         Row: {
           admin_email: string
           code_hash: string
+          code_salt: string
           created_at: string
           expires_at: string
           id: string
@@ -530,6 +531,7 @@ export type Database = {
         Insert: {
           admin_email: string
           code_hash: string
+          code_salt?: string
           created_at?: string
           expires_at: string
           id?: string
@@ -540,6 +542,7 @@ export type Database = {
         Update: {
           admin_email?: string
           code_hash?: string
+          code_salt?: string
           created_at?: string
           expires_at?: string
           id?: string
