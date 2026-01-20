@@ -58,6 +58,8 @@ interface QuizAnswer {
   isCorrect: boolean;
 }
 
+const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
+
 const QuizPage = () => {
   const navigate = useNavigate();
   const countdown = useCountdownToMidnight();
@@ -164,6 +166,13 @@ const QuizPage = () => {
     
     if (quizCompleted || playedToday || !currentQuestion || showResult) {
       return;
+    }
+
+    // Warning sounds (web only)
+    const muted = localStorage.getItem(QUIZ_WARNING_SOUNDS_MUTED_KEY) === "true";
+    if (!muted) {
+      if (timeLeft === 10) playSfx("warn10");
+      if (timeLeft === 5) playSfx("warn5");
     }
 
     if (timeLeft === 0) {

@@ -15,6 +15,9 @@ import { PrayerNotificationSettings } from "@/components/PrayerNotificationSetti
 import { QuizReminderSettings } from "@/components/QuizReminderSettings";
 
 
+const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
+
+
 const OFFSET_OPTIONS = [-20, -15, -10, -5, 0, 5, 10, 15, 20];
 
 const SettingsPage = () => {
@@ -25,6 +28,10 @@ const SettingsPage = () => {
   // Settings state (local-only for now)
   const [notifications, setNotifications] = useState(true);
   const [athanSound, setAthanSound] = useState(true);
+  const [quizWarningSoundsMuted, setQuizWarningSoundsMuted] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(QUIZ_WARNING_SOUNDS_MUTED_KEY) === "true";
+  });
 
   // Hidden admin unlock (7 taps on Version)
   const [versionTapCount, setVersionTapCount] = useState(0);
@@ -63,6 +70,17 @@ const SettingsPage = () => {
     toast({
       title: checked ? "🔊 আযান সাউন্ড চালু" : "🔇 আযান সাউন্ড বন্ধ",
       description: checked ? "নামাজের সময় আযান শুনতে পাবেন" : "আযান সাউন্ড বন্ধ করা হয়েছে",
+    });
+  };
+
+  const handleQuizWarningSoundsToggle = (checked: boolean) => {
+    // checked=true means "sounds on" (not muted)
+    const muted = !checked;
+    setQuizWarningSoundsMuted(muted);
+    localStorage.setItem(QUIZ_WARNING_SOUNDS_MUTED_KEY, muted ? "true" : "false");
+    toast({
+      title: checked ? "🔔 কুইজ ওয়ার্নিং সাউন্ড চালু" : "🔕 কুইজ ওয়ার্নিং সাউন্ড বন্ধ",
+      description: checked ? "১০s ও ৫s এ সতর্ক সাউন্ড শুনবেন" : "কুইজের সতর্ক সাউন্ড বন্ধ করা হয়েছে",
     });
   };
 
@@ -231,6 +249,15 @@ const SettingsPage = () => {
           type: "switch",
           value: athanSound,
           onChange: handleAthanSoundToggle,
+        },
+        {
+          id: "quizWarningSounds",
+          label: "কুইজ ওয়ার্নিং সাউন্ড",
+          description: "১০s ও ৫s বাকি থাকলে সতর্ক সাউন্ড",
+          icon: !quizWarningSoundsMuted ? <Volume2 size={20} className="text-primary" /> : <VolumeX size={20} className="text-muted-foreground" />,
+          type: "switch",
+          value: !quizWarningSoundsMuted,
+          onChange: handleQuizWarningSoundsToggle,
         },
         {
           id: "quizNotifications",

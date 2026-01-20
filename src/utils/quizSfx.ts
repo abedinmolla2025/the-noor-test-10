@@ -40,7 +40,21 @@ function playResultSound() {
   setTimeout(() => playTone(1046.50, 0.3, "sine"), 450); // C6
 }
 
-export async function playSfx(type: "correct" | "wrong" | "result") {
+// Timer warnings
+function playWarn10() {
+  // gentle double beep
+  playTone(880, 0.06, "sine");
+  setTimeout(() => playTone(880, 0.06, "sine"), 120);
+}
+
+function playWarn5() {
+  // more urgent triple beep
+  playTone(988, 0.06, "square");
+  setTimeout(() => playTone(988, 0.06, "square"), 110);
+  setTimeout(() => playTone(988, 0.06, "square"), 220);
+}
+
+export async function playSfx(type: "correct" | "wrong" | "result" | "warn10" | "warn5") {
   try {
     switch (type) {
       case "correct":
@@ -51,6 +65,12 @@ export async function playSfx(type: "correct" | "wrong" | "result") {
         break;
       case "result":
         playResultSound();
+        break;
+      case "warn10":
+        playWarn10();
+        break;
+      case "warn5":
+        playWarn5();
         break;
     }
   } catch (error) {
