@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload } from "lucide-react";
+import { Download, Upload } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -156,6 +156,19 @@ export function DuaBulkImportDialog({
   };
 
   const handlePickFile = () => fileInputRef.current?.click();
+
+  const handleExportJson = () => {
+    const content = (jsonInput.trim().length ? jsonInput : exampleJson).trim();
+    const blob = new Blob([content], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "duas.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 
   const handleFileSelected = async (file: File | null) => {
     if (!file) return;
@@ -360,7 +373,10 @@ export function DuaBulkImportDialog({
             ref={fileInputRef}
             type="file"
             accept="application/json,.json"
-            className="hidden"
+            hidden
+            style={{ display: "none" }}
+            aria-hidden="true"
+            tabIndex={-1}
             onChange={(e) => handleFileSelected(e.target.files?.[0] ?? null)}
           />
 
@@ -372,10 +388,16 @@ export function DuaBulkImportDialog({
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="dua-json-input">Paste JSON data:</Label>
-              <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
-                <Upload className="h-4 w-4 mr-2" />
-                Import JSON file
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={handleExportJson}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export JSON
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import JSON file
+                </Button>
+              </div>
             </div>
             <Textarea
               id="dua-json-input"
