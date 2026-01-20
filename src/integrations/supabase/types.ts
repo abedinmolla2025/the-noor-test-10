@@ -516,6 +516,39 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_passcode_reset_tokens: {
+        Row: {
+          admin_email: string
+          code_hash: string
+          created_at: string
+          expires_at: string
+          id: string
+          requested_ip: string | null
+          requested_user_id: string | null
+          used_at: string | null
+        }
+        Insert: {
+          admin_email: string
+          code_hash: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          requested_ip?: string | null
+          requested_user_id?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          admin_email?: string
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          requested_ip?: string | null
+          requested_user_id?: string | null
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       admin_security_config: {
         Row: {
           admin_email: string
