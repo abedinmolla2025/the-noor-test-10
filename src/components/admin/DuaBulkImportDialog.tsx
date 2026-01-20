@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
@@ -72,7 +71,6 @@ export function DuaBulkImportDialog({
 }) {
   const { toast } = useToast();
 
-  const [files, setFiles] = useState<File[]>([]);
   const [jsonInput, setJsonInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isParsing, setIsParsing] = useState(false);
@@ -82,9 +80,20 @@ export function DuaBulkImportDialog({
 
   const [duplicateMode, setDuplicateMode] = useState<"skip" | "update">("skip");
 
-  const [previewQuery, setPreviewQuery] = useState("");
-  const [previewCategory, setPreviewCategory] = useState<string>("all");
   const [previewOnlyDuplicates, setPreviewOnlyDuplicates] = useState(false);
+
+  const exampleJson = `[
+  {
+    "title": "Morning Dua",
+    "title_arabic": "دعاء الصباح",
+    "content_bn": "...",
+    "content_en": "...",
+    "pronunciation": "...",
+    "category": "Morning",
+    "source": "...",
+    "reference": "..."
+  }
+]`;
 
   const parsed = useMemo(() => {
     const valid: DuaImportItem[] = [];
@@ -126,63 +135,24 @@ export function DuaBulkImportDialog({
     };
   }, [rawItems, existingKeys]);
 
-  const previewBaseList = useMemo(
-    () => (previewOnlyDuplicates ? parsed.duplicates : parsed.valid),
-    [parsed.duplicates, parsed.valid, previewOnlyDuplicates]
-  );
-
-  const previewCategories = useMemo(() => {
-    const set = new Set<string>();
-    for (const it of previewBaseList) {
-      const c = (it.category ?? "").trim();
-      if (c) set.add(c);
-    }
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [previewBaseList]);
-
-  const previewFiltered = useMemo(() => {
-    const q = previewQuery.trim().toLowerCase();
-    const list =
-      previewCategory === "all"
-        ? previewBaseList
-        : previewBaseList.filter((it) => (it.category ?? "").trim() === previewCategory);
-
-    if (!q) return list;
-
-    return list.filter((it) => {
-      const parts = [
-        it.title,
-        it.title_arabic ?? "",
-        it.category ?? "",
-        it.content_bn ?? "",
-        it.content_en ?? "",
-        it.pronunciation ?? "",
-      ];
-      return parts.join(" ").toLowerCase().includes(q);
-    });
-  }, [previewBaseList, previewCategory, previewQuery]);
+  const previewList = useMemo(() => {
+    if (previewOnlyDuplicates) return parsed.duplicates;
+    return duplicateMode === "update" ? [...parsed.valid, ...parsed.duplicatesExisting] : parsed.valid;
+  }, [duplicateMode, parsed.duplicates, parsed.duplicatesExisting, parsed.valid, previewOnlyDuplicates]);
 
   const reset = () => {
-    setFiles([]);
     setJsonInput("");
     setRawItems([]);
     setErrors([]);
     setIsParsing(false);
     setIsImporting(false);
     setDuplicateMode("skip");
-    setPreviewQuery("");
-    setPreviewCategory("all");
     setPreviewOnlyDuplicates(false);
   };
 
   const handleClose = (nextOpen: boolean) => {
     if (!nextOpen) reset();
     onOpenChange(nextOpen);
-  };
-
-  const onPickFiles = (list: FileList | null) => {
-    if (!list) return;
-    setFiles(Array.from(list));
   };
 
   const handlePickFile = () => fileInputRef.current?.click();
@@ -197,7 +167,6 @@ export function DuaBulkImportDialog({
       const text = await file.text();
       JSON.parse(text);
       setJsonInput(text);
-      setFiles([]);
       setRawItems([]);
       toast({ title: `Loaded ${file.name}` });
     } catch {
@@ -209,7 +178,7 @@ export function DuaBulkImportDialog({
 
   const parseFiles = async () => {
     const hasText = jsonInput.trim().length > 0;
-    if (!files.length && !hasText) {
+    if (!hasText) {
       toast({ title: "JSON দিন (file বা paste)", variant: "destructive" });
       return;
     }
@@ -219,20 +188,9 @@ export function DuaBulkImportDialog({
 
     try {
       const all: unknown[] = [];
-      if (hasText) {
-        const json = JSON.parse(jsonInput);
-        if (!Array.isArray(json)) throw new Error("Pasted JSON: root must be an array");
-        all.push(...json);
-      } else {
-        for (const f of files) {
-          const text = await f.text();
-          const json = JSON.parse(text);
-          if (!Array.isArray(json)) {
-            throw new Error(`${f.name}: root must be an array`);
-          }
-          all.push(...json);
-        }
-      }
+      const json = JSON.parse(jsonInput);
+      if (!Array.isArray(json)) throw new Error("JSON must be an array");
+      all.push(...json);
 
       setRawItems(all);
       toast({ title: "Parsed", description: `${all.length} items পাওয়া গেছে` });
@@ -389,11 +347,11 @@ export function DuaBulkImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Bulk Import — Dua (JSON)</DialogTitle>
           <DialogDescription>
-            এক বা একাধিক JSON ফাইল দিন (root array). Duplicate (title + title_arabic) হলে Skip বা Update হবে (mode অনুযায়ী)।
+            JSON paste করুন বা .json file import করুন, তারপর Preview দেখে Import করুন। Duplicate হলে Skip/Update হবে (mode অনুযায়ী)।
           </DialogDescription>
         </DialogHeader>
 
@@ -407,57 +365,24 @@ export function DuaBulkImportDialog({
           />
 
           <div className="space-y-2">
-            <Label>JSON files</Label>
-            <Input
-              type="file"
-              accept="application/json,.json"
-              multiple
-              onChange={(e) => onPickFiles(e.target.files)}
-            />
-            <div className="flex flex-wrap items-center gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
-                <Upload className="mr-2 h-4 w-4" />
-                Import JSON file
-              </Button>
-              <span className="text-xs text-muted-foreground">(single file → paste field)</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={parseFiles}
-                disabled={isParsing || isImporting || (!files.length && jsonInput.trim().length === 0)}
-              >
-                {isParsing ? "Parsing…" : "Parse"}
-              </Button>
-              <Button type="button" variant="ghost" onClick={reset} disabled={isParsing || isImporting}>
-                Reset
-              </Button>
-            </div>
-            {files.length ? (
-              <p className="text-xs text-muted-foreground">Selected: {files.map((f) => f.name).join(", ")}</p>
-            ) : null}
+            <Label>JSON Format Example:</Label>
+            <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto">{exampleJson}</pre>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
-              <Label htmlFor="dua-json-input">Or paste JSON array</Label>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={parseFiles}
-                disabled={isParsing || isImporting || jsonInput.trim().length === 0}
-              >
-                Preview
+              <Label htmlFor="dua-json-input">Paste JSON data:</Label>
+              <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import JSON file
               </Button>
             </div>
             <Textarea
               id="dua-json-input"
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
-              rows={8}
-              placeholder='[ { "title": "...", "content_bn": "..." } ]'
+              rows={10}
+              placeholder="Paste JSON data here..."
               className="font-mono text-sm"
             />
           </div>
@@ -499,68 +424,30 @@ export function DuaBulkImportDialog({
             </Card>
           ) : null}
 
-          {parsed.valid.length || parsed.duplicates.length ? (
-            <Card className="p-3">
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium">Preview (first 20)</p>
-                    {previewOnlyDuplicates ? (
-                      <p className="text-xs text-muted-foreground">
-                        {duplicateMode === "update"
-                          ? `Showing duplicates (existing: ${parsed.duplicatesExisting.length}, in file: ${parsed.duplicatesInFile.length})`
-                          : `Showing duplicates that will be skipped (${parsed.duplicates.length})`}
-                      </p>
-                    ) : null}
+          {previewList.length > 0 ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <Label>Preview ({previewList.length} items):</Label>
+                <div className="flex items-center gap-3">
+                  <div className="w-[220px]">
+                    <Select value={duplicateMode} onValueChange={(v) => setDuplicateMode(v as any)}>
+                      <SelectTrigger aria-label="Duplicate mode">
+                        <SelectValue placeholder="Duplicate mode" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="skip">Duplicates: Skip</SelectItem>
+                        <SelectItem value="update">Duplicates: Update</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Showing {Math.min(20, previewFiltered.length)} of {previewFiltered.length}
-                  </p>
-                </div>
-
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Input
-                    value={previewQuery}
-                    onChange={(e) => setPreviewQuery(e.target.value)}
-                    placeholder="Search title/category/content…"
-                    aria-label="Preview search"
-                  />
-
-                  <Select value={previewCategory} onValueChange={setPreviewCategory}>
-                    <SelectTrigger aria-label="Filter by category">
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All categories</SelectItem>
-                      {previewCategories.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex items-center justify-between gap-3 rounded-md border border-border p-2">
-                  <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2">
                     <p className="text-sm font-medium">Only duplicates</p>
-                    <p className="text-xs text-muted-foreground">
-                      {duplicateMode === "update" ? "existing duplicates update হবে" : "এইগুলো import এ Skip হবে"}
-                    </p>
+                    <Switch checked={previewOnlyDuplicates} onCheckedChange={setPreviewOnlyDuplicates} />
                   </div>
-                  <Switch
-                    checked={previewOnlyDuplicates}
-                    onCheckedChange={(v) => {
-                      setPreviewOnlyDuplicates(v);
-                      setPreviewCategory("all");
-                      setPreviewQuery("");
-                    }}
-                    aria-label="Only duplicates"
-                  />
                 </div>
               </div>
 
-              <div className="mt-3 overflow-auto">
+              <div className="bg-muted p-4 rounded-lg max-h-60 overflow-y-auto">
                 <Table className="min-w-[980px] text-xs">
                   <TableHeader>
                     <TableRow>
@@ -570,12 +457,10 @@ export function DuaBulkImportDialog({
                       <TableHead className="whitespace-nowrap">Content (EN)</TableHead>
                       <TableHead className="whitespace-nowrap">Pronunciation</TableHead>
                       <TableHead className="whitespace-nowrap">Category</TableHead>
-                      <TableHead className="whitespace-nowrap">Source</TableHead>
-                      <TableHead className="whitespace-nowrap">Reference</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {previewFiltered.slice(0, 20).map((it, idx) => (
+                    {previewList.slice(0, 20).map((it, idx) => (
                       <TableRow key={`${it.title}-${idx}`}>
                         <TableCell className="font-medium whitespace-nowrap">{it.title}</TableCell>
                         <TableCell className="whitespace-nowrap">{it.title_arabic ?? ""}</TableCell>
@@ -583,20 +468,21 @@ export function DuaBulkImportDialog({
                         <TableCell className="min-w-[320px]">{it.content_en ?? ""}</TableCell>
                         <TableCell className="min-w-[220px]">{it.pronunciation ?? ""}</TableCell>
                         <TableCell className="whitespace-nowrap">{it.category ?? ""}</TableCell>
-                        <TableCell className="whitespace-nowrap">{it.source ?? ""}</TableCell>
-                        <TableCell className="whitespace-nowrap">{it.reference ?? ""}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
-            </Card>
+            </div>
           ) : null}
         </div>
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => handleClose(false)}>
-            Close
+            Cancel
+          </Button>
+          <Button type="button" variant="secondary" onClick={parseFiles} disabled={isParsing || isImporting || jsonInput.trim().length === 0}>
+            {isParsing ? "Previewing…" : "Preview"}
           </Button>
           <Button type="button" onClick={doImport} disabled={isImporting || isParsing || !rawItems.length}>
             {isImporting ? "Importing…" : "Import"}
