@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Columns3, Download } from "lucide-react";
+import { Columns3, Download, Upload } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -97,6 +97,7 @@ export function DuaBulkImportDialog({
   const [duplicateMode, setDuplicateMode] = useState<"skip" | "update">("skip");
 
   const [previewOnlyDuplicates, setPreviewOnlyDuplicates] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [visibleCols, setVisibleCols] = useState({
     content_bn: true,
@@ -202,6 +203,30 @@ export function DuaBulkImportDialog({
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+  };
+
+  const handlePickFile = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelected = async (file: File | null) => {
+    if (!file) return;
+    try {
+      if (file.size > 10 * 1024 * 1024) {
+        toast({ title: "File too large", description: "Max 10MB", variant: "destructive" });
+        return;
+      }
+      const text = await file.text();
+      JSON.parse(text);
+      setJsonInput(text);
+      setRawItems([]);
+      setErrors([]);
+      toast({ title: "Loaded", description: file.name });
+    } catch (e) {
+      toast({ title: "Invalid JSON file", variant: "destructive" });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const parseFiles = async () => {
@@ -402,6 +427,17 @@ export function DuaBulkImportDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            hidden
+            aria-hidden="true"
+            tabIndex={-1}
+            style={{ display: "none" }}
+            onChange={(e) => handleFileSelected(e.target.files?.[0] ?? null)}
+          />
+
           <div className="space-y-2">
             <Label>JSON Format Example:</Label>
             <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto">{exampleJson}</pre>
@@ -411,6 +447,10 @@ export function DuaBulkImportDialog({
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="dua-json-input">Paste JSON data:</Label>
               <div className="flex items-center gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import JSON file
+                </Button>
                 <Button type="button" variant="outline" size="sm" onClick={handleExportJson}>
                   <Download className="h-4 w-4 mr-2" />
                   Export JSON
