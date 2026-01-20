@@ -422,7 +422,12 @@ export function DuaBulkImportDialog({
               <span className="text-xs text-muted-foreground">(single file → paste field)</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="outline" onClick={parseFiles} disabled={isParsing || !files.length}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={parseFiles}
+                disabled={isParsing || isImporting || (!files.length && jsonInput.trim().length === 0)}
+              >
                 {isParsing ? "Parsing…" : "Parse"}
               </Button>
               <Button type="button" variant="ghost" onClick={reset} disabled={isParsing || isImporting}>
