@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Upload } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { QuizBulkImportDialog } from "@/components/admin/QuizBulkImportDialog";
+import { AdminPageActionsDropdown } from "@/components/admin/AdminPageActionsDropdown";
 
 type QuizQuestion = {
   id: string;
@@ -261,6 +262,19 @@ export default function AdminQuiz() {
 
   const totalDays = questions ? Math.ceil(questions.filter((q) => q.is_active).length / 3) : 0;
 
+  const exportData = questions?.map((q) => ({
+    question: q.question_en || q.question || "",
+    question_en: q.question_en,
+    question_bn: q.question_bn,
+    options: q.options_en || q.options || [],
+    options_en: q.options_en,
+    options_bn: q.options_bn,
+    correct_answer: q.correct_answer,
+    category: q.category,
+    difficulty: q.difficulty,
+    is_active: q.is_active,
+  }));
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -272,6 +286,11 @@ export default function AdminQuiz() {
             </p>
           </div>
           <div className="flex gap-2">
+            <AdminPageActionsDropdown
+              exportData={exportData}
+              exportFileName="quiz-questions.json"
+              exportLabel="Export Questions"
+            />
             <QuizBulkImportDialog />
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
               setIsDialogOpen(open);
