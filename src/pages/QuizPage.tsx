@@ -63,6 +63,7 @@ interface QuizAnswer {
 }
 
 const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
+const QUIZ_ONE_TAP_AUTOSUBMIT_KEY = "quizOneTapAutoSubmit";
 
 const QuizPage = () => {
   const navigate = useNavigate();
@@ -71,6 +72,7 @@ const QuizPage = () => {
   const nextButtonRef = useRef<HTMLDivElement | null>(null);
   const submitAutoNextTimerRef = useRef<number | null>(null);
   const submitScrollTimerRef = useRef<number | null>(null);
+  const oneTapSubmitTimerRef = useRef<number | null>(null);
   
   const {
     progress,
@@ -227,22 +229,17 @@ const QuizPage = () => {
     return () => clearInterval(timer);
   }, [timeLeft, quizCompleted, playedToday, currentQuestionIndex, dailyQuestions, showResult]);
 
-  const handleAnswerSelect = (answerIndex: number) => {
+  const submitAnswer = (answerIndex: number) => {
     if (showResult || isTimeUp) return;
-    setSelectedAnswer(answerIndex);
-  };
-
-  const handleSubmitAnswer = () => {
-    if (selectedAnswer === null) return;
     setShowResult(true);
     
     const currentQ = dailyQuestions[currentQuestionIndex];
-    const isCorrect = selectedAnswer === currentQ.correctAnswer;
+    const isCorrect = answerIndex === currentQ.correctAnswer;
     
     // Store the answer for review
     setQuizAnswers(prev => [...prev, {
       question: currentQ,
-      userAnswer: selectedAnswer,
+      userAnswer: answerIndex,
       isCorrect
     }]);
     
@@ -268,10 +265,30 @@ const QuizPage = () => {
     }, 1500);
   };
 
+  const handleAnswerSelect = (answerIndex: number) => {
+    if (showResult || isTimeUp) return;
+    setSelectedAnswer(answerIndex);
+
+    // Optional: one-tap auto submit
+    const enabled = localStorage.getItem(QUIZ_ONE_TAP_AUTOSUBMIT_KEY) === "true";
+    if (!enabled) return;
+
+    if (oneTapSubmitTimerRef.current) window.clearTimeout(oneTapSubmitTimerRef.current);
+    oneTapSubmitTimerRef.current = window.setTimeout(() => {
+      submitAnswer(answerIndex);
+    }, 200);
+  };
+
+  const handleSubmitAnswer = () => {
+    if (selectedAnswer === null) return;
+    submitAnswer(selectedAnswer);
+  };
+
   useEffect(() => {
     return () => {
       if (submitAutoNextTimerRef.current) window.clearTimeout(submitAutoNextTimerRef.current);
       if (submitScrollTimerRef.current) window.clearTimeout(submitScrollTimerRef.current);
+      if (oneTapSubmitTimerRef.current) window.clearTimeout(oneTapSubmitTimerRef.current);
     };
   }, []);
 

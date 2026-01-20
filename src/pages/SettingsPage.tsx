@@ -16,6 +16,7 @@ import { QuizReminderSettings } from "@/components/QuizReminderSettings";
 
 
 const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
+const QUIZ_ONE_TAP_AUTOSUBMIT_KEY = "quizOneTapAutoSubmit";
 
 
 const OFFSET_OPTIONS = [-20, -15, -10, -5, 0, 5, 10, 15, 20];
@@ -31,6 +32,10 @@ const SettingsPage = () => {
   const [quizWarningSoundsMuted, setQuizWarningSoundsMuted] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem(QUIZ_WARNING_SOUNDS_MUTED_KEY) === "true";
+  });
+  const [quizOneTapAutoSubmit, setQuizOneTapAutoSubmit] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(QUIZ_ONE_TAP_AUTOSUBMIT_KEY) === "true";
   });
 
   // Hidden admin unlock (7 taps on Version)
@@ -81,6 +86,17 @@ const SettingsPage = () => {
     toast({
       title: checked ? "🔔 কুইজ ওয়ার্নিং সাউন্ড চালু" : "🔕 কুইজ ওয়ার্নিং সাউন্ড বন্ধ",
       description: checked ? "১০s ও ৫s এ সতর্ক সাউন্ড শুনবেন" : "কুইজের সতর্ক সাউন্ড বন্ধ করা হয়েছে",
+    });
+  };
+
+  const handleQuizOneTapAutoSubmitToggle = (checked: boolean) => {
+    setQuizOneTapAutoSubmit(checked);
+    localStorage.setItem(QUIZ_ONE_TAP_AUTOSUBMIT_KEY, checked ? "true" : "false");
+    toast({
+      title: checked ? "⚡ One-tap auto submit চালু" : "⚡ One-tap auto submit বন্ধ",
+      description: checked
+        ? "অপশন ট্যাপ করলেই ২০০ms পর অটো সাবমিট হবে"
+        : "ম্যানুয়ালি Submit বাটন চাপতে হবে",
     });
   };
 
@@ -258,6 +274,15 @@ const SettingsPage = () => {
           type: "switch",
           value: !quizWarningSoundsMuted,
           onChange: handleQuizWarningSoundsToggle,
+        },
+        {
+          id: "quizOneTapAutoSubmit",
+          label: "One-tap auto submit",
+          description: "অপশন ট্যাপ করলেই অটো সাবমিট (২০০ms)",
+          icon: quizOneTapAutoSubmit ? <Bell size={20} className="text-primary" /> : <BellOff size={20} className="text-muted-foreground" />,
+          type: "switch",
+          value: quizOneTapAutoSubmit,
+          onChange: handleQuizOneTapAutoSubmitToggle,
         },
         {
           id: "quizNotifications",
