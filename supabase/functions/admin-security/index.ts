@@ -94,6 +94,11 @@ Deno.serve(async (req) => {
       return sub;
     };
 
+    const getAdminActorId = async () => {
+      const adminUser = await ensureAdminUser();
+      return adminUser.id;
+    };
+
     // Load config (service role bypasses RLS).
     // IMPORTANT: passcode hashing/verification is done in Postgres (crypt), not in JS.
     const ensureConfig = async () => {
@@ -376,8 +381,25 @@ Deno.serve(async (req) => {
     }
 
     if (action === "request_reset_code") {
-      const sub = await requireAdminRequester();
-      if (!sub) return json({ ok: false, error: "not_authorized" }, 200);
+      // This must work even when the admin is locked out (no session).
+      // Throttle by IP to prevent email abuse.
+      const ip = getIp(req);
+
+      // Simple IP throttle: max 3 requests / 15 minutes
+      if (ip) {
+        const { count, error: countErr } = await supabase
+          .from("admin_passcode_reset_tokens")
+          .select("id", { count: "exact", head: true })
+          .eq("admin_email", adminEmail)
+          .eq("requested_ip", ip)
+          .gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString());
+        if (countErr) return json({ ok: false, error: "throttle_check_failed" }, 500);
+        if ((count ?? 0) >= 3) {
+          const actor = await getAdminActorId();
+          await logAudit(actor, "passcode_reset_throttled", { ip });
+          return json({ ok: false, error: "too_many_requests" }, 200);
+        }
+      }
 
       const code = randomDigits(6);
       const salt = randomHex(16);
@@ -391,30 +413,36 @@ Deno.serve(async (req) => {
         .eq("admin_email", adminEmail)
         .is("used_at", null);
 
+      const requester = await getRequesterId();
       const { error: insertErr } = await supabase.from("admin_passcode_reset_tokens").insert({
         admin_email: adminEmail,
         code_hash: codeHash,
         code_salt: salt,
-        requested_ip: getIp(req),
-        requested_user_id: sub,
+        requested_ip: ip,
+        requested_user_id: requester,
         expires_at: expiresAt,
       });
       if (insertErr) return json({ ok: false, error: "token_insert_failed" }, 500);
 
+      const actor = requester ?? (await getAdminActorId());
       try {
         await sendResetEmail(adminEmail, code);
       } catch (e) {
-        await logAudit(sub, "passcode_reset_email_failed", { ip: getIp(req), message: e instanceof Error ? e.message : String(e) });
+        await logAudit(actor, "passcode_reset_email_failed", {
+          ip,
+          message: e instanceof Error ? e.message : String(e),
+        });
         return json({ ok: false, error: "email_send_failed" }, 500);
       }
 
-      await logAudit(sub, "passcode_reset_code_requested", { ip: getIp(req) });
+      await logAudit(actor, "passcode_reset_code_requested", { ip });
       return json({ ok: true });
     }
 
     if (action === "reset_passcode_with_code") {
-      const sub = await requireAdminRequester();
-      if (!sub) return json({ ok: false, error: "not_authorized" }, 200);
+      // This must work even when the admin is locked out (no session).
+      const sub = await getRequesterId();
+      const actor = sub ?? (await getAdminActorId());
 
       const code = String(payload?.code ?? "").trim();
       const next = String(payload?.new_passcode ?? "");
@@ -445,7 +473,7 @@ Deno.serve(async (req) => {
       }
 
       if (!matchedId) {
-        await logAudit(sub, "passcode_reset_failed", { reason: "invalid_or_expired_code", ip: getIp(req) });
+        await logAudit(actor, "passcode_reset_failed", { reason: "invalid_or_expired_code", ip: getIp(req) });
         return json({ ok: false, error: "invalid_or_expired_code" }, 200);
       }
 
@@ -483,7 +511,7 @@ Deno.serve(async (req) => {
       // Revoke admin sessions after reset
       await supabase.auth.admin.signOut(adminUser.id);
 
-      await logAudit(sub, "passcode_reset_success", { ip: getIp(req) });
+      await logAudit(actor, "passcode_reset_success", { ip: getIp(req) });
       return json({ ok: true, revoked: true });
     }
 
