@@ -17,7 +17,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface Question {
   question: string;
+  question_bn?: string | null;
+  question_en?: string | null;
   options: string[];
+  options_bn?: string[] | null;
+  options_en?: string[] | null;
   correctAnswer: number;
   category: string;
 }
@@ -87,13 +91,37 @@ const QuizPage = () => {
 
       return (data || []).map((q) => ({
         question: q.question,
+        question_bn: (q as any).question_bn ?? null,
+        question_en: (q as any).question_en ?? null,
         options: q.options as string[],
+        options_bn: ((q as any).options_bn as string[] | null) ?? null,
+        options_en: ((q as any).options_en as string[] | null) ?? null,
         correctAnswer: q.correct_answer,
         category: q.category,
       }));
     },
     staleTime: 5 * 60 * 1000,
   });
+
+  const getQuestionText = (q: Question, mode: LanguageMode) => {
+    if (mode === "bn") return q.question_bn || q.question;
+    if (mode === "en") return q.question_en || q.question;
+    return q.question_bn || q.question;
+  };
+
+  const getQuestionTextSecondary = (q: Question) => {
+    return q.question_en || q.question;
+  };
+
+  const getOptionText = (q: Question, optionFallback: string, index: number, mode: LanguageMode) => {
+    if (mode === "bn") return q.options_bn?.[index] || optionFallback;
+    if (mode === "en") return q.options_en?.[index] || optionFallback;
+    return q.options_bn?.[index] || optionFallback;
+  };
+
+  const getOptionTextSecondary = (q: Question, optionFallback: string, index: number) => {
+    return q.options_en?.[index] || optionFallback;
+  };
   
   const [activeTab, setActiveTab] = useState<"quiz" | "leaderboard" | "badges">("quiz");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -706,26 +734,20 @@ const QuizPage = () => {
                   <Card className="mb-3">
                     <CardHeader>
                       <CardTitle className="text-xl leading-relaxed">
-                        {languageMode === "bn" && (
-                          <span className="font-quizBnPremium text-2xl md:text-3xl leading-relaxed">
-                            {currentQuestion.question}
-                          </span>
-                        )}
-                        {languageMode === "en" && (
+                        {languageMode === "en" ? (
                           <span className="font-quizEnPremium text-lg md:text-xl leading-relaxed">
-                            {currentQuestion.question}
+                            {getQuestionText(currentQuestion, languageMode)}
                           </span>
-                        )}
-                        {languageMode === "mixed" && (
+                        ) : (
                           <span className="font-quizBnPremium text-2xl md:text-3xl leading-relaxed">
-                            {currentQuestion.question}
+                            {getQuestionText(currentQuestion, languageMode)}
                           </span>
                         )}
                       </CardTitle>
                       {languageMode === "mixed" && (
                         <div className="mt-1 space-y-0.5">
                           <p className="text-sm md:text-xs text-muted-foreground font-quizEnPremium">
-                            {currentQuestion.question}
+                            {getQuestionTextSecondary(currentQuestion)}
                           </p>
                         </div>
                       )}
@@ -758,11 +780,11 @@ const QuizPage = () => {
                                     : "font-quizEnPremium text-sm"
                                 }`}
                               >
-                                {option}
+                                {getOptionText(currentQuestion, option, index, languageMode)}
                               </p>
                               {languageMode === "mixed" && (
                                 <p className="text-xs text-muted-foreground mt-0.5 font-quizEnPremium">
-                                  {option}
+                                  {getOptionTextSecondary(currentQuestion, option, index)}
                                 </p>
                               )}
                             </div>
