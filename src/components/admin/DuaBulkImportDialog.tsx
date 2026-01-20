@@ -34,6 +34,7 @@ const duaImportItemSchema = z
     title: z.string().trim().min(1).max(200),
     title_arabic: z.string().trim().min(1).max(200).optional(),
 
+    content_arabic: z.string().trim().max(8000).optional(),
     content_bn: z.string().trim().max(8000).optional(),
     content_en: z.string().trim().max(8000).optional(),
     pronunciation: z.string().trim().max(2000).optional(),
@@ -83,14 +84,15 @@ export function DuaBulkImportDialog({
 
   const exampleJson = `[
   {
-    "title": "Morning Dua",
+    "title": "সকালের দোয়া",
     "title_arabic": "دعاء الصباح",
-    "content_bn": "...",
-    "content_en": "...",
-    "pronunciation": "...",
+    "content_arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ",
+    "pronunciation": "আস্‌বাহনা ওয়া আস্‌বাহাল মুলকু লিল্লাহ, ওয়ালহামদু লিল্লাহ",
+    "content_bn": "আমরা সকালে উপনীত হয়েছি এবং এই সময়ে সমস্ত সার্বভৌমত্ব আল্লাহর...",
+    "content_en": "We have reached the morning and at this very time all sovereignty belongs to Allah...",
     "category": "Morning",
-    "source": "...",
-    "reference": "..."
+    "source": "Hisnul Muslim",
+    "reference": "(optional)"
   }
 ]`;
 
@@ -240,6 +242,7 @@ export function DuaBulkImportDialog({
             content_type: "dua",
             title: it.title.trim(),
             title_arabic: it.title_arabic?.trim() || null,
+            content_arabic: it.content_arabic?.trim() || null,
             content: it.content_bn?.trim() || null,
             content_en: it.content_en?.trim() || null,
             content_pronunciation: it.pronunciation?.trim() || null,
@@ -291,6 +294,7 @@ export function DuaBulkImportDialog({
             const payload = {
               title: it.title.trim(),
               title_arabic: it.title_arabic?.trim() || null,
+              content_arabic: it.content_arabic?.trim() || null,
               content: it.content_bn?.trim() || null,
               content_en: it.content_en?.trim() || null,
               content_pronunciation: it.pronunciation?.trim() || null,
@@ -437,7 +441,7 @@ export function DuaBulkImportDialog({
                   <TableHeader>
                     <TableRow>
                       <TableHead className="whitespace-nowrap">Title</TableHead>
-                      <TableHead className="whitespace-nowrap">Arabic</TableHead>
+                      <TableHead className="whitespace-nowrap">Arabic (Dua)</TableHead>
                       <TableHead className="whitespace-nowrap">Content (BN)</TableHead>
                       <TableHead className="whitespace-nowrap">Content (EN)</TableHead>
                       <TableHead className="whitespace-nowrap">Pronunciation</TableHead>
@@ -448,7 +452,7 @@ export function DuaBulkImportDialog({
                     {previewList.slice(0, 20).map((it, idx) => (
                       <TableRow key={`${it.title}-${idx}`}>
                         <TableCell className="font-medium whitespace-nowrap">{it.title}</TableCell>
-                        <TableCell className="whitespace-nowrap">{it.title_arabic ?? ""}</TableCell>
+                          <TableCell className="min-w-[320px] font-arabic">{it.content_arabic ?? ""}</TableCell>
                         <TableCell className="min-w-[320px]">{it.content_bn ?? ""}</TableCell>
                         <TableCell className="min-w-[320px]">{it.content_en ?? ""}</TableCell>
                         <TableCell className="min-w-[220px]">{it.pronunciation ?? ""}</TableCell>
