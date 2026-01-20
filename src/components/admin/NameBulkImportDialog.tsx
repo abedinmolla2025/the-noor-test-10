@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, Upload } from "lucide-react";
+import { Download } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -71,7 +71,6 @@ export function NameBulkImportDialog({
   const { toast } = useToast();
 
   const [jsonInput, setJsonInput] = useState("");
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isParsing, setIsParsing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [rawItems, setRawItems] = useState<unknown[]>([]);
@@ -140,8 +139,6 @@ export function NameBulkImportDialog({
     onOpenChange(nextOpen);
   };
 
-  const handlePickFile = () => fileInputRef.current?.click();
-
   const handleExportJson = () => {
     const content = (jsonInput.trim().length ? jsonInput : exampleJson).trim();
     const blob = new Blob([content], { type: "application/json;charset=utf-8" });
@@ -155,29 +152,10 @@ export function NameBulkImportDialog({
     URL.revokeObjectURL(url);
   };
 
-  const handleFileSelected = async (file: File | null) => {
-    if (!file) return;
-    try {
-      if (file.size > 10 * 1024 * 1024) {
-        toast({ title: "File is too large (max 10MB)", variant: "destructive" });
-        return;
-      }
-      const text = await file.text();
-      JSON.parse(text);
-      setJsonInput(text);
-      setRawItems([]);
-      toast({ title: `Loaded ${file.name}` });
-    } catch {
-      toast({ title: "Invalid JSON file", variant: "destructive" });
-    } finally {
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
-
   const parseFiles = async () => {
     const hasText = jsonInput.trim().length > 0;
     if (!hasText) {
-      toast({ title: "JSON দিন (file বা paste)", variant: "destructive" });
+      toast({ title: "JSON দিন (paste)", variant: "destructive" });
       return;
     }
 
@@ -268,21 +246,10 @@ export function NameBulkImportDialog({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Bulk Import — Names (JSON)</DialogTitle>
-          <DialogDescription>JSON paste করুন বা .json file import করুন, তারপর Preview দেখে Import করুন।</DialogDescription>
+          <DialogDescription>JSON paste করুন, তারপর Preview দেখে Import করুন।</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/json,.json"
-            hidden
-            style={{ display: "none" }}
-            aria-hidden="true"
-            tabIndex={-1}
-            onChange={(e) => handleFileSelected(e.target.files?.[0] ?? null)}
-          />
-
           <div className="space-y-2">
             <Label>JSON Format Example:</Label>
             <pre className="bg-muted p-4 rounded-lg text-xs overflow-x-auto">{exampleJson}</pre>
@@ -295,10 +262,6 @@ export function NameBulkImportDialog({
                 <Button type="button" variant="outline" size="sm" onClick={handleExportJson}>
                   <Download className="h-4 w-4 mr-2" />
                   Export JSON
-                </Button>
-                <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import JSON file
                 </Button>
               </div>
             </div>
