@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Upload } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -72,6 +74,8 @@ export function NameBulkImportDialog({
   const { toast } = useToast();
 
   const [files, setFiles] = useState<File[]>([]);
+  const [jsonInput, setJsonInput] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isParsing, setIsParsing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [rawItems, setRawItems] = useState<unknown[]>([]);
@@ -153,6 +157,7 @@ export function NameBulkImportDialog({
 
   const reset = () => {
     setFiles([]);
+    setJsonInput("");
     setRawItems([]);
     setErrors([]);
     setIsParsing(false);
@@ -172,9 +177,32 @@ export function NameBulkImportDialog({
     setFiles(Array.from(list));
   };
 
+  const handlePickFile = () => fileInputRef.current?.click();
+
+  const handleFileSelected = async (file: File | null) => {
+    if (!file) return;
+    try {
+      if (file.size > 10 * 1024 * 1024) {
+        toast({ title: "File is too large (max 10MB)", variant: "destructive" });
+        return;
+      }
+      const text = await file.text();
+      JSON.parse(text);
+      setJsonInput(text);
+      setFiles([]);
+      setRawItems([]);
+      toast({ title: `Loaded ${file.name}` });
+    } catch {
+      toast({ title: "Invalid JSON file", variant: "destructive" });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const parseFiles = async () => {
-    if (!files.length) {
-      toast({ title: "JSON file দিন", variant: "destructive" });
+    const hasText = jsonInput.trim().length > 0;
+    if (!files.length && !hasText) {
+      toast({ title: "JSON দিন (file বা paste)", variant: "destructive" });
       return;
     }
 
@@ -183,13 +211,19 @@ export function NameBulkImportDialog({
 
     try {
       const all: unknown[] = [];
-      for (const f of files) {
-        const text = await f.text();
-        const json = JSON.parse(text);
-        if (!Array.isArray(json)) {
-          throw new Error(`${f.name}: root must be an array`);
-        }
+      if (hasText) {
+        const json = JSON.parse(jsonInput);
+        if (!Array.isArray(json)) throw new Error("Pasted JSON: root must be an array");
         all.push(...json);
+      } else {
+        for (const f of files) {
+          const text = await f.text();
+          const json = JSON.parse(text);
+          if (!Array.isArray(json)) {
+            throw new Error(`${f.name}: root must be an array`);
+          }
+          all.push(...json);
+        }
       }
 
       setRawItems(all);
@@ -276,6 +310,14 @@ export function NameBulkImportDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => handleFileSelected(e.target.files?.[0] ?? null)}
+          />
+
           <div className="space-y-2">
             <Label>JSON files</Label>
             <Input
@@ -284,6 +326,13 @@ export function NameBulkImportDialog({
               multiple
               onChange={(e) => onPickFiles(e.target.files)}
             />
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
+                <Upload className="mr-2 h-4 w-4" />
+                Import JSON file
+              </Button>
+              <span className="text-xs text-muted-foreground">(single file → paste field)</span>
+            </div>
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" onClick={parseFiles} disabled={isParsing || !files.length}>
                 {isParsing ? "Parsing…" : "Parse"}
@@ -295,6 +344,29 @@ export function NameBulkImportDialog({
             {files.length ? (
               <p className="text-xs text-muted-foreground">Selected: {files.map((f) => f.name).join(", ")}</p>
             ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <Label htmlFor="name-json-input">Or paste JSON array</Label>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={parseFiles}
+                disabled={isParsing || isImporting || jsonInput.trim().length === 0}
+              >
+                Preview
+              </Button>
+            </div>
+            <Textarea
+              id="name-json-input"
+              value={jsonInput}
+              onChange={(e) => setJsonInput(e.target.value)}
+              rows={8}
+              placeholder='[ { "title": "...", "meaning_bn": "..." } ]'
+              className="font-mono text-sm"
+            />
           </div>
 
           {errors.length ? (
