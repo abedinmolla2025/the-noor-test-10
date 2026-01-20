@@ -12,7 +12,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Download, Upload } from "lucide-react";
 import { z } from "zod";
 
 const QuizQuestionSchema = z.object({
@@ -124,6 +124,19 @@ export function QuizBulkImportDialog() {
     }
   };
 
+  const handleExportJson = () => {
+    const content = (jsonInput.trim().length ? jsonInput : exampleJson).trim();
+    const blob = new Blob([content], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "quiz-questions.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const handleImport = () => {
     if (preview.length === 0) {
       toast.error("Please preview first");
@@ -182,10 +195,16 @@ export function QuizBulkImportDialog() {
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="json-input">Paste JSON data:</Label>
-              <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
-                <Upload className="h-4 w-4 mr-2" />
-                Import JSON file
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import JSON file
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={handleExportJson}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export JSON
+                </Button>
+              </div>
             </div>
             <Textarea
               id="json-input"
