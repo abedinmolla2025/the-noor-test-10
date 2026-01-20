@@ -11,7 +11,15 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Columns3, Download } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -89,6 +97,17 @@ export function DuaBulkImportDialog({
   const [duplicateMode, setDuplicateMode] = useState<"skip" | "update">("skip");
 
   const [previewOnlyDuplicates, setPreviewOnlyDuplicates] = useState(false);
+
+  const [visibleCols, setVisibleCols] = useState({
+    content_bn: true,
+    content_en: true,
+    content_hi: false,
+    content_ur: false,
+    pron_bn: true,
+    pron_en: true,
+    pron_hi: false,
+    pron_ur: false,
+  });
 
   const exampleJson = `[
   {
@@ -450,6 +469,112 @@ export function DuaBulkImportDialog({
               <div className="flex items-center justify-between gap-3">
                 <Label>Preview ({previewList.length} items):</Label>
                 <div className="flex items-center gap-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button type="button" variant="outline" size="sm">
+                        <Columns3 className="h-4 w-4 mr-2" />
+                        Columns
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>Show/Hide columns</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuCheckboxItem
+                        checked={visibleCols.content_bn}
+                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, content_bn: Boolean(v) }))}
+                      >
+                        Content (BN)
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={visibleCols.content_en}
+                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, content_en: Boolean(v) }))}
+                      >
+                        Content (EN)
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={visibleCols.content_hi}
+                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, content_hi: Boolean(v) }))}
+                      >
+                        Content (HI)
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={visibleCols.content_ur}
+                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, content_ur: Boolean(v) }))}
+                      >
+                        Content (UR)
+                      </DropdownMenuCheckboxItem>
+
+                      <DropdownMenuSeparator />
+                      <DropdownMenuCheckboxItem
+                        checked={visibleCols.pron_bn}
+                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, pron_bn: Boolean(v) }))}
+                      >
+                        Pron (BN)
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={visibleCols.pron_en}
+                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, pron_en: Boolean(v) }))}
+                      >
+                        Pron (EN)
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={visibleCols.pron_hi}
+                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, pron_hi: Boolean(v) }))}
+                      >
+                        Pron (HI)
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={visibleCols.pron_ur}
+                        onCheckedChange={(v) => setVisibleCols((p) => ({ ...p, pron_ur: Boolean(v) }))}
+                      >
+                        Pron (UR)
+                      </DropdownMenuCheckboxItem>
+
+                      <DropdownMenuSeparator />
+                      <div className="px-2 py-1.5 flex gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="w-full"
+                          onClick={() =>
+                            setVisibleCols({
+                              content_bn: true,
+                              content_en: true,
+                              content_hi: false,
+                              content_ur: false,
+                              pron_bn: true,
+                              pron_en: true,
+                              pron_hi: false,
+                              pron_ur: false,
+                            })
+                          }
+                        >
+                          Basic
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="w-full"
+                          onClick={() =>
+                            setVisibleCols({
+                              content_bn: true,
+                              content_en: true,
+                              content_hi: true,
+                              content_ur: true,
+                              pron_bn: true,
+                              pron_en: true,
+                              pron_hi: true,
+                              pron_ur: true,
+                            })
+                          }
+                        >
+                          All
+                        </Button>
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <div className="w-[220px]">
                     <Select value={duplicateMode} onValueChange={(v) => setDuplicateMode(v as any)}>
                       <SelectTrigger aria-label="Duplicate mode">
@@ -474,14 +599,14 @@ export function DuaBulkImportDialog({
                     <TableRow>
                       <TableHead className="whitespace-nowrap">Title</TableHead>
                       <TableHead className="whitespace-nowrap">Arabic (Dua)</TableHead>
-                      <TableHead className="whitespace-nowrap">Content (BN)</TableHead>
-                      <TableHead className="whitespace-nowrap">Content (EN)</TableHead>
-                      <TableHead className="whitespace-nowrap">Content (HI)</TableHead>
-                      <TableHead className="whitespace-nowrap">Content (UR)</TableHead>
-                      <TableHead className="whitespace-nowrap">Pron (BN)</TableHead>
-                      <TableHead className="whitespace-nowrap">Pron (EN)</TableHead>
-                      <TableHead className="whitespace-nowrap">Pron (HI)</TableHead>
-                      <TableHead className="whitespace-nowrap">Pron (UR)</TableHead>
+                      {visibleCols.content_bn ? <TableHead className="whitespace-nowrap">Content (BN)</TableHead> : null}
+                      {visibleCols.content_en ? <TableHead className="whitespace-nowrap">Content (EN)</TableHead> : null}
+                      {visibleCols.content_hi ? <TableHead className="whitespace-nowrap">Content (HI)</TableHead> : null}
+                      {visibleCols.content_ur ? <TableHead className="whitespace-nowrap">Content (UR)</TableHead> : null}
+                      {visibleCols.pron_bn ? <TableHead className="whitespace-nowrap">Pron (BN)</TableHead> : null}
+                      {visibleCols.pron_en ? <TableHead className="whitespace-nowrap">Pron (EN)</TableHead> : null}
+                      {visibleCols.pron_hi ? <TableHead className="whitespace-nowrap">Pron (HI)</TableHead> : null}
+                      {visibleCols.pron_ur ? <TableHead className="whitespace-nowrap">Pron (UR)</TableHead> : null}
                       <TableHead className="whitespace-nowrap">Category</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -490,14 +615,14 @@ export function DuaBulkImportDialog({
                       <TableRow key={`${it.title}-${idx}`}>
                         <TableCell className="font-medium whitespace-nowrap">{it.title}</TableCell>
                           <TableCell className="min-w-[320px] font-arabic">{it.content_arabic ?? ""}</TableCell>
-                        <TableCell className="min-w-[320px]">{it.content_bn ?? ""}</TableCell>
-                        <TableCell className="min-w-[320px]">{it.content_en ?? ""}</TableCell>
-                          <TableCell className="min-w-[320px]">{it.content_hi ?? ""}</TableCell>
-                          <TableCell className="min-w-[320px]">{it.content_ur ?? ""}</TableCell>
-                          <TableCell className="min-w-[220px]">{it.pronunciation ?? ""}</TableCell>
-                          <TableCell className="min-w-[220px]">{it.pronunciation_en ?? ""}</TableCell>
-                          <TableCell className="min-w-[220px]">{it.pronunciation_hi ?? ""}</TableCell>
-                          <TableCell className="min-w-[220px]">{it.pronunciation_ur ?? ""}</TableCell>
+                        {visibleCols.content_bn ? <TableCell className="min-w-[320px]">{it.content_bn ?? ""}</TableCell> : null}
+                        {visibleCols.content_en ? <TableCell className="min-w-[320px]">{it.content_en ?? ""}</TableCell> : null}
+                        {visibleCols.content_hi ? <TableCell className="min-w-[320px]">{it.content_hi ?? ""}</TableCell> : null}
+                        {visibleCols.content_ur ? <TableCell className="min-w-[320px]">{it.content_ur ?? ""}</TableCell> : null}
+                        {visibleCols.pron_bn ? <TableCell className="min-w-[220px]">{it.pronunciation ?? ""}</TableCell> : null}
+                        {visibleCols.pron_en ? <TableCell className="min-w-[220px]">{it.pronunciation_en ?? ""}</TableCell> : null}
+                        {visibleCols.pron_hi ? <TableCell className="min-w-[220px]">{it.pronunciation_hi ?? ""}</TableCell> : null}
+                        {visibleCols.pron_ur ? <TableCell className="min-w-[220px]">{it.pronunciation_ur ?? ""}</TableCell> : null}
                         <TableCell className="whitespace-nowrap">{it.category ?? ""}</TableCell>
                       </TableRow>
                     ))}
