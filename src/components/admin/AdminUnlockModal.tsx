@@ -20,7 +20,20 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [mode, setMode] = useState<"unlock" | "reset">("unlock");
+  const [resetStep, setResetStep] = useState<"request" | "verify">("request");
+  const [resetCode, setResetCode] = useState("");
+  const [resetNewPasscode, setResetNewPasscode] = useState("");
+  const [resetConfirmPasscode, setResetConfirmPasscode] = useState("");
+
   const canSubmit = useMemo(() => passcode.trim().length >= 6 && passcode.length <= 128, [passcode]);
+
+  const canResetSubmit = useMemo(() => {
+    const codeOk = /^\d{6}$/.test(resetCode.trim());
+    const nextOk = resetNewPasscode.trim().length >= 6 && resetNewPasscode.length <= 128;
+    const confirmOk = resetNewPasscode.length > 0 && resetNewPasscode === resetConfirmPasscode;
+    return codeOk && nextOk && confirmOk;
+  }, [resetCode, resetNewPasscode, resetConfirmPasscode]);
 
   useEffect(() => {
     if (!open) {
@@ -28,6 +41,11 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
       setSubmitting(false);
       setPasscode("");
       setUseFingerprint(true);
+      setMode("unlock");
+      setResetStep("request");
+      setResetCode("");
+      setResetNewPasscode("");
+      setResetConfirmPasscode("");
     }
   }, [open]);
 
@@ -103,28 +121,159 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
     }
   };
 
+  const handleRequestResetCode = async () => {
+    setError(null);
+    setSubmitting(true);
+    try {
+      const fingerprint = useFingerprint ? await getDeviceFingerprint() : null;
+      const { data, error: fnError } = await supabase.functions.invoke("admin-security", {
+        body: {
+          action: "request_reset_code",
+          device_fingerprint: fingerprint,
+        },
+      });
+      if (fnError) throw fnError;
+
+      if (!data?.ok) {
+        const err = String(data?.error ?? "");
+        setError(err === "too_many_requests" ? "Too many requests. Please wait and try again." : "Failed to send code.");
+        return;
+      }
+
+      setResetStep("verify");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg || "Failed to send code.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleResetPasscode = async () => {
+    setError(null);
+    if (!canResetSubmit) {
+      setError("Please enter the 6-digit code and a valid new passcode.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("admin-security", {
+        body: {
+          action: "reset_passcode_with_code",
+          code: resetCode.trim(),
+          new_passcode: resetNewPasscode,
+        },
+      });
+      if (fnError) throw fnError;
+
+      if (!data?.ok) {
+        const err = String(data?.error ?? "");
+        const msg =
+          err === "invalid_code"
+            ? "Code must be exactly 6 digits."
+            : err === "invalid_or_expired_code"
+              ? "Code is invalid or expired. Please request a new code."
+              : err === "passcode_reused"
+                ? "You recently used this passcode. Choose a different one."
+                : err === "weak_passcode"
+                  ? "New passcode must be at least 6 characters (max 128)."
+                  : "Reset failed.";
+        setError(msg);
+        return;
+      }
+
+      // Return to unlock view (user still needs to unlock with the new passcode)
+      setMode("unlock");
+      setResetStep("request");
+      setResetCode("");
+      setResetNewPasscode("");
+      setResetConfirmPasscode("");
+      setPasscode("");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg || "Reset failed.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            Admin Unlock
+            {mode === "unlock" ? "Admin Unlock" : "Reset passcode"}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="admin-passcode">Admin passcode</Label>
-            <Input
-              id="admin-passcode"
-              type="password"
-              autoComplete="one-time-code"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              placeholder="Enter passcode"
-            />
-          </div>
+          {mode === "unlock" ? (
+            <div className="space-y-2">
+              <Label htmlFor="admin-passcode">Admin passcode</Label>
+              <Input
+                id="admin-passcode"
+                type="password"
+                autoComplete="one-time-code"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                placeholder="Enter passcode"
+              />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {resetStep === "request" ? (
+                <p className="text-sm text-muted-foreground">
+                  We’ll send a 6-digit verification code to the configured admin email.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Enter the 6-digit code and your new passcode.
+                </p>
+              )}
+
+              {resetStep === "verify" ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-code">6-digit code</Label>
+                    <Input
+                      id="reset-code"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      value={resetCode}
+                      onChange={(e) => setResetCode(e.target.value)}
+                      placeholder="123456"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-new">New passcode</Label>
+                    <Input
+                      id="reset-new"
+                      type="password"
+                      autoComplete="new-password"
+                      value={resetNewPasscode}
+                      onChange={(e) => setResetNewPasscode(e.target.value)}
+                      placeholder="Enter new passcode"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-confirm">Confirm new passcode</Label>
+                    <Input
+                      id="reset-confirm"
+                      type="password"
+                      autoComplete="new-password"
+                      value={resetConfirmPasscode}
+                      onChange={(e) => setResetConfirmPasscode(e.target.value)}
+                      placeholder="Confirm new passcode"
+                    />
+                  </div>
+                </>
+              ) : null}
+            </div>
+          )}
 
           <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
             <div className="min-w-0">
@@ -140,16 +289,75 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
             </p>
           )}
 
-          <Button className="w-full" onClick={handleUnlock} disabled={!canSubmit || submitting}>
-            {submitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Unlocking...
-              </>
-            ) : (
-              "Unlock Admin"
-            )}
-          </Button>
+          {mode === "unlock" ? (
+            <>
+              <Button className="w-full" onClick={handleUnlock} disabled={!canSubmit || submitting}>
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Unlocking...
+                  </>
+                ) : (
+                  "Unlock Admin"
+                )}
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setError(null);
+                  setMode("reset");
+                  setResetStep("request");
+                }}
+                disabled={submitting}
+              >
+                Forgot passcode?
+              </Button>
+            </>
+          ) : (
+            <>
+              {resetStep === "request" ? (
+                <Button className="w-full" onClick={handleRequestResetCode} disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send 6-digit code"
+                  )}
+                </Button>
+              ) : (
+                <Button className="w-full" onClick={handleResetPasscode} disabled={!canResetSubmit || submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Resetting...
+                    </>
+                  ) : (
+                    "Reset passcode"
+                  )}
+                </Button>
+              )}
+
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setError(null);
+                  setMode("unlock");
+                  setResetStep("request");
+                  setResetCode("");
+                  setResetNewPasscode("");
+                  setResetConfirmPasscode("");
+                }}
+                disabled={submitting}
+              >
+                Back to unlock
+              </Button>
+            </>
+          )}
 
           <p className="text-[11px] text-muted-foreground">
             Security note: default passcode is <span className="font-medium">noor-admin-1234</span>. Change it
