@@ -33,6 +33,12 @@ const AdminSecurity = () => {
   const [currentPasscode, setCurrentPasscode] = useState("");
   const [newPasscode, setNewPasscode] = useState("");
   const [confirmPasscode, setConfirmPasscode] = useState("");
+
+  const [resetSending, setResetSending] = useState(false);
+  const [resetSaving, setResetSaving] = useState(false);
+  const [resetCode, setResetCode] = useState("");
+  const [resetNewPasscode, setResetNewPasscode] = useState("");
+  const [resetConfirmPasscode, setResetConfirmPasscode] = useState("");
   const [events, setEvents] = useState<AuditRow[]>([]);
 
   const passcodeStrength = useMemo(() => {
@@ -55,12 +61,39 @@ const AdminSecurity = () => {
     return { score, label };
   }, [newPasscode]);
 
+  const resetPasscodeStrength = useMemo(() => {
+    const p = resetNewPasscode;
+    if (!p) return { score: 0, label: "" };
+
+    let score = 0;
+    const hasLower = /[a-z]/.test(p);
+    const hasUpper = /[A-Z]/.test(p);
+    const hasDigit = /\d/.test(p);
+    const hasSymbol = /[^A-Za-z0-9]/.test(p);
+
+    if (p.trim().length >= 6) score++;
+    if (p.length >= 10) score++;
+    if ([hasLower, hasUpper, hasDigit, hasSymbol].filter(Boolean).length >= 2) score++;
+    if ([hasLower, hasUpper, hasDigit, hasSymbol].filter(Boolean).length >= 3) score++;
+
+    score = Math.max(0, Math.min(4, score));
+    const label = score <= 1 ? "Weak" : score === 2 ? "Okay" : score === 3 ? "Good" : "Strong";
+    return { score, label };
+  }, [resetNewPasscode]);
+
   const canChange = useMemo(() => {
     const curOk = currentPasscode.trim().length >= 6;
     const nextOk = newPasscode.trim().length >= 6 && newPasscode.length <= 128;
     const confirmOk = newPasscode.length > 0 && newPasscode === confirmPasscode;
     return curOk && nextOk && confirmOk;
   }, [currentPasscode, newPasscode, confirmPasscode]);
+
+  const canReset = useMemo(() => {
+    const codeOk = /^\d{6}$/.test(resetCode.trim());
+    const nextOk = resetNewPasscode.trim().length >= 6 && resetNewPasscode.length <= 128;
+    const confirmOk = resetNewPasscode.length > 0 && resetNewPasscode === resetConfirmPasscode;
+    return codeOk && nextOk && confirmOk;
+  }, [resetCode, resetNewPasscode, resetConfirmPasscode]);
 
   const load = async () => {
     setLoading(true);
@@ -187,6 +220,73 @@ const AdminSecurity = () => {
     localStorage.removeItem("noor_admin_unlocked");
     localStorage.removeItem("noor_admin_last_activity");
     localStorage.removeItem("noor_admin_device_fingerprint");
+  };
+
+  const handleRequestResetCode = async () => {
+    setResetSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-security", {
+        body: { action: "request_reset_code" },
+      });
+      if (error) throw error;
+      if (!data?.ok) {
+        toast({ title: "Failed", description: "Not authorized or backend rejected the request.", variant: "destructive" });
+        return;
+      }
+      toast({ title: "Code sent", description: "A 6-digit verification code was sent to the admin email." });
+    } catch (e) {
+      toast({ title: "Failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+    } finally {
+      setResetSending(false);
+    }
+  };
+
+  const handleResetPasscode = async () => {
+    if (!canReset) return;
+    setResetSaving(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-security", {
+        body: {
+          action: "reset_passcode_with_code",
+          code: resetCode.trim(),
+          new_passcode: resetNewPasscode,
+        },
+      });
+      if (error) throw error;
+
+      if (!data?.ok) {
+        const err = String(data?.error ?? "");
+        const description =
+          err === "invalid_code"
+            ? "Code must be exactly 6 digits."
+            : err === "invalid_or_expired_code"
+              ? "Code is invalid or expired. Request a new code."
+              : err === "passcode_reused"
+                ? "You recently used this passcode. Choose a different one."
+                : err === "weak_passcode"
+                  ? "New passcode must be at least 6 characters (max 128)."
+                  : err === "not_authorized"
+                    ? "Not authorized. Please unlock admin again."
+                    : "Reset failed.";
+
+        toast({ title: "Failed", description, variant: "destructive" });
+        return;
+      }
+
+      toast({ title: "Passcode reset", description: "Admin sessions were revoked. Please unlock again." });
+
+      setResetCode("");
+      setResetNewPasscode("");
+      setResetConfirmPasscode("");
+
+      await load();
+      await clearLocalAdminUnlock();
+      navigate("/");
+    } catch (e) {
+      toast({ title: "Failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
+    } finally {
+      setResetSaving(false);
+    }
   };
 
   const handleLockAdmin = async () => {
@@ -320,6 +420,76 @@ const AdminSecurity = () => {
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldAlert className="mr-2 h-4 w-4" />}
             Change passcode
           </Button>
+
+          <Separator />
+
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Reset passcode with 6-digit code</p>
+                <p className="text-xs text-muted-foreground">Sends a verification code to the configured admin email.</p>
+              </div>
+              <Button variant="outline" onClick={handleRequestResetCode} disabled={resetSending}>
+                {resetSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Send code
+              </Button>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label htmlFor="reset-code">6-digit code</Label>
+                <Input
+                  id="reset-code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value)}
+                  placeholder="123456"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reset-next">New passcode</Label>
+                <Input
+                  id="reset-next"
+                  type="password"
+                  value={resetNewPasscode}
+                  onChange={(e) => setResetNewPasscode(e.target.value)}
+                  autoComplete="new-password"
+                />
+
+                {resetNewPasscode.length > 0 ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Strength</span>
+                      <span className="text-xs text-muted-foreground">{resetPasscodeStrength.label}</span>
+                    </div>
+                    <Progress value={(resetPasscodeStrength.score / 4) * 100} />
+                    <p className="text-[11px] text-muted-foreground">Tip: 10+ chars + mix letters/numbers/symbols.</p>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reset-confirm">Confirm new passcode</Label>
+                <Input
+                  id="reset-confirm"
+                  type="password"
+                  value={resetConfirmPasscode}
+                  onChange={(e) => setResetConfirmPasscode(e.target.value)}
+                  autoComplete="new-password"
+                />
+                {resetConfirmPasscode.length > 0 && resetNewPasscode !== resetConfirmPasscode ? (
+                  <p className="text-xs text-destructive">Passcodes do not match.</p>
+                ) : null}
+              </div>
+            </div>
+
+            <Button onClick={handleResetPasscode} disabled={!canReset || resetSaving}>
+              {resetSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldAlert className="mr-2 h-4 w-4" />}
+              Reset passcode & revoke sessions
+            </Button>
+          </div>
 
           <Separator />
 
