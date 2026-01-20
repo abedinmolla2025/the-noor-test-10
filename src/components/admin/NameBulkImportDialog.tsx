@@ -292,9 +292,9 @@ export function NameBulkImportDialog({
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <Label htmlFor="name-json-input">Paste JSON data:</Label>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
                   <Upload className="h-4 w-4 mr-2" />
                   Import JSON file
