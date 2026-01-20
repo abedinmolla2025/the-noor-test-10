@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,10 @@ const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
 const QuizPage = () => {
   const navigate = useNavigate();
   const countdown = useCountdownToMidnight();
+
+  const nextButtonRef = useRef<HTMLDivElement | null>(null);
+  const submitAutoNextTimerRef = useRef<number | null>(null);
+  const submitScrollTimerRef = useRef<number | null>(null);
   
   const {
     progress,
@@ -248,7 +252,28 @@ const QuizPage = () => {
     } else {
       playSfx("wrong");
     }
+
+    // Clear any previous scheduled actions
+    if (submitAutoNextTimerRef.current) window.clearTimeout(submitAutoNextTimerRef.current);
+    if (submitScrollTimerRef.current) window.clearTimeout(submitScrollTimerRef.current);
+
+    // Scroll to the action area (top of screen)
+    submitScrollTimerRef.current = window.setTimeout(() => {
+      nextButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 250);
+
+    // Auto-go to next question (no Next button)
+    submitAutoNextTimerRef.current = window.setTimeout(() => {
+      handleNextQuestion();
+    }, 1500);
   };
+
+  useEffect(() => {
+    return () => {
+      if (submitAutoNextTimerRef.current) window.clearTimeout(submitAutoNextTimerRef.current);
+      if (submitScrollTimerRef.current) window.clearTimeout(submitScrollTimerRef.current);
+    };
+  }, []);
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < dailyQuestions.length - 1) {
@@ -670,6 +695,7 @@ const QuizPage = () => {
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: -50, opacity: 0 }}
                 >
+                  <div ref={nextButtonRef} />
                   {/* Progress & Timer */}
                   <div className="mb-4 space-y-3">
                     <div className="flex justify-between text-sm mb-2">
@@ -857,14 +883,15 @@ const QuizPage = () => {
                     >
                       Submit answer
                     </Button>
-                  ) : !isTimeUp ? (
-                    <Button
-                      onClick={handleNextQuestion}
-                      className="w-full h-12 text-lg bg-gradient-to-r from-primary to-amber-500"
-                    >
-                      {currentQuestionIndex < 4 ? "Next question" : "View result"}
-                    </Button>
-                  ) : null}
+                  ) : isTimeUp ? null : (
+                    <div className="w-full h-12 flex items-center justify-center rounded-xl bg-muted/40 text-sm text-muted-foreground">
+                      {languageMode === "bn"
+                        ? "পরবর্তী প্রশ্নে যাচ্ছে..."
+                        : languageMode === "en"
+                        ? "Moving to next question..."
+                        : "পরবর্তী প্রশ্নে যাচ্ছে... / Moving to next question..."}
+                    </div>
+                  )}
                 </motion.div>
               ) : null}
             </motion.div>
