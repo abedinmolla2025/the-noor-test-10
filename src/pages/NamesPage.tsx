@@ -117,6 +117,14 @@ const fetchNames = async (): Promise<NameContentRow[]> => {
   return (data ?? []) as unknown as NameContentRow[];
 };
 
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+const getIndexKey = (n: NameContentRow) => {
+  const raw = (n.title ?? "").trim();
+  const first = raw.charAt(0).toUpperCase();
+  return /^[A-Z]$/.test(first) ? first : "#";
+};
+
 const NamesPage = () => {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
@@ -198,6 +206,33 @@ const NamesPage = () => {
       return parts.join(" ").toLowerCase().includes(query);
     });
   }, [q, activeGender, categoryFiltered]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, NameContentRow[]>();
+    for (const n of filtered) {
+      const k = getIndexKey(n);
+      const arr = map.get(k) ?? [];
+      arr.push(n);
+      map.set(k, arr);
+    }
+
+    const keys = [
+      ...ALPHABET.filter((l) => map.has(l)),
+      ...(map.has("#") ? ["#"] : []),
+    ];
+
+    return {
+      keys,
+      map,
+      available: new Set(keys),
+    };
+  }, [filtered]);
+
+  const scrollToKey = (key: string) => {
+    const id = `names-section-${key}`;
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const selectedMeta = useMemo(() => safeParseMeta(selected?.metadata), [selected?.metadata]);
 
@@ -368,66 +403,162 @@ const NamesPage = () => {
         )}
 
         {!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0 && (
-          <div className="space-y-3">
-            {filtered.map((n) => {
-              const meta = safeParseMeta(n.metadata);
-              const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
-              const secondary = n.title_arabic?.trim() ? n.title : null;
-              const bnName = meta.bn_name?.trim() || "";
-              const snippet = (n.content_en ?? n.content ?? "").trim();
-              const gender = normalizeGender(meta.gender);
-              const genderLabel =
-                gender === "male" ? "Male" : gender === "female" ? "Female" : gender === "unisex" ? "Unisex" : "";
-
-              return (
-                <Card
-                  key={n.id}
-                  className="group cursor-pointer border-border/60 bg-card/60 shadow-sm transition-all hover:-translate-y-[1px] hover:border-border hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={() => setSelected(n)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") setSelected(n);
-                  }}
-                  aria-label={`Open details for ${n.title}`}
-                >
-                  <CardHeader className="py-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <CardTitle className="truncate text-base leading-snug">
-                          <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>{primary}</span>
-                          {secondary ? (
-                            <span className="ml-2 text-sm font-medium text-muted-foreground">({secondary})</span>
-                          ) : null}
-                        </CardTitle>
-                        {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-1">
-                        {genderLabel ? (
-                          <Badge variant="outline" className="text-[11px]">
-                            {genderLabel}
-                          </Badge>
-                        ) : null}
-                        {n.category?.trim() ? (
-                          <Badge variant="secondary" className="text-[11px]">
-                            {n.category}
-                          </Badge>
-                        ) : null}
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="space-y-6">
+                {grouped.keys.map((key) => (
+                  <section key={key} id={`names-section-${key}`} className="scroll-mt-28">
+                    <div className="mb-2 flex items-center gap-2">
+                      <div className="text-sm font-semibold text-foreground">{key}</div>
+                      <div className="h-px flex-1 bg-border/60" />
+                      <div className="text-xs text-muted-foreground">
+                        {(grouped.map.get(key)?.length ?? 0).toLocaleString()}
                       </div>
                     </div>
-                  </CardHeader>
-                  {snippet ? (
-                    <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
-                      <p className="leading-relaxed">{snippet}</p>
-                    </CardContent>
-                  ) : null}
-                </Card>
-              );
-            })}
+
+                    <div className="space-y-3">
+                      {(grouped.map.get(key) ?? []).map((n) => {
+                        const meta = safeParseMeta(n.metadata);
+                        const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
+                        const secondary = n.title_arabic?.trim() ? n.title : null;
+                        const bnName = meta.bn_name?.trim() || "";
+                        const snippet = (n.content_en ?? n.content ?? "").trim();
+                        const gender = normalizeGender(meta.gender);
+                        const genderLabel =
+                          gender === "male"
+                            ? "Male"
+                            : gender === "female"
+                              ? "Female"
+                              : gender === "unisex"
+                                ? "Unisex"
+                                : "";
+
+                        return (
+                          <Card
+                            key={n.id}
+                            className="group cursor-pointer border-border/60 bg-card/60 shadow-sm transition-all hover:-translate-y-[1px] hover:border-border hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            onClick={() => setSelected(n)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") setSelected(n);
+                            }}
+                            aria-label={`Open details for ${n.title}`}
+                          >
+                            <CardHeader className="py-3">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <CardTitle className="truncate text-base leading-snug">
+                                    <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>
+                                      {primary}
+                                    </span>
+                                    {secondary ? (
+                                      <span className="ml-2 text-sm font-medium text-muted-foreground">
+                                        ({secondary})
+                                      </span>
+                                    ) : null}
+                                  </CardTitle>
+                                  {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
+                                </div>
+
+                                <div className="flex shrink-0 items-center gap-1">
+                                  {genderLabel ? (
+                                    <Badge variant="outline" className="text-[11px]">
+                                      {genderLabel}
+                                    </Badge>
+                                  ) : null}
+                                  {n.category?.trim() ? (
+                                    <Badge variant="secondary" className="text-[11px]">
+                                      {n.category}
+                                    </Badge>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </CardHeader>
+                            {snippet ? (
+                              <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
+                                <p className="leading-relaxed">{snippet}</p>
+                              </CardContent>
+                            ) : null}
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </div>
+
+            {/* Sticky A–Z sidebar (desktop/tablet) */}
+            <aside className="sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto rounded-xl border border-border/60 bg-card/40 p-1 shadow-sm md:flex">
+              {ALPHABET.map((l) => {
+                const disabled = !grouped.available.has(l);
+                return (
+                  <Button
+                    key={l}
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-8 px-0 text-xs"
+                    disabled={disabled}
+                    onClick={() => scrollToKey(l)}
+                    aria-label={`Jump to ${l}`}
+                  >
+                    {l}
+                  </Button>
+                );
+              })}
+              {grouped.available.has("#") ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-8 px-0 text-xs"
+                  onClick={() => scrollToKey("#")}
+                  aria-label="Jump to #"
+                >
+                  #
+                </Button>
+              ) : null}
+            </aside>
           </div>
         )}
       </main>
+
+      {/* Mobile A–Z quick bar */}
+      {!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0 ? (
+        <div className="fixed inset-x-0 bottom-16 z-30 mx-auto w-full max-w-4xl px-3 md:hidden">
+          <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-border/60 bg-background/80 p-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70">
+            {ALPHABET.map((l) => {
+              const disabled = !grouped.available.has(l);
+              return (
+                <Button
+                  key={l}
+                  type="button"
+                  variant={disabled ? "outline" : "secondary"}
+                  size="sm"
+                  className="h-7 shrink-0 rounded-full px-2 text-xs"
+                  disabled={disabled}
+                  onClick={() => scrollToKey(l)}
+                >
+                  {l}
+                </Button>
+              );
+            })}
+            {grouped.available.has("#") ? (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="h-7 shrink-0 rounded-full px-2 text-xs"
+                onClick={() => scrollToKey("#")}
+              >
+                #
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent className="max-w-xl">
