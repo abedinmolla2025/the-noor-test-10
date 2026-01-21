@@ -182,6 +182,20 @@ export default function AdminNotifications() {
   const [annDuration, setAnnDuration] = useState<"12" | "24" | "custom">("12");
   const [annCustomHours, setAnnCustomHours] = useState<string>("");
   const annCanSubmit = annTitle.trim().length > 0 && annMessage.trim().length > 0;
+
+  const [activeAnnouncement, setActiveAnnouncement] = useState<
+    | {
+        id: string;
+        title: string;
+        message: string;
+        sent_at: string | null;
+        scheduled_at: string | null;
+        expires_at: string | null;
+      }
+    | null
+  >(null);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  const [extendHours, setExtendHours] = useState<"12" | "24">("12");
   const [tokenCount, setTokenCount] = useState<{ android: number; ios: number; web: number; total: number } | null>(
     null
   );
@@ -236,6 +250,8 @@ export default function AdminNotifications() {
         description: `Ticker will auto-hide after ${hours} hour(s).`,
       });
 
+      await loadActiveAnnouncement();
+
       setAnnTitle("");
       setAnnMessage("");
       setAnnDuration("12");
@@ -244,6 +260,56 @@ export default function AdminNotifications() {
       toast({
         title: "Failed",
         description: error?.message ?? "Could not activate announcement",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const deactivateActiveAnnouncement = async () => {
+    if (!activeAnnouncement) return;
+    setSubmitting(true);
+    try {
+      const nowIso = new Date().toISOString();
+      const { error } = await supabase
+        .from("admin_notifications")
+        .update({ expires_at: nowIso } as any)
+        .eq("id", activeAnnouncement.id);
+      if (error) throw error;
+
+      toast({ title: "Announcement hidden", description: "Ticker will disappear immediately." });
+      await loadActiveAnnouncement();
+    } catch (error: any) {
+      toast({
+        title: "Failed",
+        description: error?.message ?? "Could not hide announcement",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const extendActiveAnnouncement = async () => {
+    if (!activeAnnouncement) return;
+    setSubmitting(true);
+    try {
+      const base = activeAnnouncement.expires_at ? new Date(activeAnnouncement.expires_at) : new Date();
+      const next = new Date(base.getTime() + Number(extendHours) * 60 * 60 * 1000).toISOString();
+
+      const { error } = await supabase
+        .from("admin_notifications")
+        .update({ expires_at: next } as any)
+        .eq("id", activeAnnouncement.id);
+      if (error) throw error;
+
+      toast({ title: "Extended", description: `Extended by ${extendHours} hour(s).` });
+      await loadActiveAnnouncement();
+    } catch (error: any) {
+      toast({
+        title: "Failed",
+        description: error?.message ?? "Could not extend announcement",
         variant: "destructive",
       });
     } finally {
@@ -326,6 +392,35 @@ export default function AdminNotifications() {
   useEffect(() => {
     loadTokenCounts();
     loadCustomTemplates();
+  }, []);
+
+  const loadActiveAnnouncement = async () => {
+    try {
+      const nowIso = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("admin_notifications")
+        .select("id,title,message,sent_at,scheduled_at,expires_at")
+        .in("status", ["sent", "scheduled"])
+        .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+        .or(`scheduled_at.is.null,scheduled_at.lte.${nowIso}`)
+        .order("sent_at", { ascending: false, nullsFirst: false })
+        .order("scheduled_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      setActiveAnnouncement((data as any) ?? null);
+    } catch (e) {
+      console.error("Failed to load active announcement", e);
+    }
+  };
+
+  useEffect(() => {
+    void loadActiveAnnouncement();
+    const t = window.setInterval(() => setNowTick(Date.now()), 1000);
+    return () => window.clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCustomTemplates = async () => {
@@ -708,6 +803,87 @@ export default function AdminNotifications() {
           <CardDescription>Show/hide the top ticker by activating an announcement with an expiry time.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Active announcement preview */}
+          <div className="rounded-lg border bg-card p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted-foreground">Active announcement</p>
+                {activeAnnouncement ? (
+                  <>
+                    <p className="mt-1 truncate text-sm font-semibold">{activeAnnouncement.title}</p>
+                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{activeAnnouncement.message}</p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-sm text-muted-foreground">No active announcement (ticker hidden).</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2 sm:items-end">
+                {activeAnnouncement ? (
+                  (() => {
+                    const exp = activeAnnouncement.expires_at ? new Date(activeAnnouncement.expires_at).getTime() : null;
+                    const remainingMs = exp ? Math.max(0, exp - nowTick) : null;
+                    const remainingText =
+                      remainingMs === null
+                        ? "No expiry"
+                        : (() => {
+                            const total = Math.ceil(remainingMs / 1000);
+                            const h = Math.floor(total / 3600);
+                            const m = Math.floor((total % 3600) / 60);
+                            const s = total % 60;
+                            return `${h}h ${m}m ${s}s`;
+                          })();
+
+                    return (
+                      <>
+                        <p className="text-xs text-muted-foreground">Remaining: {remainingText}</p>
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={deactivateActiveAnnouncement}
+                            disabled={submitting}
+                          >
+                            Hide now
+                          </Button>
+
+                          <div className="flex items-center gap-2">
+                            <Select value={extendHours} onValueChange={(v) => setExtendHours(v as any)}>
+                              <SelectTrigger className="h-8 w-[120px] text-xs">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="12">+12 hours</SelectItem>
+                                <SelectItem value="24">+24 hours</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button size="sm" onClick={extendActiveAnnouncement} disabled={submitting}>
+                              Extend
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()
+                ) : (
+                  <Button variant="outline" size="sm" onClick={loadActiveAnnouncement} disabled={submitting} className="gap-2">
+                    Refresh
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Visual ticker preview */}
+            {activeAnnouncement ? (
+              <div className="mt-4 overflow-hidden rounded-md border bg-background/80 px-3 py-2">
+                <p className="whitespace-nowrap text-xs font-medium text-foreground/90">
+                  {activeAnnouncement.title}: {activeAnnouncement.message}
+                </p>
+              </div>
+            ) : null}
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label className="text-xs sm:text-sm">Ticker title</Label>
