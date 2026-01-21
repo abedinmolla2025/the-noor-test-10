@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Copy, Search, Share2 } from "lucide-react";
+import { ArrowLeft, Copy, Search, Share2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -445,14 +445,26 @@ const NamesPage = () => {
                       >
                         <CardHeader className="py-3">
                           <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <CardTitle className="truncate text-base leading-snug">
-                                <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>{primary}</span>
-                                {secondary ? (
-                                  <span className="ml-2 text-sm font-medium text-muted-foreground">({secondary})</span>
+                            <div className="flex min-w-0 items-start gap-3">
+                              <div
+                                className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border bg-background/40"
+                                aria-hidden="true"
+                              >
+                                <UserRound className="h-5 w-5 text-muted-foreground" />
+                              </div>
+
+                              <div className="min-w-0">
+                                <CardTitle className="truncate text-[15px] font-semibold leading-snug text-foreground">
+                                  <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>{primary}</span>
+                                  {secondary ? (
+                                    <span className="ml-2 text-xs font-medium text-muted-foreground">({secondary})</span>
+                                  ) : null}
+                                </CardTitle>
+
+                                {bnName ? (
+                                  <p className="pt-0.5 text-xs text-muted-foreground">{bnName}</p>
                                 ) : null}
-                              </CardTitle>
-                              {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
+                              </div>
                             </div>
 
                             <div className="flex shrink-0 items-center gap-1">
@@ -521,20 +533,29 @@ const NamesPage = () => {
                             >
                               <CardHeader className="py-3">
                                 <div className="flex items-start justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <CardTitle className="truncate text-base leading-snug">
-                                      <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>
-                                        {primary}
-                                      </span>
-                                      {secondary ? (
-                                        <span className="ml-2 text-sm font-medium text-muted-foreground">
-                                          ({secondary})
+                                  <div className="flex min-w-0 items-start gap-3">
+                                    <div
+                                      className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border bg-background/40"
+                                      aria-hidden="true"
+                                    >
+                                      <UserRound className="h-5 w-5 text-muted-foreground" />
+                                    </div>
+
+                                    <div className="min-w-0">
+                                      <CardTitle className="truncate text-[15px] font-semibold leading-snug text-foreground">
+                                        <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>
+                                          {primary}
                                         </span>
+                                        {secondary ? (
+                                          <span className="ml-2 text-xs font-medium text-muted-foreground">
+                                            ({secondary})
+                                          </span>
+                                        ) : null}
+                                      </CardTitle>
+                                      {bnName ? (
+                                        <p className="pt-0.5 text-xs text-muted-foreground">{bnName}</p>
                                       ) : null}
-                                    </CardTitle>
-                                    {bnName ? (
-                                      <p className="pt-1 text-sm text-muted-foreground">{bnName}</p>
-                                    ) : null}
+                                    </div>
                                   </div>
 
                                   <div className="flex shrink-0 items-center gap-1">
