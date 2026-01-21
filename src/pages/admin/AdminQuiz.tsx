@@ -102,6 +102,24 @@ export default function AdminQuiz() {
     },
   });
 
+  const translateBanglaMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("translate-quiz-bn", {
+        body: { limit: 20 },
+      });
+      if (error) throw error;
+      return data as { ok: boolean; processed: number; updated: number };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
+      queryClient.invalidateQueries({ queryKey: ["quiz-questions"] });
+      toast.success(`বাংলা অনুবাদ আপডেট: ${data.updated}/${data.processed}`);
+    },
+    onError: (error: Error) => {
+      toast.error("Translation failed: " + error.message);
+    },
+  });
+
   const createMutation = useMutation({
     mutationFn: async (newQuestion: any) => {
       const { error } = await supabase.from("quiz_questions").insert([
@@ -286,6 +304,14 @@ export default function AdminQuiz() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => translateBanglaMutation.mutate()}
+              disabled={translateBanglaMutation.isPending}
+              title="Missing Bangla translations will be generated"
+            >
+              {translateBanglaMutation.isPending ? "Translating…" : "Auto-translate বাংলা"}
+            </Button>
             <AdminPageActionsDropdown
               exportData={exportData}
               exportFileName="quiz-questions.json"
