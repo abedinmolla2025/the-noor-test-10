@@ -264,7 +264,7 @@ const NamesPage = () => {
   };
 
   return (
-    <div className="min-h-screen dark quiz-page-bg pb-20">
+    <div className="min-h-screen quiz-page-bg pb-20">
       <header className="sticky top-0 z-40 border-b border-border/60 quiz-glass">
         <div className="mx-auto w-full max-w-4xl px-3 py-3">
           <div className="flex items-center gap-2">
@@ -382,7 +382,7 @@ const NamesPage = () => {
         {namesQuery.isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i}>
+              <Card key={i} className="quiz-glass rounded-2xl border shadow-soft">
                 <CardHeader className="py-3">
                   <div className="h-4 w-2/3 rounded bg-muted" />
                 </CardHeader>
@@ -395,7 +395,7 @@ const NamesPage = () => {
         )}
 
         {namesQuery.isError && (
-          <Card>
+          <Card className="quiz-glass rounded-2xl border shadow-soft">
             <CardHeader>
               <CardTitle className="text-base">লোড করা যায়নি</CardTitle>
             </CardHeader>
@@ -406,7 +406,7 @@ const NamesPage = () => {
         )}
 
         {!namesQuery.isLoading && !namesQuery.isError && filtered.length === 0 && (
-          <Card>
+          <Card className="quiz-glass rounded-2xl border shadow-soft">
             <CardHeader>
               <CardTitle className="text-base">কোনো নাম পাওয়া যায়নি</CardTitle>
             </CardHeader>
@@ -510,7 +510,7 @@ const NamesPage = () => {
                           return (
                             <Card
                               key={n.id}
-                              className="quiz-glass group cursor-pointer border shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                              className="quiz-glass group cursor-pointer rounded-2xl border shadow-soft transition-all hover:-translate-y-[1px] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                               onClick={() => setSelected(n)}
                               role="button"
                               tabIndex={0}
@@ -568,7 +568,7 @@ const NamesPage = () => {
 
             {/* Sticky A–Z sidebar (desktop/tablet) */}
             {showAz ? (
-              <aside className="quiz-glass sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto rounded-xl border p-1 shadow-sm md:flex">
+              <aside className="quiz-glass sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto rounded-2xl border p-1 shadow-soft md:flex">
                 {ALPHABET.map((l) => {
                   const disabled = !grouped.available.has(l);
                   return (
@@ -640,7 +640,7 @@ const NamesPage = () => {
       ) : null}
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="quiz-glass max-w-xl rounded-2xl border shadow-card">
           <DialogHeader>
             <DialogTitle className="text-base">
               {selected?.title_arabic?.trim() ? selected?.title_arabic : selected?.title}
