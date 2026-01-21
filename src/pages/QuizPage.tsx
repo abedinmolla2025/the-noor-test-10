@@ -207,7 +207,23 @@ const QuizPage = () => {
   useEffect(() => {
     // Get 5 deterministic questions for the current day based on date seed
     const dateSeed = currentDate;
-    const shuffled = [...allQuestions].sort(() => {
+    const hasBnPack = (q: any) => !!q.question_bn && Array.isArray(q.options_bn) && q.options_bn.length === 4;
+    const hasEnPack = (q: any) => !!q.question_en && Array.isArray(q.options_en) && q.options_en.length === 4;
+
+    // Prefer language-specific packs when switching language.
+    // - bn: only questions that have Bangla fields
+    // - en: only questions that have English fields
+    // - mixed: only questions that have BOTH (so mixed can show bn big + en small)
+    const preferredPool =
+      languageMode === "bn"
+        ? allQuestions.filter(hasBnPack)
+        : languageMode === "en"
+        ? allQuestions.filter(hasEnPack)
+        : allQuestions.filter((q) => hasBnPack(q) && hasEnPack(q));
+
+    const pool = preferredPool.length >= 5 ? preferredPool : allQuestions;
+
+    const shuffled = [...pool].sort(() => {
       const hash = dateSeed.split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
       return Math.sin(hash) - 0.5;
     });
@@ -223,7 +239,7 @@ const QuizPage = () => {
     setIsTimeUp(false);
     setQuizAnswers([]);
     setShowReview(false);
-  }, [currentDate, allQuestions]);
+  }, [currentDate, allQuestions, languageMode]);
 
   // Timer effect - must be before early returns
   useEffect(() => {
@@ -391,6 +407,10 @@ const QuizPage = () => {
   const currentQuestion = dailyQuestions[currentQuestionIndex];
   const earnedBadges = badges.filter(b => progress.totalPoints >= b.requirement);
 
+  const availableBnCount = allQuestions.filter((q) => !!q.question_bn).length;
+  const availableEnCount = allQuestions.filter((q) => !!q.question_en).length;
+  const availableMixedCount = allQuestions.filter((q) => !!q.question_bn && !!q.question_en).length;
+
   return (
     <div className="font-quizEnPremium min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
       {/* Header */}
@@ -435,29 +455,47 @@ const QuizPage = () => {
 
         {/* Language Toggle (Quiz only) */}
         {activeTab === "quiz" && (
-          <div className="flex items-center justify-between px-4 pb-3 text-xs">
-            <span className="text-muted-foreground">Question language</span>
-            <div className="inline-flex rounded-full bg-muted/60 p-1">
-              {(
-                [
-                  { id: "en", label: "English" },
-                  { id: "bn", label: "বাংলা" },
-                  { id: "mixed", label: "Mixed" },
-                ] as { id: LanguageMode; label: string }[]
-              ).map((mode) => (
-                <button
-                  key={mode.id}
-                  onClick={() => setLanguageMode(mode.id)}
-                  className={`px-3 py-1 rounded-full transition-all ${
-                    languageMode === mode.id
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {mode.label}
-                </button>
-              ))}
+          <div className="px-4 pb-3 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Question language</span>
+              <div className="inline-flex rounded-full bg-muted/60 p-1">
+                {(
+                  [
+                    { id: "en", label: "English" },
+                    { id: "bn", label: "বাংলা" },
+                    { id: "mixed", label: "Mixed" },
+                  ] as { id: LanguageMode; label: string }[]
+                ).map((mode) => (
+                  <button
+                    key={mode.id}
+                    onClick={() => setLanguageMode(mode.id)}
+                    className={`px-3 py-1 rounded-full transition-all ${
+                      languageMode === mode.id
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
             </div>
+
+            {languageMode === "bn" && availableBnCount < 5 && (
+              <p className="mt-2 text-muted-foreground">
+                বাংলা প্রশ্ন এখন কম আছে ({availableBnCount} টি)। কিছু প্রশ্ন fallback হিসেবে English থেকে আসতে পারে।
+              </p>
+            )}
+            {languageMode === "en" && availableEnCount < 5 && (
+              <p className="mt-2 text-muted-foreground">
+                English প্রশ্ন এখন কম আছে ({availableEnCount} টি)। কিছু প্রশ্ন fallback হিসেবে অন্য ভাষা থেকে আসতে পারে।
+              </p>
+            )}
+            {languageMode === "mixed" && availableMixedCount < 5 && (
+              <p className="mt-2 text-muted-foreground">
+                Mixed mode চালাতে Bangla+English দুটোই দরকার। এখন আছে ({availableMixedCount} টি), তাই কিছু প্রশ্ন single-language হতে পারে।
+              </p>
+            )}
           </div>
         )}
       </div>
