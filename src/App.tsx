@@ -48,12 +48,14 @@ import { GlobalConfigProvider } from "./context/GlobalConfigContext";
 import { usePushTokenRegistration } from "@/hooks/usePushTokenRegistration";
 import { useWebPushRegistration } from "@/hooks/useWebPushRegistration";
 import { useQuizReminder } from "@/hooks/useQuizReminder";
+import AnnouncementTicker from "@/components/AnnouncementTicker";
 
 const queryClient = new QueryClient();
 
 const AppRoutes = () => (
   <>
     <SeoHead />
+    <AnnouncementTicker />
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/baby-names" element={<BabyNamesPage />} />
