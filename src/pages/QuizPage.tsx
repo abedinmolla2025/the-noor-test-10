@@ -933,64 +933,97 @@ const QuizPage = () => {
                     </CardContent>
                   </Card>
 
-                {showResult && currentQuestion && (
-                  <div className="mb-4">
-                    <div className={`rounded-xl border p-4 text-sm ${
-                      isTimeUp 
-                        ? "border-red-500/30 bg-red-500/5"
-                        : selectedAnswer === currentQuestion.correctAnswer
-                        ? "border-emerald-500/30 bg-emerald-500/5"
-                        : "border-amber-500/30 bg-amber-500/5"
-                    }`}>
-                      <p className="font-semibold flex items-center gap-2 mb-2">
-                        {isTimeUp ? (
-                          <>
-                            <Clock className="w-4 h-4 text-red-500" />
-                            <span className="text-red-600 dark:text-red-400">Time's up!</span>
-                          </>
-                        ) : selectedAnswer === currentQuestion.correctAnswer ? (
-                          <>
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            <span className="text-emerald-600 dark:text-emerald-400">Correct answer!</span>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="w-4 h-4 text-amber-500" />
-                            <span className="text-amber-600 dark:text-amber-400">Wrong answer</span>
-                          </>
-                        )}
-                      </p>
-                      <p
-                        className={`text-muted-foreground text-[13px] ${
-                          languageMode === "bn" || languageMode === "mixed"
-                            ? "font-bangla text-[14px]"
-                            : "font-quizEn"
-                        }`}
+                {/* Result popup (shows before moving to next question) */}
+                <AnimatePresence>
+                  {showResult && currentQuestion && (
+                    <motion.div
+                      key={`result-${currentQuestionIndex}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 backdrop-blur-sm"
+                      aria-live="polite"
+                      role="status"
+                    >
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                        transition={{ duration: 0.18 }}
+                        className="w-[min(92vw,420px)] rounded-2xl border bg-background p-5 shadow-lg"
                       >
-                        {isTimeUp 
-                          ? "সময় শেষ! সঠিক উত্তর দেখানো হচ্ছে।"
-                          : selectedAnswer === currentQuestion.correctAnswer
-                          ? "সঠিক! ✓"
-                          : "ভুল উত্তর। সঠিক উত্তর দেখানো হচ্ছে।"}
-                      </p>
-                      {isTimeUp && (
-                        <p className="text-xs text-muted-foreground mt-2 font-medium">
-                          Auto-advancing in 3 seconds...
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl border ${
+                              isTimeUp
+                                ? "border-destructive/30 bg-destructive/10"
+                                : selectedAnswer === currentQuestion.correctAnswer
+                                ? "border-primary/30 bg-primary/10"
+                                : "border-destructive/30 bg-destructive/10"
+                            }`}
+                          >
+                            {isTimeUp ? (
+                              <Clock className="h-5 w-5 text-destructive" />
+                            ) : selectedAnswer === currentQuestion.correctAnswer ? (
+                              <CheckCircle2 className="h-5 w-5 text-primary" />
+                            ) : (
+                              <XCircle className="h-5 w-5 text-destructive" />
+                            )}
+                          </div>
 
-                  {showResult && !isTimeUp ? (
-                    <div className="w-full h-12 flex items-center justify-center rounded-xl bg-muted/40 text-sm text-muted-foreground">
-                      {languageMode === "bn"
-                        ? "পরবর্তী প্রশ্নে যাচ্ছে..."
-                        : languageMode === "en"
-                        ? "Moving to next question..."
-                        : "পরবর্তী প্রশ্নে যাচ্ছে... / Moving to next question..."}
-                    </div>
-                  ) : null}
+                          <div className="min-w-0">
+                            <p className="text-base font-semibold leading-snug">
+                              {isTimeUp
+                                ? languageMode === "bn"
+                                  ? "সময় শেষ!"
+                                  : languageMode === "en"
+                                  ? "Time's up!"
+                                  : "সময় শেষ! / Time's up!"
+                                : selectedAnswer === currentQuestion.correctAnswer
+                                ? languageMode === "bn"
+                                  ? "সঠিক উত্তর!"
+                                  : languageMode === "en"
+                                  ? "Correct!"
+                                  : "সঠিক! / Correct!"
+                                : languageMode === "bn"
+                                ? "ভুল উত্তর"
+                                : languageMode === "en"
+                                ? "Wrong"
+                                : "ভুল / Wrong"}
+                            </p>
+                            <p
+                              className={`mt-1 text-sm text-muted-foreground ${
+                                languageMode === "bn" || languageMode === "mixed" ? "font-bangla" : "font-quizEn"
+                              }`}
+                            >
+                              {isTimeUp
+                                ? "সময় শেষ! সঠিক উত্তর দেখানো হচ্ছে।"
+                                : selectedAnswer === currentQuestion.correctAnswer
+                                ? "সঠিক! ✓"
+                                : "ভুল উত্তর। সঠিক উত্তর দেখানো হচ্ছে।"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 rounded-xl bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
+                          {isTimeUp
+                            ? languageMode === "bn"
+                              ? "৩ সেকেন্ড পরে পরবর্তী প্রশ্ন…"
+                              : languageMode === "en"
+                              ? "Next question in 3 seconds…"
+                              : "৩ সেকেন্ড পরে পরবর্তী প্রশ্ন… / Next in 3s…"
+                            : languageMode === "bn"
+                            ? "পরবর্তী প্রশ্নে যাচ্ছে…"
+                            : languageMode === "en"
+                            ? "Moving to next question…"
+                            : "পরবর্তী প্রশ্নে যাচ্ছে… / Moving to next…"}
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                  {/* (inline “moving to next” removed; popup handles feedback) */}
                 </motion.div>
               ) : null}
             </motion.div>
