@@ -31,38 +31,38 @@ export default function NameTableRow({
         className,
       )}
     >
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
+      {/* Keep everything side-by-side; on small screens allow horizontal scroll instead of stacking */}
+      <div className="overflow-x-auto">
+        <div className="grid min-w-[44rem] gap-3 md:min-w-0 md:grid-cols-[1.1fr_1fr_1fr_1.4fr] md:items-start">
+          {/* Arabic */}
           <div className="min-w-0">
             <p className="text-[11px] font-medium text-[hsl(var(--dua-fg-soft))]">আরবি</p>
-            <p className="font-arabic text-xl leading-[1.9] text-[hsl(var(--dua-fg))]">
+            <p className="font-arabic text-lg leading-[1.9] text-[hsl(var(--dua-fg))] md:text-xl">
               {arabicName}
             </p>
+            {(genderLabel || category) && (
+              <div className="mt-2 flex flex-wrap items-center gap-1">
+                {genderLabel ? (
+                  <Badge
+                    variant="outline"
+                    className="text-[11px] border-[hsl(var(--dua-fg)/0.18)] text-[hsl(var(--dua-fg-muted))]"
+                  >
+                    {genderLabel}
+                  </Badge>
+                ) : null}
+                {category ? (
+                  <Badge
+                    variant="secondary"
+                    className="text-[11px] bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]"
+                  >
+                    {category}
+                  </Badge>
+                ) : null}
+              </div>
+            )}
           </div>
 
-          {(genderLabel || category) && (
-            <div className="shrink-0 pt-1 flex flex-wrap items-center justify-end gap-1">
-              {genderLabel ? (
-                <Badge
-                  variant="outline"
-                  className="text-[11px] border-[hsl(var(--dua-fg)/0.18)] text-[hsl(var(--dua-fg-muted))]"
-                >
-                  {genderLabel}
-                </Badge>
-              ) : null}
-              {category ? (
-                <Badge
-                  variant="secondary"
-                  className="text-[11px] bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]"
-                >
-                  {category}
-                </Badge>
-              ) : null}
-            </div>
-          )}
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
+          {/* English */}
           <div className="min-w-0">
             <p className="text-[11px] font-medium text-[hsl(var(--dua-fg-soft))]">English</p>
             <p className="truncate text-base font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
@@ -70,19 +70,21 @@ export default function NameTableRow({
             </p>
           </div>
 
+          {/* Bangla */}
           <div className="min-w-0">
             <p className="text-[11px] font-medium text-[hsl(var(--dua-fg-soft))]">বাংলা</p>
             <p className="truncate text-base text-[hsl(var(--dua-fg-muted))]">
               {banglaName || "—"}
             </p>
           </div>
-        </div>
 
-        <div className="min-w-0">
-          <p className="text-[11px] font-medium text-[hsl(var(--dua-fg-soft))]">অর্থ</p>
-          <p className="text-base leading-relaxed text-[hsl(var(--dua-fg-muted))]">
-            {meaning || "—"}
-          </p>
+          {/* Meaning */}
+          <div className="min-w-0">
+            <p className="text-[11px] font-medium text-[hsl(var(--dua-fg-soft))]">অর্থ</p>
+            <p className="line-clamp-2 text-base leading-relaxed text-[hsl(var(--dua-fg-muted))]">
+              {meaning || "—"}
+            </p>
+          </div>
         </div>
       </div>
     </button>
