@@ -15,6 +15,16 @@ import { toast } from "sonner";
 import { Download, Upload } from "lucide-react";
 import { z } from "zod";
 
+function makeQuestionKey(q: {
+  question?: string;
+  question_en?: string | null;
+  question_bn?: string | null;
+}) {
+  // Prefer stable bilingual fields when available.
+  const raw = (q.question_en || q.question_bn || q.question || "").trim();
+  return raw.replace(/\s+/g, " ").toLowerCase();
+}
+
 const QuizQuestionSchema = z
   .object({
     // Base fields (required)
@@ -51,6 +61,38 @@ export function QuizBulkImportDialog() {
 
   const importMutation = useMutation({
     mutationFn: async (questions: QuizQuestion[]) => {
+      // Fetch existing questions once and skip duplicates.
+      const { data: existingAll, error: existingErr } = await supabase
+        .from("quiz_questions")
+        .select("question, question_en, question_bn");
+      if (existingErr) throw existingErr;
+
+      const existingKeys = new Set<string>();
+      (existingAll ?? []).forEach((q) => {
+        const key = makeQuestionKey(q);
+        if (key) existingKeys.add(key);
+      });
+
+      const seenInImport = new Set<string>();
+      let skipped = 0;
+      const uniqueQuestions = questions.filter((q) => {
+        const key = makeQuestionKey(q);
+        if (!key) {
+          skipped += 1;
+          return false;
+        }
+        if (existingKeys.has(key) || seenInImport.has(key)) {
+          skipped += 1;
+          return false;
+        }
+        seenInImport.add(key);
+        return true;
+      });
+
+      if (uniqueQuestions.length === 0) {
+        return { inserted: 0, skipped };
+      }
+
       const { data: existingQuestions } = await supabase
         .from("quiz_questions")
         .select("order_index")
@@ -59,7 +101,7 @@ export function QuizBulkImportDialog() {
 
       const startIndex = existingQuestions?.[0]?.order_index ?? -1;
 
-      const questionsWithOrder = questions.map((q, index) => {
+      const questionsWithOrder = uniqueQuestions.map((q, index) => {
         const derivedBaseQuestion = (q.question_en || q.question_bn || q.question).trim();
         const derivedOptions = (q.options_en || q.options_bn || q.options).map((s) => String(s));
 
@@ -85,10 +127,18 @@ export function QuizBulkImportDialog() {
       const { error } = await supabase.from("quiz_questions").insert(questionsWithOrder);
 
       if (error) throw error;
+
+      return { inserted: uniqueQuestions.length, skipped };
     },
-    onSuccess: (_, questions) => {
+    onSuccess: (result, questions) => {
       queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      toast.success(`${questions.length} questions added successfully`);
+      const inserted = result?.inserted ?? questions.length;
+      const skipped = result?.skipped ?? 0;
+      if (skipped > 0) {
+        toast.success(`Imported ${inserted} questions (skipped ${skipped} duplicates)`);
+      } else {
+        toast.success(`Imported ${inserted} questions`);
+      }
       setIsOpen(false);
       setJsonInput("");
       setPreview([]);
