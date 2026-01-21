@@ -16,6 +16,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Bell, CheckCircle2, KeyRound, Loader2, Send, ShieldAlert, Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
+import { PushTestResults, type DeliveryRow } from "@/components/admin/PushTestResults";
 
 const DEVICE_ID_KEY = "noor_device_id";
 
@@ -74,6 +75,16 @@ export default function AdminNotificationsDiagnostics() {
   const [testImageUrl, setTestImageUrl] = useState("");
   const [testDeepLink, setTestDeepLink] = useState("/notifications");
   const [testTarget, setTestTarget] = useState<TargetPlatform>("all");
+
+  const [lastResult, setLastResult] = useState<
+    | null
+    | {
+        notificationId: string;
+        totals: { sent: number; failed: number; targets: number };
+        perPlatform: Record<string, { sent: number; failed: number }>;
+        deliveries: DeliveryRow[];
+      }
+  >(null);
 
   const statusRows = useMemo(
     () =>
@@ -232,6 +243,30 @@ export default function AdminNotificationsDiagnostics() {
         },
       });
       if (error) throw error;
+
+      if (!dryRun) {
+        // Pull latest delivery rows to show clear diagnostics immediately.
+        const { data: deliveries, error: dErr } = await supabase
+          .from("notification_deliveries" as any)
+          .select("id,delivered_at,platform,status,stage,error_code,error_message,endpoint_host,browser")
+          .eq("notification_id", created.id)
+          .order("delivered_at", { ascending: false })
+          .limit(50);
+        if (dErr) throw dErr;
+
+        setLastResult({
+          notificationId: created.id,
+          totals: {
+            sent: Number(res?.totals?.sent ?? 0),
+            failed: Number(res?.totals?.failed ?? 0),
+            targets: Number(res?.totals?.targets ?? 0),
+          },
+          perPlatform: (res?.perPlatform ?? {}) as any,
+          deliveries: (deliveries ?? []) as any,
+        });
+      } else {
+        setLastResult(null);
+      }
 
       if (dryRun) {
         toast({
@@ -446,6 +481,15 @@ export default function AdminNotificationsDiagnostics() {
           </p>
         </CardContent>
       </Card>
+
+      {lastResult ? (
+        <PushTestResults
+          notificationId={lastResult.notificationId}
+          totals={lastResult.totals}
+          perPlatform={lastResult.perPlatform}
+          deliveries={lastResult.deliveries}
+        />
+      ) : null}
     </div>
   );
 }

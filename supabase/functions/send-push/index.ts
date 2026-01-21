@@ -23,6 +23,20 @@ type SendPushRequest = {
   dryRun?: boolean;
 };
 
+type DeliveryLogInsert = {
+  notification_id: string;
+  token_id: string;
+  platform: string;
+  status: "sent" | "failed";
+  provider_message_id?: string | null;
+  error_code?: string | null;
+  error_message?: string | null;
+  subscription_endpoint?: string | null;
+  endpoint_host?: string | null;
+  browser?: string | null;
+  stage?: string | null;
+};
+
 function isValidIdLike(input: unknown, min: number, max: number): input is string {
   if (typeof input !== "string") return false;
   const v = input.trim();
@@ -69,6 +83,53 @@ function normalizeVapidSubject(input: string) {
     .replace(/>$/g, "")
     .replace(/<|>/g, "")
     .replace(/^["']+|["',]+$/g, "");
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getHostFromUrl(url: string | null | undefined) {
+  if (!url) return null;
+  try {
+    return new URL(url).host;
+  } catch {
+    return null;
+  }
+}
+
+function guessBrowserFromEndpointHost(host: string | null) {
+  const h = (host ?? "").toLowerCase();
+  if (!h) return null;
+  if (h.includes("google") || h.includes("fcm") || h.includes("gstatic")) return "chrome";
+  if (h.includes("mozilla") || h.includes("push.services.mozilla")) return "firefox";
+  if (h.includes("windows") || h.includes("wns")) return "edge";
+  if (h.includes("apple")) return "safari";
+  return null;
+}
+
+function isRetryableStatus(status: number) {
+  return status === 429 || (status >= 500 && status <= 599);
+}
+
+async function withRetry<T>(fn: (attempt: number) => Promise<T>, opts?: { retries?: number; baseDelayMs?: number }) {
+  const retries = Math.max(0, opts?.retries ?? 2);
+  const baseDelayMs = Math.max(50, opts?.baseDelayMs ?? 400);
+
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await fn(attempt);
+    } catch (e) {
+      lastErr = e;
+      if (attempt >= retries) break;
+      // Exponential backoff with small jitter
+      const jitter = Math.floor(Math.random() * 150);
+      const delay = baseDelayMs * Math.pow(2, attempt) + jitter;
+      await sleep(delay);
+    }
+  }
+  throw lastErr;
 }
 
 
@@ -186,7 +247,8 @@ async function sendFcm({
 
   const text = await res.text().catch(() => "");
   if (!res.ok) {
-    throw new Error(`FCM send failed: ${res.status} ${text}`);
+    // Preserve status in error string so caller can classify.
+    throw new Error(`fcm_failed_${res.status}: ${text}`);
   }
 
   // Response is { name: "projects/.../messages/..." }
@@ -424,43 +486,98 @@ Deno.serve(async (req) => {
       web: { sent: 0, failed: 0 },
     };
 
+    const logDelivery = async (row: DeliveryLogInsert) => {
+      const { error } = await svc.from("notification_deliveries").insert(row as any);
+      if (error) console.warn("delivery log insert failed", error);
+    };
+
+    const disableToken = async (tokenId: string) => {
+      // Best-effort: mark bad tokens disabled to reduce repeated failures.
+      await svc.from("device_push_tokens").update({ enabled: false }).eq("id", tokenId);
+    };
+
     for (const t of tokens ?? []) {
       const plat = String(t.platform) as "android" | "ios" | "web";
       try {
         let providerMessageId: string | null = null;
+        const tokenIdStr = String(t.id);
+
+        const baseLog: Omit<DeliveryLogInsert, "status"> = {
+          notification_id: notif.id,
+          token_id: tokenIdStr,
+          platform: plat,
+        };
 
         if (plat === "web") {
-          await sendWebPush({
-            subscriptionJson: String(t.token),
-            title: notif.title,
-            body: notif.body,
-            imageUrl: notif.image_url ?? null,
-            deepLink: notif.deep_link ?? null,
+          let endpoint: string | null = null;
+          let endpointHost: string | null = null;
+          try {
+            const sub = JSON.parse(String(t.token));
+            endpoint = typeof sub?.endpoint === "string" ? sub.endpoint : null;
+            endpointHost = getHostFromUrl(endpoint);
+          } catch {
+            // ignore parse errors here; sendWebPush will throw if invalid
+          }
+          const browser = guessBrowserFromEndpointHost(endpointHost);
+
+          providerMessageId = await withRetry(
+            async () => {
+              const status = await sendWebPush({
+                subscriptionJson: String(t.token),
+                title: notif.title,
+                body: notif.body,
+                imageUrl: notif.image_url ?? null,
+                deepLink: notif.deep_link ?? null,
+              });
+              // For web push, we store status code as provider id
+              return `webpush_${status}`;
+            },
+            { retries: 2, baseDelayMs: 450 },
+          );
+
+          await logDelivery({
+            ...baseLog,
+            status: "sent",
+            provider_message_id: providerMessageId,
+            subscription_endpoint: endpoint,
+            endpoint_host: endpointHost,
+            browser,
+            stage: "webpush_send",
           });
-          providerMessageId = "webpush";
         } else {
-          providerMessageId =
-            (await sendFcm({
-              accessToken: googleAccessToken!,
-              projectId: fcmProjectId!,
-              token: String(t.token),
-              title: notif.title,
-              body: notif.body,
-              imageUrl: notif.image_url ?? null,
-              deepLink: notif.deep_link ?? null,
-            })) ?? "fcm";
+          providerMessageId = await withRetry(
+            async (attempt) => {
+              // If we got 401/403 from Google, refresh token once.
+              if (attempt > 0) {
+                const saJson = Deno.env.get("FCM_SERVICE_ACCOUNT_JSON") ?? "";
+                const tok = await getGoogleAccessToken(saJson);
+                googleAccessToken = tok.accessToken;
+              }
+              return (
+                (await sendFcm({
+                  accessToken: googleAccessToken!,
+                  projectId: fcmProjectId!,
+                  token: String(t.token),
+                  title: notif.title,
+                  body: notif.body,
+                  imageUrl: notif.image_url ?? null,
+                  deepLink: notif.deep_link ?? null,
+                })) ?? "fcm"
+              );
+            },
+            { retries: 2, baseDelayMs: 350 },
+          );
+
+          await logDelivery({
+            ...baseLog,
+            status: "sent",
+            provider_message_id: providerMessageId,
+            stage: "fcm_send",
+          });
         }
 
         sent += 1;
         perPlatform[plat].sent += 1;
-
-        await svc.from("notification_deliveries").insert({
-          notification_id: notif.id,
-          token_id: t.id,
-          platform: plat,
-          status: "sent",
-          provider_message_id: providerMessageId,
-        });
       } catch (e) {
         failed += 1;
         perPlatform[plat].failed += 1;
@@ -468,12 +585,45 @@ Deno.serve(async (req) => {
         const msg = e instanceof Error ? e.message : String(e);
         console.error("send failed", { token_id: t.id, platform: plat, msg });
 
-        await svc.from("notification_deliveries").insert({
+        const tokenIdStr = String(t.id);
+        const errorCode = (() => {
+          const m = msg.toLowerCase();
+          if (m.includes("webpush_failed_")) return m.match(/webpush_failed_(\d+)/)?.[1] ? `http_${m.match(/webpush_failed_(\d+)/)?.[1]}` : null;
+          if (m.includes("fcm_failed_")) return m.match(/fcm_failed_(\d+)/)?.[1] ? `http_${m.match(/fcm_failed_(\d+)/)?.[1]}` : null;
+          if (m.includes("timeout")) return "timeout";
+          return null;
+        })();
+
+        let endpoint: string | null = null;
+        let endpointHost: string | null = null;
+        let browser: string | null = null;
+        if (String(t.platform) === "web") {
+          try {
+            const sub = JSON.parse(String(t.token));
+            endpoint = typeof sub?.endpoint === "string" ? sub.endpoint : null;
+            endpointHost = getHostFromUrl(endpoint);
+            browser = guessBrowserFromEndpointHost(endpointHost);
+          } catch {
+            // ignore
+          }
+        }
+
+        // If the provider says the subscription/token is gone, disable it.
+        if (errorCode === "http_404" || errorCode === "http_410") {
+          await disableToken(tokenIdStr);
+        }
+
+        await logDelivery({
           notification_id: notif.id,
-          token_id: t.id,
+          token_id: tokenIdStr,
           platform: plat,
           status: "failed",
+          error_code: errorCode,
           error_message: msg,
+          subscription_endpoint: endpoint,
+          endpoint_host: endpointHost,
+          browser,
+          stage: plat === "web" ? "webpush_send" : "fcm_send",
         });
       }
     }

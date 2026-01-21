@@ -75,6 +75,10 @@ export function useWebPushRegistration() {
 
         const deviceId = getOrCreateDeviceId();
 
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
         // Save subscription to database
         const { error } = await supabase
           .from("device_push_tokens" as any)
@@ -82,6 +86,8 @@ export function useWebPushRegistration() {
             token: JSON.stringify(subscription),
             platform: "web",
             device_id: deviceId,
+            enabled: true,
+            user_id: user?.id ?? null,
           });
 
         // Ignore duplicates
