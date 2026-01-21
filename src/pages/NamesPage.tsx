@@ -417,20 +417,20 @@ const NamesPage = () => {
               {/* Sticky header row for 4-column layout */}
               <div className="dua-surface sticky top-[92px] z-20 mb-3 hidden px-3 py-2 shadow-soft md:block">
                 <div className="grid grid-cols-[1fr_1fr_1fr_1.15fr] items-center gap-1.5 md:grid-cols-[1.1fr_1fr_1fr_1.4fr] md:gap-3">
-                  <div className="text-[11px] font-medium text-[hsl(var(--dua-fg-muted))]">আরবি</div>
-                  <div className="text-[11px] font-medium text-[hsl(var(--dua-fg-muted))]">English</div>
-                  <div className="text-[11px] font-medium text-[hsl(var(--dua-fg-muted))]">বাংলা</div>
-                  <div className="text-[11px] font-medium text-[hsl(var(--dua-fg-muted))]">অর্থ</div>
+                  <div className="text-xs font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">আরবি</div>
+                  <div className="text-xs font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">English</div>
+                  <div className="text-xs font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">বাংলা</div>
+                  <div className="text-xs font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">অর্থ</div>
                 </div>
               </div>
 
               {/* Mobile sticky header (labels are hidden inside rows on mobile) */}
               <div className="dua-surface sticky top-[92px] z-20 mb-3 px-3 py-2 shadow-soft md:hidden">
                 <div className="grid grid-cols-[1fr_1fr_1fr_1.15fr] items-center gap-1.5">
-                  <div className="text-[10px] font-medium text-[hsl(var(--dua-fg-muted))]">আরবি</div>
-                  <div className="text-[10px] font-medium text-[hsl(var(--dua-fg-muted))]">EN</div>
-                  <div className="text-[10px] font-medium text-[hsl(var(--dua-fg-muted))]">বাংলা</div>
-                  <div className="text-[10px] font-medium text-[hsl(var(--dua-fg-muted))]">অর্থ</div>
+                  <div className="text-[11px] font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">আরবি</div>
+                  <div className="text-[11px] font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">EN</div>
+                  <div className="text-[11px] font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">বাংলা</div>
+                  <div className="text-[11px] font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">অর্থ</div>
                 </div>
               </div>
 

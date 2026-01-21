@@ -36,7 +36,7 @@ export default function NameTableRow({
           {/* Arabic */}
           <div className="min-w-0">
             <p className="sr-only md:not-sr-only md:text-[11px] md:font-medium md:text-[hsl(var(--dua-fg-soft))]">আরবি</p>
-            <p className="font-arabic text-[14px] leading-[1.75] text-[hsl(var(--dua-fg))] md:text-xl">
+            <p className="font-arabic text-[15px] font-semibold leading-[1.75] text-[hsl(var(--dua-fg))] md:text-xl">
               {arabicName}
             </p>
             {(genderLabel || category) && (
@@ -64,7 +64,7 @@ export default function NameTableRow({
           {/* English */}
           <div className="min-w-0">
             <p className="sr-only md:not-sr-only md:text-[11px] md:font-medium md:text-[hsl(var(--dua-fg-soft))]">English</p>
-            <p className="truncate text-[11px] font-semibold leading-[1.4] tracking-tight text-[hsl(var(--dua-fg))] md:text-base">
+            <p className="truncate text-[12px] font-semibold leading-[1.4] tracking-tight text-[hsl(var(--dua-fg))] md:text-base">
               {englishName}
             </p>
           </div>
@@ -72,7 +72,7 @@ export default function NameTableRow({
           {/* Bangla */}
           <div className="min-w-0">
             <p className="sr-only md:not-sr-only md:text-[11px] md:font-medium md:text-[hsl(var(--dua-fg-soft))]">বাংলা</p>
-            <p className="truncate text-[11px] leading-[1.4] text-[hsl(var(--dua-fg-muted))] md:text-base">
+            <p className="truncate text-[12px] font-medium leading-[1.4] text-[hsl(var(--dua-fg-muted))] md:text-base">
               {banglaName || "—"}
             </p>
           </div>
@@ -80,7 +80,7 @@ export default function NameTableRow({
           {/* Meaning */}
           <div className="min-w-0">
             <p className="sr-only md:not-sr-only md:text-[11px] md:font-medium md:text-[hsl(var(--dua-fg-soft))]">অর্থ</p>
-            <p className="line-clamp-1 text-[11px] leading-[1.4] text-[hsl(var(--dua-fg-muted))] md:line-clamp-2 md:text-base">
+            <p className="line-clamp-1 text-[12px] font-medium leading-[1.4] text-[hsl(var(--dua-fg-muted))] md:line-clamp-2 md:text-base">
               {meaning || "—"}
             </p>
           </div>
