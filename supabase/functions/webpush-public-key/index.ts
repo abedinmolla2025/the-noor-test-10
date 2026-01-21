@@ -22,7 +22,8 @@ function normalizeBase64Url(input: string) {
     .replace(/[\s\u00A0]+/g, "")
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
-    .replace(/=+$/g, "");
+    .replace(/=+$/g, "")
+    .replace(/[^A-Za-z0-9\-_]/g, "");
 }
 
 Deno.serve(async (req) => {
