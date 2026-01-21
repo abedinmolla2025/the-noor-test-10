@@ -264,7 +264,7 @@ const NamesPage = () => {
   };
 
   return (
-    <div className="min-h-screen quiz-page-bg pb-20">
+    <div className="min-h-screen dark quiz-page-bg pb-20">
       <header className="sticky top-0 z-40 border-b border-border/60 quiz-glass">
         <div className="mx-auto w-full max-w-4xl px-3 py-3">
           <div className="flex items-center gap-2">
@@ -272,7 +272,7 @@ const NamesPage = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-semibold text-foreground">Islamic Names</h1>
+              <h1 className="truncate font-display text-lg font-semibold tracking-tight text-foreground">ইসলামিক নাম</h1>
               <p className="truncate text-xs text-muted-foreground">
                 {namesQuery.isLoading
                   ? "লোড হচ্ছে…"
@@ -284,20 +284,20 @@ const NamesPage = () => {
           </div>
 
           <div className="mt-3">
-            <div className="quiz-glass relative rounded-xl border shadow-sm">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="quiz-glass relative rounded-2xl border shadow-soft">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="নাম/অর্থ লিখে খুঁজুন…"
-                className="h-11 border-0 bg-transparent pl-9 shadow-none focus-visible:ring-2"
+                className="h-12 border-0 bg-transparent pl-10 text-foreground placeholder:text-muted-foreground shadow-none focus-visible:ring-2"
                 aria-label="Search names"
               />
             </div>
           </div>
 
           <div className="mt-2 space-y-2">
-            <div className="quiz-glass rounded-xl border p-2 shadow-sm">
+            <div className="quiz-glass rounded-2xl border p-2 shadow-soft">
               <p className="px-1 pb-1 text-[11px] font-medium text-muted-foreground">Categories</p>
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
                 <Button
@@ -324,7 +324,7 @@ const NamesPage = () => {
               </div>
             </div>
 
-            <div className="quiz-glass rounded-xl border p-2 shadow-sm">
+            <div className="quiz-glass rounded-2xl border p-2 shadow-soft">
               <p className="px-1 pb-1 text-[11px] font-medium text-muted-foreground">Gender</p>
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
                 <Button
@@ -434,7 +434,7 @@ const NamesPage = () => {
                     return (
                       <Card
                         key={n.id}
-                        className="quiz-glass group cursor-pointer border shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="quiz-glass group cursor-pointer rounded-2xl border shadow-soft transition-all hover:-translate-y-[1px] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         onClick={() => setSelected(n)}
                         role="button"
                         tabIndex={0}
@@ -607,7 +607,7 @@ const NamesPage = () => {
       {/* Mobile A–Z quick bar */}
       {showAz ? (
         <div className="fixed inset-x-0 bottom-16 z-30 mx-auto w-full max-w-4xl px-3 md:hidden">
-          <div className="quiz-glass flex items-center gap-1 overflow-x-auto rounded-xl border p-2 shadow-sm">
+          <div className="quiz-glass flex items-center gap-1 overflow-x-auto rounded-2xl border p-2 shadow-soft">
             {ALPHABET.map((l) => {
               const disabled = !grouped.available.has(l);
               return (
