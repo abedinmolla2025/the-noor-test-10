@@ -63,7 +63,6 @@ interface QuizAnswer {
 }
 
 const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
-const QUIZ_ONE_TAP_AUTOSUBMIT_KEY = "quizOneTapAutoSubmit";
 
 const QuizPage = () => {
   const navigate = useNavigate();
@@ -72,7 +71,6 @@ const QuizPage = () => {
   const nextButtonRef = useRef<HTMLDivElement | null>(null);
   const submitAutoNextTimerRef = useRef<number | null>(null);
   const submitScrollTimerRef = useRef<number | null>(null);
-  const oneTapSubmitTimerRef = useRef<number | null>(null);
   
   const {
     progress,
@@ -316,26 +314,14 @@ const QuizPage = () => {
     if (showResult || isTimeUp) return;
     setSelectedAnswer(answerIndex);
 
-    // Optional: one-tap auto submit
-    const enabled = localStorage.getItem(QUIZ_ONE_TAP_AUTOSUBMIT_KEY) === "true";
-    if (!enabled) return;
-
-    if (oneTapSubmitTimerRef.current) window.clearTimeout(oneTapSubmitTimerRef.current);
-    oneTapSubmitTimerRef.current = window.setTimeout(() => {
-      submitAnswer(answerIndex);
-    }, 200);
-  };
-
-  const handleSubmitAnswer = () => {
-    if (selectedAnswer === null) return;
-    submitAnswer(selectedAnswer);
+    // Always auto-submit on select (no submit button)
+    submitAnswer(answerIndex);
   };
 
   useEffect(() => {
     return () => {
       if (submitAutoNextTimerRef.current) window.clearTimeout(submitAutoNextTimerRef.current);
       if (submitScrollTimerRef.current) window.clearTimeout(submitScrollTimerRef.current);
-      if (oneTapSubmitTimerRef.current) window.clearTimeout(oneTapSubmitTimerRef.current);
     };
   }, []);
 
@@ -996,15 +982,7 @@ const QuizPage = () => {
                   </div>
                 )}
 
-                  {!showResult ? (
-                    <Button
-                      onClick={handleSubmitAnswer}
-                      disabled={selectedAnswer === null || isTimeUp}
-                      className="w-full h-12 text-lg"
-                    >
-                      Submit answer
-                    </Button>
-                  ) : isTimeUp ? null : (
+                  {showResult && !isTimeUp ? (
                     <div className="w-full h-12 flex items-center justify-center rounded-xl bg-muted/40 text-sm text-muted-foreground">
                       {languageMode === "bn"
                         ? "পরবর্তী প্রশ্নে যাচ্ছে..."
@@ -1012,7 +990,7 @@ const QuizPage = () => {
                         ? "Moving to next question..."
                         : "পরবর্তী প্রশ্নে যাচ্ছে... / Moving to next question..."}
                     </div>
-                  )}
+                  ) : null}
                 </motion.div>
               ) : null}
             </motion.div>
