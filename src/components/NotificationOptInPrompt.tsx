@@ -85,19 +85,19 @@ export function NotificationOptInPrompt() {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            নোটিফিকেশন চালু করবেন?
+            Enable notifications?
           </DialogTitle>
           <DialogDescription>
-            নামাজের সময়, কুইজ রিমাইন্ডার এবং গুরুত্বপূর্ণ আপডেটের নোটিফিকেশন পেতে চালু করুন।
+            Turn on notifications for prayer times, quiz reminders, and important updates.
           </DialogDescription>
         </DialogHeader>
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button type="button" variant="outline" onClick={notNow}>
-            এখন না
+            Not now
           </Button>
           <Button type="button" onClick={enable}>
-            চালু করুন
+            Enable
           </Button>
         </DialogFooter>
       </DialogContent>
