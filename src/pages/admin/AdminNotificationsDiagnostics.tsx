@@ -251,7 +251,17 @@ export default function AdminNotificationsDiagnostics() {
         });
       }
     } catch (e: any) {
-      toast({ title: "Test failed", description: e?.message ?? "Please try again.", variant: "destructive" });
+      const desc =
+        typeof e?.message === "string"
+          ? e.message
+          : (() => {
+              try {
+                return JSON.stringify(e);
+              } catch {
+                return "Please try again.";
+              }
+            })();
+      toast({ title: "Test failed", description: desc, variant: "destructive" });
     } finally {
       setLoading(false);
     }
