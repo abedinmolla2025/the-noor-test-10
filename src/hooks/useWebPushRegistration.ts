@@ -69,6 +69,17 @@ export function useWebPushRegistration() {
         const publicKey = String(keyRes?.publicKey ?? "");
         if (!publicKey) throw new Error("Missing VAPID public key");
 
+        // If an old subscription exists (e.g., VAPID key changed), unsubscribe first to avoid
+        // "A subscription with a different applicationServerKey already exists" errors.
+        const existing = await reg.pushManager.getSubscription();
+        if (existing) {
+          try {
+            await existing.unsubscribe();
+          } catch {
+            // ignore
+          }
+        }
+
         // Subscribe to push
         const subscription = await reg.pushManager.subscribe({
           userVisibleOnly: true,

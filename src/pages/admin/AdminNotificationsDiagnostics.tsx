@@ -167,11 +167,25 @@ export default function AdminNotificationsDiagnostics() {
       }
 
       const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      // Ensure the SW is active before touching PushManager
+      await navigator.serviceWorker.ready;
 
       const { data: keyRes, error: keyErr } = await supabase.functions.invoke("webpush-public-key", { body: {} });
       if (keyErr) throw keyErr;
       const publicKey = String(keyRes?.publicKey ?? "");
       if (!publicKey) throw new Error("Missing public key");
+
+      // If a subscription already exists (often from an old VAPID key), unsubscribe first.
+      // Otherwise Chrome can throw:
+      // "A subscription with a different applicationServerKey already exists"
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        try {
+          await existing.unsubscribe();
+        } catch {
+          // ignore
+        }
+      }
 
       const subscription = await reg.pushManager.subscribe({
         userVisibleOnly: true,
