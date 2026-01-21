@@ -61,6 +61,16 @@ function base64UrlEncode(bytes: Uint8Array) {
   return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
+function base64UrlToUint8Array(base64Url: string) {
+  // Convert base64url -> base64
+  const b64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+  const raw = atob(b64 + pad);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i += 1) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
 function normalizeBase64Url(input: string) {
   // Some tooling stores VAPID keys with padding or non-url-safe chars.
   // Web Push expects URL-safe base64 without "=".
@@ -279,10 +289,15 @@ async function sendWebPush({
 
   const subscription = JSON.parse(subscriptionJson);
 
+  const publicKeyB64Url = normalizeBase64Url(publicKey);
+  const privateKeyB64Url = normalizeBase64Url(privateKey);
+
+  // @negrel/webpush expects WebCrypto-friendly key material (Uint8Array / JWK).
+  // Passing base64url strings can trigger SubtleCrypto.importKey() errors.
   const vapidDetails = {
     subject,
-    publicKey: normalizeBase64Url(publicKey),
-    privateKey: normalizeBase64Url(privateKey),
+    publicKey: base64UrlToUint8Array(publicKeyB64Url),
+    privateKey: base64UrlToUint8Array(privateKeyB64Url),
   };
 
   const payload = JSON.stringify({
