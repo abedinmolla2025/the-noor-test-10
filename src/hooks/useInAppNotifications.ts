@@ -7,6 +7,7 @@ export type InAppNotification = {
   title: string;
   message: string;
   scheduled_at: string | null;
+  expires_at?: string | null;
   sent_at: string | null;
   status: string | null;
   created_at: string | null;
@@ -22,9 +23,10 @@ export function useInAppNotifications() {
 
       const { data, error } = await supabase
         .from("admin_notifications")
-        .select("id, title, message, scheduled_at, sent_at, status, created_at")
+        .select("id, title, message, scheduled_at, expires_at, sent_at, status, created_at")
         .in("status", ["sent", "scheduled"])
         .or(`scheduled_at.is.null,scheduled_at.lte.${nowIso}`)
+        .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
         .order("scheduled_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false, nullsFirst: false })
         .limit(50);

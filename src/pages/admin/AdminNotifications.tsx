@@ -175,6 +175,13 @@ export default function AdminNotifications() {
   const [targetPlatform, setTargetPlatform] = useState<TargetPlatform>("all");
   const [scheduledAt, setScheduledAt] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+
+  // In-app announcement ticker controls
+  const [annTitle, setAnnTitle] = useState("");
+  const [annMessage, setAnnMessage] = useState("");
+  const [annDuration, setAnnDuration] = useState<"12" | "24" | "custom">("12");
+  const [annCustomHours, setAnnCustomHours] = useState<string>("");
+  const annCanSubmit = annTitle.trim().length > 0 && annMessage.trim().length > 0;
   const [tokenCount, setTokenCount] = useState<{ android: number; ios: number; web: number; total: number } | null>(
     null
   );
@@ -189,6 +196,60 @@ export default function AdminNotifications() {
 
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const canSubmit = title.trim().length > 0 && body.trim().length > 0;
+
+  const createAnnouncement = async () => {
+    setSubmitting(true);
+    try {
+      const {
+        data: { user },
+        error: userErr,
+      } = await supabase.auth.getUser();
+      if (userErr) throw userErr;
+      if (!user) throw new Error("Not authenticated");
+
+      const hours =
+        annDuration === "custom"
+          ? Math.max(1, Math.min(168, Number(annCustomHours || "0")))
+          : Number(annDuration);
+
+      if (!Number.isFinite(hours) || hours <= 0) {
+        throw new Error("Invalid duration");
+      }
+
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + hours * 60 * 60 * 1000).toISOString();
+
+      const { error } = await supabase.from("admin_notifications").insert({
+        title: annTitle.trim(),
+        message: annMessage.trim(),
+        status: "sent",
+        sent_at: now.toISOString(),
+        scheduled_at: null,
+        expires_at: expiresAt,
+        created_by: user.id,
+      } as any);
+
+      if (error) throw error;
+
+      toast({
+        title: "Announcement activated",
+        description: `Ticker will auto-hide after ${hours} hour(s).`,
+      });
+
+      setAnnTitle("");
+      setAnnMessage("");
+      setAnnDuration("12");
+      setAnnCustomHours("");
+    } catch (error: any) {
+      toast({
+        title: "Failed",
+        description: error?.message ?? "Could not activate announcement",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const applyTemplate = (templateId: string) => {
     const template = NOTIFICATION_TEMPLATES.find((t) => t.id === templateId);
@@ -636,6 +697,76 @@ export default function AdminNotifications() {
                 </Button>
               ))}
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Announcement ticker (in-app) */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Announcement Ticker</CardTitle>
+          <CardDescription>Show/hide the top ticker by activating an announcement with an expiry time.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Ticker title</Label>
+              <Input
+                value={annTitle}
+                onChange={(e) => setAnnTitle(e.target.value)}
+                placeholder="Announcement title"
+                className="h-9 text-sm"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Auto-hide after</Label>
+              <Select value={annDuration} onValueChange={(v) => setAnnDuration(v as any)}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="12">12 hours</SelectItem>
+                  <SelectItem value="24">24 hours</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
+              {annDuration === "custom" ? (
+                <div className="mt-2">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={168}
+                    value={annCustomHours}
+                    onChange={(e) => setAnnCustomHours(e.target.value)}
+                    placeholder="Hours (1-168)"
+                    className="h-9 text-sm"
+                  />
+                  <p className="mt-1 text-[11px] text-muted-foreground">Max 168 hours (7 days).</p>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs sm:text-sm">Ticker message</Label>
+            <Textarea
+              value={annMessage}
+              onChange={(e) => setAnnMessage(e.target.value)}
+              placeholder="Announcement message"
+              rows={3}
+              className="min-h-[96px] text-sm"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button
+              onClick={createAnnouncement}
+              className="h-9 w-full text-sm sm:w-auto"
+              disabled={!annCanSubmit || submitting || (annDuration === "custom" && !annCustomHours)}
+            >
+              Activate ticker
+            </Button>
           </div>
         </CardContent>
       </Card>
