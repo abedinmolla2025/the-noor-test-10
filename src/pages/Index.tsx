@@ -22,6 +22,7 @@ import { APP_PLACEMENTS, WEB_PLACEMENTS } from "@/lib/ads";
 import type { LayoutPlatform } from "@/lib/layout";
 import { detectLayoutPlatform } from "@/lib/layout";
 import { useLayoutSettings } from "@/hooks/useLayoutSettings";
+import { NotificationOptInPrompt } from "@/components/NotificationOptInPrompt";
 
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
@@ -211,6 +212,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
+      <NotificationOptInPrompt />
       {/* Maintenance banner */}
       {system.maintenanceMode && (
         <div className="w-full bg-amber-500/90 text-amber-950 text-center text-xs py-2 px-3">

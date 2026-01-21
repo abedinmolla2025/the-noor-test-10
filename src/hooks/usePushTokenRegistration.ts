@@ -4,6 +4,7 @@ import { PushNotifications } from "@capacitor/push-notifications";
 import { supabase } from "@/integrations/supabase/client";
 
 const DEVICE_ID_KEY = "noor_device_id";
+const PUSH_OPT_IN_KEY = "noor_push_opt_in";
 
 function getOrCreateDeviceId(): string {
   const existing = localStorage.getItem(DEVICE_ID_KEY);
@@ -30,6 +31,9 @@ export function usePushTokenRegistration() {
     // No-op on web
     if (!Capacitor.isNativePlatform()) return;
 
+    // Only register after user opt-in
+    if (localStorage.getItem(PUSH_OPT_IN_KEY) !== "true") return;
+
     let removed = false;
 
     const run = async () => {
@@ -52,6 +56,7 @@ export function usePushTokenRegistration() {
               token: token.value,
               platform,
               device_id: deviceId,
+              enabled: true,
             });
 
           // Ignore duplicates (same token already stored)

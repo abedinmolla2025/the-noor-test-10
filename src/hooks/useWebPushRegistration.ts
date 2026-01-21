@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const DEVICE_ID_KEY = "noor_device_id";
 const WEB_PUSH_REGISTERED_KEY = "noor_web_push_registered";
+const PUSH_OPT_IN_KEY = "noor_push_opt_in";
 
 function getOrCreateDeviceId(): string {
   const existing = localStorage.getItem(DEVICE_ID_KEY);
@@ -42,6 +43,9 @@ export function useWebPushRegistration() {
     // Check if service workers are supported
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
+    // Only register after user opt-in
+    if (localStorage.getItem(PUSH_OPT_IN_KEY) !== "true") return;
+
     // Check if already registered
     if (localStorage.getItem(WEB_PUSH_REGISTERED_KEY) === "true") return;
 
@@ -49,7 +53,7 @@ export function useWebPushRegistration() {
 
     const run = async () => {
       try {
-        // Request notification permission
+        // Request notification permission (should be user-initiated via UI, but keep safe)
         const permission = await Notification.requestPermission();
         if (permission !== "granted") return;
 
