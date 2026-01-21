@@ -9,6 +9,7 @@ export type InAppNotification = {
   scheduled_at: string | null;
   expires_at?: string | null;
   ticker_style?: any;
+  ticker_active?: boolean;
   sent_at: string | null;
   status: string | null;
   created_at: string | null;
@@ -22,9 +23,11 @@ export function useInAppNotifications() {
     queryFn: async () => {
       const nowIso = new Date().toISOString();
 
-      const { data, error } = await supabase
-        .from("admin_notifications")
-        .select("id, title, message, scheduled_at, expires_at, ticker_style, sent_at, status, created_at")
+      const { data, error } = await (supabase.from("admin_notifications") as any)
+        .select(
+          "id, title, message, scheduled_at, expires_at, ticker_style, ticker_active, sent_at, status, created_at",
+        )
+        .eq("ticker_active", true)
         .in("status", ["sent", "scheduled"])
         .or(`scheduled_at.is.null,scheduled_at.lte.${nowIso}`)
         .or(`expires_at.is.null,expires_at.gt.${nowIso}`)

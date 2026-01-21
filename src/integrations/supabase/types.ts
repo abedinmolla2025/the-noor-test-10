@@ -396,6 +396,7 @@ export type Database = {
           status: string | null
           target_role: Database["public"]["Enums"]["app_role"] | null
           target_user_ids: string[] | null
+          ticker_active: boolean
           ticker_style: Json | null
           title: string
         }
@@ -410,6 +411,7 @@ export type Database = {
           status?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           target_user_ids?: string[] | null
+          ticker_active?: boolean
           ticker_style?: Json | null
           title: string
         }
@@ -424,6 +426,7 @@ export type Database = {
           status?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           target_user_ids?: string[] | null
+          ticker_active?: boolean
           ticker_style?: Json | null
           title?: string
         }

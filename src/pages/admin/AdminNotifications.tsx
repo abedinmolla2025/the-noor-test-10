@@ -269,6 +269,7 @@ export default function AdminNotifications() {
         sent_at: now.toISOString(),
         scheduled_at: null,
         expires_at: expiresAt,
+        ticker_active: true,
         ticker_style: {
           font: annFont,
           size: annSize,
@@ -311,7 +312,7 @@ export default function AdminNotifications() {
       const nowIso = new Date().toISOString();
       const { error } = await supabase
         .from("admin_notifications")
-        .update({ expires_at: nowIso } as any)
+        .update({ expires_at: nowIso, ticker_active: false } as any)
         .eq("id", activeAnnouncement.id);
       if (error) throw error;
 
@@ -463,10 +464,10 @@ export default function AdminNotifications() {
   const loadActiveAnnouncement = async () => {
     try {
       const nowIso = new Date().toISOString();
-      const { data, error } = await supabase
-        .from("admin_notifications")
-        .select("id,title,message,sent_at,scheduled_at,expires_at,ticker_style")
+      const { data, error } = await (supabase.from("admin_notifications") as any)
+        .select("id,title,message,sent_at,scheduled_at,expires_at,ticker_style,ticker_active")
         .in("status", ["sent", "scheduled"])
+        .eq("ticker_active", true)
         .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
         .or(`scheduled_at.is.null,scheduled_at.lte.${nowIso}`)
         .order("sent_at", { ascending: false, nullsFirst: false })
