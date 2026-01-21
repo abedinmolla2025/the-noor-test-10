@@ -224,27 +224,35 @@ const NamesPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/90 backdrop-blur">
-        <div className="mx-auto w-full max-w-2xl px-3 py-3">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+        <div className="mx-auto w-full max-w-4xl px-3 py-3">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-semibold text-foreground">Names</h1>
-              <p className="truncate text-xs text-muted-foreground">Admin content থেকে নামগুলো লোড হচ্ছে</p>
+              <h1 className="truncate text-base font-semibold text-foreground">Islamic Names</h1>
+              <p className="truncate text-xs text-muted-foreground">
+                {namesQuery.isLoading
+                  ? "লোড হচ্ছে…"
+                  : `${filtered.length.toLocaleString()} ফলাফল • ${
+                      (namesQuery.data?.length ?? 0).toLocaleString()
+                    } মোট`}
+              </p>
             </div>
           </div>
 
-          <div className="mt-3 relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="নাম/অর্থ লিখে খুঁজুন..."
-              className="pl-9"
-              aria-label="Search names"
-            />
+          <div className="mt-3">
+            <div className="relative rounded-xl border border-border/60 bg-card/50 shadow-sm">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="নাম/অর্থ লিখে খুঁজুন…"
+                className="h-11 border-0 bg-transparent pl-9 shadow-none focus-visible:ring-2"
+                aria-label="Search names"
+              />
+            </div>
           </div>
 
           <div className="mt-2 flex items-center gap-2 overflow-x-auto pb-1">
@@ -253,7 +261,7 @@ const NamesPage = () => {
               size="sm"
               variant={activeCategory === "all" ? "secondary" : "outline"}
               onClick={() => setActiveCategory("all")}
-              className="shrink-0"
+              className="shrink-0 rounded-full"
             >
               All
             </Button>
@@ -264,7 +272,7 @@ const NamesPage = () => {
                 size="sm"
                 variant={activeCategory === c ? "secondary" : "outline"}
                 onClick={() => setActiveCategory(c)}
-                className="shrink-0"
+                className="shrink-0 rounded-full"
               >
                 {c}
               </Button>
@@ -277,7 +285,7 @@ const NamesPage = () => {
               size="sm"
               variant={activeGender === "all" ? "secondary" : "outline"}
               onClick={() => setActiveGender("all")}
-              className="shrink-0"
+              className="shrink-0 rounded-full"
             >
               All ({genderCounts.total})
             </Button>
@@ -286,7 +294,7 @@ const NamesPage = () => {
               size="sm"
               variant={activeGender === "male" ? "secondary" : "outline"}
               onClick={() => setActiveGender("male")}
-              className="shrink-0"
+              className="shrink-0 rounded-full"
             >
               Male ({genderCounts.male})
             </Button>
@@ -295,7 +303,7 @@ const NamesPage = () => {
               size="sm"
               variant={activeGender === "female" ? "secondary" : "outline"}
               onClick={() => setActiveGender("female")}
-              className="shrink-0"
+              className="shrink-0 rounded-full"
             >
               Female ({genderCounts.female})
             </Button>
@@ -304,7 +312,7 @@ const NamesPage = () => {
               size="sm"
               variant={activeGender === "unisex" ? "secondary" : "outline"}
               onClick={() => setActiveGender("unisex")}
-              className="shrink-0"
+              className="shrink-0 rounded-full"
             >
               Unisex ({genderCounts.unisex})
             </Button>
@@ -313,7 +321,7 @@ const NamesPage = () => {
               size="sm"
               variant={activeGender === "unspecified" ? "secondary" : "outline"}
               onClick={() => setActiveGender("unspecified")}
-              className="shrink-0"
+              className="shrink-0 rounded-full"
             >
               Unspecified ({genderCounts.unspecified})
             </Button>
@@ -321,7 +329,7 @@ const NamesPage = () => {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-3 py-4">
+      <main className="mx-auto w-full max-w-4xl px-3 py-4">
         {namesQuery.isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -367,11 +375,14 @@ const NamesPage = () => {
               const secondary = n.title_arabic?.trim() ? n.title : null;
               const bnName = meta.bn_name?.trim() || "";
               const snippet = (n.content_en ?? n.content ?? "").trim();
+              const gender = normalizeGender(meta.gender);
+              const genderLabel =
+                gender === "male" ? "Male" : gender === "female" ? "Female" : gender === "unisex" ? "Unisex" : "";
 
               return (
                 <Card
                   key={n.id}
-                  className="cursor-pointer transition-colors hover:bg-muted/40"
+                  className="group cursor-pointer border-border/60 bg-card/60 shadow-sm transition-all hover:-translate-y-[1px] hover:border-border hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   onClick={() => setSelected(n)}
                   role="button"
                   tabIndex={0}
@@ -381,26 +392,34 @@ const NamesPage = () => {
                   aria-label={`Open details for ${n.title}`}
                 >
                   <CardHeader className="py-3">
-                    <CardTitle className="text-base leading-snug">
-                      {primary}
-                      {secondary ? (
-                        <span className="ml-2 text-sm font-medium text-muted-foreground">({secondary})</span>
-                      ) : null}
-                    </CardTitle>
-
-                    {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
-
-                    {n.category?.trim() ? (
-                      <div className="pt-1">
-                        <Badge variant="secondary" className="text-[11px]">
-                          {n.category}
-                        </Badge>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <CardTitle className="truncate text-base leading-snug">
+                          <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>{primary}</span>
+                          {secondary ? (
+                            <span className="ml-2 text-sm font-medium text-muted-foreground">({secondary})</span>
+                          ) : null}
+                        </CardTitle>
+                        {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
                       </div>
-                    ) : null}
+
+                      <div className="flex shrink-0 items-center gap-1">
+                        {genderLabel ? (
+                          <Badge variant="outline" className="text-[11px]">
+                            {genderLabel}
+                          </Badge>
+                        ) : null}
+                        {n.category?.trim() ? (
+                          <Badge variant="secondary" className="text-[11px]">
+                            {n.category}
+                          </Badge>
+                        ) : null}
+                      </div>
+                    </div>
                   </CardHeader>
                   {snippet ? (
                     <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
-                      {snippet}
+                      <p className="leading-relaxed">{snippet}</p>
                     </CardContent>
                   ) : null}
                 </Card>
