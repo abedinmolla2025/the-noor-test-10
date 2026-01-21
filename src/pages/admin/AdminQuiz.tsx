@@ -102,74 +102,6 @@ export default function AdminQuiz() {
     },
   });
 
-  const import90PackMutation = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/quiz-questions-90.json", { cache: "no-store" });
-      if (!res.ok) throw new Error("Could not load quiz-questions-90.json");
-      const pack = (await res.json()) as Array<{
-        question: string;
-        options: string[];
-        correct_answer: number;
-        category: string;
-        difficulty?: string;
-      }>;
-
-      if (!Array.isArray(pack) || pack.length === 0) throw new Error("Invalid pack JSON");
-
-      const { data: existing } = await supabase
-        .from("quiz_questions")
-        .select("question")
-        .limit(1000);
-
-      const existingSet = new Set((existing ?? []).map((r: any) => String(r.question ?? "").trim()));
-
-      const { data: last } = await supabase
-        .from("quiz_questions")
-        .select("order_index")
-        .order("order_index", { ascending: false })
-        .limit(1);
-
-      const startIndex = (last?.[0]?.order_index ?? -1) as number;
-
-      const toInsertRaw = pack.filter((q) => {
-        const key = String(q.question ?? "").trim();
-        return key.length > 0 && !existingSet.has(key);
-      });
-
-      if (toInsertRaw.length === 0) return { inserted: 0, skipped: pack.length };
-
-      const rows = toInsertRaw.map((q, i) => ({
-        // Base + Bangla pack (this 90-pack file is Bangla)
-        question: q.question,
-        question_bn: q.question,
-        question_en: null,
-
-        options: q.options,
-        options_bn: q.options,
-        options_en: null,
-
-        correct_answer: q.correct_answer,
-        category: q.category,
-        difficulty: q.difficulty ?? "medium",
-        is_active: true,
-        order_index: startIndex + i + 1,
-      }));
-
-      const { error } = await supabase.from("quiz_questions").insert(rows);
-      if (error) throw error;
-
-      return { inserted: rows.length, skipped: pack.length - rows.length };
-    },
-    onSuccess: (r) => {
-      queryClient.invalidateQueries({ queryKey: ["admin-quiz-questions"] });
-      queryClient.invalidateQueries({ queryKey: ["quiz-questions"] });
-      toast.success(`Imported: ${r.inserted}, Skipped (duplicates): ${r.skipped}`);
-    },
-    onError: (error: Error) => {
-      toast.error("Import failed: " + error.message);
-    },
-  });
-
   const createMutation = useMutation({
     mutationFn: async (newQuestion: any) => {
       const { error } = await supabase.from("quiz_questions").insert([
@@ -359,15 +291,6 @@ export default function AdminQuiz() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => import90PackMutation.mutate()}
-              disabled={import90PackMutation.isPending}
-              title="Adds questions from quiz-questions-90.json (skips duplicates)"
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              {import90PackMutation.isPending ? "Importing…" : "Import 90 Pack"}
-            </Button>
             <AdminPageActionsDropdown
               exportData={exportData}
               exportFileName="quiz-questions.json"
