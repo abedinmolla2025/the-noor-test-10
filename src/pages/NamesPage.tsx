@@ -267,7 +267,7 @@ const NamesPage = () => {
   return (
     <div className="min-h-screen dua-page pb-20">
       <header className="sticky top-0 z-40 border-b dua-header">
-        <div className="mx-auto w-full max-w-4xl px-3 py-3">
+        <div className="mx-auto w-full max-w-none px-3 py-3 md:px-6 xl:px-10">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -373,7 +373,7 @@ const NamesPage = () => {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-4xl px-3 py-4">
+      <main className="mx-auto w-full max-w-none px-3 py-4 md:px-6 xl:px-10">
         {namesQuery.isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -529,7 +529,7 @@ const NamesPage = () => {
 
       {/* Mobile A–Z quick bar */}
       {showAz ? (
-        <div className="fixed inset-x-0 bottom-16 z-30 mx-auto w-full max-w-4xl px-3 md:hidden">
+        <div className="fixed inset-x-0 bottom-16 z-30 mx-auto w-full max-w-none px-3 md:px-6 md:hidden">
           <div className="dua-surface flex items-center gap-1 overflow-x-auto p-2 shadow-soft">
             {ALPHABET.map((l) => {
               const disabled = !grouped.available.has(l);
