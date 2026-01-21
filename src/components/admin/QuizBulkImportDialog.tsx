@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Download, Upload } from "lucide-react";
 import { z } from "zod";
@@ -47,10 +48,114 @@ export function QuizBulkImportDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [jsonInput, setJsonInput] = useState("");
   const [preview, setPreview] = useState<QuizQuestion[]>([]);
+  const [upsertByEnglish, setUpsertByEnglish] = useState(true);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const normalizedPreview = useMemo(() => {
+    return preview.map((q) => ({
+      ...q,
+      question_en: q.question_en?.trim() || undefined,
+      question_bn: q.question_bn?.trim() || undefined,
+      question: q.question.trim(),
+      options: q.options.map((o) => String(o)),
+      options_en: q.options_en?.map((o) => String(o)) ?? undefined,
+      options_bn: q.options_bn?.map((o) => String(o)) ?? undefined,
+    }));
+  }, [preview]);
 
   const importMutation = useMutation({
     mutationFn: async (questions: QuizQuestion[]) => {
+      const normalized = questions.map((q) => ({
+        ...q,
+        question_en: q.question_en?.trim() || undefined,
+        question_bn: q.question_bn?.trim() || undefined,
+        question: q.question.trim(),
+      }));
+
+      if (upsertByEnglish) {
+        const missingEnglish = normalized.filter((q) => !q.question_en);
+        if (missingEnglish.length) {
+          throw new Error(
+            `Upsert mode requires question_en. Missing for ${missingEnglish.length} item(s).`
+          );
+        }
+
+        const englishKeys = Array.from(new Set(normalized.map((q) => q.question_en!)));
+        const keyBatches: string[][] = [];
+        for (let i = 0; i < englishKeys.length; i += 200) keyBatches.push(englishKeys.slice(i, i + 200));
+
+        const existingRows: { id: string; question_en: string; order_index: number | null; updated_at: string | null }[] = [];
+        for (const batch of keyBatches) {
+          const { data, error } = await supabase
+            .from("quiz_questions")
+            .select("id, question_en, order_index, updated_at")
+            .in("question_en", batch);
+          if (error) throw error;
+          if (data) existingRows.push(...data);
+        }
+
+        // If duplicates exist in DB for same question_en, prefer the most recently updated.
+        const existingByEnglish = new Map<string, { id: string; order_index: number | null; updated_at: string | null }>();
+        for (const row of existingRows) {
+          const prev = existingByEnglish.get(row.question_en);
+          if (!prev) {
+            existingByEnglish.set(row.question_en, row);
+            continue;
+          }
+          const prevTime = prev.updated_at ? Date.parse(prev.updated_at) : 0;
+          const rowTime = row.updated_at ? Date.parse(row.updated_at) : 0;
+          if (rowTime >= prevTime) existingByEnglish.set(row.question_en, row);
+        }
+
+        const toUpdate: any[] = [];
+        const toInsert: any[] = [];
+
+        for (const q of normalized) {
+          const derivedBaseQuestion = (q.question_en || q.question_bn || q.question).trim();
+          const derivedOptions = (q.options_en || q.options_bn || q.options).map((s) => String(s));
+          const payload = {
+            // Base fallback
+            question: derivedBaseQuestion,
+            options: derivedOptions,
+
+            // Explicit bilingual
+            question_en: q.question_en ?? null,
+            question_bn: q.question_bn ?? null,
+            options_en: q.options_en ?? null,
+            options_bn: q.options_bn ?? null,
+
+            correct_answer: q.correct_answer,
+            category: q.category,
+            difficulty: q.difficulty || "medium",
+            is_active: q.is_active !== false,
+          };
+
+          const existing = existingByEnglish.get(q.question_en!);
+          if (existing?.id) toUpdate.push({ ...payload, id: existing.id, order_index: existing.order_index ?? 0 });
+          else toInsert.push(payload);
+        }
+
+        if (toInsert.length) {
+          const { data: last } = await supabase
+            .from("quiz_questions")
+            .select("order_index")
+            .order("order_index", { ascending: false })
+            .limit(1);
+          const startIndex = last?.[0]?.order_index ?? -1;
+          const insertWithOrder = toInsert.map((p, idx) => ({ ...p, order_index: startIndex + idx + 1 }));
+          const { error } = await supabase.from("quiz_questions").insert(insertWithOrder);
+          if (error) throw error;
+        }
+
+        if (toUpdate.length) {
+          const { error } = await supabase.from("quiz_questions").upsert(toUpdate);
+          if (error) throw error;
+        }
+
+        return;
+      }
+
+      // Append-only mode
       const { data: existingQuestions } = await supabase
         .from("quiz_questions")
         .select("order_index")
@@ -59,7 +164,7 @@ export function QuizBulkImportDialog() {
 
       const startIndex = existingQuestions?.[0]?.order_index ?? -1;
 
-      const questionsWithOrder = questions.map((q, index) => {
+      const questionsWithOrder = normalized.map((q, index) => {
         const derivedBaseQuestion = (q.question_en || q.question_bn || q.question).trim();
         const derivedOptions = (q.options_en || q.options_bn || q.options).map((s) => String(s));
 
@@ -171,7 +276,7 @@ export function QuizBulkImportDialog() {
       toast.error("Please preview first");
       return;
     }
-    importMutation.mutate(preview);
+    importMutation.mutate(normalizedPreview);
   };
 
   const exampleJson = `[
@@ -222,6 +327,14 @@ export function QuizBulkImportDialog() {
             <div className="flex items-center justify-between gap-3">
               <Label htmlFor="json-input">Paste JSON data:</Label>
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5">
+                  <Switch
+                    checked={upsertByEnglish}
+                    onCheckedChange={setUpsertByEnglish}
+                    aria-label="Upsert by question_en"
+                  />
+                  <span className="text-sm text-muted-foreground">Upsert by EN</span>
+                </div>
                 <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
                   <Upload className="h-4 w-4 mr-2" />
                   Import JSON file
