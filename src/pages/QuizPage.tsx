@@ -64,6 +64,14 @@ interface QuizAnswer {
 
 const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
 
+type HapticType = "success" | "error";
+
+const triggerHaptic = (type: HapticType) => {
+  // Web fallback: Vibration API (works on most Android; iOS web is limited)
+  if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
+  navigator.vibrate(type === "success" ? 20 : [30, 40, 30]);
+};
+
 const QuizPage = () => {
   const navigate = useNavigate();
   const countdown = useCountdownToMidnight();
@@ -258,6 +266,7 @@ const QuizPage = () => {
       setIsTimeUp(true);
       setShowResult(true);
       playSfx("wrong");
+      triggerHaptic("error");
       
       // Auto advance to next question after 3 seconds
       const autoNextTimer = setTimeout(() => {
@@ -291,8 +300,10 @@ const QuizPage = () => {
     if (isCorrect) {
       setScore(prev => prev + 1);
       playSfx("correct");
+      triggerHaptic("success");
     } else {
       playSfx("wrong");
+      triggerHaptic("error");
     }
 
     // Clear any previous scheduled actions
@@ -887,6 +898,14 @@ const QuizPage = () => {
                         <motion.button
                           key={index}
                           whileTap={{ scale: 0.98 }}
+                          animate={
+                            showResult && selectedAnswer === index
+                              ? index === currentQuestion.correctAnswer
+                                ? { scale: [1, 1.04, 1] }
+                                : { x: [0, -8, 8, -6, 6, 0] }
+                              : undefined
+                          }
+                          transition={{ duration: 0.35 }}
                           onClick={() => handleAnswerSelect(index)}
                           disabled={showResult}
                           className={`w-full p-4 rounded-xl text-left transition-all border-2 ${
