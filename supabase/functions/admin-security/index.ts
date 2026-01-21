@@ -163,7 +163,11 @@ Deno.serve(async (req) => {
     const sendResetEmail = async (to: string, code: string) => {
       const apiKey = Deno.env.get("RESEND_API_KEY");
       if (!apiKey) throw new Error("missing_resend_api_key");
-      const from = Deno.env.get("RESEND_FROM_EMAIL") || "Lovable <onboarding@resend.dev>";
+
+      // NOTE: Custom FROM domains can fail if the domain isn't verified. We try a
+      // configured sender first, then fallback to Resend's onboarding sender.
+      const preferredFrom = Deno.env.get("RESEND_FROM_EMAIL") || "";
+      const fallbackFrom = "Lovable <onboarding@resend.dev>";
 
       const html = `
         <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto; line-height: 1.5;">
@@ -174,24 +178,44 @@ Deno.serve(async (req) => {
         </div>
       `;
 
-      const resp = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from,
-          to: [to],
-          subject: "Admin passcode reset code",
-          html,
-        }),
-      });
+      const send = async (from: string) => {
+        const resp = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from,
+            to: [to],
+            subject: "Admin passcode reset code",
+            html,
+          }),
+        });
 
-      if (!resp.ok) {
         const t = await resp.text().catch(() => "");
-        throw new Error(`resend_failed_${resp.status}: ${t}`);
+        if (!resp.ok) {
+          throw new Error(`resend_failed_${resp.status}: ${t}`);
+        }
+
+        // consume body (already done via text) + return parsed payload if needed
+        return t;
+      };
+
+      if (preferredFrom) {
+        try {
+          await send(preferredFrom);
+          return;
+        } catch (e) {
+          // fallback below
+          console.warn(
+            "Preferred RESEND_FROM_EMAIL failed, falling back to onboarding sender:",
+            e instanceof Error ? e.message : String(e),
+          );
+        }
       }
+
+      await send(fallbackFrom);
     };
 
     if (action === "get_config") {
@@ -432,7 +456,15 @@ Deno.serve(async (req) => {
           ip,
           message: e instanceof Error ? e.message : String(e),
         });
-        return json({ ok: false, error: "email_send_failed" }, 500);
+        // Return 200 so client can display a specific message (avoid generic non-2xx).
+        return json(
+          {
+            ok: false,
+            error: "email_send_failed",
+            details: e instanceof Error ? e.message : String(e),
+          },
+          200,
+        );
       }
 
       await logAudit(actor, "passcode_reset_code_requested", { ip });
