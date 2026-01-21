@@ -427,10 +427,10 @@ const NamesPage = () => {
             <div className="min-w-0 flex-1">
               {/* Sticky header row for 4-column layout */}
               <div
-                className={`sticky top-[92px] z-20 mb-3 hidden rounded-2xl border border-[hsl(var(--dua-border))] px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out md:block ${
+                className={`sticky top-[92px] z-20 mb-3 hidden rounded-2xl border px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out md:block ${
                   stickyHeaderRaised
-                    ? "bg-[hsl(var(--dua-header)/0.74)] shadow-card"
-                    : "bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
+                    ? "border-[hsl(var(--dua-border)/0.90)] bg-[hsl(var(--dua-header)/0.74)] shadow-card"
+                    : "border-[hsl(var(--dua-border)/0.55)] bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
                 }`}
               >
                 <div className="grid grid-cols-[1fr_1fr_1fr_1.15fr] items-center gap-1.5 md:grid-cols-[1.1fr_1fr_1fr_1.4fr] md:gap-3">
@@ -443,10 +443,10 @@ const NamesPage = () => {
 
               {/* Mobile sticky header (labels are hidden inside rows on mobile) */}
               <div
-                className={`sticky top-[92px] z-20 mb-3 rounded-2xl border border-[hsl(var(--dua-border))] px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out md:hidden ${
+                className={`sticky top-[92px] z-20 mb-3 rounded-2xl border px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out md:hidden ${
                   stickyHeaderRaised
-                    ? "bg-[hsl(var(--dua-header)/0.74)] shadow-card"
-                    : "bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
+                    ? "border-[hsl(var(--dua-border)/0.90)] bg-[hsl(var(--dua-header)/0.74)] shadow-card"
+                    : "border-[hsl(var(--dua-border)/0.55)] bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
                 }`}
               >
                 <div className="grid grid-cols-[1fr_1fr_1fr_1.15fr] items-center gap-1.5">
