@@ -459,9 +459,9 @@ const QuizPage = () => {
   const availableMixedCount = allQuestions.filter((q) => !!q.question_bn && !!q.question_en).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pb-24">
+    <div className="min-h-screen quiz-page-bg pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border/50">
+      <div className="sticky top-0 z-10 border-b border-border/50 quiz-glass">
         <div className="flex items-center justify-between p-4">
           <button
             onClick={() => navigate("/")}
@@ -469,10 +469,10 @@ const QuizPage = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-amber-500 bg-clip-text text-transparent">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Daily Quiz
           </h1>
-          <div className="flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-2 rounded-full border px-3 py-1.5 quiz-glass quiz-glass-accent">
             <Zap className="w-4 h-4 text-primary" />
             <span className="font-bold text-primary">{progress.totalPoints}</span>
           </div>
@@ -488,11 +488,11 @@ const QuizPage = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as typeof activeTab)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl transition-all ${
-                activeTab === tab.id
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "bg-muted/50 hover:bg-muted"
-              }`}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl border transition-all ${
+                  activeTab === tab.id
+                    ? "bg-primary text-primary-foreground shadow-card border-primary/20"
+                    : "quiz-glass hover:shadow-soft"
+                }`}
             >
               <tab.icon className="w-4 h-4" />
               <span className="text-sm font-medium">{tab.label}</span>
@@ -558,38 +558,38 @@ const QuizPage = () => {
               exit={{ opacity: 0, y: -20 }}
             >
               {/* Stats Card */}
-              <Card className="mb-4 bg-gradient-to-r from-primary/10 to-amber-500/10 border-primary/20">
+              <Card className="mb-4 border quiz-glass quiz-glass-accent">
                 <CardContent className="p-4">
                   <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div className="text-center p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5">
+                    <div className="text-center p-3 rounded-xl bg-primary/10 border border-primary/10">
                       <p className="text-2xl font-bold text-primary">{progress.currentStreak}</p>
                       <p className="text-xs text-muted-foreground">Day Streak 🔥</p>
                     </div>
-                    <div className="text-center p-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5">
-                      <p className="text-2xl font-bold text-amber-500">{earnedBadges.length}</p>
+                    <div className="text-center p-3 rounded-xl bg-accent/15 border border-accent/15">
+                      <p className="text-2xl font-bold text-accent">{earnedBadges.length}</p>
                       <p className="text-xs text-muted-foreground">Badges</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="text-center p-2 rounded-lg bg-emerald-500/10">
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="text-center p-2 rounded-lg bg-primary/10 border border-primary/10">
                       <div className="flex items-center justify-center gap-1 mb-1">
-                        <Zap className="w-3 h-3 text-emerald-500" />
+                          <Zap className="w-3 h-3 text-primary" />
                       </div>
-                      <p className="text-lg font-bold text-emerald-500">{progress.totalPoints}</p>
+                        <p className="text-lg font-bold text-primary">{progress.totalPoints}</p>
                       <p className="text-[10px] text-muted-foreground">Points</p>
                     </div>
-                    <div className="text-center p-2 rounded-lg bg-blue-500/10">
+                      <div className="text-center p-2 rounded-lg bg-muted/60 border border-border/60">
                       <div className="flex items-center justify-center gap-1 mb-1">
-                        <Target className="w-3 h-3 text-blue-500" />
+                          <Target className="w-3 h-3 text-foreground/70" />
                       </div>
-                      <p className="text-lg font-bold text-blue-500">{getAccuracy()}%</p>
+                        <p className="text-lg font-bold text-foreground">{getAccuracy()}%</p>
                       <p className="text-[10px] text-muted-foreground">Accuracy</p>
                     </div>
-                    <div className="text-center p-2 rounded-lg bg-purple-500/10">
+                      <div className="text-center p-2 rounded-lg bg-muted/60 border border-border/60">
                       <div className="flex items-center justify-center gap-1 mb-1">
-                        <TrendingUp className="w-3 h-3 text-purple-500" />
+                          <TrendingUp className="w-3 h-3 text-foreground/70" />
                       </div>
-                      <p className="text-lg font-bold text-purple-500">{progress.longestStreak}</p>
+                        <p className="text-lg font-bold text-foreground">{progress.longestStreak}</p>
                       <p className="text-[10px] text-muted-foreground">Best</p>
                     </div>
                   </div>
@@ -945,7 +945,7 @@ const QuizPage = () => {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       {currentQuestion.options.map((option, index) => (
-                        <motion.button
+                      <motion.button
                           key={index}
                           whileTap={{ scale: 0.98 }}
                           animate={
@@ -958,17 +958,17 @@ const QuizPage = () => {
                           transition={{ duration: 0.35 }}
                           onClick={() => handleAnswerSelect(index)}
                           disabled={showResult}
-                          className={`w-full p-4 rounded-xl text-left transition-all border-2 ${
-                            showResult
-                              ? index === currentQuestion.correctAnswer
-                                ? "bg-emerald-500/20 border-emerald-500 text-emerald-700 dark:text-emerald-300"
-                                : selectedAnswer === index
-                                ? "bg-red-500/20 border-red-500 text-red-700 dark:text-red-300"
-                                : "bg-muted/30 border-transparent"
+                        className={`w-full p-4 text-left quiz-option ${
+                          showResult
+                            ? index === currentQuestion.correctAnswer
+                              ? "quiz-option-correct"
                               : selectedAnswer === index
-                              ? "bg-primary/20 border-primary"
-                              : "bg-muted/50 border-transparent hover:bg-muted"
-                          }`}
+                              ? "quiz-option-wrong"
+                              : "opacity-80"
+                            : selectedAnswer === index
+                            ? "quiz-option-selected"
+                            : ""
+                        }`}
                         >
                           <div className="flex items-center justify-between">
                             <div>
