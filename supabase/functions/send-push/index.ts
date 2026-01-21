@@ -2,8 +2,8 @@
 /// <reference lib="deno.ns" />
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// Deno-native Web Push implementation (avoids Node polyfills that crash in the Edge runtime)
-import * as webpush from "jsr:@negrel/webpush";
+// Web Push provider (works in Edge runtime when bundled for Deno)
+import webpush from "https://esm.sh/web-push@3.6.7?bundle&target=deno";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -57,13 +57,6 @@ function normalizeBase64Url(input: string) {
     .replace(/=+$/g, "");
 }
 
-function base64UrlToBytes(b64url: string) {
-  const cleaned = normalizeBase64Url(b64url);
-  const b64 = cleaned.replace(/-/g, "+").replace(/_/g, "/");
-  const pad = "=".repeat((4 - (b64.length % 4)) % 4);
-  const raw = atob(b64 + pad);
-  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
-}
 
 async function signRs256JWT(privateKeyPem: string, header: Record<string, unknown>, payload: Record<string, unknown>) {
   const enc = new TextEncoder();
@@ -216,12 +209,6 @@ async function sendWebPush({
     privateKey: normalizeBase64Url(privateKey),
   };
 
-  const vapidDetailsBytes = {
-    subject,
-    publicKey: base64UrlToBytes(publicKey),
-    privateKey: base64UrlToBytes(privateKey),
-  };
-
   const payload = JSON.stringify({
     title,
     body,
@@ -229,36 +216,15 @@ async function sendWebPush({
     deep_link: deepLink,
   });
 
-  // jsr:@negrel/webpush has slightly different exports across versions.
-  // We resolve the send function dynamically to keep this edge function resilient.
-  const sendFn =
-    (webpush as any).sendNotification ??
-    (webpush as any).sendPushMessage ??
-    (webpush as any).sendWebPush ??
-    null;
+  // web-push expects url-safe base64 (no "=")
+  webpush.setVapidDetails(vapidDetails.subject, vapidDetails.publicKey, vapidDetails.privateKey);
 
-  if (!sendFn) {
-    throw new Error("webpush_library_missing_send_fn");
+  const res = await webpush.sendNotification(subscription, payload);
+  const status = Number((res as any)?.statusCode ?? (res as any)?.status ?? 0);
+  if (status && (status < 200 || status >= 300)) {
+    throw new Error(`webpush_failed_${status}`);
   }
-
-  // Returns a standard Response
-  const attempt = async (details: any) => {
-    const res: Response = await sendFn(subscription, payload, { vapidDetails: details });
-    const text = await res.text().catch(() => "");
-    if (!res.ok) throw new Error(`webpush_failed_${res.status}: ${text}`);
-    return String(res.status);
-  };
-
-  try {
-    return await attempt(vapidDetails);
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    // Some versions expect raw key bytes rather than base64url strings.
-    if (msg.toLowerCase().includes("base 64") || msg.toLowerCase().includes("base64")) {
-      return await attempt(vapidDetailsBytes);
-    }
-    throw e;
-  }
+  return String(status || "200");
 }
 
 Deno.serve(async (req) => {
