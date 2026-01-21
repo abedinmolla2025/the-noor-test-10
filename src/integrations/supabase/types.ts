@@ -396,6 +396,7 @@ export type Database = {
           status: string | null
           target_role: Database["public"]["Enums"]["app_role"] | null
           target_user_ids: string[] | null
+          ticker_style: Json | null
           title: string
         }
         Insert: {
@@ -409,6 +410,7 @@ export type Database = {
           status?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           target_user_ids?: string[] | null
+          ticker_style?: Json | null
           title: string
         }
         Update: {
@@ -422,6 +424,7 @@ export type Database = {
           status?: string | null
           target_role?: Database["public"]["Enums"]["app_role"] | null
           target_user_ids?: string[] | null
+          ticker_style?: Json | null
           title?: string
         }
         Relationships: []

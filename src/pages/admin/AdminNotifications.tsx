@@ -181,6 +181,9 @@ export default function AdminNotifications() {
   const [annMessage, setAnnMessage] = useState("");
   const [annDuration, setAnnDuration] = useState<"12" | "24" | "custom">("12");
   const [annCustomHours, setAnnCustomHours] = useState<string>("");
+  const [annFont, setAnnFont] = useState<string>("font-sans");
+  const [annSize, setAnnSize] = useState<string>("text-xs");
+  const [annColor, setAnnColor] = useState<string>("text-foreground/90");
   const annCanSubmit = annTitle.trim().length > 0 && annMessage.trim().length > 0;
 
   const [activeAnnouncement, setActiveAnnouncement] = useState<
@@ -240,6 +243,11 @@ export default function AdminNotifications() {
         sent_at: now.toISOString(),
         scheduled_at: null,
         expires_at: expiresAt,
+        ticker_style: {
+          font: annFont,
+          size: annSize,
+          color: annColor,
+        },
         created_by: user.id,
       } as any);
 
@@ -256,6 +264,9 @@ export default function AdminNotifications() {
       setAnnMessage("");
       setAnnDuration("12");
       setAnnCustomHours("");
+      setAnnFont("font-sans");
+      setAnnSize("text-xs");
+      setAnnColor("text-foreground/90");
     } catch (error: any) {
       toast({
         title: "Failed",
@@ -310,6 +321,35 @@ export default function AdminNotifications() {
       toast({
         title: "Failed",
         description: error?.message ?? "Could not extend announcement",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const resetActiveAnnouncementStyle = async () => {
+    if (!activeAnnouncement) return;
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("admin_notifications")
+        .update({
+          ticker_style: {
+            font: "font-sans",
+            size: "text-xs",
+            color: "text-foreground/90",
+          },
+        } as any)
+        .eq("id", activeAnnouncement.id);
+      if (error) throw error;
+
+      toast({ title: "Style reset", description: "Ticker style has been reset to default." });
+      await loadActiveAnnouncement();
+    } catch (error: any) {
+      toast({
+        title: "Failed",
+        description: error?.message ?? "Could not reset style",
         variant: "destructive",
       });
     } finally {
@@ -399,7 +439,7 @@ export default function AdminNotifications() {
       const nowIso = new Date().toISOString();
       const { data, error } = await supabase
         .from("admin_notifications")
-        .select("id,title,message,sent_at,scheduled_at,expires_at")
+        .select("id,title,message,sent_at,scheduled_at,expires_at,ticker_style")
         .in("status", ["sent", "scheduled"])
         .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
         .or(`scheduled_at.is.null,scheduled_at.lte.${nowIso}`)
@@ -848,6 +888,15 @@ export default function AdminNotifications() {
                             Hide now
                           </Button>
 
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={resetActiveAnnouncementStyle}
+                            disabled={submitting}
+                          >
+                            Reset style
+                          </Button>
+
                           <div className="flex items-center gap-2">
                             <Select value={extendHours} onValueChange={(v) => setExtendHours(v as any)}>
                               <SelectTrigger className="h-8 w-[120px] text-xs">
@@ -877,9 +926,17 @@ export default function AdminNotifications() {
             {/* Visual ticker preview */}
             {activeAnnouncement ? (
               <div className="mt-4 overflow-hidden rounded-md border bg-background/80 px-3 py-2">
-                <p className="whitespace-nowrap text-xs font-medium text-foreground/90">
-                  {activeAnnouncement.title}: {activeAnnouncement.message}
-                </p>
+                {(() => {
+                  const st = (activeAnnouncement as any).ticker_style ?? {};
+                  const fontClass = typeof st.font === "string" ? st.font : "font-sans";
+                  const sizeClass = typeof st.size === "string" ? st.size : "text-xs";
+                  const colorClass = typeof st.color === "string" ? st.color : "text-foreground/90";
+                  return (
+                    <p className={`whitespace-nowrap font-medium ${sizeClass} ${colorClass} ${fontClass}`}>
+                      {activeAnnouncement.title}: {activeAnnouncement.message}
+                    </p>
+                  );
+                })()}
               </div>
             ) : null}
           </div>
@@ -921,6 +978,53 @@ export default function AdminNotifications() {
                   <p className="mt-1 text-[11px] text-muted-foreground">Max 168 hours (7 days).</p>
                 </div>
               ) : null}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Font</Label>
+              <Select value={annFont} onValueChange={(v) => setAnnFont(v)}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Select font" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="font-sans">Sans (default)</SelectItem>
+                  <SelectItem value="font-display">Display</SelectItem>
+                  <SelectItem value="font-premium">Premium Serif</SelectItem>
+                  <SelectItem value="font-arabic">Arabic</SelectItem>
+                  <SelectItem value="font-bangla">Bangla</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Text size</Label>
+              <Select value={annSize} onValueChange={(v) => setAnnSize(v)}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Select size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text-xs">Small</SelectItem>
+                  <SelectItem value="text-sm">Medium</SelectItem>
+                  <SelectItem value="text-base">Large</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Text color</Label>
+              <Select value={annColor} onValueChange={(v) => setAnnColor(v)}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue placeholder="Select color" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text-foreground/90">Default</SelectItem>
+                  <SelectItem value="text-primary">Primary</SelectItem>
+                  <SelectItem value="text-accent">Accent</SelectItem>
+                  <SelectItem value="text-muted-foreground">Muted</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

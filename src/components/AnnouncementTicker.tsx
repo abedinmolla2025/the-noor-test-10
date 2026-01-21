@@ -40,6 +40,11 @@ export default function AnnouncementTicker() {
 
   const text = `${latest.title}: ${latest.message}`;
 
+  const style = (latest as any).ticker_style ?? {};
+  const fontClass = typeof style.font === "string" ? style.font : "font-sans";
+  const sizeClass = typeof style.size === "string" ? style.size : "text-xs";
+  const colorClass = typeof style.color === "string" ? style.color : "text-foreground/90";
+
   return (
     <div className="border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-lg items-center gap-2 px-3 py-2">
@@ -50,7 +55,7 @@ export default function AnnouncementTicker() {
           aria-label="Open notifications"
         >
           <span
-            className="inline-block pr-12 text-xs font-medium text-foreground/90"
+            className={`inline-block pr-12 font-medium ${sizeClass} ${colorClass} ${fontClass}`}
             style={{ animation: "noor-marquee 18s linear infinite" }}
           >
             {text}
