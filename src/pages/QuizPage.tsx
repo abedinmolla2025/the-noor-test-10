@@ -131,9 +131,34 @@ const QuizPage = () => {
     return q.options_en?.[index] || optionFallback;
   };
 
-  const isMixedPrimaryBangla = (q: Question) => !!q.question_bn;
+  const isMixedPrimaryBangla = (q: Question) => {
+    const bn = (q.question_bn ?? "").trim();
+    if (!bn) return false;
+    // If Bangla value equals the English/base value, treat it as not-a-translation
+    const enOrBase = (q.question_en ?? q.question ?? "").trim();
+    return bn !== enOrBase;
+  };
 
-  const isMixedPrimaryBanglaOption = (q: Question, index: number) => !!q.options_bn?.[index];
+  const isMixedPrimaryBanglaOption = (q: Question, index: number) => {
+    const bn = (q.options_bn?.[index] ?? "").trim();
+    if (!bn) return false;
+    const enOrBase = (q.options_en?.[index] ?? (q.options?.[index] as string) ?? "").trim();
+    return bn !== enOrBase;
+  };
+
+  const shouldShowMixedSecondaryQuestion = (q: Question) => {
+    const en = (q.question_en ?? "").trim();
+    if (!en) return false;
+    const primary = getQuestionText(q, "mixed").trim();
+    return en !== primary;
+  };
+
+  const shouldShowMixedSecondaryOption = (q: Question, index: number) => {
+    const en = (q.options_en?.[index] ?? "").trim();
+    if (!en) return false;
+    const primary = getOptionText(q, (q.options?.[index] as string) ?? "", index, "mixed").trim();
+    return en !== primary;
+  };
   
   const [activeTab, setActiveTab] = useState<"quiz" | "leaderboard" | "badges">("quiz");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -820,7 +845,12 @@ const QuizPage = () => {
                           </span>
                         )}
                       </CardTitle>
-                      {languageMode === "mixed" && isMixedPrimaryBangla(currentQuestion) && (
+                      {languageMode === "bn" && !currentQuestion.question_bn && (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          বাংলা অনুবাদ নেই — এই প্রশ্নটি fallback হিসেবে দেখানো হচ্ছে।
+                        </p>
+                      )}
+                      {languageMode === "mixed" && isMixedPrimaryBangla(currentQuestion) && shouldShowMixedSecondaryQuestion(currentQuestion) && (
                         <div className="mt-1 space-y-0.5">
                           <p className="text-sm md:text-xs text-muted-foreground font-quizEnPremium">
                             {getQuestionTextSecondary(currentQuestion)}
@@ -859,7 +889,9 @@ const QuizPage = () => {
                               >
                                 {getOptionText(currentQuestion, option, index, languageMode)}
                               </p>
-                              {languageMode === "mixed" && isMixedPrimaryBanglaOption(currentQuestion, index) && (
+                              {languageMode === "mixed" &&
+                                isMixedPrimaryBanglaOption(currentQuestion, index) &&
+                                shouldShowMixedSecondaryOption(currentQuestion, index) && (
                                 <p className="text-xs text-muted-foreground mt-0.5 font-quizEnPremium">
                                   {getOptionTextSecondary(currentQuestion, option, index)}
                                 </p>
