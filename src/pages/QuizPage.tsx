@@ -14,6 +14,7 @@ import { useQuizProgress } from "@/hooks/useQuizProgress";
 import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { hapticImpact, hapticNotification } from "@/lib/haptics";
 
 interface Question {
   question: string;
@@ -67,9 +68,9 @@ const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
 type HapticType = "success" | "error";
 
 const triggerHaptic = (type: HapticType) => {
-  // Web fallback: Vibration API (works on most Android; iOS web is limited)
-  if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
-  navigator.vibrate(type === "success" ? 20 : [30, 40, 30]);
+  // Fire-and-forget; native (Capacitor) + web fallback handled in helper.
+  void (type === "success" ? hapticNotification("success") : hapticNotification("error"));
+  void (type === "success" ? hapticImpact("light") : hapticImpact("medium"));
 };
 
 const QuizPage = () => {
