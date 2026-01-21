@@ -264,10 +264,8 @@ const NamesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-72 bg-gradient-to-b from-muted/35 via-background to-background" />
-
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/65">
+    <div className="min-h-screen quiz-page-bg pb-20">
+      <header className="sticky top-0 z-40 border-b border-border/60 quiz-glass">
         <div className="mx-auto w-full max-w-4xl px-3 py-3">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
@@ -286,7 +284,7 @@ const NamesPage = () => {
           </div>
 
           <div className="mt-3">
-            <div className="relative rounded-xl border border-border/60 bg-card/50 shadow-sm">
+            <div className="quiz-glass relative rounded-xl border shadow-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={q}
@@ -299,7 +297,7 @@ const NamesPage = () => {
           </div>
 
           <div className="mt-2 space-y-2">
-            <div className="rounded-xl border border-border/60 bg-card/40 p-2 shadow-sm">
+            <div className="quiz-glass rounded-xl border p-2 shadow-sm">
               <p className="px-1 pb-1 text-[11px] font-medium text-muted-foreground">Categories</p>
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
                 <Button
@@ -326,7 +324,7 @@ const NamesPage = () => {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border/60 bg-card/40 p-2 shadow-sm">
+            <div className="quiz-glass rounded-xl border p-2 shadow-sm">
               <p className="px-1 pb-1 text-[11px] font-medium text-muted-foreground">Gender</p>
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
                 <Button
@@ -436,7 +434,7 @@ const NamesPage = () => {
                     return (
                       <Card
                         key={n.id}
-                        className="group cursor-pointer border-border/60 bg-card/60 shadow-sm transition-all hover:-translate-y-[1px] hover:border-border hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="quiz-glass group cursor-pointer border shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         onClick={() => setSelected(n)}
                         role="button"
                         tabIndex={0}
@@ -512,7 +510,7 @@ const NamesPage = () => {
                           return (
                             <Card
                               key={n.id}
-                              className="group cursor-pointer border-border/60 bg-card/60 shadow-sm transition-all hover:-translate-y-[1px] hover:border-border hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                              className="quiz-glass group cursor-pointer border shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                               onClick={() => setSelected(n)}
                               role="button"
                               tabIndex={0}
@@ -570,7 +568,7 @@ const NamesPage = () => {
 
             {/* Sticky A–Z sidebar (desktop/tablet) */}
             {showAz ? (
-              <aside className="sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto rounded-xl border border-border/60 bg-card/40 p-1 shadow-sm md:flex">
+              <aside className="quiz-glass sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto rounded-xl border p-1 shadow-sm md:flex">
                 {ALPHABET.map((l) => {
                   const disabled = !grouped.available.has(l);
                   return (
@@ -609,7 +607,7 @@ const NamesPage = () => {
       {/* Mobile A–Z quick bar */}
       {showAz ? (
         <div className="fixed inset-x-0 bottom-16 z-30 mx-auto w-full max-w-4xl px-3 md:hidden">
-          <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-border/60 bg-background/80 p-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70">
+          <div className="quiz-glass flex items-center gap-1 overflow-x-auto rounded-xl border p-2 shadow-sm">
             {ALPHABET.map((l) => {
               const disabled = !grouped.available.has(l);
               return (
