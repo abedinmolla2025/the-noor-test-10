@@ -879,36 +879,51 @@ export type Database = {
       }
       notification_deliveries: {
         Row: {
+          browser: string | null
           delivered_at: string
+          endpoint_host: string | null
           error_code: string | null
           error_message: string | null
           id: string
           notification_id: string
           platform: string
           provider_message_id: string | null
+          stage: string | null
           status: string
+          subscription_endpoint: string | null
+          subscription_id: string | null
           token_id: string | null
         }
         Insert: {
+          browser?: string | null
           delivered_at?: string
+          endpoint_host?: string | null
           error_code?: string | null
           error_message?: string | null
           id?: string
           notification_id: string
           platform: string
           provider_message_id?: string | null
+          stage?: string | null
           status: string
+          subscription_endpoint?: string | null
+          subscription_id?: string | null
           token_id?: string | null
         }
         Update: {
+          browser?: string | null
           delivered_at?: string
+          endpoint_host?: string | null
           error_code?: string | null
           error_message?: string | null
           id?: string
           notification_id?: string
           platform?: string
           provider_message_id?: string | null
+          stage?: string | null
           status?: string
+          subscription_endpoint?: string | null
+          subscription_id?: string | null
           token_id?: string | null
         }
         Relationships: [
