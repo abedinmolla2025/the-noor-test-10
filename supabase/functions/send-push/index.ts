@@ -2,8 +2,8 @@
 /// <reference lib="deno.ns" />
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// Use esm.sh to bundle the Node library for the Deno runtime used by backend functions
-import webpush from "https://esm.sh/web-push@3.6.7?bundle&target=deno";
+// Deno-native Web Push implementation (avoids Node polyfills that crash in the Edge runtime)
+import * as webpush from "jsr:@negrel/webpush";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -44,6 +44,25 @@ function base64UrlEncode(bytes: Uint8Array) {
   for (const b of bytes) str += String.fromCharCode(b);
   // btoa is available in Deno
   return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function normalizeBase64Url(input: string) {
+  // Some tooling stores VAPID keys with padding or non-url-safe chars.
+  // Web Push expects URL-safe base64 without "=".
+  return input
+    .trim()
+    .replace(/[\s\u00A0]+/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function base64UrlToBytes(b64url: string) {
+  const cleaned = normalizeBase64Url(b64url);
+  const b64 = cleaned.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+  const raw = atob(b64 + pad);
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 }
 
 async function signRs256JWT(privateKeyPem: string, header: Record<string, unknown>, payload: Record<string, unknown>) {
@@ -191,7 +210,17 @@ async function sendWebPush({
 
   const subscription = JSON.parse(subscriptionJson);
 
-  webpush.setVapidDetails(subject, publicKey, privateKey);
+  const vapidDetails = {
+    subject,
+    publicKey: normalizeBase64Url(publicKey),
+    privateKey: normalizeBase64Url(privateKey),
+  };
+
+  const vapidDetailsBytes = {
+    subject,
+    publicKey: base64UrlToBytes(publicKey),
+    privateKey: base64UrlToBytes(privateKey),
+  };
 
   const payload = JSON.stringify({
     title,
@@ -200,9 +229,36 @@ async function sendWebPush({
     deep_link: deepLink,
   });
 
-  const res = await webpush.sendNotification(subscription, payload);
-  // web-push returns a Response-like object; treat 2xx as OK
-  return String((res as any)?.status ?? "");
+  // jsr:@negrel/webpush has slightly different exports across versions.
+  // We resolve the send function dynamically to keep this edge function resilient.
+  const sendFn =
+    (webpush as any).sendNotification ??
+    (webpush as any).sendPushMessage ??
+    (webpush as any).sendWebPush ??
+    null;
+
+  if (!sendFn) {
+    throw new Error("webpush_library_missing_send_fn");
+  }
+
+  // Returns a standard Response
+  const attempt = async (details: any) => {
+    const res: Response = await sendFn(subscription, payload, { vapidDetails: details });
+    const text = await res.text().catch(() => "");
+    if (!res.ok) throw new Error(`webpush_failed_${res.status}: ${text}`);
+    return String(res.status);
+  };
+
+  try {
+    return await attempt(vapidDetails);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    // Some versions expect raw key bytes rather than base64url strings.
+    if (msg.toLowerCase().includes("base 64") || msg.toLowerCase().includes("base64")) {
+      return await attempt(vapidDetailsBytes);
+    }
+    throw e;
+  }
 }
 
 Deno.serve(async (req) => {
