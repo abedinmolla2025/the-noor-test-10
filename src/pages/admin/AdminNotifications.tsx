@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarClock, History as HistoryIcon, Send, Zap, BookOpen, Moon, Star, Plus, Edit, Trash2 } from "lucide-react";
@@ -199,6 +199,10 @@ export default function AdminNotifications() {
   >(null);
   const [nowTick, setNowTick] = useState(() => Date.now());
   const [extendHours, setExtendHours] = useState<"12" | "24">("12");
+
+  const [activeStyleDraft, setActiveStyleDraft] = useState<{ font: string; size: string; color: string } | null>(null);
+  const [savingActiveStyle, setSavingActiveStyle] = useState(false);
+  const styleSaveTimerRef = useRef<number | null>(null);
   const [tokenCount, setTokenCount] = useState<{ android: number; ios: number; web: number; total: number } | null>(
     null
   );
@@ -456,10 +460,61 @@ export default function AdminNotifications() {
     }
   };
 
+  const getNormalizedTickerStyle = (raw: any) => {
+    const st = raw ?? {};
+    return {
+      font: typeof st.font === "string" ? st.font : "font-sans",
+      size: typeof st.size === "string" ? st.size : "text-xs",
+      color: typeof st.color === "string" ? st.color : "text-foreground/90",
+    };
+  };
+
+  const saveActiveAnnouncementStyle = async (style: { font: string; size: string; color: string }) => {
+    if (!activeAnnouncement) return;
+    setSavingActiveStyle(true);
+    try {
+      const { error } = await supabase
+        .from("admin_notifications")
+        .update({ ticker_style: style } as any)
+        .eq("id", activeAnnouncement.id);
+      if (error) throw error;
+      await loadActiveAnnouncement();
+    } catch (e: any) {
+      toast({
+        title: "Style save failed",
+        description: e?.message ?? "Could not update announcement style",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingActiveStyle(false);
+    }
+  };
+
+  const scheduleActiveStyleSave = (style: { font: string; size: string; color: string }) => {
+    if (styleSaveTimerRef.current) {
+      window.clearTimeout(styleSaveTimerRef.current);
+    }
+    styleSaveTimerRef.current = window.setTimeout(() => {
+      void saveActiveAnnouncementStyle(style);
+    }, 450);
+  };
+
+  useEffect(() => {
+    if (activeAnnouncement) {
+      setActiveStyleDraft(getNormalizedTickerStyle((activeAnnouncement as any).ticker_style));
+    } else {
+      setActiveStyleDraft(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAnnouncement?.id]);
+
   useEffect(() => {
     void loadActiveAnnouncement();
     const t = window.setInterval(() => setNowTick(Date.now()), 1000);
-    return () => window.clearInterval(t);
+    return () => {
+      window.clearInterval(t);
+      if (styleSaveTimerRef.current) window.clearTimeout(styleSaveTimerRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -877,6 +932,81 @@ export default function AdminNotifications() {
                     return (
                       <>
                         <p className="text-xs text-muted-foreground">Remaining: {remainingText}</p>
+
+                        {activeStyleDraft ? (
+                          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                            <div className="space-y-1">
+                              <p className="text-[11px] font-medium text-muted-foreground">Font</p>
+                              <Select
+                                value={activeStyleDraft.font}
+                                onValueChange={(v) => {
+                                  const next = { ...activeStyleDraft, font: v };
+                                  setActiveStyleDraft(next);
+                                  scheduleActiveStyleSave(next);
+                                }}
+                              >
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="font-sans">Sans</SelectItem>
+                                  <SelectItem value="font-display">Display</SelectItem>
+                                  <SelectItem value="font-premium">Premium Serif</SelectItem>
+                                  <SelectItem value="font-arabic">Arabic</SelectItem>
+                                  <SelectItem value="font-bangla">Bangla</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <p className="text-[11px] font-medium text-muted-foreground">Size</p>
+                              <Select
+                                value={activeStyleDraft.size}
+                                onValueChange={(v) => {
+                                  const next = { ...activeStyleDraft, size: v };
+                                  setActiveStyleDraft(next);
+                                  scheduleActiveStyleSave(next);
+                                }}
+                              >
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="text-xs">Small</SelectItem>
+                                  <SelectItem value="text-sm">Medium</SelectItem>
+                                  <SelectItem value="text-base">Large</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <p className="text-[11px] font-medium text-muted-foreground">Color</p>
+                              <Select
+                                value={activeStyleDraft.color}
+                                onValueChange={(v) => {
+                                  const next = { ...activeStyleDraft, color: v };
+                                  setActiveStyleDraft(next);
+                                  scheduleActiveStyleSave(next);
+                                }}
+                              >
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="text-foreground/90">Default</SelectItem>
+                                  <SelectItem value="text-primary">Primary</SelectItem>
+                                  <SelectItem value="text-accent">Accent</SelectItem>
+                                  <SelectItem value="text-muted-foreground">Muted</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="sm:col-span-3">
+                              <p className="text-[11px] text-muted-foreground">{savingActiveStyle ? "Saving…" : "Live: changes apply instantly"}</p>
+                            </div>
+                          </div>
+                        ) : null}
+
                         <div className="flex flex-col gap-2 sm:flex-row">
                           <Button
                             variant="outline"
@@ -927,10 +1057,10 @@ export default function AdminNotifications() {
             {activeAnnouncement ? (
               <div className="mt-4 overflow-hidden rounded-md border bg-background/80 px-3 py-2">
                 {(() => {
-                  const st = (activeAnnouncement as any).ticker_style ?? {};
-                  const fontClass = typeof st.font === "string" ? st.font : "font-sans";
-                  const sizeClass = typeof st.size === "string" ? st.size : "text-xs";
-                  const colorClass = typeof st.color === "string" ? st.color : "text-foreground/90";
+                  const st = activeStyleDraft ?? getNormalizedTickerStyle((activeAnnouncement as any).ticker_style);
+                  const fontClass = st.font;
+                  const sizeClass = st.size;
+                  const colorClass = st.color;
                   return (
                     <p className={`whitespace-nowrap font-medium ${sizeClass} ${colorClass} ${fontClass}`}>
                       {activeAnnouncement.title}: {activeAnnouncement.message}
