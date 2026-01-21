@@ -265,6 +265,90 @@
       radial-gradient(900px circle at 50% 100%, hsl(var(--primary) / 0.08), transparent 55%),
       hsl(var(--background));
   }
+
+  /* Dua-style emerald + gold palette helpers (used by Names page for a consistent look) */
+  :root {
+    --dua-bg: 158 64% 18%;
+    --dua-header: 158 55% 22%;
+    --dua-surface: 0 0% 100% / 0.10;
+    --dua-border: 0 0% 100% / 0.10;
+    --dua-fg: 0 0% 100%;
+    --dua-fg-muted: 0 0% 100% / 0.70;
+    --dua-fg-soft: 0 0% 100% / 0.55;
+
+    --dua-accent: 45 93% 58%;
+    --dua-accent-strong: 45 93% 48%;
+    --dua-accent-fg: 158 64% 15%;
+
+    --dua-card-from: 158 55% 25%;
+    --dua-card-to: 158 64% 20%;
+  }
+
+  .dua-page {
+    background: hsl(var(--dua-bg));
+    color: hsl(var(--dua-fg));
+  }
+
+  .dua-header {
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--dua-header)),
+      hsl(var(--dua-header) / 0.95)
+    );
+    border-color: hsl(var(--dua-border));
+    @apply backdrop-blur-lg;
+  }
+
+  .dua-surface {
+    background: hsl(var(--dua-surface));
+    border-color: hsl(var(--dua-border));
+    @apply rounded-2xl border;
+  }
+
+  .dua-input {
+    @apply bg-transparent shadow-none;
+    border-color: hsl(var(--dua-border));
+    color: hsl(var(--dua-fg));
+  }
+
+  .dua-input::placeholder {
+    color: hsl(var(--dua-fg-soft));
+  }
+
+  .dua-card {
+    background: linear-gradient(135deg, hsl(var(--dua-card-from)), hsl(var(--dua-card-to)));
+    border-color: hsl(var(--dua-border));
+    @apply rounded-2xl border shadow-soft;
+  }
+
+  .dua-chip {
+    background: hsl(var(--dua-surface));
+    color: hsl(var(--dua-fg-muted));
+    border-color: transparent;
+    @apply rounded-full border px-3 py-2 text-sm font-medium whitespace-nowrap transition-all;
+  }
+
+  .dua-chip:hover {
+    background: hsl(var(--dua-fg) / 0.16);
+  }
+
+  .dua-chip-active {
+    background: linear-gradient(
+      to right,
+      hsl(var(--dua-accent)),
+      hsl(var(--dua-accent-strong))
+    );
+    color: hsl(var(--dua-accent-fg));
+    @apply shadow-md;
+  }
+
+  .dua-icon-btn {
+    @apply rounded-full transition-colors;
+  }
+
+  .dua-icon-btn:hover {
+    background: hsl(var(--dua-fg) / 0.10);
+  }
 }
 
 

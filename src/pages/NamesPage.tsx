@@ -264,16 +264,24 @@ const NamesPage = () => {
   };
 
   return (
-    <div className="min-h-screen quiz-page-bg pb-20">
-      <header className="sticky top-0 z-40 border-b border-border/60 quiz-glass">
+    <div className="min-h-screen dua-page pb-20">
+      <header className="sticky top-0 z-40 border-b dua-header">
         <div className="mx-auto w-full max-w-4xl px-3 py-3">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              aria-label="Back"
+              className="dua-icon-btn"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="min-w-0 flex-1">
-              <h1 className="truncate font-display text-lg font-semibold tracking-tight text-foreground">ইসলামিক নাম</h1>
-              <p className="truncate text-xs text-muted-foreground">
+              <h1 className="truncate font-display text-lg font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
+                ইসলামিক নাম
+              </h1>
+              <p className="truncate text-xs text-[hsl(var(--dua-fg-muted))]">
                 {namesQuery.isLoading
                   ? "লোড হচ্ছে…"
                   : `${filtered.length.toLocaleString()} ফলাফল • ${
@@ -284,94 +292,80 @@ const NamesPage = () => {
           </div>
 
           <div className="mt-3">
-            <div className="quiz-glass relative rounded-2xl border shadow-soft">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="dua-surface relative shadow-soft">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--dua-fg-soft))]" />
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="নাম/অর্থ লিখে খুঁজুন…"
-                className="h-12 border-0 bg-transparent pl-10 text-foreground placeholder:text-muted-foreground shadow-none focus-visible:ring-2"
+                className="h-12 border-0 !bg-transparent pl-10 text-[hsl(var(--dua-fg))] placeholder:text-[hsl(var(--dua-fg-soft))] shadow-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--dua-accent)/0.45)]"
                 aria-label="Search names"
               />
             </div>
           </div>
 
           <div className="mt-2 space-y-2">
-            <div className="quiz-glass rounded-2xl border p-2 shadow-soft">
-              <p className="px-1 pb-1 text-[11px] font-medium text-muted-foreground">Categories</p>
+            <div className="dua-surface p-2 shadow-soft">
+              <p className="px-1 pb-1 text-[11px] font-medium text-[hsl(var(--dua-fg-muted))]">Categories</p>
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                <Button
+                <button
                   type="button"
-                  size="sm"
-                  variant={activeCategory === "all" ? "secondary" : "outline"}
                   onClick={() => setActiveCategory("all")}
-                  className="shrink-0 rounded-full"
+                  className={`dua-chip shrink-0 ${activeCategory === "all" ? "dua-chip-active" : ""}`}
                 >
                   All
-                </Button>
+                </button>
                 {categories.map((c) => (
-                  <Button
+                  <button
                     key={c}
                     type="button"
-                    size="sm"
-                    variant={activeCategory === c ? "secondary" : "outline"}
                     onClick={() => setActiveCategory(c)}
-                    className="shrink-0 rounded-full"
+                    className={`dua-chip shrink-0 ${activeCategory === c ? "dua-chip-active" : ""}`}
                   >
                     {c}
-                  </Button>
+                  </button>
                 ))}
               </div>
             </div>
 
-            <div className="quiz-glass rounded-2xl border p-2 shadow-soft">
-              <p className="px-1 pb-1 text-[11px] font-medium text-muted-foreground">Gender</p>
+            <div className="dua-surface p-2 shadow-soft">
+              <p className="px-1 pb-1 text-[11px] font-medium text-[hsl(var(--dua-fg-muted))]">Gender</p>
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                <Button
+                <button
                   type="button"
-                  size="sm"
-                  variant={activeGender === "all" ? "secondary" : "outline"}
                   onClick={() => setActiveGender("all")}
-                  className="shrink-0 rounded-full"
+                  className={`dua-chip shrink-0 ${activeGender === "all" ? "dua-chip-active" : ""}`}
                 >
                   All ({genderCounts.total})
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  size="sm"
-                  variant={activeGender === "male" ? "secondary" : "outline"}
                   onClick={() => setActiveGender("male")}
-                  className="shrink-0 rounded-full"
+                  className={`dua-chip shrink-0 ${activeGender === "male" ? "dua-chip-active" : ""}`}
                 >
                   Male ({genderCounts.male})
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  size="sm"
-                  variant={activeGender === "female" ? "secondary" : "outline"}
                   onClick={() => setActiveGender("female")}
-                  className="shrink-0 rounded-full"
+                  className={`dua-chip shrink-0 ${activeGender === "female" ? "dua-chip-active" : ""}`}
                 >
                   Female ({genderCounts.female})
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  size="sm"
-                  variant={activeGender === "unisex" ? "secondary" : "outline"}
                   onClick={() => setActiveGender("unisex")}
-                  className="shrink-0 rounded-full"
+                  className={`dua-chip shrink-0 ${activeGender === "unisex" ? "dua-chip-active" : ""}`}
                 >
                   Unisex ({genderCounts.unisex})
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  size="sm"
-                  variant={activeGender === "unspecified" ? "secondary" : "outline"}
                   onClick={() => setActiveGender("unspecified")}
-                  className="shrink-0 rounded-full"
+                  className={`dua-chip shrink-0 ${activeGender === "unspecified" ? "dua-chip-active" : ""}`}
                 >
                   Unspecified ({genderCounts.unspecified})
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -382,12 +376,12 @@ const NamesPage = () => {
         {namesQuery.isLoading && (
           <div className="space-y-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="quiz-glass rounded-2xl border shadow-soft">
+              <Card key={i} className="dua-card">
                 <CardHeader className="py-3">
-                  <div className="h-4 w-2/3 rounded bg-muted" />
+                  <div className="h-4 w-2/3 rounded bg-[hsl(var(--dua-fg)/0.14)]" />
                 </CardHeader>
                 <CardContent className="pb-3">
-                  <div className="h-3 w-full rounded bg-muted" />
+                  <div className="h-3 w-full rounded bg-[hsl(var(--dua-fg)/0.10)]" />
                 </CardContent>
               </Card>
             ))}
@@ -395,22 +389,22 @@ const NamesPage = () => {
         )}
 
         {namesQuery.isError && (
-          <Card className="quiz-glass rounded-2xl border shadow-soft">
+          <Card className="dua-card">
             <CardHeader>
-              <CardTitle className="text-base">লোড করা যায়নি</CardTitle>
+              <CardTitle className="text-base text-[hsl(var(--dua-fg))]">লোড করা যায়নি</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
+            <CardContent className="text-sm text-[hsl(var(--dua-fg-muted))]">
               নামগুলো লোড করতে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।
             </CardContent>
           </Card>
         )}
 
         {!namesQuery.isLoading && !namesQuery.isError && filtered.length === 0 && (
-          <Card className="quiz-glass rounded-2xl border shadow-soft">
+          <Card className="dua-card">
             <CardHeader>
-              <CardTitle className="text-base">কোনো নাম পাওয়া যায়নি</CardTitle>
+              <CardTitle className="text-base text-[hsl(var(--dua-fg))]">কোনো নাম পাওয়া যায়নি</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
+            <CardContent className="text-sm text-[hsl(var(--dua-fg-muted))]">
               Admin → Content Management থেকে content type “Name” দিয়ে Published করে যোগ করুন।
             </CardContent>
           </Card>
@@ -434,7 +428,7 @@ const NamesPage = () => {
                     return (
                       <Card
                         key={n.id}
-                        className="quiz-glass group cursor-pointer rounded-2xl border shadow-soft transition-all hover:-translate-y-[1px] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="dua-card group cursor-pointer transition-all hover:-translate-y-[1px] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--dua-accent)/0.45)]"
                         onClick={() => setSelected(n)}
                         role="button"
                         tabIndex={0}
@@ -449,20 +443,26 @@ const NamesPage = () => {
                               <CardTitle className="truncate text-base leading-snug">
                                 <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>{primary}</span>
                                 {secondary ? (
-                                  <span className="ml-2 text-sm font-medium text-muted-foreground">({secondary})</span>
+                                  <span className="ml-2 text-sm font-medium text-[hsl(var(--dua-fg-soft))]">({secondary})</span>
                                 ) : null}
                               </CardTitle>
-                              {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
+                              {bnName ? <p className="pt-1 text-sm text-[hsl(var(--dua-fg-muted))]">{bnName}</p> : null}
                             </div>
 
                             <div className="flex shrink-0 items-center gap-1">
                               {genderLabel ? (
-                                <Badge variant="outline" className="text-[11px]">
+                                <Badge
+                                  variant="outline"
+                                  className="text-[11px] border-[hsl(var(--dua-fg)/0.18)] text-[hsl(var(--dua-fg-muted))]"
+                                >
                                   {genderLabel}
                                 </Badge>
                               ) : null}
                               {n.category?.trim() ? (
-                                <Badge variant="secondary" className="text-[11px]">
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[11px] bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]"
+                                >
                                   {n.category}
                                 </Badge>
                               ) : null}
@@ -470,7 +470,7 @@ const NamesPage = () => {
                           </div>
                         </CardHeader>
                         {snippet ? (
-                          <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
+                          <CardContent className="pt-0 pb-3 text-sm text-[hsl(var(--dua-fg-muted))]">
                             <p className="leading-relaxed">{snippet}</p>
                           </CardContent>
                         ) : null}
@@ -483,9 +483,9 @@ const NamesPage = () => {
                   {grouped.keys.map((key) => (
                     <section key={key} id={`names-section-${key}`} className="scroll-mt-28">
                       <div className="mb-2 flex items-center gap-2">
-                        <div className="text-sm font-semibold text-foreground">{key}</div>
-                        <div className="h-px flex-1 bg-border/60" />
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-sm font-semibold text-[hsl(var(--dua-fg))]">{key}</div>
+                        <div className="h-px flex-1 bg-[hsl(var(--dua-fg)/0.14)]" />
+                        <div className="text-xs text-[hsl(var(--dua-fg-muted))]">
                           {(grouped.map.get(key)?.length ?? 0).toLocaleString()}
                         </div>
                       </div>
@@ -510,7 +510,7 @@ const NamesPage = () => {
                           return (
                             <Card
                               key={n.id}
-                              className="quiz-glass group cursor-pointer rounded-2xl border shadow-soft transition-all hover:-translate-y-[1px] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                              className="dua-card group cursor-pointer transition-all hover:-translate-y-[1px] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--dua-accent)/0.45)]"
                               onClick={() => setSelected(n)}
                               role="button"
                               tabIndex={0}
@@ -527,24 +527,30 @@ const NamesPage = () => {
                                         {primary}
                                       </span>
                                       {secondary ? (
-                                        <span className="ml-2 text-sm font-medium text-muted-foreground">
+                                        <span className="ml-2 text-sm font-medium text-[hsl(var(--dua-fg-soft))]">
                                           ({secondary})
                                         </span>
                                       ) : null}
                                     </CardTitle>
                                     {bnName ? (
-                                      <p className="pt-1 text-sm text-muted-foreground">{bnName}</p>
+                                      <p className="pt-1 text-sm text-[hsl(var(--dua-fg-muted))]">{bnName}</p>
                                     ) : null}
                                   </div>
 
                                   <div className="flex shrink-0 items-center gap-1">
                                     {genderLabel ? (
-                                      <Badge variant="outline" className="text-[11px]">
+                                      <Badge
+                                        variant="outline"
+                                        className="text-[11px] border-[hsl(var(--dua-fg)/0.18)] text-[hsl(var(--dua-fg-muted))]"
+                                      >
                                         {genderLabel}
                                       </Badge>
                                     ) : null}
                                     {n.category?.trim() ? (
-                                      <Badge variant="secondary" className="text-[11px]">
+                                      <Badge
+                                        variant="secondary"
+                                        className="text-[11px] bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]"
+                                      >
                                         {n.category}
                                       </Badge>
                                     ) : null}
@@ -552,7 +558,7 @@ const NamesPage = () => {
                                 </div>
                               </CardHeader>
                               {snippet ? (
-                                <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
+                                <CardContent className="pt-0 pb-3 text-sm text-[hsl(var(--dua-fg-muted))]">
                                   <p className="leading-relaxed">{snippet}</p>
                                 </CardContent>
                               ) : null}
@@ -568,7 +574,7 @@ const NamesPage = () => {
 
             {/* Sticky A–Z sidebar (desktop/tablet) */}
             {showAz ? (
-              <aside className="quiz-glass sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto rounded-2xl border p-1 shadow-soft md:flex">
+              <aside className="dua-surface sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto p-1 shadow-soft md:flex">
                 {ALPHABET.map((l) => {
                   const disabled = !grouped.available.has(l);
                   return (
@@ -577,7 +583,7 @@ const NamesPage = () => {
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-7 w-8 px-0 text-xs"
+                      className="h-7 w-8 px-0 text-xs text-[hsl(var(--dua-fg-muted))] hover:text-[hsl(var(--dua-accent))]"
                       disabled={disabled}
                       onClick={() => scrollToKey(l)}
                       aria-label={`Jump to ${l}`}
@@ -591,7 +597,7 @@ const NamesPage = () => {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 w-8 px-0 text-xs"
+                    className="h-7 w-8 px-0 text-xs text-[hsl(var(--dua-fg-muted))] hover:text-[hsl(var(--dua-accent))]"
                     onClick={() => scrollToKey("#")}
                     aria-label="Jump to #"
                   >
@@ -607,7 +613,7 @@ const NamesPage = () => {
       {/* Mobile A–Z quick bar */}
       {showAz ? (
         <div className="fixed inset-x-0 bottom-16 z-30 mx-auto w-full max-w-4xl px-3 md:hidden">
-          <div className="quiz-glass flex items-center gap-1 overflow-x-auto rounded-2xl border p-2 shadow-soft">
+          <div className="dua-surface flex items-center gap-1 overflow-x-auto p-2 shadow-soft">
             {ALPHABET.map((l) => {
               const disabled = !grouped.available.has(l);
               return (
@@ -616,7 +622,11 @@ const NamesPage = () => {
                   type="button"
                   variant={disabled ? "outline" : "secondary"}
                   size="sm"
-                  className="h-7 shrink-0 rounded-full px-2 text-xs"
+                  className={`h-7 shrink-0 rounded-full px-2 text-xs ${
+                    disabled
+                      ? "border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg-soft))]"
+                      : "bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]"
+                  }`}
                   disabled={disabled}
                   onClick={() => scrollToKey(l)}
                 >
@@ -629,7 +639,7 @@ const NamesPage = () => {
                 type="button"
                 variant="secondary"
                 size="sm"
-                className="h-7 shrink-0 rounded-full px-2 text-xs"
+                className="h-7 shrink-0 rounded-full bg-[hsl(var(--dua-accent)/0.18)] px-2 text-xs text-[hsl(var(--dua-accent))]"
                 onClick={() => scrollToKey("#")}
               >
                 #
@@ -640,22 +650,22 @@ const NamesPage = () => {
       ) : null}
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="quiz-glass max-w-xl rounded-2xl border shadow-card">
+        <DialogContent className="max-w-xl rounded-2xl border shadow-card bg-[hsl(var(--dua-header)/0.92)] text-[hsl(var(--dua-fg))] border-[hsl(var(--dua-border))]">
           <DialogHeader>
             <DialogTitle className="text-base">
               {selected?.title_arabic?.trim() ? selected?.title_arabic : selected?.title}
               {selected?.title_arabic?.trim() ? (
-                <span className="ml-2 text-sm font-medium text-muted-foreground">({selected?.title})</span>
+                <span className="ml-2 text-sm font-medium text-[hsl(var(--dua-fg-soft))]">({selected?.title})</span>
               ) : null}
             </DialogTitle>
             {selectedMeta.bn_name?.trim() ? (
-              <p className="text-sm text-muted-foreground">{selectedMeta.bn_name}</p>
+              <p className="text-sm text-[hsl(var(--dua-fg-muted))]">{selectedMeta.bn_name}</p>
             ) : null}
           </DialogHeader>
 
           {selected?.category?.trim() ? (
             <div className="-mt-1">
-              <Badge variant="secondary" className="text-[11px]">
+              <Badge variant="secondary" className="text-[11px] bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]">
                 {selected.category}
               </Badge>
             </div>
@@ -664,13 +674,14 @@ const NamesPage = () => {
           <div className="space-y-3 text-sm">
             {selected?.content ? (
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">অর্থ (বাংলা)</p>
+                <p className="text-xs text-[hsl(var(--dua-fg-muted))]">অর্থ (বাংলা)</p>
                 <p className="whitespace-pre-wrap">{selected.content}</p>
                 <div className="pt-1">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => copyToClipboard(selected.content ?? "", "বাংলা অর্থ কপি হয়েছে")}
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
                   >
                     <Copy className="mr-2 h-4 w-4" />
                     Copy
@@ -681,13 +692,14 @@ const NamesPage = () => {
 
             {selected?.content_en ? (
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Meaning (English)</p>
+                <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Meaning (English)</p>
                 <p className="whitespace-pre-wrap">{selected.content_en}</p>
                 <div className="pt-1">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => copyToClipboard(selected.content_en ?? "", "English meaning copied")}
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
                   >
                     <Copy className="mr-2 h-4 w-4" />
                     Copy
@@ -706,46 +718,46 @@ const NamesPage = () => {
               <>
                 <Separator />
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-foreground">Details</p>
+                  <p className="text-xs font-medium text-[hsl(var(--dua-fg))]">Details</p>
 
                   {selectedMeta.bn_name ? (
                     <div>
-                      <p className="text-xs text-muted-foreground">Bangla name</p>
+                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Bangla name</p>
                       <p className="font-medium break-words">{selectedMeta.bn_name}</p>
                     </div>
                   ) : null}
 
                   {selectedMeta.pronunciation ? (
                     <div>
-                      <p className="text-xs text-muted-foreground">Pronunciation</p>
+                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Pronunciation</p>
                       <p className="font-medium break-words">{selectedMeta.pronunciation}</p>
                     </div>
                   ) : null}
 
                   {selectedMeta.gender ? (
                     <div>
-                      <p className="text-xs text-muted-foreground">Gender</p>
+                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Gender</p>
                       <p className="font-medium break-words">{selectedMeta.gender}</p>
                     </div>
                   ) : null}
 
                   {selectedMeta.source ? (
                     <div>
-                      <p className="text-xs text-muted-foreground">Source</p>
+                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Source</p>
                       <p className="font-medium break-words">{selectedMeta.source}</p>
                     </div>
                   ) : null}
 
                   {selectedMeta.origin ? (
                     <div>
-                      <p className="text-xs text-muted-foreground">Origin</p>
+                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Origin</p>
                       <p className="font-medium break-words">{selectedMeta.origin}</p>
                     </div>
                   ) : null}
 
                   {selectedMeta.reference ? (
                     <div>
-                      <p className="text-xs text-muted-foreground">Reference</p>
+                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Reference</p>
                       <p className="font-medium break-words">{selectedMeta.reference}</p>
                     </div>
                   ) : null}
@@ -762,6 +774,7 @@ const NamesPage = () => {
                 void copyToClipboard(buildShareText(selected), "Copied");
               }}
               disabled={!selected}
+              className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
             >
               <Copy className="mr-2 h-4 w-4" />
               Copy all
@@ -772,6 +785,7 @@ const NamesPage = () => {
                 void onShare(selected);
               }}
               disabled={!selected}
+              className="bg-[linear-gradient(to_right,hsl(var(--dua-accent)),hsl(var(--dua-accent-strong)))] text-[hsl(var(--dua-accent-fg))] hover:opacity-95"
             >
               <Share2 className="mr-2 h-4 w-4" />
               Share
