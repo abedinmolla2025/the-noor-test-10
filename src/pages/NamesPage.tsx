@@ -228,6 +228,12 @@ const NamesPage = () => {
     };
   }, [filtered]);
 
+  // Keep the UI clean on small datasets; show A–Z navigation when the list is large enough.
+  const showAz = useMemo(() => {
+    if (namesQuery.isLoading || namesQuery.isError) return false;
+    return filtered.length >= 30;
+  }, [filtered.length, namesQuery.isError, namesQuery.isLoading]);
+
   const scrollToKey = (key: string) => {
     const id = `names-section-${key}`;
     const el = document.getElementById(id);
@@ -259,7 +265,9 @@ const NamesPage = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-72 bg-gradient-to-b from-muted/35 via-background to-background" />
+
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/65">
         <div className="mx-auto w-full max-w-4xl px-3 py-3">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
@@ -290,76 +298,84 @@ const NamesPage = () => {
             </div>
           </div>
 
-          <div className="mt-2 flex items-center gap-2 overflow-x-auto pb-1">
-            <Button
-              type="button"
-              size="sm"
-              variant={activeCategory === "all" ? "secondary" : "outline"}
-              onClick={() => setActiveCategory("all")}
-              className="shrink-0 rounded-full"
-            >
-              All
-            </Button>
-            {categories.map((c) => (
-              <Button
-                key={c}
-                type="button"
-                size="sm"
-                variant={activeCategory === c ? "secondary" : "outline"}
-                onClick={() => setActiveCategory(c)}
-                className="shrink-0 rounded-full"
-              >
-                {c}
-              </Button>
-            ))}
-          </div>
+          <div className="mt-2 space-y-2">
+            <div className="rounded-xl border border-border/60 bg-card/40 p-2 shadow-sm">
+              <p className="px-1 pb-1 text-[11px] font-medium text-muted-foreground">Categories</p>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={activeCategory === "all" ? "secondary" : "outline"}
+                  onClick={() => setActiveCategory("all")}
+                  className="shrink-0 rounded-full"
+                >
+                  All
+                </Button>
+                {categories.map((c) => (
+                  <Button
+                    key={c}
+                    type="button"
+                    size="sm"
+                    variant={activeCategory === c ? "secondary" : "outline"}
+                    onClick={() => setActiveCategory(c)}
+                    className="shrink-0 rounded-full"
+                  >
+                    {c}
+                  </Button>
+                ))}
+              </div>
+            </div>
 
-          <div className="mt-2 flex items-center gap-2 overflow-x-auto pb-1">
-            <Button
-              type="button"
-              size="sm"
-              variant={activeGender === "all" ? "secondary" : "outline"}
-              onClick={() => setActiveGender("all")}
-              className="shrink-0 rounded-full"
-            >
-              All ({genderCounts.total})
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeGender === "male" ? "secondary" : "outline"}
-              onClick={() => setActiveGender("male")}
-              className="shrink-0 rounded-full"
-            >
-              Male ({genderCounts.male})
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeGender === "female" ? "secondary" : "outline"}
-              onClick={() => setActiveGender("female")}
-              className="shrink-0 rounded-full"
-            >
-              Female ({genderCounts.female})
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeGender === "unisex" ? "secondary" : "outline"}
-              onClick={() => setActiveGender("unisex")}
-              className="shrink-0 rounded-full"
-            >
-              Unisex ({genderCounts.unisex})
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeGender === "unspecified" ? "secondary" : "outline"}
-              onClick={() => setActiveGender("unspecified")}
-              className="shrink-0 rounded-full"
-            >
-              Unspecified ({genderCounts.unspecified})
-            </Button>
+            <div className="rounded-xl border border-border/60 bg-card/40 p-2 shadow-sm">
+              <p className="px-1 pb-1 text-[11px] font-medium text-muted-foreground">Gender</p>
+              <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={activeGender === "all" ? "secondary" : "outline"}
+                  onClick={() => setActiveGender("all")}
+                  className="shrink-0 rounded-full"
+                >
+                  All ({genderCounts.total})
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={activeGender === "male" ? "secondary" : "outline"}
+                  onClick={() => setActiveGender("male")}
+                  className="shrink-0 rounded-full"
+                >
+                  Male ({genderCounts.male})
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={activeGender === "female" ? "secondary" : "outline"}
+                  onClick={() => setActiveGender("female")}
+                  className="shrink-0 rounded-full"
+                >
+                  Female ({genderCounts.female})
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={activeGender === "unisex" ? "secondary" : "outline"}
+                  onClick={() => setActiveGender("unisex")}
+                  className="shrink-0 rounded-full"
+                >
+                  Unisex ({genderCounts.unisex})
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={activeGender === "unspecified" ? "secondary" : "outline"}
+                  onClick={() => setActiveGender("unspecified")}
+                  className="shrink-0 rounded-full"
+                >
+                  Unspecified ({genderCounts.unspecified})
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -405,128 +421,193 @@ const NamesPage = () => {
         {!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0 && (
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
-              <div className="space-y-6">
-                {grouped.keys.map((key) => (
-                  <section key={key} id={`names-section-${key}`} className="scroll-mt-28">
-                    <div className="mb-2 flex items-center gap-2">
-                      <div className="text-sm font-semibold text-foreground">{key}</div>
-                      <div className="h-px flex-1 bg-border/60" />
-                      <div className="text-xs text-muted-foreground">
-                        {(grouped.map.get(key)?.length ?? 0).toLocaleString()}
+              {!showAz ? (
+                <div className="space-y-3">
+                  {filtered.map((n) => {
+                    const meta = safeParseMeta(n.metadata);
+                    const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
+                    const secondary = n.title_arabic?.trim() ? n.title : null;
+                    const bnName = meta.bn_name?.trim() || "";
+                    const snippet = (n.content_en ?? n.content ?? "").trim();
+                    const gender = normalizeGender(meta.gender);
+                    const genderLabel =
+                      gender === "male" ? "Male" : gender === "female" ? "Female" : gender === "unisex" ? "Unisex" : "";
+
+                    return (
+                      <Card
+                        key={n.id}
+                        className="group cursor-pointer border-border/60 bg-card/60 shadow-sm transition-all hover:-translate-y-[1px] hover:border-border hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        onClick={() => setSelected(n)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") setSelected(n);
+                        }}
+                        aria-label={`Open details for ${n.title}`}
+                      >
+                        <CardHeader className="py-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <CardTitle className="truncate text-base leading-snug">
+                                <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>{primary}</span>
+                                {secondary ? (
+                                  <span className="ml-2 text-sm font-medium text-muted-foreground">({secondary})</span>
+                                ) : null}
+                              </CardTitle>
+                              {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
+                            </div>
+
+                            <div className="flex shrink-0 items-center gap-1">
+                              {genderLabel ? (
+                                <Badge variant="outline" className="text-[11px]">
+                                  {genderLabel}
+                                </Badge>
+                              ) : null}
+                              {n.category?.trim() ? (
+                                <Badge variant="secondary" className="text-[11px]">
+                                  {n.category}
+                                </Badge>
+                              ) : null}
+                            </div>
+                          </div>
+                        </CardHeader>
+                        {snippet ? (
+                          <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
+                            <p className="leading-relaxed">{snippet}</p>
+                          </CardContent>
+                        ) : null}
+                      </Card>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {grouped.keys.map((key) => (
+                    <section key={key} id={`names-section-${key}`} className="scroll-mt-28">
+                      <div className="mb-2 flex items-center gap-2">
+                        <div className="text-sm font-semibold text-foreground">{key}</div>
+                        <div className="h-px flex-1 bg-border/60" />
+                        <div className="text-xs text-muted-foreground">
+                          {(grouped.map.get(key)?.length ?? 0).toLocaleString()}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-3">
-                      {(grouped.map.get(key) ?? []).map((n) => {
-                        const meta = safeParseMeta(n.metadata);
-                        const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
-                        const secondary = n.title_arabic?.trim() ? n.title : null;
-                        const bnName = meta.bn_name?.trim() || "";
-                        const snippet = (n.content_en ?? n.content ?? "").trim();
-                        const gender = normalizeGender(meta.gender);
-                        const genderLabel =
-                          gender === "male"
-                            ? "Male"
-                            : gender === "female"
-                              ? "Female"
-                              : gender === "unisex"
-                                ? "Unisex"
-                                : "";
+                      <div className="space-y-3">
+                        {(grouped.map.get(key) ?? []).map((n) => {
+                          const meta = safeParseMeta(n.metadata);
+                          const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
+                          const secondary = n.title_arabic?.trim() ? n.title : null;
+                          const bnName = meta.bn_name?.trim() || "";
+                          const snippet = (n.content_en ?? n.content ?? "").trim();
+                          const gender = normalizeGender(meta.gender);
+                          const genderLabel =
+                            gender === "male"
+                              ? "Male"
+                              : gender === "female"
+                                ? "Female"
+                                : gender === "unisex"
+                                  ? "Unisex"
+                                  : "";
 
-                        return (
-                          <Card
-                            key={n.id}
-                            className="group cursor-pointer border-border/60 bg-card/60 shadow-sm transition-all hover:-translate-y-[1px] hover:border-border hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            onClick={() => setSelected(n)}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") setSelected(n);
-                            }}
-                            aria-label={`Open details for ${n.title}`}
-                          >
-                            <CardHeader className="py-3">
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                  <CardTitle className="truncate text-base leading-snug">
-                                    <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>
-                                      {primary}
-                                    </span>
-                                    {secondary ? (
-                                      <span className="ml-2 text-sm font-medium text-muted-foreground">
-                                        ({secondary})
+                          return (
+                            <Card
+                              key={n.id}
+                              className="group cursor-pointer border-border/60 bg-card/60 shadow-sm transition-all hover:-translate-y-[1px] hover:border-border hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                              onClick={() => setSelected(n)}
+                              role="button"
+                              tabIndex={0}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") setSelected(n);
+                              }}
+                              aria-label={`Open details for ${n.title}`}
+                            >
+                              <CardHeader className="py-3">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <CardTitle className="truncate text-base leading-snug">
+                                      <span className={n.title_arabic?.trim() ? "font-arabic" : undefined}>
+                                        {primary}
                                       </span>
+                                      {secondary ? (
+                                        <span className="ml-2 text-sm font-medium text-muted-foreground">
+                                          ({secondary})
+                                        </span>
+                                      ) : null}
+                                    </CardTitle>
+                                    {bnName ? (
+                                      <p className="pt-1 text-sm text-muted-foreground">{bnName}</p>
                                     ) : null}
-                                  </CardTitle>
-                                  {bnName ? <p className="pt-1 text-sm text-muted-foreground">{bnName}</p> : null}
-                                </div>
+                                  </div>
 
-                                <div className="flex shrink-0 items-center gap-1">
-                                  {genderLabel ? (
-                                    <Badge variant="outline" className="text-[11px]">
-                                      {genderLabel}
-                                    </Badge>
-                                  ) : null}
-                                  {n.category?.trim() ? (
-                                    <Badge variant="secondary" className="text-[11px]">
-                                      {n.category}
-                                    </Badge>
-                                  ) : null}
+                                  <div className="flex shrink-0 items-center gap-1">
+                                    {genderLabel ? (
+                                      <Badge variant="outline" className="text-[11px]">
+                                        {genderLabel}
+                                      </Badge>
+                                    ) : null}
+                                    {n.category?.trim() ? (
+                                      <Badge variant="secondary" className="text-[11px]">
+                                        {n.category}
+                                      </Badge>
+                                    ) : null}
+                                  </div>
                                 </div>
-                              </div>
-                            </CardHeader>
-                            {snippet ? (
-                              <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
-                                <p className="leading-relaxed">{snippet}</p>
-                              </CardContent>
-                            ) : null}
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  </section>
-                ))}
-              </div>
+                              </CardHeader>
+                              {snippet ? (
+                                <CardContent className="pt-0 pb-3 text-sm text-muted-foreground">
+                                  <p className="leading-relaxed">{snippet}</p>
+                                </CardContent>
+                              ) : null}
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Sticky A–Z sidebar (desktop/tablet) */}
-            <aside className="sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto rounded-xl border border-border/60 bg-card/40 p-1 shadow-sm md:flex">
-              {ALPHABET.map((l) => {
-                const disabled = !grouped.available.has(l);
-                return (
+            {showAz ? (
+              <aside className="sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto rounded-xl border border-border/60 bg-card/40 p-1 shadow-sm md:flex">
+                {ALPHABET.map((l) => {
+                  const disabled = !grouped.available.has(l);
+                  return (
+                    <Button
+                      key={l}
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-8 px-0 text-xs"
+                      disabled={disabled}
+                      onClick={() => scrollToKey(l)}
+                      aria-label={`Jump to ${l}`}
+                    >
+                      {l}
+                    </Button>
+                  );
+                })}
+                {grouped.available.has("#") ? (
                   <Button
-                    key={l}
                     type="button"
                     variant="ghost"
                     size="sm"
                     className="h-7 w-8 px-0 text-xs"
-                    disabled={disabled}
-                    onClick={() => scrollToKey(l)}
-                    aria-label={`Jump to ${l}`}
+                    onClick={() => scrollToKey("#")}
+                    aria-label="Jump to #"
                   >
-                    {l}
+                    #
                   </Button>
-                );
-              })}
-              {grouped.available.has("#") ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-8 px-0 text-xs"
-                  onClick={() => scrollToKey("#")}
-                  aria-label="Jump to #"
-                >
-                  #
-                </Button>
-              ) : null}
-            </aside>
+                ) : null}
+              </aside>
+            ) : null}
           </div>
         )}
       </main>
 
       {/* Mobile A–Z quick bar */}
-      {!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0 ? (
+      {showAz ? (
         <div className="fixed inset-x-0 bottom-16 z-30 mx-auto w-full max-w-4xl px-3 md:hidden">
           <div className="flex items-center gap-1 overflow-x-auto rounded-xl border border-border/60 bg-background/80 p-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70">
             {ALPHABET.map((l) => {
