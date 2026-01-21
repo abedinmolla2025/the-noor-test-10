@@ -27,7 +27,7 @@ export default function NameTableRow({
       type="button"
       onClick={onClick}
       className={cn(
-        "dua-card w-full text-left p-2 transition-all duration-200 hover:-translate-y-[1px] hover:shadow-card hover:shadow-[0_18px_45px_-28px_hsl(var(--dua-accent)/0.55)] active:translate-y-0 active:shadow-[0_14px_34px_-24px_hsl(var(--dua-accent)/0.50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--dua-accent)/0.45)] md:p-4",
+        "dua-card w-full text-left p-2 will-change-transform transition-all duration-200 hover:animate-enter hover:-translate-y-[1px] hover:shadow-card hover:shadow-[0_18px_45px_-28px_hsl(var(--dua-accent)/0.55)] active:animate-enter active:translate-y-0 active:shadow-[0_14px_34px_-24px_hsl(var(--dua-accent)/0.50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--dua-accent)/0.45)] md:p-4",
         className,
       )}
     >
