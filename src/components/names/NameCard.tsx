@@ -27,6 +27,7 @@ export function NameCard({ name, onClick, className }: Props) {
       onClick={onClick}
       className={cn(
         "dua-card relative w-full overflow-hidden text-left p-4 will-change-transform transition-all duration-300 ease-out",
+        "border-[hsl(var(--dua-accent)/0.26)]",
         "hover:-translate-y-0.5 hover:shadow-card",
         "active:translate-y-0 active:scale-[0.99]",
         className
@@ -35,7 +36,10 @@ export function NameCard({ name, onClick, className }: Props) {
     >
       {/* Two-layer background: base gradient (dua-card) + subtle geometric overlay */}
       <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.06]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_20%_10%,hsl(var(--dua-accent)/0.08),transparent_55%),radial-gradient(700px_circle_at_80%_20%,hsl(var(--dua-fg)/0.06),transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.10),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
+      {/* Premium gold frame like reference */}
+      <div className="pointer-events-none absolute inset-2 rounded-[calc(var(--radius)_+_0.5rem)] border border-[hsl(var(--dua-accent)/0.22)]" />
+      <div className="pointer-events-none absolute inset-3 rounded-[calc(var(--radius)_+_0.45rem)] border border-[hsl(var(--dua-fg)/0.08)]" />
 
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-3">
