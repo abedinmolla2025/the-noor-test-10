@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/contexts/AdminContext';
@@ -218,6 +218,16 @@ export default function AdminContent() {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [rollbackVersion, setRollbackVersion] = useState<ContentVersionRow | null>(null);
+
+  const effectiveType = (contentTypeContext ?? (editForm.content_type as AdminContentType)) as AdminContentType;
+
+  // Keep the editor form in-sync with the selected context so fields switch instantly.
+  useEffect(() => {
+    if (!contentTypeContext) return;
+    setSelectedId(null);
+    setActiveTab('edit');
+    setEditForm((prev) => ({ ...prev, content_type: contentTypeContext }));
+  }, [contentTypeContext]);
 
   const canEdit = !!user && (roles.includes('editor') || isAdmin || isSuperAdmin);
   const canApprove = !!user && (isAdmin || isSuperAdmin);
@@ -611,7 +621,7 @@ export default function AdminContent() {
     try {
       let contentId = selectedId;
       const basePayload = {
-        content_type: editForm.content_type,
+        content_type: effectiveType,
         title: editForm.title,
         title_arabic: editForm.title_arabic || null,
         title_en: editForm.title_en || null,
@@ -624,7 +634,7 @@ export default function AdminContent() {
         content_ur: editForm.content_ur || null,
         content_pronunciation: editForm.content_pronunciation || null,
         category: editForm.category || null,
-        ...(editForm.content_type === 'name'
+        ...(effectiveType === 'name'
           ? {
               metadata: buildNameMetadata(selectedContent?.metadata, {
                 bn_name: editForm.meta_bn_name,
@@ -1408,42 +1418,34 @@ export default function AdminContent() {
 
                   <div>
                     <Label>
-                      {editForm.content_type === 'name' ? 'Title (English / Transliteration)' : 'Title'}
+                      {effectiveType === 'name' ? 'Title (English / Transliteration)' : 'Title'}
                     </Label>
                     <Input
                       value={editForm.title}
                       onChange={(e) =>
                         setEditForm((prev) => ({ ...prev, title: e.target.value }))
                       }
-                      placeholder={
-                        editForm.content_type === 'name'
-                          ? 'যেমন: Abdullah / Aisha'
-                          : undefined
-                      }
+                      placeholder={effectiveType === 'name' ? 'যেমন: Abdullah / Aisha' : undefined}
                     />
                   </div>
 
                   <div>
                     <Label>
-                      {editForm.content_type === 'name' ? 'Title (Arabic name)' : 'Title (Arabic)'}
+                      {effectiveType === 'name' ? 'Title (Arabic name)' : 'Title (Arabic)'}
                     </Label>
                     <Input
                       value={editForm.title_arabic}
                       onChange={(e) =>
                         setEditForm((prev) => ({ ...prev, title_arabic: e.target.value }))
                       }
-                      placeholder={
-                        editForm.content_type === 'name'
-                          ? 'যেমন: عبدالله / عائشة'
-                          : undefined
-                      }
+                      placeholder={effectiveType === 'name' ? 'যেমন: عبدالله / عائشة' : undefined}
                     />
                   </div>
 
                   <div>
                     <Label>Category</Label>
 
-                    {editForm.content_type === 'dua' ? (
+                    {effectiveType === 'dua' ? (
                       <Select
                         value={(editForm.category || '').trim() || 'none'}
                         onValueChange={(v) =>
@@ -1474,7 +1476,7 @@ export default function AdminContent() {
                       />
                     )}
 
-                    {editForm.content_type === 'dua' && (
+                    {effectiveType === 'dua' && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {DUA_CATEGORY_PRESETS.map((p) => (
                           <Button
@@ -1492,7 +1494,7 @@ export default function AdminContent() {
                     )}
                   </div>
 
-                  {editForm.content_type === 'name' && (
+                  {effectiveType === 'name' && (
                     <div className="rounded-lg border border-border/70 bg-muted/20 p-3 space-y-3">
                       <div className="text-xs font-medium text-muted-foreground">Name metadata</div>
 
@@ -1578,11 +1580,11 @@ export default function AdminContent() {
                 </div>
 
                 <div className="space-y-3 sm:space-y-4">
-                  {editForm.content_type === 'name' ? (
+                  {effectiveType === 'name' ? (
                     <>
                       <div>
                         <Label>
-                          {editForm.content_type === 'name' ? 'Meaning (Bangla)' : 'Content'}
+                          {effectiveType === 'name' ? 'Meaning (Bangla)' : 'Content'}
                         </Label>
                         <Textarea
                           value={editForm.content}
@@ -1590,11 +1592,7 @@ export default function AdminContent() {
                             setEditForm((prev) => ({ ...prev, content: e.target.value }))
                           }
                           rows={4}
-                          placeholder={
-                            editForm.content_type === 'name'
-                              ? 'বাংলা অর্থ লিখুন...'
-                              : undefined
-                          }
+                          placeholder={effectiveType === 'name' ? 'বাংলা অর্থ লিখুন...' : undefined}
                         />
                       </div>
 
