@@ -1026,343 +1026,6 @@ export default function AdminContent() {
 
       {contentTypeContext ? (
         <Card className="shadow-sm border-border/80">
-          <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle>Content List</CardTitle>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                Filter, select and manage items before working on their workflow.
-              </p>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-2">
-          <BulkContentActionBar
-            selectedCount={bulkSelectedCount}
-            filteredCount={filteredContent.length}
-            statusBreakdown={bulkStatusBreakdown}
-            canEdit={canEdit}
-            canApprove={canApprove}
-            onSelectAllFiltered={selectAllFiltered}
-            onClearSelection={clearBulkSelection}
-            onRequestAction={requestBulkAction}
-          />
-
-          {isLoading ? (
-            <p className="text-xs sm:text-sm text-muted-foreground">Loading content…</p>
-          ) : content && content.length > 0 ? (
-            <>
-              {/* Quick filters */}
-              <div className="mb-3 grid gap-2 sm:mb-4 sm:grid-cols-[1fr_160px_200px]">
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search title…"
-                  className="h-9"
-                />
-
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-popover">
-                    <SelectItem value="all">All status</SelectItem>
-                    {Object.keys(STATUS_LABELS).map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {STATUS_LABELS[status] || status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {contentTypeContext === 'dua' ? (
-                  <Select value={duaCategoryFilter} onValueChange={setDuaCategoryFilter}>
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Dua category" />
-                    </SelectTrigger>
-                    <SelectContent className="z-50 bg-popover">
-                      <SelectItem value="all">All categories</SelectItem>
-                      {availableDuaCategories.map((c) => {
-                        const count = duaCategoryCounts.get(c) ?? 0;
-                        return (
-                          <SelectItem key={c} value={c}>
-                            {c}{count ? ` (${count})` : ''}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                ) : null}
-              </div>
-
-              {contentTypeContext === 'name' ? (
-                <div className="mb-3 flex flex-col gap-2 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-2">
-                    <Select value={nameGenderFilter} onValueChange={setNameGenderFilter}>
-                      <SelectTrigger className="h-9 w-[160px]">
-                        <SelectValue placeholder="Gender" />
-                      </SelectTrigger>
-                      <SelectContent className="z-50 bg-popover">
-                        <SelectItem value="all">All genders</SelectItem>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="unisex">Unisex</SelectItem>
-                        <SelectItem value="unknown">Unspecified</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="sm:max-w-[520px]">
-                    <AlphabetBar value={nameAlphaFilter} onChange={setNameAlphaFilter} enabledCounts={nameAlphabetCounts} />
-                  </div>
-                </div>
-              ) : null}
-
-              {filteredContent.length === 0 ? (
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  {contentTypeContext === 'name' && nameAlphaFilter
-                    ? 'এই অক্ষরে কোনো নাম পাওয়া যায়নি'
-                    : 'No matches. Try clearing filters.'}
-                </p>
-              ) : (
-                <>
-                  {/* Mobile: compact card-row list */}
-                  <div className="space-y-2 sm:hidden">
-                    {filteredContent.map((item) => {
-                      const isSelected = selectedId === item.id;
-                      const isChecked = bulkSelectedIds.has(item.id);
-
-                      return (
-                        <div
-                          key={item.id}
-                          className={
-                            'flex items-start justify-between gap-3 rounded-lg border border-border/80 bg-background p-3 shadow-sm ' +
-                            (isSelected ? 'ring-2 ring-ring/40' : '')
-                          }
-                        >
-                          <div className="pt-1">
-                            <Checkbox
-                              checked={isChecked}
-                              onCheckedChange={(v) => toggleBulkSelected(item.id, Boolean(v))}
-                              onClick={(e) => e.stopPropagation()}
-                              aria-label="Select row"
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            className="min-w-0 flex-1 text-left"
-                            onClick={() => {
-                              setSelectedId(item.id);
-                              resetEditForm(item);
-                              setActiveTab('edit');
-                            }}
-                          >
-                            <div className="flex items-center gap-2">
-                              <p className="min-w-0 truncate text-sm font-medium text-foreground">{item.title}</p>
-                              {contentTypeContext === 'name' ? (
-                                <span className="shrink-0 text-[11px] text-muted-foreground">{(item.title ?? '').trim().slice(0, 1).toUpperCase()}</span>
-                              ) : null}
-                            </div>
-
-                            <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-                              <Badge
-                                variant={STATUS_VARIANTS[item.status] || 'secondary'}
-                                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                              >
-                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                                {STATUS_LABELS[item.status] || item.status}
-                              </Badge>
-                              {contentTypeContext === 'dua' ? (
-                                <span className="truncate">{item.category || '-'}</span>
-                              ) : null}
-                            </div>
-                          </button>
-
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-9 w-9 shrink-0 p-0"
-                                aria-label="Row actions"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" sideOffset={6} className="z-50 w-44 bg-popover">
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setSelectedId(item.id);
-                                  resetEditForm(item);
-                                  setActiveTab('workflow');
-                                }}
-                              >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Open workflow
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => deleteMutation.mutate(item.id)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Desktop: table */}
-                  <div className="hidden sm:block">
-                    <MobileTableWrapper>
-                      <Table className={contentTypeContext === 'name' ? 'min-w-[860px] text-xs sm:text-sm' : 'min-w-[760px] text-xs sm:text-sm'}>
-                        <TableHeader>
-                          <TableRow className="h-9">
-                            <TableHead className="w-[44px]">
-                              <Checkbox
-                                checked={
-                                  filteredContent.length > 0 &&
-                                  filteredContent.every((i) => bulkSelectedIds.has(i.id))
-                                }
-                                onCheckedChange={(v) => {
-                                  if (Boolean(v)) selectAllFiltered();
-                                  else clearBulkSelection();
-                                }}
-                                aria-label="Select all filtered"
-                              />
-                            </TableHead>
-                            {contentTypeContext === 'name' ? (
-                              <>
-                                <TableHead className="whitespace-nowrap">English Name</TableHead>
-                                <TableHead className="whitespace-nowrap">Arabic Name</TableHead>
-                                <TableHead className="w-[120px] whitespace-nowrap">Gender</TableHead>
-                                <TableHead className="w-[80px] whitespace-nowrap">A–Z</TableHead>
-                              </>
-                            ) : (
-                              <>
-                                <TableHead className="whitespace-nowrap">Title</TableHead>
-                                <TableHead className="w-[160px] whitespace-nowrap">Category</TableHead>
-                                <TableHead className="w-[160px] whitespace-nowrap">Languages</TableHead>
-                              </>
-                            )}
-                            <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
-                            <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredContent.map((item) => (
-                            <TableRow
-                              key={item.id}
-                              className={`h-9 ${
-                                selectedId === item.id ? 'bg-muted/60 hover:bg-muted/70' : 'hover:bg-muted/40'
-                              }`}
-                            >
-                              <TableCell className="align-middle">
-                                <Checkbox
-                                  checked={bulkSelectedIds.has(item.id)}
-                                  onCheckedChange={(v) => toggleBulkSelected(item.id, Boolean(v))}
-                                  aria-label="Select row"
-                                />
-                              </TableCell>
-                              <TableCell className="align-middle">
-                                {contentTypeContext === 'name' ? (
-                                  <div className="max-w-[260px] truncate align-middle text-xs sm:text-sm">{item.title}</div>
-                                ) : (
-                                  <div className="max-w-[260px] truncate align-middle text-xs sm:text-sm">{item.title}</div>
-                                )}
-                              </TableCell>
-                              {contentTypeContext === 'name' ? (
-                                <>
-                                  <TableCell className="align-middle">
-                                    <div className="max-w-[220px] truncate font-arabic text-sm" dir="rtl">
-                                      {item.title_arabic || '—'}
-                                    </div>
-                                  </TableCell>
-                                  <TableCell className="align-middle">
-                                    {(() => {
-                                      const g = readMetaString(item.metadata, 'gender') || 'unknown';
-                                      return (
-                                        <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-medium">
-                                          {g}
-                                        </Badge>
-                                      );
-                                    })()}
-                                  </TableCell>
-                                  <TableCell className="align-middle text-[11px] text-muted-foreground">
-                                    {(item.title ?? '').trim().slice(0, 1).toUpperCase() || '—'}
-                                  </TableCell>
-                                </>
-                              ) : (
-                                <>
-                                  <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
-                                    {item.category || '-'}
-                                  </TableCell>
-                                  <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
-                                    {[
-                                      item.title_arabic ? 'AR' : null,
-                                      item.title_en || item.content_en ? 'EN' : null,
-                                      item.content ? 'BN' : null,
-                                      item.title_hi || item.content_hi ? 'HI' : null,
-                                      item.title_ur || item.content_ur ? 'UR' : null,
-                                    ]
-                                      .filter(Boolean)
-                                      .join(' · ') || '—'}
-                                  </TableCell>
-                                </>
-                              )}
-                              <TableCell className="align-middle">
-                                <Badge
-                                  variant={STATUS_VARIANTS[item.status] || 'secondary'}
-                                  className="rounded-full px-2 py-0.5 text-[11px] font-medium flex items-center gap-1"
-                                >
-                                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                                  {STATUS_LABELS[item.status] || item.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="text-right align-middle">
-                                <div className="inline-flex gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0"
-                                    onClick={() => {
-                                      setSelectedId(item.id);
-                                      resetEditForm(item);
-                                      setActiveTab('workflow');
-                                    }}
-                                    aria-label="Open workflow"
-                                  >
-                                    <Edit className="h-3.5 w-3.5" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                                    onClick={() => deleteMutation.mutate(item.id)}
-                                    aria-label="Delete content"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </MobileTableWrapper>
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <p className="text-xs sm:text-sm text-muted-foreground">No content yet. Create your first item.</p>
-          )}
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {contentTypeContext ? (
-        <Card className="shadow-sm border-border/80">
           <CardHeader>
             <CardTitle>Content Details</CardTitle>
           </CardHeader>
@@ -1898,6 +1561,343 @@ export default function AdminContent() {
               )}
             </TabsContent>
           </Tabs>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {contentTypeContext ? (
+        <Card className="shadow-sm border-border/80">
+          <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle>Content List</CardTitle>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                Filter, select and manage items before working on their workflow.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-2">
+          <BulkContentActionBar
+            selectedCount={bulkSelectedCount}
+            filteredCount={filteredContent.length}
+            statusBreakdown={bulkStatusBreakdown}
+            canEdit={canEdit}
+            canApprove={canApprove}
+            onSelectAllFiltered={selectAllFiltered}
+            onClearSelection={clearBulkSelection}
+            onRequestAction={requestBulkAction}
+          />
+
+          {isLoading ? (
+            <p className="text-xs sm:text-sm text-muted-foreground">Loading content…</p>
+          ) : content && content.length > 0 ? (
+            <>
+              {/* Quick filters */}
+              <div className="mb-3 grid gap-2 sm:mb-4 sm:grid-cols-[1fr_160px_200px]">
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search title…"
+                  className="h-9"
+                />
+
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent className="z-50 bg-popover">
+                    <SelectItem value="all">All status</SelectItem>
+                    {Object.keys(STATUS_LABELS).map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {STATUS_LABELS[status] || status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {contentTypeContext === 'dua' ? (
+                  <Select value={duaCategoryFilter} onValueChange={setDuaCategoryFilter}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Dua category" />
+                    </SelectTrigger>
+                    <SelectContent className="z-50 bg-popover">
+                      <SelectItem value="all">All categories</SelectItem>
+                      {availableDuaCategories.map((c) => {
+                        const count = duaCategoryCounts.get(c) ?? 0;
+                        return (
+                          <SelectItem key={c} value={c}>
+                            {c}{count ? ` (${count})` : ''}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                ) : null}
+              </div>
+
+              {contentTypeContext === 'name' ? (
+                <div className="mb-3 flex flex-col gap-2 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2">
+                    <Select value={nameGenderFilter} onValueChange={setNameGenderFilter}>
+                      <SelectTrigger className="h-9 w-[160px]">
+                        <SelectValue placeholder="Gender" />
+                      </SelectTrigger>
+                      <SelectContent className="z-50 bg-popover">
+                        <SelectItem value="all">All genders</SelectItem>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="unisex">Unisex</SelectItem>
+                        <SelectItem value="unknown">Unspecified</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="sm:max-w-[520px]">
+                    <AlphabetBar value={nameAlphaFilter} onChange={setNameAlphaFilter} enabledCounts={nameAlphabetCounts} />
+                  </div>
+                </div>
+              ) : null}
+
+              {filteredContent.length === 0 ? (
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {contentTypeContext === 'name' && nameAlphaFilter
+                    ? 'এই অক্ষরে কোনো নাম পাওয়া যায়নি'
+                    : 'No matches. Try clearing filters.'}
+                </p>
+              ) : (
+                <>
+                  {/* Mobile: compact card-row list */}
+                  <div className="space-y-2 sm:hidden">
+                    {filteredContent.map((item) => {
+                      const isSelected = selectedId === item.id;
+                      const isChecked = bulkSelectedIds.has(item.id);
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={
+                            'flex items-start justify-between gap-3 rounded-lg border border-border/80 bg-background p-3 shadow-sm ' +
+                            (isSelected ? 'ring-2 ring-ring/40' : '')
+                          }
+                        >
+                          <div className="pt-1">
+                            <Checkbox
+                              checked={isChecked}
+                              onCheckedChange={(v) => toggleBulkSelected(item.id, Boolean(v))}
+                              onClick={(e) => e.stopPropagation()}
+                              aria-label="Select row"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            className="min-w-0 flex-1 text-left"
+                            onClick={() => {
+                              setSelectedId(item.id);
+                              resetEditForm(item);
+                              setActiveTab('edit');
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <p className="min-w-0 truncate text-sm font-medium text-foreground">{item.title}</p>
+                              {contentTypeContext === 'name' ? (
+                                <span className="shrink-0 text-[11px] text-muted-foreground">{(item.title ?? '').trim().slice(0, 1).toUpperCase()}</span>
+                              ) : null}
+                            </div>
+
+                            <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                              <Badge
+                                variant={STATUS_VARIANTS[item.status] || 'secondary'}
+                                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium"
+                              >
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                {STATUS_LABELS[item.status] || item.status}
+                              </Badge>
+                              {contentTypeContext === 'dua' ? (
+                                <span className="truncate">{item.category || '-'}</span>
+                              ) : null}
+                            </div>
+                          </button>
+
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-9 w-9 shrink-0 p-0"
+                                aria-label="Row actions"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" sideOffset={6} className="z-50 w-44 bg-popover">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedId(item.id);
+                                  resetEditForm(item);
+                                  setActiveTab('workflow');
+                                }}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Open workflow
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => deleteMutation.mutate(item.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Desktop: table */}
+                  <div className="hidden sm:block">
+                    <MobileTableWrapper>
+                      <Table className={contentTypeContext === 'name' ? 'min-w-[860px] text-xs sm:text-sm' : 'min-w-[760px] text-xs sm:text-sm'}>
+                        <TableHeader>
+                          <TableRow className="h-9">
+                            <TableHead className="w-[44px]">
+                              <Checkbox
+                                checked={
+                                  filteredContent.length > 0 &&
+                                  filteredContent.every((i) => bulkSelectedIds.has(i.id))
+                                }
+                                onCheckedChange={(v) => {
+                                  if (Boolean(v)) selectAllFiltered();
+                                  else clearBulkSelection();
+                                }}
+                                aria-label="Select all filtered"
+                              />
+                            </TableHead>
+                            {contentTypeContext === 'name' ? (
+                              <>
+                                <TableHead className="whitespace-nowrap">English Name</TableHead>
+                                <TableHead className="whitespace-nowrap">Arabic Name</TableHead>
+                                <TableHead className="w-[120px] whitespace-nowrap">Gender</TableHead>
+                                <TableHead className="w-[80px] whitespace-nowrap">A–Z</TableHead>
+                              </>
+                            ) : (
+                              <>
+                                <TableHead className="whitespace-nowrap">Title</TableHead>
+                                <TableHead className="w-[160px] whitespace-nowrap">Category</TableHead>
+                                <TableHead className="w-[160px] whitespace-nowrap">Languages</TableHead>
+                              </>
+                            )}
+                            <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
+                            <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredContent.map((item) => (
+                            <TableRow
+                              key={item.id}
+                              className={`h-9 ${
+                                selectedId === item.id ? 'bg-muted/60 hover:bg-muted/70' : 'hover:bg-muted/40'
+                              }`}
+                            >
+                              <TableCell className="align-middle">
+                                <Checkbox
+                                  checked={bulkSelectedIds.has(item.id)}
+                                  onCheckedChange={(v) => toggleBulkSelected(item.id, Boolean(v))}
+                                  aria-label="Select row"
+                                />
+                              </TableCell>
+                              <TableCell className="align-middle">
+                                {contentTypeContext === 'name' ? (
+                                  <div className="max-w-[260px] truncate align-middle text-xs sm:text-sm">{item.title}</div>
+                                ) : (
+                                  <div className="max-w-[260px] truncate align-middle text-xs sm:text-sm">{item.title}</div>
+                                )}
+                              </TableCell>
+                              {contentTypeContext === 'name' ? (
+                                <>
+                                  <TableCell className="align-middle">
+                                    <div className="max-w-[220px] truncate font-arabic text-sm" dir="rtl">
+                                      {item.title_arabic || '—'}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="align-middle">
+                                    {(() => {
+                                      const g = readMetaString(item.metadata, 'gender') || 'unknown';
+                                      return (
+                                        <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-medium">
+                                          {g}
+                                        </Badge>
+                                      );
+                                    })()}
+                                  </TableCell>
+                                  <TableCell className="align-middle text-[11px] text-muted-foreground">
+                                    {(item.title ?? '').trim().slice(0, 1).toUpperCase() || '—'}
+                                  </TableCell>
+                                </>
+                              ) : (
+                                <>
+                                  <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
+                                    {item.category || '-'}
+                                  </TableCell>
+                                  <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
+                                    {[
+                                      item.title_arabic ? 'AR' : null,
+                                      item.title_en || item.content_en ? 'EN' : null,
+                                      item.content ? 'BN' : null,
+                                      item.title_hi || item.content_hi ? 'HI' : null,
+                                      item.title_ur || item.content_ur ? 'UR' : null,
+                                    ]
+                                      .filter(Boolean)
+                                      .join(' · ') || '—'}
+                                  </TableCell>
+                                </>
+                              )}
+                              <TableCell className="align-middle">
+                                <Badge
+                                  variant={STATUS_VARIANTS[item.status] || 'secondary'}
+                                  className="rounded-full px-2 py-0.5 text-[11px] font-medium flex items-center gap-1"
+                                >
+                                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                  {STATUS_LABELS[item.status] || item.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right align-middle">
+                                <div className="inline-flex gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0"
+                                    onClick={() => {
+                                      setSelectedId(item.id);
+                                      resetEditForm(item);
+                                      setActiveTab('workflow');
+                                    }}
+                                    aria-label="Open workflow"
+                                  >
+                                    <Edit className="h-3.5 w-3.5" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                    onClick={() => deleteMutation.mutate(item.id)}
+                                    aria-label="Delete content"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </MobileTableWrapper>
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <p className="text-xs sm:text-sm text-muted-foreground">No content yet. Create your first item.</p>
+          )}
           </CardContent>
         </Card>
       ) : null}
