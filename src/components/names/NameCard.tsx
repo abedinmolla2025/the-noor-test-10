@@ -94,7 +94,7 @@ export function NameCard({ name, onClick, className }: Props) {
           ) : null}
 
           {/* Meta + Share icon: single compact row */}
-          <div className="mt-2 flex items-center justify-between gap-2">
+          <div className="mt-2 flex items-center justify-between gap-3">
             <div
               className={cn(
                 "flex min-w-0 items-center gap-2",
