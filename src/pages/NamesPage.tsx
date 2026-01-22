@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Search } from "lucide-react";
+import type { ComponentProps } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { NameCard, type NameCardModel } from "@/components/names/NameCard";
 import { NameSharePreviewModal } from "@/components/names/NameSharePreviewModal";
+import { NamesPageHeader } from "@/pages/names/NamesPageHeader";
+import { NamesPageSearch } from "@/pages/names/NamesPageSearch";
+import { NamesQuickFilters } from "@/pages/names/NamesQuickFilters";
+import { NamesCardsGrid } from "@/pages/names/NamesCardsGrid";
 
 type NameContentRow = {
   id: string;
@@ -74,9 +74,10 @@ const fetchNames = async (): Promise<NameContentRow[]> => {
 };
 
 const NamesPage = () => {
-  const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const [activeQuickFilter, setActiveQuickFilter] = useState<string>("all");
+  const [activeQuickFilter, setActiveQuickFilter] = useState<ComponentProps<typeof NamesQuickFilters>["active"]>(
+    "all"
+  );
   const [selected, setSelected] = useState<NameCardModel | null>(null);
   const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
 
@@ -161,131 +162,34 @@ const NamesPage = () => {
     <div className="min-h-screen dua-page pb-20">
       <header className="sticky top-0 z-40 border-b dua-header">
         <div className="mx-auto w-full max-w-none px-3 py-3 md:px-6 xl:px-10">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              aria-label="Back"
-              className="dua-icon-btn"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate font-display text-lg font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
-                ইসলামিক নাম
-              </h1>
-              <p className="truncate text-xs text-[hsl(var(--dua-fg-muted))]">
-                {namesQuery.isLoading
-                  ? "লোড হচ্ছে…"
-                  : `${filtered.length.toLocaleString()} ফলাফল • ${
-                      (namesQuery.data?.length ?? 0).toLocaleString()
-                    } মোট`}
-              </p>
-            </div>
-          </div>
+          <NamesPageHeader
+            title="ইসলামিক নাম"
+            subtitle={
+              namesQuery.isLoading
+                ? "লোড হচ্ছে…"
+                : `${filtered.length.toLocaleString()} ফলাফল • ${(namesQuery.data?.length ?? 0).toLocaleString()} মোট`
+            }
+          />
 
           <div className="mt-3">
-            <div className="dua-surface relative shadow-soft">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--dua-fg-soft))]" />
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="নাম/অর্থ লিখে খুঁজুন…"
-                className="h-12 border-0 !bg-transparent pl-10 text-[hsl(var(--dua-fg))] placeholder:text-[hsl(var(--dua-fg-soft))] shadow-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--dua-accent)/0.45)]"
-                aria-label="Search names"
-              />
-            </div>
+            <NamesPageSearch value={q} onChange={setQ} />
           </div>
 
           <div className="mt-2">
-            <div className="dua-surface p-2 shadow-soft">
-              <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                {(
-                  [
-                    ["all", "All"],
-                    ["boy", "Boy"],
-                    ["girl", "Girl"],
-                    ["unisex", "Unisex"],
-                    ["quranic", "Quranic"],
-                    ["popular", "Popular"],
-                    ["short", "Short"],
-                  ] as const
-                ).map(([key, label]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setActiveQuickFilter(key)}
-                    className={`dua-chip shrink-0 ${activeQuickFilter === key ? "dua-chip-active" : ""}`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <NamesQuickFilters active={activeQuickFilter} onChange={setActiveQuickFilter} />
           </div>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-none px-3 py-4 md:px-6 xl:px-10">
-        {namesQuery.isLoading && (
-          <div className="space-y-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="dua-card">
-                <CardHeader className="py-3">
-                  <div className="h-4 w-2/3 rounded bg-[hsl(var(--dua-fg)/0.14)]" />
-                </CardHeader>
-                <CardContent className="pb-3">
-                  <div className="h-3 w-full rounded bg-[hsl(var(--dua-fg)/0.10)]" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {namesQuery.isError && (
-          <Card className="dua-card">
-            <CardHeader>
-              <CardTitle className="text-base text-[hsl(var(--dua-fg))]">লোড করা যায়নি</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-[hsl(var(--dua-fg-muted))]">
-              নামগুলো লোড করতে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।
-            </CardContent>
-          </Card>
-        )}
-
-        {!namesQuery.isLoading && !namesQuery.isError && filtered.length === 0 && (
-          <Card className="dua-card">
-            <CardHeader>
-              <CardTitle className="text-base text-[hsl(var(--dua-fg))]">কোনো নাম পাওয়া যায়নি</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-[hsl(var(--dua-fg-muted))]">
-              Admin → Content Management থেকে content type “Name” দিয়ে Published করে যোগ করুন।
-            </CardContent>
-          </Card>
-        )}
-
-        {!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0 && (
-          <div>
-            <div
-              className={`sticky top-[92px] z-20 mb-4 rounded-2xl border border-[hsl(var(--dua-border))] px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out ${
-                stickyHeaderRaised
-                  ? "bg-[hsl(var(--dua-header)/0.74)] shadow-card"
-                  : "bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
-              }`}
-            >
-              <p className="text-xs font-medium text-[hsl(var(--dua-fg-muted))]">
-                Tap a name to generate a premium 1080×1080 PNG.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {cards.map((n) => (
-                <NameCard key={n.id} name={n} onClick={() => setSelected(n)} />
-              ))}
-            </div>
-          </div>
-        )}
+        <NamesCardsGrid
+          isLoading={namesQuery.isLoading}
+          isError={namesQuery.isError}
+          hasResults={!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0}
+          stickyHeaderRaised={stickyHeaderRaised}
+          cards={cards}
+          onSelect={setSelected}
+        />
       </main>
 
       <NameSharePreviewModal open={!!selected} onOpenChange={(o) => !o && setSelected(null)} name={selected} />
