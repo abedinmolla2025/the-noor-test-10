@@ -24,6 +24,7 @@ type ImportResult = {
   inserted: number;
   skipped: number;
   invalid: number;
+  insertedIds?: string[];
 };
 
 const nameImportItemSchema = z
@@ -239,9 +240,13 @@ export function NameBulkImportDialog({
       });
 
       // Insert in chunks to avoid request limits
+      const insertedIds: string[] = [];
       for (const part of chunk(rows, 200)) {
-        const { error } = await supabase.from("admin_content").insert(part);
+        const { data, error } = await supabase.from("admin_content").insert(part).select("id");
         if (error) throw error;
+        for (const row of (data ?? []) as any[]) {
+          if (row?.id) insertedIds.push(String(row.id));
+        }
       }
 
       const result: ImportResult = {
@@ -249,6 +254,7 @@ export function NameBulkImportDialog({
         inserted: parsed.valid.length,
         skipped: parsed.skipped,
         invalid: parsed.invalid.length,
+        insertedIds,
       };
 
       toast({

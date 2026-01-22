@@ -38,6 +38,7 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 import { NameBulkImportDialog } from '@/components/admin/NameBulkImportDialog';
 import { DuaBulkImportDialog } from '@/components/admin/DuaBulkImportDialog';
+import { JustImportedActionBar } from '@/components/admin/JustImportedActionBar';
 import { ContentTypeSelector } from '@/components/admin/content/ContentTypeSelector';
 import type { AdminContentType } from '@/components/admin/content/contentTypes';
 import { adminContentTypeLabel } from '@/components/admin/content/contentTypes';
@@ -179,6 +180,11 @@ export default function AdminContent() {
   const [isNameImportOpen, setIsNameImportOpen] = useState(false);
   const [isDuaImportOpen, setIsDuaImportOpen] = useState(false);
 
+  const [justImported, setJustImported] = useState<{
+    type: AdminContentType;
+    ids: string[];
+  } | null>(null);
+
   // Content-type driven context (mandatory)
   const [contentTypeContext, setContentTypeContext] = useState<AdminContentType | null>(null);
 
@@ -227,7 +233,14 @@ export default function AdminContent() {
     setSelectedId(null);
     setActiveTab('edit');
     setEditForm((prev) => ({ ...prev, content_type: contentTypeContext }));
+    setJustImported(null);
   }, [contentTypeContext]);
+
+  const applyJustImportedBulkAction = (action: BulkContentAction) => {
+    if (!justImported?.ids?.length) return;
+    setBulkSelectedIds(new Set(justImported.ids));
+    requestBulkAction(action);
+  };
 
   const canEdit = !!user && (roles.includes('editor') || isAdmin || isSuperAdmin);
   const canApprove = !!user && (isAdmin || isSuperAdmin);
@@ -1009,8 +1022,10 @@ export default function AdminContent() {
         onOpenChange={setIsNameImportOpen}
         canEdit={canEdit}
         existingKeys={existingNameKeys}
-        onImported={() => {
+        onImported={(result) => {
           queryClient.invalidateQueries({ queryKey: ['admin-content'] });
+          const ids = Array.from(new Set([...(result.insertedIds ?? [])]));
+          if (ids.length) setJustImported({ type: 'name', ids });
         }}
       />
 
@@ -1019,10 +1034,23 @@ export default function AdminContent() {
         onOpenChange={setIsDuaImportOpen}
         canEdit={canEdit}
         existingKeys={existingDuaKeys}
-        onImported={() => {
+        onImported={(result) => {
           queryClient.invalidateQueries({ queryKey: ['admin-content'] });
+          const ids = Array.from(new Set([...(result.insertedIds ?? []), ...(result.updatedIds ?? [])]));
+          if (ids.length) setJustImported({ type: 'dua', ids });
         }}
       />
+
+      {contentTypeContext && justImported && justImported.type === contentTypeContext ? (
+        <JustImportedActionBar
+          count={justImported.ids.length}
+          disabledReview={!canEdit}
+          disabledPublish={!canApprove}
+          onSubmitForReview={() => applyJustImportedBulkAction('submit_for_review')}
+          onPublish={() => applyJustImportedBulkAction('publish')}
+          onDismiss={() => setJustImported(null)}
+        />
+      ) : null}
 
       {contentTypeContext ? (
         <Card className="shadow-sm border-border/80">

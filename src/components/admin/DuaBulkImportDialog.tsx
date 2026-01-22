@@ -35,6 +35,8 @@ type ImportResult = {
   updated: number;
   skipped: number;
   invalid: number;
+  insertedIds?: string[];
+  updatedIds?: string[];
 };
 
 const duaImportItemSchema = z
@@ -291,6 +293,9 @@ export function DuaBulkImportDialog({
 
     setIsImporting(true);
     try {
+      const insertedIds: string[] = [];
+      const updatedIds: string[] = [];
+
       // 1) Insert new items
       if (parsed.valid.length) {
         const rows = parsed.valid.map((it) => {
@@ -322,8 +327,11 @@ export function DuaBulkImportDialog({
         });
 
         for (const part of chunk(rows, 200)) {
-          const { error } = await supabase.from("admin_content").insert(part);
+          const { data, error } = await supabase.from("admin_content").insert(part).select("id");
           if (error) throw error;
+          for (const row of (data ?? []) as any[]) {
+            if (row?.id) insertedIds.push(String(row.id));
+          }
         }
       }
 
@@ -387,6 +395,7 @@ export function DuaBulkImportDialog({
               .eq("id", hit.id);
             if (updateError) throw updateError;
             updated += 1;
+            updatedIds.push(String(hit.id));
           }
         }
       }
@@ -399,6 +408,8 @@ export function DuaBulkImportDialog({
         updated,
         skipped,
         invalid: parsed.invalid.length,
+        insertedIds,
+        updatedIds,
       };
 
       toast({
