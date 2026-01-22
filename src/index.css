@@ -312,6 +312,12 @@
     /* Slightly darker card gradient for better premium contrast */
     --dua-card-from: 158 58% 22%;
     --dua-card-to: 158 66% 16%;
+
+    /* Names page gender chip accents (HSL) */
+    --dua-boy: 190 72% 55%;
+    --dua-girl: 345 78% 66%;
+    /* Unisex intentionally ties back to the gold accent */
+    --dua-unisex: var(--dua-accent);
   }
 
   .dua-page {
