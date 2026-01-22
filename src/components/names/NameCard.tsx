@@ -94,7 +94,7 @@ export function NameCard({ name, onClick, className }: Props) {
           ) : null}
 
           {/* Meta + Share icon: single compact row */}
-          <div className="mt-2 flex items-end justify-between gap-2">
+          <div className="mt-2 flex items-center justify-between gap-2">
             <div
               className={cn(
                 "flex min-w-0 items-center gap-2",
@@ -139,8 +139,7 @@ export function NameCard({ name, onClick, className }: Props) {
               className={cn(
                 "shrink-0 inline-flex items-center gap-1.5 rounded-full border",
                 "border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-header)/0.55)]",
-                // Nudge slightly down so it reads as bottom-right indicator
-                "px-2.5 py-1 text-xs font-medium text-[hsl(var(--dua-fg))] translate-y-0.5"
+                "px-2.5 py-1 text-xs font-medium text-[hsl(var(--dua-fg))]"
               )}
               aria-hidden="true"
               title="Share"
