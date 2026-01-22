@@ -47,10 +47,10 @@ export function NameCard({ name, onClick, className }: Props) {
       <div className="pointer-events-none absolute inset-2 rounded-[calc(var(--radius)_+_0.5rem)] border border-[hsl(var(--dua-accent)/0.22)]" />
       <div className="pointer-events-none absolute inset-3 rounded-[calc(var(--radius)_+_0.45rem)] border border-[hsl(var(--dua-fg)/0.08)]" />
 
-      <div className="relative flex items-start gap-4">
+      <div className="relative flex gap-4">
         {/* Arabic (left) */}
-        <div className="shrink-0 w-24 sm:w-28">
-          <p className="text-left font-arabic text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]">
+        <div className="shrink-0">
+          <p className="font-arabic text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]">
             {name.title_arabic?.trim() || name.title}
           </p>
         </div>
