@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { UserRound } from "lucide-react";
+import { ImageDown, UserRound } from "lucide-react";
 
 export type NameCardModel = {
   id: string;
@@ -31,19 +31,46 @@ export function NameCard({ name, onClick, className }: Props) {
     if (g === "unisex") return "Unisex";
     return genderLabelRaw;
   })();
+
+  const genderKind = (() => {
+    const g = genderLabelRaw.toLowerCase();
+    if (g === "male" || g === "m" || g === "boy") return "boy" as const;
+    if (g === "female" || g === "f" || g === "girl") return "girl" as const;
+    if (g === "unisex") return "unisex" as const;
+    return "other" as const;
+  })();
+
   // Keep the right column perfectly aligned across cards by normalizing
   // the Arabic column width (Arabic glyphs vary a lot in natural width).
   const arabicText = name.title_arabic?.trim() || name.title;
+
+  const originLabel = (name.origin ?? "").trim();
+  const sourceLabel = (name.source ?? "").trim();
+
+  const genderChipClass = (() => {
+    if (genderKind === "boy") {
+      return "bg-[hsl(var(--name-chip-boy)/0.22)] text-[hsl(var(--name-chip-boy))] border-[hsl(var(--name-chip-boy)/0.28)]";
+    }
+    if (genderKind === "girl") {
+      return "bg-[hsl(var(--name-chip-girl)/0.22)] text-[hsl(var(--name-chip-girl))] border-[hsl(var(--name-chip-girl)/0.28)]";
+    }
+    if (genderKind === "unisex") {
+      return "bg-[hsl(var(--name-chip-unisex)/0.20)] text-[hsl(var(--name-chip-unisex))] border-[hsl(var(--name-chip-unisex)/0.26)]";
+    }
+    return "bg-[hsl(var(--dua-fg)/0.12)] text-[hsl(var(--dua-fg))] border-[hsl(var(--dua-fg)/0.14)]";
+  })();
+
+  const genderEmoji = genderKind === "boy" ? "👦" : genderKind === "girl" ? "👧" : genderKind === "unisex" ? "⚧️" : "";
 
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "dua-card relative w-full overflow-hidden text-left p-5 will-change-transform transition-all duration-300 ease-out",
+        "group dua-card relative w-full overflow-hidden text-left p-5 will-change-transform transition-all duration-300 ease-out",
         "border-[hsl(var(--dua-accent)/0.26)]",
         "hover:-translate-y-0.5 hover:shadow-card",
-        "active:translate-y-0 active:scale-[0.99]",
+        "active:translate-y-0 active:scale-[0.985]",
         className
       )}
       aria-label={`Open share preview for ${name.title}`}
@@ -81,17 +108,43 @@ export function NameCard({ name, onClick, className }: Props) {
             </p>
           ) : null}
 
-          {genderLabel ? (
-            <div className="mt-4 flex items-center gap-2">
+          {/* Bottom chip row */}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {genderLabel ? (
               <Badge
-                variant="secondary"
-                className="gap-2 rounded-full bg-[hsl(var(--dua-accent)/0.20)] px-3 py-1 text-[hsl(var(--dua-accent))]"
+                variant="outline"
+                className={cn(
+                  "gap-2 rounded-full px-3 py-1 text-sm font-semibold",
+                  "border",
+                  genderChipClass
+                )}
               >
+                <span className="text-[15px] leading-none">{genderEmoji}</span>
                 <UserRound className="h-4 w-4" />
                 {genderLabel}
               </Badge>
-            </div>
-          ) : null}
+            ) : null}
+
+            {originLabel ? (
+              <Badge
+                variant="outline"
+                className="gap-2 rounded-full border border-[hsl(var(--dua-fg)/0.12)] bg-[hsl(var(--dua-fg)/0.08)] px-3 py-1 text-sm font-semibold text-[hsl(var(--dua-fg))]"
+              >
+                <span className="text-[15px] leading-none">🌍</span>
+                {originLabel}
+              </Badge>
+            ) : null}
+
+            {sourceLabel ? (
+              <Badge
+                variant="outline"
+                className="gap-2 rounded-full border border-[hsl(var(--dua-accent)/0.22)] bg-[hsl(var(--dua-accent)/0.12)] px-3 py-1 text-sm font-semibold text-[hsl(var(--dua-accent))]"
+              >
+                <span className="text-[15px] leading-none">📖</span>
+                {sourceLabel}
+              </Badge>
+            ) : null}
+          </div>
         </div>
 
         {/* Arabic (right) */}
@@ -105,6 +158,18 @@ export function NameCard({ name, onClick, className }: Props) {
             {arabicText}
           </p>
         </div>
+      </div>
+
+      {/* Discovery cue: image/share icon (low opacity) */}
+      <div
+        className={cn(
+          "pointer-events-none absolute bottom-3 right-3",
+          "text-[hsl(var(--dua-fg)/0.38)]",
+          "transition-all duration-300 ease-out",
+          "group-hover:text-[hsl(var(--dua-fg)/0.50)]"
+        )}
+      >
+        <ImageDown className="h-5 w-5" />
       </div>
     </button>
   );
