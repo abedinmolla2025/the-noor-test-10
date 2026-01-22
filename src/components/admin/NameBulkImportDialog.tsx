@@ -333,7 +333,7 @@ export function NameBulkImportDialog({
                 </Button>
                 <Button type="button" variant="outline" size="sm" onClick={handleExportJson}>
                   <Download className="h-4 w-4 mr-2" />
-                  Export JSON
+                  Export Template
                 </Button>
               </div>
             </div>
