@@ -23,7 +23,14 @@ type Props = {
 };
 
 export function NameCard({ name, onClick, className }: Props) {
-  const genderLabel = (name.gender ?? "").trim();
+  const genderLabelRaw = (name.gender ?? "").trim();
+  const genderLabel = (() => {
+    const g = genderLabelRaw.toLowerCase();
+    if (g === "male" || g === "m" || g === "boy") return "Boy";
+    if (g === "female" || g === "f" || g === "girl") return "Girl";
+    if (g === "unisex") return "Unisex";
+    return genderLabelRaw;
+  })();
   // Keep the right column perfectly aligned across cards by normalizing
   // the Arabic column width (Arabic glyphs vary a lot in natural width).
   const arabicText = name.title_arabic?.trim() || name.title;
