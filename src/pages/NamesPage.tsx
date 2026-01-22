@@ -76,8 +76,7 @@ const fetchNames = async (): Promise<NameContentRow[]> => {
 const NamesPage = () => {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [activeGender, setActiveGender] = useState<string>("all");
+  const [activeQuickFilter, setActiveQuickFilter] = useState<string>("all");
   const [selected, setSelected] = useState<NameCardModel | null>(null);
   const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
 
@@ -96,58 +95,29 @@ const NamesPage = () => {
     queryFn: fetchNames,
   });
 
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    for (const n of namesQuery.data ?? []) {
-      const c = (n.category ?? "").trim();
-      if (c) set.add(c);
-    }
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, [namesQuery.data]);
-
-  const categoryFiltered = useMemo(() => {
-    const list = namesQuery.data ?? [];
-    return activeCategory === "all"
-      ? list
-      : list.filter((n) => (n.category ?? "").trim() === activeCategory);
-  }, [namesQuery.data, activeCategory]);
-
-  const genderCounts = useMemo(() => {
-    const counts = {
-      total: categoryFiltered.length,
-      male: 0,
-      female: 0,
-      unisex: 0,
-      unspecified: 0,
-    };
-
-    for (const n of categoryFiltered) {
-      const g = normalizeGender(safeParseMeta(n.metadata).gender);
-      if (!g) counts.unspecified += 1;
-      else if (g === "male") counts.male += 1;
-      else if (g === "female") counts.female += 1;
-      else if (g === "unisex") counts.unisex += 1;
-      else counts.unspecified += 1; // unknown/custom values treated as unspecified
-    }
-
-    return counts;
-  }, [categoryFiltered]);
-
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
 
-    const genderFiltered =
-      activeGender === "all"
-        ? categoryFiltered
-        : categoryFiltered.filter((n) => {
-            const g = normalizeGender(safeParseMeta(n.metadata).gender);
-            if (activeGender === "unspecified") return !g;
-            return g === activeGender;
-          });
+    const list = namesQuery.data ?? [];
+    const quickFiltered = list.filter((n) => {
+      const meta = safeParseMeta(n.metadata);
+      const g = normalizeGender(meta.gender);
+      const category = (n.category ?? "").trim().toLowerCase();
+      const title = (n.title ?? "").trim();
 
-    if (!query) return genderFiltered;
+      if (activeQuickFilter === "all") return true;
+      if (activeQuickFilter === "boy") return g === "male";
+      if (activeQuickFilter === "girl") return g === "female";
+      if (activeQuickFilter === "unisex") return g === "unisex";
+      if (activeQuickFilter === "quranic") return category === "quranic";
+      if (activeQuickFilter === "popular") return category === "popular";
+      if (activeQuickFilter === "short") return title.length > 0 && title.length <= 5;
+      return true;
+    });
 
-    return genderFiltered.filter((n) => {
+    if (!query) return quickFiltered;
+
+    return quickFiltered.filter((n) => {
       const meta = safeParseMeta(n.metadata);
       const parts = [
         n.title,
@@ -164,7 +134,7 @@ const NamesPage = () => {
       ];
       return parts.join(" ").toLowerCase().includes(query);
     });
-  }, [q, activeGender, categoryFiltered]);
+  }, [q, activeQuickFilter, namesQuery.data]);
 
   const cards = useMemo<NameCardModel[]>(() => {
     return (filtered ?? []).map((n) => {
@@ -177,7 +147,8 @@ const NamesPage = () => {
         meaning_bn: n.content,
         meaning_en: n.content_en,
         meaning_ar: n.content_arabic,
-        category: meta.gender?.trim() || n.category,
+        gender: meta.gender?.trim() || null,
+        category: n.category,
         origin: meta.origin,
         source: meta.source,
       };
@@ -225,68 +196,29 @@ const NamesPage = () => {
             </div>
           </div>
 
-          <div className="mt-2 space-y-2">
+          <div className="mt-2">
             <div className="dua-surface p-2 shadow-soft">
-              <p className="px-1 pb-1 text-[11px] font-medium text-[hsl(var(--dua-fg-muted))]">Categories</p>
               <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveCategory("all")}
-                  className={`dua-chip shrink-0 ${activeCategory === "all" ? "dua-chip-active" : ""}`}
-                >
-                  All
-                </button>
-                {categories.map((c) => (
+                {(
+                  [
+                    ["all", "All"],
+                    ["boy", "Boy"],
+                    ["girl", "Girl"],
+                    ["unisex", "Unisex"],
+                    ["quranic", "Quranic"],
+                    ["popular", "Popular"],
+                    ["short", "Short"],
+                  ] as const
+                ).map(([key, label]) => (
                   <button
-                    key={c}
+                    key={key}
                     type="button"
-                    onClick={() => setActiveCategory(c)}
-                    className={`dua-chip shrink-0 ${activeCategory === c ? "dua-chip-active" : ""}`}
+                    onClick={() => setActiveQuickFilter(key)}
+                    className={`dua-chip shrink-0 ${activeQuickFilter === key ? "dua-chip-active" : ""}`}
                   >
-                    {c}
+                    {label}
                   </button>
                 ))}
-              </div>
-            </div>
-
-            <div className="dua-surface p-2 shadow-soft">
-              <p className="px-1 pb-1 text-[11px] font-medium text-[hsl(var(--dua-fg-muted))]">Gender</p>
-              <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveGender("all")}
-                  className={`dua-chip shrink-0 ${activeGender === "all" ? "dua-chip-active" : ""}`}
-                >
-                  All ({genderCounts.total})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveGender("male")}
-                  className={`dua-chip shrink-0 ${activeGender === "male" ? "dua-chip-active" : ""}`}
-                >
-                  Male ({genderCounts.male})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveGender("female")}
-                  className={`dua-chip shrink-0 ${activeGender === "female" ? "dua-chip-active" : ""}`}
-                >
-                  Female ({genderCounts.female})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveGender("unisex")}
-                  className={`dua-chip shrink-0 ${activeGender === "unisex" ? "dua-chip-active" : ""}`}
-                >
-                  Unisex ({genderCounts.unisex})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveGender("unspecified")}
-                  className={`dua-chip shrink-0 ${activeGender === "unspecified" ? "dua-chip-active" : ""}`}
-                >
-                  Unspecified ({genderCounts.unspecified})
-                </button>
               </div>
             </div>
           </div>
