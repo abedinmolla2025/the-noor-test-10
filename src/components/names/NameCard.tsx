@@ -49,11 +49,8 @@ export function NameCard({ name, onClick, className }: Props) {
 
       <div className="relative flex gap-4">
         {/* Arabic (left) */}
-        <div className="shrink-0 w-28 sm:w-32 text-right">
-          <p
-            dir="rtl"
-            className="font-arabic text-5xl font-bold leading-[1.1] text-right text-[hsl(var(--dua-accent))]"
-          >
+        <div className="shrink-0">
+          <p className="font-arabic text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]">
             {name.title_arabic?.trim() || name.title}
           </p>
         </div>
