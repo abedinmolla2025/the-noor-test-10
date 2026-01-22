@@ -24,6 +24,9 @@ type Props = {
 
 export function NameCard({ name, onClick, className }: Props) {
   const genderLabel = (name.gender ?? "").trim();
+  // Keep the right column perfectly aligned across cards by normalizing
+  // the Arabic column width (Arabic glyphs vary a lot in natural width).
+  const arabicText = name.title_arabic?.trim() || name.title;
 
   return (
     <button
@@ -49,9 +52,14 @@ export function NameCard({ name, onClick, className }: Props) {
 
       <div className="relative flex gap-4">
         {/* Arabic (left) */}
-        <div className="shrink-0">
-          <p className="font-arabic text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]">
-            {name.title_arabic?.trim() || name.title}
+        <div className="shrink-0 w-[9.5rem] sm:w-[11rem] flex items-center justify-center">
+          <p
+            className={cn(
+              "font-arabic text-5xl sm:text-6xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]",
+              "text-center whitespace-nowrap"
+            )}
+          >
+            {arabicText}
           </p>
         </div>
 
