@@ -101,8 +101,10 @@ const NamesPage = () => {
     const list = namesQuery.data ?? [];
     const quickFiltered = list.filter((n) => {
       const meta = safeParseMeta(n.metadata);
-      const g = normalizeGender(meta.gender);
-      const category = (n.category ?? "").trim().toLowerCase();
+      // Gender is primarily stored in metadata, but some datasets store it in `category`.
+      const categoryRaw = (n.category ?? "").trim();
+      const g = normalizeGender(meta.gender) || normalizeGender(categoryRaw);
+      const category = categoryRaw.toLowerCase();
       const title = (n.title ?? "").trim();
 
       if (activeQuickFilter === "all") return true;
