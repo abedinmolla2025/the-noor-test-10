@@ -312,14 +312,6 @@
     /* Slightly darker card gradient for better premium contrast */
     --dua-card-from: 158 58% 22%;
     --dua-card-to: 158 66% 16%;
-
-    /* Names page: chip colors (export-safe + theme-consistent) */
-    --name-chip-boy: 188 78% 62%;
-    --name-chip-boy-fg: 190 70% 16%;
-    --name-chip-girl: 340 78% 72%;
-    --name-chip-girl-fg: 342 60% 16%;
-    --name-chip-unisex: 45 93% 58%;
-    --name-chip-unisex-fg: 158 64% 15%;
   }
 
   .dua-page {

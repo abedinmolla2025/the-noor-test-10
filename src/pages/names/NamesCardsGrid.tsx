@@ -71,7 +71,7 @@ export function NamesCardsGrid({
         }`}
       >
         <p className="text-xs font-medium text-[hsl(var(--dua-fg-muted))]">
-          📸 যেকোনো নাম ট্যাপ করুন — শেয়ার করার মতো 1080×1080 PNG তৈরি হবে।
+          Tap a name to generate a premium 1080×1080 PNG.
         </p>
       </div>
 
