@@ -38,6 +38,10 @@ import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { MobileTableWrapper } from '@/components/admin/MobileTableWrapper';
 import { NameBulkImportDialog } from '@/components/admin/NameBulkImportDialog';
 import { DuaBulkImportDialog } from '@/components/admin/DuaBulkImportDialog';
+import { ContentTypeSelector } from '@/components/admin/content/ContentTypeSelector';
+import type { AdminContentType } from '@/components/admin/content/contentTypes';
+import { adminContentTypeLabel } from '@/components/admin/content/contentTypes';
+import { AlphabetBar } from '@/components/admin/content/AlphabetBar';
 import {
   BulkContentActionBar,
   type BulkContentAction,
@@ -175,6 +179,9 @@ export default function AdminContent() {
   const [isNameImportOpen, setIsNameImportOpen] = useState(false);
   const [isDuaImportOpen, setIsDuaImportOpen] = useState(false);
 
+  // Content-type driven context (mandatory)
+  const [contentTypeContext, setContentTypeContext] = useState<AdminContentType | null>(null);
+
   const [bulkSelectedIds, setBulkSelectedIds] = useState<Set<string>>(new Set());
   const [bulkAction, setBulkAction] = useState<BulkContentAction | null>(null);
   const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
@@ -182,9 +189,10 @@ export default function AdminContent() {
 
   // Quick filters (mobile + desktop)
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [duaCategoryFilter, setDuaCategoryFilter] = useState<string>('all');
+  const [nameGenderFilter, setNameGenderFilter] = useState<string>('all');
+  const [nameAlphaFilter, setNameAlphaFilter] = useState<string | null>(null);
 
   const [editForm, setEditForm] = useState({
     content_type: 'dua',
@@ -242,7 +250,7 @@ export default function AdminContent() {
     const counts = new Map<string, number>();
 
     for (const item of content ?? []) {
-      const typeOk = typeFilter === 'all' || item.content_type === typeFilter;
+       const typeOk = !contentTypeContext || item.content_type === contentTypeContext;
       if (!typeOk) continue;
 
       // Category filter is intended for Dua, so we only count Dua items
@@ -257,7 +265,7 @@ export default function AdminContent() {
     }
 
     return counts;
-  }, [content, statusFilter, typeFilter]);
+   }, [content, statusFilter, contentTypeContext]);
 
   const availableDuaCategories = useMemo(() => {
     const set = new Set<string>();
@@ -276,13 +284,26 @@ export default function AdminContent() {
   const filteredContent = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return (content ?? []).filter((item) => {
-      if (typeFilter !== 'all' && item.content_type !== typeFilter) return false;
+      if (contentTypeContext && item.content_type !== contentTypeContext) return false;
       if (statusFilter !== 'all' && item.status !== statusFilter) return false;
 
       if (duaCategoryFilter !== 'all') {
         // If a Dua category filter is active, only show Dua items for that category
         if (item.content_type !== 'dua') return false;
         if ((item.category ?? '').trim() !== duaCategoryFilter) return false;
+      }
+
+      // Name-only filters
+      if (contentTypeContext === 'name') {
+        if (nameGenderFilter !== 'all') {
+          const g = readMetaString(item.metadata, 'gender');
+          if ((g || 'unknown') !== nameGenderFilter) return false;
+        }
+
+        if (nameAlphaFilter) {
+          const first = (item.title ?? '').trim().slice(0, 1).toUpperCase();
+          if (first !== nameAlphaFilter) return false;
+        }
       }
 
       if (!q) return true;
@@ -294,7 +315,43 @@ export default function AdminContent() {
 
       return hay.includes(q);
     });
-  }, [content, searchQuery, statusFilter, typeFilter, duaCategoryFilter]);
+  }, [
+    content,
+    searchQuery,
+    statusFilter,
+    duaCategoryFilter,
+    contentTypeContext,
+    nameGenderFilter,
+    nameAlphaFilter,
+  ]);
+
+  const baseNameItemsForAlphabet = useMemo(() => {
+    if (contentTypeContext !== 'name') return [] as AdminContentRow[];
+    const q = searchQuery.trim().toLowerCase();
+    return (content ?? []).filter((item) => {
+      if (item.content_type !== 'name') return false;
+      if (statusFilter !== 'all' && item.status !== statusFilter) return false;
+      if (nameGenderFilter !== 'all') {
+        const g = readMetaString(item.metadata, 'gender');
+        if ((g || 'unknown') !== nameGenderFilter) return false;
+      }
+      if (!q) return true;
+      const hay = [item.title, item.title_arabic, item.title_en, item.title_hi, item.title_ur]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [content, contentTypeContext, nameGenderFilter, searchQuery, statusFilter]);
+
+  const nameAlphabetCounts = useMemo<Record<string, number>>(() => {
+    const out: Record<string, number> = {};
+    for (const item of baseNameItemsForAlphabet) {
+      const first = (item.title ?? '').trim().slice(0, 1).toUpperCase();
+      if (first >= 'A' && first <= 'Z') out[first] = (out[first] ?? 0) + 1;
+    }
+    return out;
+  }, [baseNameItemsForAlphabet]);
 
   const bulkSelectedItems = useMemo(
     () => (content ?? []).filter((item) => bulkSelectedIds.has(item.id)),
@@ -861,6 +918,9 @@ export default function AdminContent() {
               className="shrink-0 whitespace-nowrap"
               onClick={() => {
                 resetEditForm();
+                if (contentTypeContext) {
+                  setEditForm((prev) => ({ ...prev, content_type: contentTypeContext }));
+                }
                 setActiveTab('edit');
               }}
             >
@@ -868,34 +928,71 @@ export default function AdminContent() {
               New Content
             </Button>
 
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="shrink-0 whitespace-nowrap"
-              onClick={() => setIsNameImportOpen(true)}
-              disabled={!canEdit}
-              title={!canEdit ? 'No permission' : undefined}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              Import Names (JSON)
-            </Button>
+            {contentTypeContext === 'name' ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="shrink-0 whitespace-nowrap"
+                onClick={() => setIsNameImportOpen(true)}
+                disabled={!canEdit}
+                title={!canEdit ? 'No permission' : undefined}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Import Names (JSON)
+              </Button>
+            ) : null}
 
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="shrink-0 whitespace-nowrap"
-              onClick={() => setIsDuaImportOpen(true)}
-              disabled={!canEdit}
-              title={!canEdit ? 'No permission' : undefined}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              Import Dua (JSON)
-            </Button>
+            {contentTypeContext === 'dua' ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="shrink-0 whitespace-nowrap"
+                onClick={() => setIsDuaImportOpen(true)}
+                disabled={!canEdit}
+                title={!canEdit ? 'No permission' : undefined}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Import Dua (JSON)
+              </Button>
+            ) : null}
           </div>
         }
       />
+
+      <Card className="shadow-sm border-border/80">
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <ContentTypeSelector
+              value={contentTypeContext}
+              onChange={(next) => {
+                setContentTypeContext(next);
+                // Reset contextual filters on switch
+                setSearchQuery('');
+                setStatusFilter('all');
+                setDuaCategoryFilter('all');
+                setNameGenderFilter('all');
+                setNameAlphaFilter(null);
+                // Keep selectedId, but if it doesn't match context it will be naturally excluded.
+              }}
+            />
+            {contentTypeContext ? (
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
+                  Managing: {adminContentTypeLabel(contentTypeContext)}
+                </Badge>
+              </div>
+            ) : null}
+          </div>
+
+          {!contentTypeContext ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Select a content type to start managing items.
+            </p>
+          ) : null}
+        </CardContent>
+      </Card>
 
       <NameBulkImportDialog
         open={isNameImportOpen}
@@ -917,16 +1014,17 @@ export default function AdminContent() {
         }}
       />
 
-      <Card className="shadow-sm border-border/80">
-        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle>Content List</CardTitle>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Filter, select and manage items before working on their workflow.
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-2">
+      {contentTypeContext ? (
+        <Card className="shadow-sm border-border/80">
+          <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle>Content List</CardTitle>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                Filter, select and manage items before working on their workflow.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-2">
           <BulkContentActionBar
             selectedCount={bulkSelectedCount}
             filteredCount={filteredContent.length}
@@ -943,34 +1041,13 @@ export default function AdminContent() {
           ) : content && content.length > 0 ? (
             <>
               {/* Quick filters */}
-              <div className="mb-3 grid gap-2 sm:mb-4 sm:grid-cols-[1fr_160px_160px_200px]">
+              <div className="mb-3 grid gap-2 sm:mb-4 sm:grid-cols-[1fr_160px_200px]">
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search title…"
                   className="h-9"
                 />
-
-                <Select
-                  value={typeFilter}
-                  onValueChange={(v) => {
-                    setTypeFilter(v);
-                    // Reset Dua category filter when switching away from Dua
-                    if (v !== 'dua' && v !== 'all') setDuaCategoryFilter('all');
-                  }}
-                >
-                  <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-popover">
-                    <SelectItem value="all">All types</SelectItem>
-                    {availableTypes.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
 
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="h-9">
@@ -986,31 +1063,53 @@ export default function AdminContent() {
                   </SelectContent>
                 </Select>
 
-                <Select
-                  value={duaCategoryFilter}
-                  onValueChange={setDuaCategoryFilter}
-                  disabled={!(typeFilter === 'dua' || typeFilter === 'all')}
-                >
-                  <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Dua category" />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-popover">
-                    <SelectItem value="all">All dua categories</SelectItem>
-                    {availableDuaCategories.map((c) => {
-                      const count = duaCategoryCounts.get(c) ?? 0;
-                      return (
-                        <SelectItem key={c} value={c}>
-                          {c}{count ? ` (${count})` : ''}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                {contentTypeContext === 'dua' ? (
+                  <Select value={duaCategoryFilter} onValueChange={setDuaCategoryFilter}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Dua category" />
+                    </SelectTrigger>
+                    <SelectContent className="z-50 bg-popover">
+                      <SelectItem value="all">All categories</SelectItem>
+                      {availableDuaCategories.map((c) => {
+                        const count = duaCategoryCounts.get(c) ?? 0;
+                        return (
+                          <SelectItem key={c} value={c}>
+                            {c}{count ? ` (${count})` : ''}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                ) : null}
               </div>
+
+              {contentTypeContext === 'name' ? (
+                <div className="mb-3 flex flex-col gap-2 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-2">
+                    <Select value={nameGenderFilter} onValueChange={setNameGenderFilter}>
+                      <SelectTrigger className="h-9 w-[160px]">
+                        <SelectValue placeholder="Gender" />
+                      </SelectTrigger>
+                      <SelectContent className="z-50 bg-popover">
+                        <SelectItem value="all">All genders</SelectItem>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="unisex">Unisex</SelectItem>
+                        <SelectItem value="unknown">Unspecified</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="sm:max-w-[520px]">
+                    <AlphabetBar value={nameAlphaFilter} onChange={setNameAlphaFilter} enabledCounts={nameAlphabetCounts} />
+                  </div>
+                </div>
+              ) : null}
 
               {filteredContent.length === 0 ? (
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  No matches. Try clearing filters.
+                  {contentTypeContext === 'name' && nameAlphaFilter
+                    ? 'এই অক্ষরে কোনো নাম পাওয়া যায়নি'
+                    : 'No matches. Try clearing filters.'}
                 </p>
               ) : (
                 <>
@@ -1046,13 +1145,10 @@ export default function AdminContent() {
                             }}
                           >
                             <div className="flex items-center gap-2">
-                              <Badge
-                                variant="outline"
-                                className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide"
-                              >
-                                {item.content_type}
-                              </Badge>
                               <p className="min-w-0 truncate text-sm font-medium text-foreground">{item.title}</p>
+                              {contentTypeContext === 'name' ? (
+                                <span className="shrink-0 text-[11px] text-muted-foreground">{(item.title ?? '').trim().slice(0, 1).toUpperCase()}</span>
+                              ) : null}
                             </div>
 
                             <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
@@ -1063,7 +1159,9 @@ export default function AdminContent() {
                                 <span className="h-1.5 w-1.5 rounded-full bg-current" />
                                 {STATUS_LABELS[item.status] || item.status}
                               </Badge>
-                              <span className="truncate">{item.category || '-'}</span>
+                              {contentTypeContext === 'dua' ? (
+                                <span className="truncate">{item.category || '-'}</span>
+                              ) : null}
                             </div>
                           </button>
 
@@ -1107,7 +1205,7 @@ export default function AdminContent() {
                   {/* Desktop: table */}
                   <div className="hidden sm:block">
                     <MobileTableWrapper>
-                      <Table className="min-w-[720px] text-xs sm:text-sm">
+                      <Table className={contentTypeContext === 'name' ? 'min-w-[860px] text-xs sm:text-sm' : 'min-w-[760px] text-xs sm:text-sm'}>
                         <TableHeader>
                           <TableRow className="h-9">
                             <TableHead className="w-[44px]">
@@ -1123,12 +1221,21 @@ export default function AdminContent() {
                                 aria-label="Select all filtered"
                               />
                             </TableHead>
-                            <TableHead className="w-[90px] whitespace-nowrap">Type</TableHead>
-                            <TableHead className="whitespace-nowrap">Title</TableHead>
-                            <TableHead className="w-[140px] whitespace-nowrap">Category</TableHead>
+                            {contentTypeContext === 'name' ? (
+                              <>
+                                <TableHead className="whitespace-nowrap">English Name</TableHead>
+                                <TableHead className="whitespace-nowrap">Arabic Name</TableHead>
+                                <TableHead className="w-[120px] whitespace-nowrap">Gender</TableHead>
+                                <TableHead className="w-[80px] whitespace-nowrap">A–Z</TableHead>
+                              </>
+                            ) : (
+                              <>
+                                <TableHead className="whitespace-nowrap">Title</TableHead>
+                                <TableHead className="w-[160px] whitespace-nowrap">Category</TableHead>
+                                <TableHead className="w-[160px] whitespace-nowrap">Languages</TableHead>
+                              </>
+                            )}
                             <TableHead className="w-[120px] whitespace-nowrap">Status</TableHead>
-                            <TableHead className="w-[150px] whitespace-nowrap">Scheduled</TableHead>
-                            <TableHead className="w-[150px] whitespace-nowrap">Published</TableHead>
                             <TableHead className="w-[90px] text-right whitespace-nowrap">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -1148,19 +1255,51 @@ export default function AdminContent() {
                                 />
                               </TableCell>
                               <TableCell className="align-middle">
-                                <Badge
-                                  variant="outline"
-                                  className="rounded-full px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide"
-                                >
-                                  {item.content_type}
-                                </Badge>
+                                {contentTypeContext === 'name' ? (
+                                  <div className="max-w-[260px] truncate align-middle text-xs sm:text-sm">{item.title}</div>
+                                ) : (
+                                  <div className="max-w-[260px] truncate align-middle text-xs sm:text-sm">{item.title}</div>
+                                )}
                               </TableCell>
-                              <TableCell className="max-w-[200px] truncate align-middle text-xs sm:text-sm">
-                                {item.title}
-                              </TableCell>
-                              <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
-                                {item.category || '-'}
-                              </TableCell>
+                              {contentTypeContext === 'name' ? (
+                                <>
+                                  <TableCell className="align-middle">
+                                    <div className="max-w-[220px] truncate font-arabic text-sm" dir="rtl">
+                                      {item.title_arabic || '—'}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="align-middle">
+                                    {(() => {
+                                      const g = readMetaString(item.metadata, 'gender') || 'unknown';
+                                      return (
+                                        <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[11px] font-medium">
+                                          {g}
+                                        </Badge>
+                                      );
+                                    })()}
+                                  </TableCell>
+                                  <TableCell className="align-middle text-[11px] text-muted-foreground">
+                                    {(item.title ?? '').trim().slice(0, 1).toUpperCase() || '—'}
+                                  </TableCell>
+                                </>
+                              ) : (
+                                <>
+                                  <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
+                                    {item.category || '-'}
+                                  </TableCell>
+                                  <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle">
+                                    {[
+                                      item.title_arabic ? 'AR' : null,
+                                      item.title_en || item.content_en ? 'EN' : null,
+                                      item.content ? 'BN' : null,
+                                      item.title_hi || item.content_hi ? 'HI' : null,
+                                      item.title_ur || item.content_ur ? 'UR' : null,
+                                    ]
+                                      .filter(Boolean)
+                                      .join(' · ') || '—'}
+                                  </TableCell>
+                                </>
+                              )}
                               <TableCell className="align-middle">
                                 <Badge
                                   variant={STATUS_VARIANTS[item.status] || 'secondary'}
@@ -1169,12 +1308,6 @@ export default function AdminContent() {
                                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
                                   {STATUS_LABELS[item.status] || item.status}
                                 </Badge>
-                              </TableCell>
-                              <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
-                                {formatDateTime(item.scheduled_at)}
-                              </TableCell>
-                              <TableCell className="text-[11px] sm:text-xs text-muted-foreground align-middle whitespace-nowrap">
-                                {formatDateTime(item.published_at)}
                               </TableCell>
                               <TableCell className="text-right align-middle">
                                 <div className="inline-flex gap-2">
@@ -1214,14 +1347,16 @@ export default function AdminContent() {
           ) : (
             <p className="text-xs sm:text-sm text-muted-foreground">No content yet. Create your first item.</p>
           )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : null}
 
-      <Card className="shadow-sm border-border/80">
-        <CardHeader>
-          <CardTitle>Content Details</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {contentTypeContext ? (
+        <Card className="shadow-sm border-border/80">
+          <CardHeader>
+            <CardTitle>Content Details</CardTitle>
+          </CardHeader>
+          <CardContent>
           <Tabs
             value={activeTab}
             onValueChange={(value) => setActiveTab(value as typeof activeTab)}
@@ -1261,23 +1396,14 @@ export default function AdminContent() {
                 <div className="space-y-3 sm:space-y-4">
                   <div>
                     <Label>Content Type</Label>
-                    <Select
-                      value={editForm.content_type}
-                      onValueChange={(value) =>
-                        setEditForm((prev) => ({ ...prev, content_type: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="quran">Quran</SelectItem>
-                        <SelectItem value="dua">Dua</SelectItem>
-                        <SelectItem value="hadith">Hadith</SelectItem>
-                        <SelectItem value="name">Name</SelectItem>
-                        <SelectItem value="article">Article</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="mt-1 flex items-center gap-2">
+                      <Badge variant="secondary" className="rounded-full">
+                        {adminContentTypeLabel((contentTypeContext ?? editForm.content_type) as any)}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        Context-driven (switch from top selector)
+                      </span>
+                    </div>
                   </div>
 
                   <div>
@@ -1774,8 +1900,9 @@ export default function AdminContent() {
               )}
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Dialog open={!!rollbackVersion} onOpenChange={(open) => !open && setRollbackVersion(null)}>
         <DialogContent>
