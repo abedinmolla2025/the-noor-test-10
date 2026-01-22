@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ComponentProps } from "react";
 
@@ -81,6 +81,17 @@ const NamesPage = () => {
   );
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [selected, setSelected] = useState<NameCardModel | null>(null);
+  const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      // Keep it subtle: raise the glass header slightly once the page is scrolled.
+      setStickyHeaderRaised(window.scrollY > 8);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const namesQuery = useQuery({
     queryKey: ["public-names"],
@@ -195,15 +206,11 @@ const NamesPage = () => {
         <div className="mb-3">
           <NamesAlphabetFilter activeLetter={activeLetter} counts={alphabetCounts} onChange={setActiveLetter} />
         </div>
-
-        <p className="mb-3 text-xs font-medium text-[hsl(var(--dua-fg-muted))]">
-          📸 যেকোনো নাম ট্যাপ করুন — শেয়ার করার মতো 1080×1080 ছবি তৈরি হবে
-        </p>
-
         <NamesCardsGrid
           isLoading={namesQuery.isLoading}
           isError={namesQuery.isError}
           hasResults={!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0}
+          stickyHeaderRaised={stickyHeaderRaised}
           cards={cards}
           onSelect={setSelected}
           emptyStateTitle={activeLetter ? "কোনো নাম পাওয়া যায়নি" : undefined}

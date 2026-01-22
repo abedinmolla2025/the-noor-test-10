@@ -1,5 +1,6 @@
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { ImageDown } from "lucide-react";
+import { Share2, UserRound } from "lucide-react";
 
 export type NameCardModel = {
   id: string;
@@ -36,23 +37,7 @@ export function NameCard({ name, onClick, className }: Props) {
 
   const origin = name.origin?.trim();
   const source = name.source?.trim();
-
-  const genderTone = (() => {
-    const g = genderLabel.toLowerCase();
-    if (g === "boy") return "boy";
-    if (g === "girl") return "girl";
-    if (g === "unisex") return "unisex";
-    return "neutral";
-  })();
-
-  const genderChipClass =
-    genderTone === "boy"
-      ? "bg-[hsl(var(--dua-boy)/0.18)] text-[hsl(var(--dua-boy))]"
-      : genderTone === "girl"
-        ? "bg-[hsl(var(--dua-girl)/0.18)] text-[hsl(var(--dua-girl))]"
-        : genderTone === "unisex"
-          ? "bg-[hsl(var(--dua-unisex)/0.22)] text-[hsl(var(--dua-unisex))]"
-          : "bg-[hsl(var(--dua-fg)/0.08)] text-[hsl(var(--dua-fg-muted))]";
+  const hasMetaChips = Boolean(genderLabel || origin || source);
 
   return (
     <button
@@ -60,11 +45,10 @@ export function NameCard({ name, onClick, className }: Props) {
       onClick={onClick}
       className={cn(
         // Keep cards compact and list-friendly
-        "dua-card relative w-full overflow-hidden text-left p-3 will-change-transform transition-all duration-300 ease-out",
+        "dua-card relative w-full overflow-hidden text-left p-4 will-change-transform transition-all duration-300 ease-out",
         "border-[hsl(var(--dua-accent)/0.26)]",
         "hover:-translate-y-0.5 hover:shadow-card",
-        // Subtle tap feedback (premium, calm)
-        "active:translate-y-0 active:scale-[0.985]",
+        "active:translate-y-0 active:scale-[0.99]",
         className
       )}
       aria-label={`Open share preview for ${name.title}`}
@@ -81,12 +65,10 @@ export function NameCard({ name, onClick, className }: Props) {
       <div className="relative flex gap-3">
         {/* Details (left) */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[18px] font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
+          <p className="truncate text-xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
             {name.title}
             {name.bn_name?.trim() ? (
-              <span className="ml-2 font-bangla text-[15px] font-semibold text-[hsl(var(--dua-fg-muted))]">
-                {name.bn_name}
-              </span>
+              <span className="ml-2 font-bangla text-base text-[hsl(var(--dua-fg-muted))]">{name.bn_name}</span>
             ) : null}
           </p>
 
@@ -94,7 +76,7 @@ export function NameCard({ name, onClick, className }: Props) {
             <p
               className={cn(
                 // Primary meaning (BN) but height-constrained for list view
-                "mt-1 font-bangla text-[15px] font-semibold leading-6 text-[hsl(var(--dua-fg))]",
+                "mt-1 font-bangla text-base font-semibold leading-6 text-[hsl(var(--dua-fg))]",
                 "whitespace-normal break-words",
                 "[display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden"
               )}
@@ -105,9 +87,9 @@ export function NameCard({ name, onClick, className }: Props) {
           ) : null}
 
           {name.meaning_en?.trim() ? (
-            <p className="mt-1 truncate text-xs leading-snug text-[hsl(var(--dua-fg-soft))]">
+            <p className="mt-1 text-sm leading-snug text-[hsl(var(--dua-fg-muted))]">
               <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">EN:</span>
-              {name.meaning_en}
+              <span className="block truncate">{name.meaning_en}</span>
             </p>
           ) : null}
 
@@ -121,32 +103,49 @@ export function NameCard({ name, onClick, className }: Props) {
               )}
             >
               {genderLabel ? (
-                <span
-                  className={cn(
-                    "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold",
-                    genderChipClass
-                  )}
+                <Badge
+                  variant="secondary"
+                  className="shrink-0 gap-2 rounded-full bg-[hsl(var(--dua-accent)/0.20)] px-2.5 py-0.5 text-[hsl(var(--dua-accent))]"
                 >
-                  {genderTone === "boy" ? "👦 " : genderTone === "girl" ? "👧 " : genderTone === "unisex" ? "⚧️ " : ""}
+                  <UserRound className="h-4 w-4" />
                   {genderLabel}
-                </span>
+                </Badge>
               ) : null}
 
               {origin ? (
-                <span className="shrink-0 rounded-full bg-[hsl(var(--dua-fg)/0.08)] px-2.5 py-0.5 text-xs font-medium text-[hsl(var(--dua-fg-muted))]">
-                  🌍 {origin}
-                </span>
+                <Badge
+                  variant="secondary"
+                  className="shrink-0 rounded-full bg-[hsl(var(--dua-fg)/0.08)] px-2.5 py-0.5 text-[hsl(var(--dua-fg-muted))]"
+                >
+                  {origin}
+                </Badge>
               ) : null}
 
               {source ? (
-                <span className="shrink-0 rounded-full bg-[hsl(var(--dua-fg)/0.08)] px-2.5 py-0.5 text-xs font-medium text-[hsl(var(--dua-fg-muted))]">
-                  📖 {source}
-                </span>
+                <Badge
+                  variant="secondary"
+                  className="shrink-0 rounded-full bg-[hsl(var(--dua-fg)/0.08)] px-2.5 py-0.5 text-[hsl(var(--dua-fg-muted))]"
+                >
+                  {source}
+                </Badge>
+              ) : null}
+
+              {!hasMetaChips ? (
+                <span className="text-xs text-[hsl(var(--dua-fg-muted))]">&nbsp;</span>
               ) : null}
             </div>
 
-            <span className="shrink-0" aria-hidden="true" title="Tap to generate PNG">
-              <ImageDown className="h-4 w-4 text-[hsl(var(--dua-fg-soft))] opacity-40" />
+            <span
+              className={cn(
+                "shrink-0 inline-flex items-center gap-1.5 rounded-full border",
+                "border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-header)/0.55)]",
+                "px-2.5 py-1 text-xs font-medium text-[hsl(var(--dua-fg))]"
+              )}
+              aria-hidden="true"
+              title="Share"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              Share
             </span>
           </div>
         </div>

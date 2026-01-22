@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Share2, X } from "lucide-react";
+import { Download, Share2, X, Facebook, Instagram } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,25 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
   }, []);
 
   const safeName = useMemo(() => name, [name]);
+
+  // Share link helpers (no file attachment) — avoids popup/CSP blocks vs window.open.
+  const shareTitle = useMemo(() => {
+    if (!safeName) return "";
+    return safeName.title_arabic?.trim() ? `${safeName.title_arabic} (${safeName.title})` : safeName.title;
+  }, [safeName]);
+
+  const shareTextForLinks = useMemo(() => {
+    if (!safeName) return "";
+    return `${shareTitle}\n${window.location.href}`;
+  }, [safeName, shareTitle]);
+
+  const whatsappShareHref = useMemo(() => {
+    return `https://wa.me/?text=${encodeURIComponent(shareTextForLinks)}`;
+  }, [shareTextForLinks]);
+
+  const facebookShareHref = useMemo(() => {
+    return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+  }, []);
 
   const fileName = useMemo(() => {
     const base = (safeName?.title ?? "name").trim().replace(/\s+/g, "-").toLowerCase();
@@ -175,6 +194,13 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
     }
   };
 
+  // (WhatsApp/Facebook link sharing is rendered as <a> buttons below.)
+
+  const shareInstagram = async () => {
+    if (navigator.share) return await shareNative();
+    await download();
+    toast.success("Downloaded", { description: "Upload the PNG in Instagram." });
+  };
 
   if (!open || !safeName) return null;
 
@@ -259,16 +285,45 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                 </div>
 
                 {previewDataUrl ? (
-                  <div className="mt-4">
-                    <Button
-                      onClick={() => void download()}
-                      variant="outline"
-                      className="w-full border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
-                      disabled={isRendering}
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download PNG
-                    </Button>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                  >
+                    <a href={facebookShareHref} target="_blank" rel="noopener noreferrer">
+                      <Facebook className="mr-2 h-4 w-4" />
+                      Facebook Link
+                    </a>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                  >
+                    <a href={whatsappShareHref} target="_blank" rel="noopener noreferrer">
+                      <Share2 className="mr-2 h-4 w-4" />
+                      WhatsApp Link
+                    </a>
+                  </Button>
+                  <Button
+                    onClick={() => void shareInstagram()}
+                    variant="outline"
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                    disabled={isRendering}
+                  >
+                    <Instagram className="mr-2 h-4 w-4" />
+                    Instagram
+                  </Button>
+                  <Button
+                    onClick={() => void download()}
+                    variant="outline"
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                    disabled={isRendering}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
                   </div>
                 ) : null}
 

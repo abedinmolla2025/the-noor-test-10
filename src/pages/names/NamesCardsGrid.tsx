@@ -5,6 +5,7 @@ type Props = {
   isLoading: boolean;
   isError: boolean;
   hasResults: boolean;
+  stickyHeaderRaised: boolean;
   cards: NameCardModel[];
   onSelect: (n: NameCardModel) => void;
   emptyStateTitle?: string;
@@ -15,6 +16,7 @@ export function NamesCardsGrid({
   isLoading,
   isError,
   hasResults,
+  stickyHeaderRaised,
   cards,
   onSelect,
   emptyStateTitle,
@@ -67,10 +69,24 @@ export function NamesCardsGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {cards.map((n) => (
-        <NameCard key={n.id} name={n} onClick={() => onSelect(n)} />
-      ))}
+    <div>
+      <div
+        className={`sticky top-[92px] z-20 mb-4 rounded-2xl border border-[hsl(var(--dua-border))] px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out ${
+          stickyHeaderRaised
+            ? "bg-[hsl(var(--dua-header)/0.74)] shadow-card"
+            : "bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
+        }`}
+      >
+        <p className="text-xs font-medium text-[hsl(var(--dua-fg-muted))]">
+          Tap a name to generate a premium 1080×1080 PNG.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {cards.map((n) => (
+          <NameCard key={n.id} name={n} onClick={() => onSelect(n)} />
+        ))}
+      </div>
     </div>
   );
 }
