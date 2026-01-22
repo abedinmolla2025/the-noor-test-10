@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, Share2, X, Facebook, Instagram } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +18,8 @@ const easePremium: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
   const squareRef = useRef<HTMLDivElement>(null);
+  const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState(false);
 
   const safeName = useMemo(() => name, [name]);
   const fileName = useMemo(() => {
@@ -31,6 +33,33 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
     height: 1080,
     pixelRatio: 2,
   });
+
+  // Generate a visible preview inside the modal.
+  // We keep the 1080x1080 DOM node (unscaled) as the source of truth for export quality.
+  useEffect(() => {
+    let cancelled = false;
+
+    const run = async () => {
+      if (!open || !safeName) return;
+      setPreviewError(false);
+      setPreviewDataUrl(null);
+
+      try {
+        const { dataUrl } = await render();
+        if (cancelled) return;
+        setPreviewDataUrl(dataUrl);
+      } catch (e) {
+        console.warn(e);
+        if (cancelled) return;
+        setPreviewError(true);
+      }
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, safeName?.title, safeName?.title_arabic, render]);
 
   const shareNative = async () => {
     if (!safeName) return;
@@ -129,21 +158,44 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
               <div className="p-4">
                 <div className="flex justify-center">
                   <div className="w-full max-w-[360px] overflow-hidden rounded-3xl border border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-bg))]">
-                    {/* Preview wrapper scales down; the 1080 node remains unscaled for crisp export */}
-                    <div
-                      className="origin-top-left"
-                      style={{
-                        transform: "scale(0.32)",
-                        width: 1080,
-                        height: 1080,
-                      }}
-                    >
+                    {/*
+                      Export source (kept rendered for html-to-image). We keep it offscreen so
+                      the user sees the generated PNG preview instead of a scaled DOM node.
+                    */}
+                    <div className="pointer-events-none absolute -left-[99999px] top-0 opacity-0">
                       <NameShareSquare ref={squareRef} name={safeName} />
+                    </div>
+
+                    {/* Visible preview (must render before share/download buttons) */}
+                    <div className="relative aspect-square w-full">
+                      {previewDataUrl ? (
+                        <img
+                          src={previewDataUrl}
+                          alt={`Share preview for ${safeName.title}`}
+                          className="h-full w-full object-cover"
+                          loading="eager"
+                          draggable={false}
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center p-6">
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-[hsl(var(--dua-fg))]">
+                              {previewError ? "Preview failed" : "Generating preview…"}
+                            </p>
+                            <p className="mt-1 text-xs text-[hsl(var(--dua-fg-soft))]">
+                              {previewError
+                                ? "Please close and try again."
+                                : "This takes a moment on some devices."}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-2">
+                {previewDataUrl ? (
+                  <div className="mt-4 grid grid-cols-2 gap-2">
                   <Button
                     onClick={() => void shareFacebook()}
                     variant="outline"
@@ -180,21 +232,24 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
-                </div>
+                  </div>
+                ) : null}
 
-                <div className="mt-3">
-                  <Button
-                    onClick={() => void shareNative()}
-                    className="w-full bg-[linear-gradient(to_right,hsl(var(--dua-accent)),hsl(var(--dua-accent-strong)))] text-[hsl(var(--dua-accent-fg))] hover:opacity-95"
-                    disabled={isRendering}
-                  >
-                    <Share2 className="mr-2 h-4 w-4" />
-                    {navigator.share ? "Share (Native)" : "Generate PNG"}
-                  </Button>
-                  <p className="mt-2 text-center text-[11px] text-[hsl(var(--dua-fg-soft))]">
-                    Best quality: use Native Share on mobile.
-                  </p>
-                </div>
+                {previewDataUrl ? (
+                  <div className="mt-3">
+                    <Button
+                      onClick={() => void shareNative()}
+                      className="w-full bg-[linear-gradient(to_right,hsl(var(--dua-accent)),hsl(var(--dua-accent-strong)))] text-[hsl(var(--dua-accent-fg))] hover:opacity-95"
+                      disabled={isRendering}
+                    >
+                      <Share2 className="mr-2 h-4 w-4" />
+                      {navigator.share ? "Share (Native)" : "Generate PNG"}
+                    </Button>
+                    <p className="mt-2 text-center text-[11px] text-[hsl(var(--dua-fg-soft))]">
+                      Best quality: use Native Share on mobile.
+                    </p>
+                  </div>
+                ) : null}
               </div>
             </div>
           </motion.div>
