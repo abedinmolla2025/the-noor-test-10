@@ -50,7 +50,7 @@ export function NameCard({ name, onClick, className }: Props) {
     >
       {/* Two-layer background: base gradient (dua-card) + subtle geometric overlay */}
       <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.06]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.10),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.06),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
       {/* soft vignette like reference */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,transparent_35%,hsl(var(--dua-bg))_92%)]" />
       {/* Premium gold frame like reference */}
