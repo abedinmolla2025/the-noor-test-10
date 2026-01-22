@@ -97,10 +97,10 @@ export function NameBulkImportDialog({
 
   const parsed = useMemo(() => {
     const valid: NameImportItem[] = [];
-    const duplicates: NameImportItem[] = [];
+    const duplicatesExisting: NameImportItem[] = [];
+    const duplicatesInFile: NameImportItem[] = [];
     const invalid: string[] = [];
     const seen = new Set<string>();
-    let skipped = 0;
 
     rawItems.forEach((item, idx) => {
       const res = nameImportItemSchema.safeParse(item);
@@ -111,9 +111,12 @@ export function NameBulkImportDialog({
 
       const it = res.data;
       const key = makeKey(it.title, it.title_arabic);
-      if (existingKeys.has(key) || seen.has(key)) {
-        skipped += 1;
-        duplicates.push(it);
+      if (existingKeys.has(key)) {
+        duplicatesExisting.push(it);
+        return;
+      }
+      if (seen.has(key)) {
+        duplicatesInFile.push(it);
         return;
       }
       seen.add(key);
@@ -122,9 +125,11 @@ export function NameBulkImportDialog({
 
     return {
       valid,
-      duplicates,
+      duplicatesExisting,
+      duplicatesInFile,
+      duplicates: [...duplicatesExisting, ...duplicatesInFile],
       invalid,
-      skipped,
+      skipped: duplicatesExisting.length + duplicatesInFile.length,
     };
   }, [rawItems, existingKeys]);
 
@@ -363,7 +368,9 @@ export function NameBulkImportDialog({
               <div className="flex flex-wrap gap-x-4 gap-y-1">
                 <span>Total: {rawItems.length}</span>
                 <span className="text-foreground">Valid: {parsed.valid.length}</span>
-                <span className="text-muted-foreground">Skipped: {parsed.skipped}</span>
+                <span className="text-foreground">Dup existing: {parsed.duplicatesExisting.length}</span>
+                <span className="text-muted-foreground">Dup in file: {parsed.duplicatesInFile.length}</span>
+                <span className="text-muted-foreground">Skipped (dup): {parsed.skipped}</span>
                 <span className="text-destructive">Invalid: {parsed.invalid.length}</span>
               </div>
               {parsed.invalid.length ? (
