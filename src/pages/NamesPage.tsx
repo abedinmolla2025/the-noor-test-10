@@ -9,6 +9,7 @@ import { NamesPageHeader } from "@/pages/names/NamesPageHeader";
 import { NamesPageSearch } from "@/pages/names/NamesPageSearch";
 import { NamesQuickFilters } from "@/pages/names/NamesQuickFilters";
 import { NamesCardsGrid } from "@/pages/names/NamesCardsGrid";
+import { NamesAlphabetFilter } from "@/pages/names/NamesAlphabetFilter";
 
 type NameContentRow = {
   id: string;
@@ -78,6 +79,7 @@ const NamesPage = () => {
   const [activeQuickFilter, setActiveQuickFilter] = useState<ComponentProps<typeof NamesQuickFilters>["active"]>(
     "all"
   );
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [selected, setSelected] = useState<NameCardModel | null>(null);
   const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
 
@@ -96,7 +98,7 @@ const NamesPage = () => {
     queryFn: fetchNames,
   });
 
-  const filtered = useMemo(() => {
+  const filteredBase = useMemo(() => {
     const query = q.trim().toLowerCase();
 
     const list = namesQuery.data ?? [];
@@ -138,6 +140,25 @@ const NamesPage = () => {
       return parts.join(" ").toLowerCase().includes(query);
     });
   }, [q, activeQuickFilter, namesQuery.data]);
+
+  const alphabetCounts = useMemo<Record<string, number>>(() => {
+    const out: Record<string, number> = {};
+    for (const n of filteredBase ?? []) {
+      const t = (n.title ?? "").trim();
+      const first = t ? t[0]!.toUpperCase() : "";
+      if (first >= "A" && first <= "Z") out[first] = (out[first] ?? 0) + 1;
+    }
+    return out;
+  }, [filteredBase]);
+
+  const filtered = useMemo(() => {
+    if (!activeLetter) return filteredBase;
+    return (filteredBase ?? []).filter((n) => {
+      const t = (n.title ?? "").trim();
+      const first = t ? t[0]!.toUpperCase() : "";
+      return first === activeLetter;
+    });
+  }, [activeLetter, filteredBase]);
 
   const cards = useMemo<NameCardModel[]>(() => {
     return (filtered ?? []).map((n) => {
@@ -182,6 +203,9 @@ const NamesPage = () => {
       </header>
 
       <main className="mx-auto w-full max-w-none px-3 py-4 md:px-6 xl:px-10">
+        <div className="mb-3">
+          <NamesAlphabetFilter activeLetter={activeLetter} counts={alphabetCounts} onChange={setActiveLetter} />
+        </div>
         <NamesCardsGrid
           isLoading={namesQuery.isLoading}
           isError={namesQuery.isError}
@@ -189,6 +213,8 @@ const NamesPage = () => {
           stickyHeaderRaised={stickyHeaderRaised}
           cards={cards}
           onSelect={setSelected}
+          emptyStateTitle={activeLetter ? "কোনো নাম পাওয়া যায়নি" : undefined}
+          emptyStateDescription={activeLetter ? "এই অক্ষরে কোনো নাম পাওয়া যায়নি" : undefined}
         />
       </main>
 

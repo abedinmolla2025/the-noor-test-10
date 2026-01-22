@@ -8,6 +8,8 @@ type Props = {
   stickyHeaderRaised: boolean;
   cards: NameCardModel[];
   onSelect: (n: NameCardModel) => void;
+  emptyStateTitle?: string;
+  emptyStateDescription?: string;
 };
 
 export function NamesCardsGrid({
@@ -17,6 +19,8 @@ export function NamesCardsGrid({
   stickyHeaderRaised,
   cards,
   onSelect,
+  emptyStateTitle,
+  emptyStateDescription,
 }: Props) {
   if (isLoading) {
     return (
@@ -52,10 +56,13 @@ export function NamesCardsGrid({
     return (
       <Card className="dua-card">
         <CardHeader>
-          <CardTitle className="text-base text-[hsl(var(--dua-fg))]">কোনো নাম পাওয়া যায়নি</CardTitle>
+          <CardTitle className="text-base text-[hsl(var(--dua-fg))]">
+            {emptyStateTitle ?? "কোনো নাম পাওয়া যায়নি"}
+          </CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-[hsl(var(--dua-fg-muted))]">
-          Admin → Content Management থেকে content type “Name” দিয়ে Published করে যোগ করুন।
+          {emptyStateDescription ??
+            "Admin → Content Management থেকে content type “Name” দিয়ে Published করে যোগ করুন।"}
         </CardContent>
       </Card>
     );
