@@ -30,6 +30,26 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
   }, []);
 
   const safeName = useMemo(() => name, [name]);
+
+  // Share link helpers (no file attachment) — avoids popup/CSP blocks vs window.open.
+  const shareTitle = useMemo(() => {
+    if (!safeName) return "";
+    return safeName.title_arabic?.trim() ? `${safeName.title_arabic} (${safeName.title})` : safeName.title;
+  }, [safeName]);
+
+  const shareTextForLinks = useMemo(() => {
+    if (!safeName) return "";
+    return `${shareTitle}\n${window.location.href}`;
+  }, [safeName, shareTitle]);
+
+  const whatsappShareHref = useMemo(() => {
+    return `https://wa.me/?text=${encodeURIComponent(shareTextForLinks)}`;
+  }, [shareTextForLinks]);
+
+  const facebookShareHref = useMemo(() => {
+    return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+  }, []);
+
   const fileName = useMemo(() => {
     const base = (safeName?.title ?? "name").trim().replace(/\s+/g, "-").toLowerCase();
     return `${base || "name"}-1080.png`;
@@ -127,19 +147,7 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
     }
   };
 
-  const shareWhatsApp = async () => {
-    // Text + link share (no image) so it works even when native share isn't available.
-    if (!safeName) return;
-    const text = `${safeName.title_arabic?.trim() ? `${safeName.title_arabic} (${safeName.title})` : safeName.title}\n${window.location.href}`;
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
-  const shareFacebook = async () => {
-    // Facebook web share supports URL sharing (not local files).
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
+  // (WhatsApp/Facebook link sharing is rendered as <a> buttons below.)
 
   const shareInstagram = async () => {
     if (navigator.share) return await shareNative();
@@ -232,22 +240,24 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                 {previewDataUrl ? (
                   <div className="mt-4 grid grid-cols-2 gap-2">
                   <Button
-                    onClick={() => void shareFacebook()}
+                    asChild
                     variant="outline"
                     className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
-                    disabled={isRendering}
                   >
-                    <Facebook className="mr-2 h-4 w-4" />
-                    Facebook Link
+                    <a href={facebookShareHref} target="_blank" rel="noopener noreferrer">
+                      <Facebook className="mr-2 h-4 w-4" />
+                      Facebook Link
+                    </a>
                   </Button>
                   <Button
-                    onClick={() => void shareWhatsApp()}
+                    asChild
                     variant="outline"
                     className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
-                    disabled={isRendering}
                   >
-                    <Share2 className="mr-2 h-4 w-4" />
-                    WhatsApp Link
+                    <a href={whatsappShareHref} target="_blank" rel="noopener noreferrer">
+                      <Share2 className="mr-2 h-4 w-4" />
+                      WhatsApp Link
+                    </a>
                   </Button>
                   <Button
                     onClick={() => void shareInstagram()}
