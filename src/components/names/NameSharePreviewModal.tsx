@@ -1,0 +1,205 @@
+import { useMemo, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Download, Share2, X, Facebook, Instagram } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { useDomToPng } from "@/hooks/useDomToPng";
+import type { NameCardModel } from "./NameCard";
+import { NameShareSquare } from "./NameShareSquare";
+
+type Props = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  name: NameCardModel | null;
+};
+
+const easePremium: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
+  const squareRef = useRef<HTMLDivElement>(null);
+
+  const safeName = useMemo(() => name, [name]);
+  const fileName = useMemo(() => {
+    const base = (safeName?.title ?? "name").trim().replace(/\s+/g, "-").toLowerCase();
+    return `${base || "name"}-1080.png`;
+  }, [safeName?.title]);
+
+  const { isRendering, render, download } = useDomToPng(squareRef, {
+    fileName,
+    width: 1080,
+    height: 1080,
+    pixelRatio: 2,
+  });
+
+  const shareNative = async () => {
+    if (!safeName) return;
+
+    try {
+      const { file } = await render();
+      const title = safeName.title_arabic?.trim()
+        ? `${safeName.title_arabic} (${safeName.title})`
+        : safeName.title;
+
+      const shareData: ShareData = {
+        title,
+        text: "Islamic Name Meaning",
+        files: [file],
+      };
+
+      // Some browsers expose navigator.canShare
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const canShare = (navigator as any).canShare ? (navigator as any).canShare(shareData) : true;
+      if (!navigator.share || !canShare) {
+        await download();
+        toast.success("PNG downloaded", { description: "Now share it from your gallery." });
+        return;
+      }
+
+      await navigator.share(shareData);
+    } catch (e) {
+      // user cancelled or browser failed
+      console.warn(e);
+    }
+  };
+
+  const shareWhatsApp = async () => {
+    // WhatsApp Web cannot reliably accept an image file from URL; best UX is native share.
+    if (navigator.share) return await shareNative();
+    await download();
+    toast.success("Downloaded", { description: "Open WhatsApp and share the image." });
+  };
+
+  const shareFacebook = async () => {
+    // FB sharing needs a public URL; we only have client-side PNG. Fallback to native share/download.
+    if (navigator.share) return await shareNative();
+    await download();
+    toast.success("Downloaded", { description: "Upload the PNG in Facebook." });
+  };
+
+  const shareInstagram = async () => {
+    if (navigator.share) return await shareNative();
+    await download();
+    toast.success("Downloaded", { description: "Upload the PNG in Instagram." });
+  };
+
+  if (!open || !safeName) return null;
+
+  return (
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          className="fixed inset-0 z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div
+            className="absolute inset-0 bg-[hsl(var(--dua-bg)/0.72)] backdrop-blur-md"
+            onClick={() => onOpenChange(false)}
+          />
+
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg"
+            initial={{ y: 24, opacity: 0, scale: 0.98 }}
+            animate={{ y: 0, opacity: 1, scale: 1, transition: { duration: 0.42, ease: easePremium } }}
+            exit={{ y: 24, opacity: 0, scale: 0.98, transition: { duration: 0.28, ease: easePremium } }}
+          >
+            <div className="dua-card m-3 overflow-hidden rounded-3xl border border-[hsl(var(--dua-border))] shadow-card">
+              <div className="flex items-center justify-between gap-3 border-b border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-header)/0.62)] px-4 py-3 backdrop-blur-lg">
+                <div className="min-w-0">
+                  <p className="truncate text-xs text-[hsl(var(--dua-fg-soft))]">Share Preview</p>
+                  <p className="truncate font-medium text-[hsl(var(--dua-fg))]">
+                    {safeName.title_arabic?.trim() || safeName.title}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onOpenChange(false)}
+                  className="dua-icon-btn"
+                  aria-label="Close"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              <div className="p-4">
+                <div className="flex justify-center">
+                  <div className="w-full max-w-[360px] overflow-hidden rounded-3xl border border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-bg))]">
+                    {/* Preview wrapper scales down; the 1080 node remains unscaled for crisp export */}
+                    <div
+                      className="origin-top-left"
+                      style={{
+                        transform: "scale(0.32)",
+                        width: 1080,
+                        height: 1080,
+                      }}
+                    >
+                      <NameShareSquare ref={squareRef} name={safeName} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Button
+                    onClick={() => void shareFacebook()}
+                    variant="outline"
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                    disabled={isRendering}
+                  >
+                    <Facebook className="mr-2 h-4 w-4" />
+                    Facebook
+                  </Button>
+                  <Button
+                    onClick={() => void shareWhatsApp()}
+                    variant="outline"
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                    disabled={isRendering}
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    WhatsApp
+                  </Button>
+                  <Button
+                    onClick={() => void shareInstagram()}
+                    variant="outline"
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                    disabled={isRendering}
+                  >
+                    <Instagram className="mr-2 h-4 w-4" />
+                    Instagram
+                  </Button>
+                  <Button
+                    onClick={() => void download()}
+                    variant="outline"
+                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                    disabled={isRendering}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                </div>
+
+                <div className="mt-3">
+                  <Button
+                    onClick={() => void shareNative()}
+                    className="w-full bg-[linear-gradient(to_right,hsl(var(--dua-accent)),hsl(var(--dua-accent-strong)))] text-[hsl(var(--dua-accent-fg))] hover:opacity-95"
+                    disabled={isRendering}
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    {navigator.share ? "Share (Native)" : "Generate PNG"}
+                  </Button>
+                  <p className="mt-2 text-center text-[11px] text-[hsl(var(--dua-fg-soft))]">
+                    Best quality: use Native Share on mobile.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
