@@ -16,10 +16,43 @@ type Props = {
 
 const easePremium: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
+type NativeShareSupport = "image" | "text" | "none";
+
+function createTinyPngFile(): File {
+  // 1x1 transparent PNG
+  const base64 =
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO2g2pUAAAAASUVORK5CYII=";
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  const blob = new Blob([bytes], { type: "image/png" });
+  return new File([blob], "share.png", { type: "image/png" });
+}
+
+function getNativeShareSupport(): NativeShareSupport {
+  if (typeof navigator === "undefined" || !navigator.share) return "none";
+
+  // If canShare exists, use it to be precise (esp. for file sharing support)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const canShareFn: ((data: ShareData) => boolean) | undefined = (navigator as any).canShare;
+
+  if (!canShareFn) return "text";
+
+  try {
+    const imageOk = canShareFn({ files: [createTinyPngFile()] });
+    if (imageOk) return "image";
+
+    const textOk = canShareFn({ title: "Test", text: "Test", url: window.location.href });
+    return textOk ? "text" : "none";
+  } catch {
+    // Some browsers throw on unsupported shapes
+    return "text";
+  }
+}
+
 export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
   const squareRef = useRef<HTMLDivElement>(null);
   const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState(false);
+  const [nativeShareSupport, setNativeShareSupport] = useState<NativeShareSupport>("none");
 
   const isInIframe = useMemo(() => {
     try {
@@ -62,6 +95,14 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
     pixelRatio: 2,
   });
 
+  // Detect native share capabilities at runtime (mobile-first).
+  useEffect(() => {
+    if (!open) return;
+    const support = getNativeShareSupport();
+    setNativeShareSupport(support);
+    console.info(`[share] native share support: ${support}`);
+  }, [open]);
+
   // Generate a visible preview inside the modal.
   // We keep the 1080x1080 DOM node (unscaled) as the source of truth for export quality.
   useEffect(() => {
@@ -97,6 +138,23 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
         ? `${safeName.title_arabic} (${safeName.title})`
         : safeName.title;
 
+      // If the browser can only share text, do a text share instead of attempting files.
+      if (nativeShareSupport === "text" && navigator.share) {
+        await navigator.share({ title, text: "Islamic Name Meaning", url: window.location.href });
+        return;
+      }
+
+      // If native share isn't supported at all, fallback to download.
+      if (nativeShareSupport === "none" || !navigator.share) {
+        await download();
+        toast.success("PNG downloaded", {
+          description: isInIframe
+            ? "Direct share may be blocked in preview. Open the app in a new tab on mobile for Native Share."
+            : "Direct share isn't supported in this browser. Share it from your gallery.",
+        });
+        return;
+      }
+
       // 1) Try best-quality file first.
       const best = await render();
       const bestShare: ShareData = {
@@ -108,17 +166,6 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
       // Some browsers expose navigator.canShare
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const canShareBest = (navigator as any).canShare ? (navigator as any).canShare(bestShare) : true;
-
-      // If share is unavailable (common in desktop browsers + preview iframes), fallback to download.
-      if (!navigator.share) {
-        await download();
-        toast.success("PNG downloaded", {
-          description: isInIframe
-            ? "Direct share may be blocked in preview. Open the app in a new tab on mobile for Native Share."
-            : "Direct share isn't supported in this browser. Share it from your gallery.",
-        });
-        return;
-      }
 
       // If canShare fails (often file too large / unsupported), try a lighter file.
       if (!canShareBest) {
@@ -288,9 +335,13 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                       disabled={isRendering}
                     >
                       <Share2 className="mr-2 h-4 w-4" />
-                      {navigator.share ? "Share (Native)" : "Generate PNG"}
+                      {nativeShareSupport === "image"
+                        ? "Share (Native Image)"
+                        : nativeShareSupport === "text"
+                          ? "Share (Native Text)"
+                          : "Download PNG"}
                     </Button>
-                    {!navigator.share ? (
+                    {nativeShareSupport === "none" ? (
                       <Button
                         type="button"
                         variant="outline"
@@ -301,7 +352,11 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                       </Button>
                     ) : null}
                     <p className="mt-2 text-center text-[11px] text-[hsl(var(--dua-fg-soft))]">
-                      Best quality: use Native Share on mobile.
+                      {nativeShareSupport === "image"
+                        ? "Native Share supported (image)."
+                        : nativeShareSupport === "text"
+                          ? "Native Share supported (text only)."
+                          : "Native Share not supported."}
                     </p>
                   </div>
                 ) : null}
