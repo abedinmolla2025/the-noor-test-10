@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
+import { exportAllNamesFromDbToJson } from "@/lib/exportNamesJson";
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,7 @@ export function NameBulkImportDialog({
   const [jsonInput, setJsonInput] = useState("");
   const [isParsing, setIsParsing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isExportingAll, setIsExportingAll] = useState(false);
   const [rawItems, setRawItems] = useState<unknown[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -152,6 +154,20 @@ export function NameBulkImportDialog({
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+  };
+
+  const handleExportAllFromDb = async () => {
+    try {
+      setIsExportingAll(true);
+      const filename = `names-all-${new Date().toISOString().slice(0, 10)}.json`;
+      const res = await exportAllNamesFromDbToJson({ filename });
+      toast({ title: "Exported", description: `${res.total} নাম ডাউনলোড হয়েছে` });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Export failed";
+      toast({ title: "Export failed", description: msg, variant: "destructive" });
+    } finally {
+      setIsExportingAll(false);
+    }
   };
 
   const handlePickFile = () => {
@@ -304,6 +320,16 @@ export function NameBulkImportDialog({
                 <Button type="button" variant="outline" size="sm" onClick={handlePickFile}>
                   <Upload className="h-4 w-4 mr-2" />
                   Import JSON file
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportAllFromDb}
+                  disabled={isExportingAll || isParsing || isImporting}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {isExportingAll ? "Exporting…" : "Export All (DB)"}
                 </Button>
                 <Button type="button" variant="outline" size="sm" onClick={handleExportJson}>
                   <Download className="h-4 w-4 mr-2" />
