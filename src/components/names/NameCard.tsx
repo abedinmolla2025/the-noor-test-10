@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { UserRound } from "lucide-react";
 
 export type NameCardModel = {
   id: string;
@@ -9,6 +10,7 @@ export type NameCardModel = {
   meaning_bn?: string | null;
   meaning_en?: string | null;
   meaning_ar?: string | null;
+  gender?: string | null;
   category?: string | null;
   origin?: string;
   source?: string;
@@ -21,12 +23,14 @@ type Props = {
 };
 
 export function NameCard({ name, onClick, className }: Props) {
+  const genderLabel = (name.gender ?? "").trim();
+
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "dua-card relative w-full overflow-hidden text-left p-4 will-change-transform transition-all duration-300 ease-out",
+        "dua-card relative w-full overflow-hidden text-left p-5 will-change-transform transition-all duration-300 ease-out",
         "border-[hsl(var(--dua-accent)/0.26)]",
         "hover:-translate-y-0.5 hover:shadow-card",
         "active:translate-y-0 active:scale-[0.99]",
@@ -37,63 +41,53 @@ export function NameCard({ name, onClick, className }: Props) {
       {/* Two-layer background: base gradient (dua-card) + subtle geometric overlay */}
       <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.06]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.10),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
+      {/* soft vignette like reference */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,transparent_35%,hsl(var(--dua-bg))_92%)]" />
       {/* Premium gold frame like reference */}
       <div className="pointer-events-none absolute inset-2 rounded-[calc(var(--radius)_+_0.5rem)] border border-[hsl(var(--dua-accent)/0.22)]" />
       <div className="pointer-events-none absolute inset-3 rounded-[calc(var(--radius)_+_0.45rem)] border border-[hsl(var(--dua-fg)/0.08)]" />
 
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="font-arabic text-2xl font-bold leading-[1.7] text-[hsl(var(--dua-fg))]">
-              {name.title_arabic?.trim() || name.title}
-            </p>
-            <p className="mt-1 text-sm font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
-              {name.title}
-              {name.bn_name?.trim() ? (
-                <span className="ml-2 font-bangla font-semibold text-[hsl(var(--dua-fg-muted))]">
-                  • {name.bn_name}
-                </span>
-              ) : null}
-            </p>
-          </div>
+      <div className="relative flex gap-4">
+        {/* Arabic (left) */}
+        <div className="shrink-0">
+          <p className="font-arabic text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]">
+            {name.title_arabic?.trim() || name.title}
+          </p>
         </div>
 
-        {name.meaning_bn?.trim() ? (
-          <div className="rounded-2xl border border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-surface))] p-3">
-            <p className="text-[11px] font-medium text-[hsl(var(--dua-fg-soft))]">অর্থ (বাংলা)</p>
-            <p className="mt-1 font-bangla text-[15px] font-semibold leading-relaxed text-[hsl(var(--dua-fg))]">
+        {/* Details (right) */}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
+            {name.title}
+            {name.bn_name?.trim() ? (
+              <span className="ml-2 font-bangla text-[hsl(var(--dua-fg-muted))]">({name.bn_name})</span>
+            ) : null}
+          </p>
+
+          {name.meaning_bn?.trim() ? (
+            <p className="mt-2 truncate font-bangla text-sm font-semibold text-[hsl(var(--dua-fg))]">
+              <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">অর্থ (BN):</span>
               {name.meaning_bn}
             </p>
-            {name.meaning_en?.trim() ? (
-              <p className="mt-2 text-sm text-[hsl(var(--dua-fg-muted))]">{name.meaning_en}</p>
-            ) : null}
-          </div>
-        ) : null}
+          ) : null}
 
-        <div className="flex flex-wrap items-center gap-2">
-          {name.category?.trim() ? (
-            <Badge
-              variant="secondary"
-              className="bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]"
-            >
-              {name.category}
-            </Badge>
+          {name.meaning_en?.trim() ? (
+            <p className="mt-1 truncate text-sm text-[hsl(var(--dua-fg-muted))]">
+              <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">Meaning:</span>
+              {name.meaning_en}
+            </p>
           ) : null}
-          {name.origin?.trim() ? (
-            <Badge
-              variant="outline"
-              className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg-muted))]"
-            >
-              {name.origin}
-            </Badge>
-          ) : null}
-          {name.source?.trim() ? (
-            <Badge
-              variant="outline"
-              className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg-muted))]"
-            >
-              {name.source}
-            </Badge>
+
+          {genderLabel ? (
+            <div className="mt-4 flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className="gap-2 rounded-full bg-[hsl(var(--dua-accent)/0.20)] px-3 py-1 text-[hsl(var(--dua-accent))]"
+              >
+                <UserRound className="h-4 w-4" />
+                {genderLabel}
+              </Badge>
+            </div>
           ) : null}
         </div>
       </div>
