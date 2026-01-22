@@ -29,31 +29,33 @@ export const NameShareSquare = forwardRef<HTMLDivElement, Props>(function NameSh
       className={cn(
         "relative isolate overflow-hidden rounded-[48px]",
         "h-[1080px] w-[1080px]",
-        "border border-[hsl(var(--dua-accent)/0.55)]",
+        "border border-[hsl(var(--dua-accent)/0.26)]",
         className
       )}
       style={{
-        background: "hsl(var(--dua-bg))",
+        background: "linear-gradient(135deg, hsl(var(--dua-card-from)), hsl(var(--dua-card-to)))",
       }}
     >
-      {/* subtle pattern + vignette */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-100"
-        style={{
-          background:
-            "radial-gradient(900px circle at 20% 12%, hsl(var(--dua-accent) / 0.10), transparent 55%), radial-gradient(700px circle at 90% 22%, hsl(var(--dua-fg) / 0.08), transparent 55%), radial-gradient(900px circle at 50% 110%, hsl(var(--dua-accent) / 0.08), transparent 55%), repeating-linear-gradient(45deg, hsl(var(--dua-fg) / 0.04) 0 2px, transparent 2px 18px)",
-        }}
-      />
+      {/* Two-layer background: base gradient + subtle geometric overlay (matches cards) */}
+      <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.06]" />
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(900px circle at 50% 40%, transparent 35%, hsl(var(--dua-bg)) 78%)",
+            "radial-gradient(720px circle at 22% 18%, hsl(var(--dua-accent) / 0.10), transparent 58%), radial-gradient(820px circle at 86% 30%, hsl(var(--dua-fg) / 0.05), transparent 62%), radial-gradient(980px circle at 50% 110%, hsl(var(--dua-accent) / 0.08), transparent 58%)",
+        }}
+      />
+      {/* Vignette for legibility */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(900px circle at 50% 38%, transparent 34%, hsl(var(--dua-bg)) 78%)",
         }}
       />
 
-      {/* gold accent frame */}
-      <div className="pointer-events-none absolute inset-8 rounded-[44px] border border-[hsl(var(--dua-accent)/0.28)]" />
+      {/* Premium gold frame (like cards) */}
+      <div className="pointer-events-none absolute inset-8 rounded-[44px] border border-[hsl(var(--dua-accent)/0.22)]" />
       <div className="pointer-events-none absolute inset-10 rounded-[42px] border border-[hsl(var(--dua-fg)/0.08)]" />
 
       <div className="relative flex h-full flex-col px-20 pb-20 pt-24">
