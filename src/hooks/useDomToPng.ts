@@ -16,7 +16,7 @@ const dataUrlToBlob = async (dataUrl: string) => {
 export function useDomToPng(ref: React.RefObject<HTMLElement>, opts?: UseDomToPngOptions) {
   const [isRendering, setIsRendering] = useState(false);
 
-  const render = useCallback(async () => {
+  const render = useCallback(async (overrides?: UseDomToPngOptions) => {
     const node = ref.current;
     if (!node) throw new Error("missing_node");
 
@@ -24,16 +24,16 @@ export function useDomToPng(ref: React.RefObject<HTMLElement>, opts?: UseDomToPn
     try {
       const dataUrl = await toPng(node, {
         cacheBust: true,
-        pixelRatio: opts?.pixelRatio ?? 2,
-        width: opts?.width,
-        height: opts?.height,
+        pixelRatio: overrides?.pixelRatio ?? opts?.pixelRatio ?? 2,
+        width: overrides?.width ?? opts?.width,
+        height: overrides?.height ?? opts?.height,
         style: {
           transform: "none",
         },
       });
 
       const blob = await dataUrlToBlob(dataUrl);
-      const fileName = opts?.fileName ?? "name.png";
+      const fileName = overrides?.fileName ?? opts?.fileName ?? "name.png";
       const file = new File([blob], fileName, { type: "image/png" });
 
       return { dataUrl, blob, file, fileName };
