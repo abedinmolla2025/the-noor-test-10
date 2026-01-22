@@ -57,9 +57,25 @@ export function NameCard({ name, onClick, className }: Props) {
       <div className="pointer-events-none absolute inset-2 rounded-[calc(var(--radius)_+_0.5rem)] border border-[hsl(var(--dua-accent)/0.22)]" />
       <div className="pointer-events-none absolute inset-3 rounded-[calc(var(--radius)_+_0.45rem)] border border-[hsl(var(--dua-fg)/0.08)]" />
 
-      <div className="relative flex gap-4">
-        {/* Details (left) */}
-        <div className="min-w-0 flex-1">
+      <div className="relative">
+        {/* Arabic overlay (right) - does NOT participate in layout height */}
+        <div
+          className="pointer-events-none absolute inset-y-0 right-4 flex items-center justify-center w-[7.75rem] sm:w-[9.5rem]"
+          aria-hidden="true"
+        >
+          <p
+            className={cn(
+              "font-arabic text-5xl sm:text-6xl font-bold leading-[1.05] text-[hsl(var(--dua-accent))]",
+              "text-center whitespace-nowrap",
+              "drop-shadow-[0_10px_24px_hsl(var(--dua-accent)/0.18)]"
+            )}
+          >
+            {arabicText}
+          </p>
+        </div>
+
+        {/* Details (normal flow) */}
+        <div className="min-w-0 pr-[8.25rem] sm:pr-[10.25rem]">
           <p className="truncate text-2xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
             {name.title}
             {name.bn_name?.trim() ? (
@@ -92,18 +108,6 @@ export function NameCard({ name, onClick, className }: Props) {
               </Badge>
             </div>
           ) : null}
-        </div>
-
-        {/* Arabic (right) */}
-        <div className="shrink-0 w-[7.5rem] sm:w-[9rem] flex items-center justify-center">
-          <p
-            className={cn(
-              "font-arabic text-4xl sm:text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]",
-              "text-center whitespace-nowrap"
-            )}
-          >
-            {arabicText}
-          </p>
         </div>
       </div>
     </button>
