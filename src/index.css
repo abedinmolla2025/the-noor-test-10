@@ -140,6 +140,20 @@
 }
 
 @layer components {
+  /* Subtle Islamic geometric overlay (use with opacity 5–8%) */
+  .noor-islamic-pattern {
+    background-image:
+      radial-gradient(circle at 18px 18px, hsl(var(--dua-fg) / 0.22) 0 1px, transparent 1px 32px),
+      radial-gradient(circle at 50px 50px, hsl(var(--dua-fg) / 0.16) 0 1px, transparent 1px 32px),
+      repeating-conic-gradient(
+        from 45deg,
+        hsl(var(--dua-fg) / 0.18) 0 8deg,
+        transparent 8deg 16deg
+      );
+    background-size: 64px 64px, 64px 64px, 64px 64px;
+    background-position: 0 0, 32px 32px, 0 0;
+  }
+
   .islamic-card {
     @apply bg-islamic-gradient rounded-2xl p-6 text-primary-foreground shadow-card relative overflow-hidden;
   }
