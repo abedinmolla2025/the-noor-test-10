@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { UserRound } from "lucide-react";
+import { Share2, UserRound } from "lucide-react";
 
 export type NameCardModel = {
   id: string;
@@ -35,12 +35,17 @@ export function NameCard({ name, onClick, className }: Props) {
   // the Arabic column width (Arabic glyphs vary a lot in natural width).
   const arabicText = name.title_arabic?.trim() || name.title;
 
+  const origin = name.origin?.trim();
+  const source = name.source?.trim();
+  const hasMetaChips = Boolean(genderLabel || origin || source);
+
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "dua-card relative w-full overflow-hidden text-left p-5 will-change-transform transition-all duration-300 ease-out",
+        // Keep cards compact and list-friendly
+        "dua-card relative w-full overflow-hidden text-left p-4 will-change-transform transition-all duration-300 ease-out",
         "border-[hsl(var(--dua-accent)/0.26)]",
         "hover:-translate-y-0.5 hover:shadow-card",
         "active:translate-y-0 active:scale-[0.99]",
@@ -57,49 +62,103 @@ export function NameCard({ name, onClick, className }: Props) {
       <div className="pointer-events-none absolute inset-2 rounded-[calc(var(--radius)_+_0.5rem)] border border-[hsl(var(--dua-accent)/0.22)]" />
       <div className="pointer-events-none absolute inset-3 rounded-[calc(var(--radius)_+_0.45rem)] border border-[hsl(var(--dua-fg)/0.08)]" />
 
-      <div className="relative flex gap-4">
+      <div className="relative flex gap-3">
         {/* Details (left) */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-2xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
+          <p className="truncate text-xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
             {name.title}
             {name.bn_name?.trim() ? (
-              <span className="ml-2 font-bangla text-xl text-[hsl(var(--dua-fg-muted))]">{name.bn_name}</span>
+              <span className="ml-2 font-bangla text-base text-[hsl(var(--dua-fg-muted))]">{name.bn_name}</span>
             ) : null}
           </p>
 
           {name.meaning_bn?.trim() ? (
-            <p className="mt-2 font-bangla text-lg font-semibold leading-7 text-[hsl(var(--dua-fg))] whitespace-normal break-words">
-              <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">অর্থ (BN):</span>
+            <p
+              className={cn(
+                // Primary meaning (BN) but height-constrained for list view
+                "mt-1 font-bangla text-base font-semibold leading-6 text-[hsl(var(--dua-fg))]",
+                "whitespace-normal break-words",
+                "[display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] overflow-hidden"
+              )}
+            >
+              <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">অর্থ:</span>
               {name.meaning_bn}
             </p>
           ) : null}
 
           {name.meaning_en?.trim() ? (
-            <p className="mt-1 text-base leading-relaxed text-[hsl(var(--dua-fg-muted))] whitespace-normal break-words">
-              <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">Meaning:</span>
-              {name.meaning_en}
+            <p className="mt-1 text-sm leading-snug text-[hsl(var(--dua-fg-muted))]">
+              <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">EN:</span>
+              <span className="block truncate">{name.meaning_en}</span>
             </p>
           ) : null}
 
-          {genderLabel ? (
-            <div className="mt-4 flex items-center gap-2">
-              <Badge
-                variant="secondary"
-                className="gap-2 rounded-full bg-[hsl(var(--dua-accent)/0.20)] px-3 py-1 text-[hsl(var(--dua-accent))]"
-              >
-                <UserRound className="h-4 w-4" />
-                {genderLabel}
-              </Badge>
+          {/* Meta + Share icon: single compact row */}
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <div
+              className={cn(
+                "flex min-w-0 items-center gap-2",
+                // allow many chips without adding height
+                "overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              )}
+            >
+              {genderLabel ? (
+                <Badge
+                  variant="secondary"
+                  className="shrink-0 gap-2 rounded-full bg-[hsl(var(--dua-accent)/0.20)] px-2.5 py-0.5 text-[hsl(var(--dua-accent))]"
+                >
+                  <UserRound className="h-4 w-4" />
+                  {genderLabel}
+                </Badge>
+              ) : null}
+
+              {origin ? (
+                <Badge
+                  variant="secondary"
+                  className="shrink-0 rounded-full bg-[hsl(var(--dua-fg)/0.08)] px-2.5 py-0.5 text-[hsl(var(--dua-fg-muted))]"
+                >
+                  {origin}
+                </Badge>
+              ) : null}
+
+              {source ? (
+                <Badge
+                  variant="secondary"
+                  className="shrink-0 rounded-full bg-[hsl(var(--dua-fg)/0.08)] px-2.5 py-0.5 text-[hsl(var(--dua-fg-muted))]"
+                >
+                  {source}
+                </Badge>
+              ) : null}
+
+              {!hasMetaChips ? (
+                <span className="text-xs text-[hsl(var(--dua-fg-muted))]">&nbsp;</span>
+              ) : null}
             </div>
-          ) : null}
+
+            <span
+              className={cn(
+                "shrink-0 inline-flex items-center gap-1.5 rounded-full border",
+                "border-[hsl(var(--dua-border))] bg-[hsl(var(--dua-header)/0.55)]",
+                "px-2.5 py-1 text-xs font-medium text-[hsl(var(--dua-fg))]"
+              )}
+              aria-hidden="true"
+              title="Share"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              Share
+            </span>
+          </div>
         </div>
 
         {/* Arabic (right) */}
-        <div className="shrink-0 w-[7.5rem] sm:w-[9rem] flex items-center justify-center">
+        <div className="shrink-0 w-[6.75rem] sm:w-[8rem] flex items-center justify-center">
           <p
             className={cn(
-              "font-arabic text-4xl sm:text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]",
-              "text-center whitespace-nowrap"
+              // Prominent but height-constrained: never increases card height
+              "font-arabic text-3xl sm:text-4xl font-bold leading-none text-[hsl(var(--dua-accent))]",
+              "text-center whitespace-nowrap",
+              // keep it visually tight even with tall glyphs
+              "[line-height:1]"
             )}
           >
             {arabicText}
