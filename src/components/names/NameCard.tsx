@@ -97,7 +97,7 @@ export function NameCard({ name, onClick, className }: Props) {
           <div className="mt-2 flex items-center justify-between gap-3">
             <div
               className={cn(
-                "flex min-w-0 flex-1 items-center gap-2",
+                "flex min-w-0 items-center gap-2",
                 // allow many chips without adding height
                 "overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               )}
