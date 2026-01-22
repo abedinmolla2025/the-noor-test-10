@@ -1,23 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Copy, Search, Share2 } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, Search } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import NameTableRow from "@/components/names/NameTableRow";
+import { NameCard, type NameCardModel } from "@/components/names/NameCard";
+import { NameSharePreviewModal } from "@/components/names/NameSharePreviewModal";
 
 type NameContentRow = {
   id: string;
@@ -69,42 +60,6 @@ const normalizeGender = (raw?: string) => {
   return g; // fallback (custom values)
 };
 
-const buildShareText = (n: NameContentRow) => {
-  const meta = safeParseMeta(n.metadata);
-  const arabicName = n.title_arabic?.trim() || "";
-  const englishName = n.title?.trim() || "";
-  const banglaName = meta.bn_name?.trim() || "";
-  const pronunciation = meta.pronunciation?.trim() || "";
-  const gender = meta.gender?.trim() || "";
-  const meaningBn = n.content?.trim() || "";
-  const meaningEn = n.content_en?.trim() || "";
-
-  const lines: string[] = [];
-  if (arabicName || englishName) lines.push([arabicName, englishName].filter(Boolean).join(" — "));
-  if (banglaName) lines.push(`নাম (বাংলা): ${banglaName}`);
-  if (pronunciation) lines.push(`উচ্চারণ: ${pronunciation}`);
-  if (gender) lines.push(`Gender: ${gender}`);
-  if (meaningBn) lines.push(`অর্থ (বাংলা): ${meaningBn}`);
-  if (meaningEn) lines.push(`Meaning (English): ${meaningEn}`);
-  if (n.category?.trim()) lines.push(`Category: ${n.category.trim()}`);
-  if (meta.source?.trim()) lines.push(`Source: ${meta.source.trim()}`);
-
-  return lines.join("\n").trim();
-};
-
-const copyToClipboard = async (text: string, label = "Copied") => {
-  try {
-    if (!text.trim()) {
-      toast.error("কপি করার মতো টেক্সট নেই");
-      return;
-    }
-    await navigator.clipboard.writeText(text);
-    toast.success(label);
-  } catch {
-    toast.error("Copy failed", { description: "আপনার ব্রাউজার clipboard access ব্লক করেছে।" });
-  }
-};
-
 const fetchNames = async (): Promise<NameContentRow[]> => {
   const { data, error } = await supabase
     .from("admin_content")
@@ -118,20 +73,12 @@ const fetchNames = async (): Promise<NameContentRow[]> => {
   return (data ?? []) as unknown as NameContentRow[];
 };
 
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
-const getIndexKey = (n: NameContentRow) => {
-  const raw = (n.title ?? "").trim();
-  const first = raw.charAt(0).toUpperCase();
-  return /^[A-Z]$/.test(first) ? first : "#";
-};
-
 const NamesPage = () => {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [activeGender, setActiveGender] = useState<string>("all");
-  const [selected, setSelected] = useState<NameContentRow | null>(null);
+  const [selected, setSelected] = useState<NameCardModel | null>(null);
   const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
 
   useEffect(() => {
@@ -219,61 +166,23 @@ const NamesPage = () => {
     });
   }, [q, activeGender, categoryFiltered]);
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, NameContentRow[]>();
-    for (const n of filtered) {
-      const k = getIndexKey(n);
-      const arr = map.get(k) ?? [];
-      arr.push(n);
-      map.set(k, arr);
-    }
-
-    const keys = [
-      ...ALPHABET.filter((l) => map.has(l)),
-      ...(map.has("#") ? ["#"] : []),
-    ];
-
-    return {
-      keys,
-      map,
-      available: new Set(keys),
-    };
+  const cards = useMemo<NameCardModel[]>(() => {
+    return (filtered ?? []).map((n) => {
+      const meta = safeParseMeta(n.metadata);
+      return {
+        id: n.id,
+        title: (n.title ?? "").trim(),
+        title_arabic: n.title_arabic,
+        bn_name: meta.bn_name,
+        meaning_bn: n.content,
+        meaning_en: n.content_en,
+        meaning_ar: n.content_arabic,
+        category: meta.gender?.trim() || n.category,
+        origin: meta.origin,
+        source: meta.source,
+      };
+    });
   }, [filtered]);
-
-  // Keep the UI clean on small datasets; show A–Z navigation when the list is large enough.
-  const showAz = useMemo(() => {
-    if (namesQuery.isLoading || namesQuery.isError) return false;
-    return filtered.length >= 30;
-  }, [filtered.length, namesQuery.isError, namesQuery.isLoading]);
-
-  const scrollToKey = (key: string) => {
-    const id = `names-section-${key}`;
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const selectedMeta = useMemo(() => safeParseMeta(selected?.metadata), [selected?.metadata]);
-
-  const onShare = async (n: NameContentRow) => {
-    const text = buildShareText(n);
-    const url = window.location.href;
-
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: n.title_arabic?.trim() ? `${n.title_arabic} (${n.title})` : n.title,
-          text,
-          url,
-        });
-        return;
-      }
-
-      // Fallback
-      await copyToClipboard(`${text}\n\n${url}`, "Copied share text");
-    } catch {
-      // user cancelled share or share failed
-    }
-  };
 
   return (
     <div className="min-h-screen dua-page pb-20">
@@ -423,336 +332,29 @@ const NamesPage = () => {
         )}
 
         {!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0 && (
-          <div className="flex items-start gap-3">
-            <div className="min-w-0 flex-1">
-              {/* Sticky header row for 4-column layout */}
-              <div
-                className={`sticky top-[92px] z-20 mb-3 hidden rounded-2xl border border-[hsl(var(--dua-border))] px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out md:block ${
-                  stickyHeaderRaised
-                    ? "bg-[hsl(var(--dua-header)/0.74)] shadow-card"
-                    : "bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
-                }`}
-              >
-                <div className="grid grid-cols-[1fr_1fr_1fr_1.15fr] items-center gap-1.5 md:grid-cols-[1.1fr_1fr_1fr_1.4fr] md:gap-3">
-                  <div className="text-xs font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">আরবি</div>
-                  <div className="text-xs font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">English</div>
-                  <div className="text-xs font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">বাংলা</div>
-                  <div className="text-xs font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">অর্থ</div>
-                </div>
-              </div>
-
-              {/* Mobile sticky header (labels are hidden inside rows on mobile) */}
-              <div
-                className={`sticky top-[92px] z-20 mb-3 rounded-2xl border border-[hsl(var(--dua-border))] px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out md:hidden ${
-                  stickyHeaderRaised
-                    ? "bg-[hsl(var(--dua-header)/0.74)] shadow-card"
-                    : "bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
-                }`}
-              >
-                <div className="grid grid-cols-[1fr_1fr_1fr_1.15fr] items-center gap-1.5">
-                  <div className="text-[11px] font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">আরবি</div>
-                  <div className="text-[11px] font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">EN</div>
-                  <div className="text-[11px] font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">বাংলা</div>
-                  <div className="text-[11px] font-semibold tracking-wide text-[hsl(var(--dua-fg-soft))]">অর্থ</div>
-                </div>
-              </div>
-
-              {!showAz ? (
-                <div className="space-y-3">
-                  {filtered.map((n) => {
-                    const meta = safeParseMeta(n.metadata);
-                    const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
-                    const secondary = n.title_arabic?.trim() ? n.title : null;
-                    const bnName = meta.bn_name?.trim() || "";
-                    const snippet = (n.content_en ?? n.content ?? "").trim();
-                    const gender = normalizeGender(meta.gender);
-                    const genderLabel =
-                      gender === "male" ? "Male" : gender === "female" ? "Female" : gender === "unisex" ? "Unisex" : "";
-
-                    return (
-                      <NameTableRow
-                        key={n.id}
-                        arabicName={primary ?? ""}
-                        englishName={secondary ?? (n.title ?? "")}
-                        banglaName={bnName}
-                        meaning={snippet}
-                        category={(n.category ?? "").trim() || undefined}
-                        genderLabel={genderLabel || undefined}
-                        onClick={() => setSelected(n)}
-                      />
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {grouped.keys.map((key) => (
-                    <section key={key} id={`names-section-${key}`} className="scroll-mt-28">
-                      <div className="mb-2 flex items-center gap-2">
-                        <div className="text-sm font-semibold text-[hsl(var(--dua-fg))]">{key}</div>
-                        <div className="h-px flex-1 bg-[hsl(var(--dua-fg)/0.14)]" />
-                        <div className="text-xs text-[hsl(var(--dua-fg-muted))]">
-                          {(grouped.map.get(key)?.length ?? 0).toLocaleString()}
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        {(grouped.map.get(key) ?? []).map((n) => {
-                          const meta = safeParseMeta(n.metadata);
-                          const primary = n.title_arabic?.trim() ? n.title_arabic : n.title;
-                          const secondary = n.title_arabic?.trim() ? n.title : null;
-                          const bnName = meta.bn_name?.trim() || "";
-                          const snippet = (n.content_en ?? n.content ?? "").trim();
-                          const gender = normalizeGender(meta.gender);
-                          const genderLabel =
-                            gender === "male"
-                              ? "Male"
-                              : gender === "female"
-                                ? "Female"
-                                : gender === "unisex"
-                                  ? "Unisex"
-                                  : "";
-
-                          return (
-                            <NameTableRow
-                              key={n.id}
-                              arabicName={primary ?? ""}
-                              englishName={secondary ?? (n.title ?? "")}
-                              banglaName={bnName}
-                              meaning={snippet}
-                              category={(n.category ?? "").trim() || undefined}
-                              genderLabel={genderLabel || undefined}
-                              onClick={() => setSelected(n)}
-                            />
-                          );
-                        })}
-                      </div>
-                    </section>
-                  ))}
-                </div>
-              )}
+          <div>
+            <div
+              className={`sticky top-[92px] z-20 mb-4 rounded-2xl border border-[hsl(var(--dua-border))] px-3 py-2 backdrop-blur-md transition-all duration-300 ease-out ${
+                stickyHeaderRaised
+                  ? "bg-[hsl(var(--dua-header)/0.74)] shadow-card"
+                  : "bg-[hsl(var(--dua-header)/0.56)] shadow-soft"
+              }`}
+            >
+              <p className="text-xs font-medium text-[hsl(var(--dua-fg-muted))]">
+                Tap a name to generate a premium 1080×1080 PNG.
+              </p>
             </div>
 
-            {/* Sticky A–Z sidebar (desktop/tablet) */}
-            {showAz ? (
-              <aside className="dua-surface sticky top-[92px] hidden max-h-[calc(100vh-120px)] w-10 flex-col items-center gap-1 overflow-auto p-1 shadow-soft md:flex">
-                {ALPHABET.map((l) => {
-                  const disabled = !grouped.available.has(l);
-                  return (
-                    <Button
-                      key={l}
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-8 px-0 text-xs text-[hsl(var(--dua-fg-muted))] hover:text-[hsl(var(--dua-accent))]"
-                      disabled={disabled}
-                      onClick={() => scrollToKey(l)}
-                      aria-label={`Jump to ${l}`}
-                    >
-                      {l}
-                    </Button>
-                  );
-                })}
-                {grouped.available.has("#") ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 w-8 px-0 text-xs text-[hsl(var(--dua-fg-muted))] hover:text-[hsl(var(--dua-accent))]"
-                    onClick={() => scrollToKey("#")}
-                    aria-label="Jump to #"
-                  >
-                    #
-                  </Button>
-                ) : null}
-              </aside>
-            ) : null}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {cards.map((n) => (
+                <NameCard key={n.id} name={n} onClick={() => setSelected(n)} />
+              ))}
+            </div>
           </div>
         )}
       </main>
 
-      {/* Mobile A–Z quick bar */}
-      {showAz ? (
-        <div className="fixed inset-x-0 bottom-16 z-30 mx-auto w-full max-w-none px-3 md:px-6 md:hidden">
-          <div className="dua-surface flex items-center gap-1 overflow-x-auto p-2 shadow-soft">
-            {ALPHABET.map((l) => {
-              const disabled = !grouped.available.has(l);
-              return (
-                <Button
-                  key={l}
-                  type="button"
-                  variant={disabled ? "outline" : "secondary"}
-                  size="sm"
-                  className={`h-7 shrink-0 rounded-full px-2 text-xs ${
-                    disabled
-                      ? "border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg-soft))]"
-                      : "bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]"
-                  }`}
-                  disabled={disabled}
-                  onClick={() => scrollToKey(l)}
-                >
-                  {l}
-                </Button>
-              );
-            })}
-            {grouped.available.has("#") ? (
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                className="h-7 shrink-0 rounded-full bg-[hsl(var(--dua-accent)/0.18)] px-2 text-xs text-[hsl(var(--dua-accent))]"
-                onClick={() => scrollToKey("#")}
-              >
-                #
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
-      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-w-xl rounded-2xl border shadow-card bg-[hsl(var(--dua-header)/0.92)] text-[hsl(var(--dua-fg))] border-[hsl(var(--dua-border))]">
-          <DialogHeader>
-            <DialogTitle className="text-base">
-              {selected?.title_arabic?.trim() ? selected?.title_arabic : selected?.title}
-              {selected?.title_arabic?.trim() ? (
-                <span className="ml-2 text-sm font-medium text-[hsl(var(--dua-fg-soft))]">({selected?.title})</span>
-              ) : null}
-            </DialogTitle>
-            {selectedMeta.bn_name?.trim() ? (
-              <p className="text-sm text-[hsl(var(--dua-fg-muted))]">{selectedMeta.bn_name}</p>
-            ) : null}
-          </DialogHeader>
-
-          {selected?.category?.trim() ? (
-            <div className="-mt-1">
-              <Badge variant="secondary" className="text-[11px] bg-[hsl(var(--dua-accent)/0.18)] text-[hsl(var(--dua-accent))]">
-                {selected.category}
-              </Badge>
-            </div>
-          ) : null}
-
-          <div className="space-y-3 text-sm">
-            {selected?.content ? (
-              <div className="space-y-1">
-                <p className="text-xs text-[hsl(var(--dua-fg-muted))]">অর্থ (বাংলা)</p>
-                <p className="whitespace-pre-wrap">{selected.content}</p>
-                <div className="pt-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(selected.content ?? "", "বাংলা অর্থ কপি হয়েছে")}
-                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
-                  >
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy
-                  </Button>
-                </div>
-              </div>
-            ) : null}
-
-            {selected?.content_en ? (
-              <div className="space-y-1">
-                <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Meaning (English)</p>
-                <p className="whitespace-pre-wrap">{selected.content_en}</p>
-                <div className="pt-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => copyToClipboard(selected.content_en ?? "", "English meaning copied")}
-                    className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
-                  >
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy
-                  </Button>
-                </div>
-              </div>
-            ) : null}
-
-
-            {(selectedMeta.bn_name ||
-              selectedMeta.pronunciation ||
-              selectedMeta.gender ||
-              selectedMeta.source ||
-              selectedMeta.origin ||
-              selectedMeta.reference) && (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-[hsl(var(--dua-fg))]">Details</p>
-
-                  {selectedMeta.bn_name ? (
-                    <div>
-                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Bangla name</p>
-                      <p className="font-medium break-words">{selectedMeta.bn_name}</p>
-                    </div>
-                  ) : null}
-
-                  {selectedMeta.pronunciation ? (
-                    <div>
-                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Pronunciation</p>
-                      <p className="font-medium break-words">{selectedMeta.pronunciation}</p>
-                    </div>
-                  ) : null}
-
-                  {selectedMeta.gender ? (
-                    <div>
-                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Gender</p>
-                      <p className="font-medium break-words">{selectedMeta.gender}</p>
-                    </div>
-                  ) : null}
-
-                  {selectedMeta.source ? (
-                    <div>
-                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Source</p>
-                      <p className="font-medium break-words">{selectedMeta.source}</p>
-                    </div>
-                  ) : null}
-
-                  {selectedMeta.origin ? (
-                    <div>
-                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Origin</p>
-                      <p className="font-medium break-words">{selectedMeta.origin}</p>
-                    </div>
-                  ) : null}
-
-                  {selectedMeta.reference ? (
-                    <div>
-                      <p className="text-xs text-[hsl(var(--dua-fg-muted))]">Reference</p>
-                      <p className="font-medium break-words">{selectedMeta.reference}</p>
-                    </div>
-                  ) : null}
-                </div>
-              </>
-            )}
-          </div>
-
-          <DialogFooter className="gap-2 sm:gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (!selected) return;
-                void copyToClipboard(buildShareText(selected), "Copied");
-              }}
-              disabled={!selected}
-              className="border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
-            >
-              <Copy className="mr-2 h-4 w-4" />
-              Copy all
-            </Button>
-            <Button
-              onClick={() => {
-                if (!selected) return;
-                void onShare(selected);
-              }}
-              disabled={!selected}
-              className="bg-[linear-gradient(to_right,hsl(var(--dua-accent)),hsl(var(--dua-accent-strong)))] text-[hsl(var(--dua-accent-fg))] hover:opacity-95"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <NameSharePreviewModal open={!!selected} onOpenChange={(o) => !o && setSelected(null)} name={selected} />
     </div>
   );
 };
