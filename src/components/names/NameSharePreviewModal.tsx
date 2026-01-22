@@ -128,17 +128,17 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
   };
 
   const shareWhatsApp = async () => {
-    // WhatsApp Web cannot reliably accept an image file from URL; best UX is native share.
-    if (navigator.share) return await shareNative();
-    await download();
-    toast.success("Downloaded", { description: "Open WhatsApp and share the image." });
+    // Text + link share (no image) so it works even when native share isn't available.
+    if (!safeName) return;
+    const text = `${safeName.title_arabic?.trim() ? `${safeName.title_arabic} (${safeName.title})` : safeName.title}\n${window.location.href}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const shareFacebook = async () => {
-    // FB sharing needs a public URL; we only have client-side PNG. Fallback to native share/download.
-    if (navigator.share) return await shareNative();
-    await download();
-    toast.success("Downloaded", { description: "Upload the PNG in Facebook." });
+    // Facebook web share supports URL sharing (not local files).
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const shareInstagram = async () => {
@@ -238,7 +238,7 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                     disabled={isRendering}
                   >
                     <Facebook className="mr-2 h-4 w-4" />
-                    Facebook
+                    Facebook Link
                   </Button>
                   <Button
                     onClick={() => void shareWhatsApp()}
@@ -247,7 +247,7 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                     disabled={isRendering}
                   >
                     <Share2 className="mr-2 h-4 w-4" />
-                    WhatsApp
+                    WhatsApp Link
                   </Button>
                   <Button
                     onClick={() => void shareInstagram()}
