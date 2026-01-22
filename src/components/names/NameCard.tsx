@@ -61,7 +61,7 @@ export function NameCard({ name, onClick, className }: Props) {
           </p>
 
           {name.meaning_bn?.trim() ? (
-            <p className="mt-2 font-bangla text-base font-semibold leading-relaxed text-[hsl(var(--dua-fg))] whitespace-normal break-words">
+            <p className="mt-2 font-bangla text-lg font-semibold leading-7 text-[hsl(var(--dua-fg))] whitespace-normal break-words">
               <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">অর্থ (BN):</span>
               {name.meaning_bn}
             </p>
