@@ -5,9 +5,6 @@ const FILTERS: ReadonlyArray<readonly [FilterKey, string]> = [
   ["boy", "Boy"],
   ["girl", "Girl"],
   ["unisex", "Unisex"],
-  ["quranic", "Quranic"],
-  ["popular", "Popular"],
-  ["short", "Short"],
 ] as const;
 
 type Props = {
