@@ -176,6 +176,11 @@ export function DuaBulkImportDialog({
     };
   }, [rawItems, existingKeys]);
 
+  const skippedEstimate = useMemo(() => {
+    // UI-friendly count: what will be skipped due to duplicates (before running import)
+    return parsed.duplicatesInFile.length + (duplicateMode === "skip" ? parsed.duplicatesExisting.length : 0);
+  }, [duplicateMode, parsed.duplicatesExisting.length, parsed.duplicatesInFile.length]);
+
   const previewList = useMemo(() => {
     if (previewOnlyDuplicates) return parsed.duplicates;
     return duplicateMode === "update" ? [...parsed.valid, ...parsed.duplicatesExisting] : parsed.valid;
@@ -523,6 +528,7 @@ export function DuaBulkImportDialog({
                   <span className="text-foreground">New: {parsed.valid.length}</span>
                   <span className="text-foreground">Dup existing: {parsed.duplicatesExisting.length}</span>
                   <span className="text-muted-foreground">Dup in file: {parsed.duplicatesInFile.length}</span>
+                  <span className="text-muted-foreground">Skipped (dup): {skippedEstimate}</span>
                   <span className="text-destructive">Invalid: {parsed.invalid.length}</span>
                 </div>
 
