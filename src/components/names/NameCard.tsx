@@ -51,19 +51,7 @@ export function NameCard({ name, onClick, className }: Props) {
       <div className="pointer-events-none absolute inset-3 rounded-[calc(var(--radius)_+_0.45rem)] border border-[hsl(var(--dua-fg)/0.08)]" />
 
       <div className="relative flex gap-4">
-        {/* Arabic (left) */}
-        <div className="shrink-0 w-[7.5rem] sm:w-[9rem] flex items-center justify-center">
-          <p
-            className={cn(
-              "font-arabic text-4xl sm:text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]",
-              "text-center whitespace-nowrap"
-            )}
-          >
-            {arabicText}
-          </p>
-        </div>
-
-        {/* Details (right) */}
+        {/* Details (left) */}
         <div className="min-w-0 flex-1">
           <p className="truncate text-2xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
             {name.title}
@@ -97,6 +85,18 @@ export function NameCard({ name, onClick, className }: Props) {
               </Badge>
             </div>
           ) : null}
+        </div>
+
+        {/* Arabic (right) */}
+        <div className="shrink-0 w-[7.5rem] sm:w-[9rem] flex items-center justify-center">
+          <p
+            className={cn(
+              "font-arabic text-4xl sm:text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]",
+              "text-center whitespace-nowrap"
+            )}
+          >
+            {arabicText}
+          </p>
         </div>
       </div>
     </button>
