@@ -279,7 +279,7 @@ const NamesPage = () => {
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {cards.map((n) => (
-                <NameCard key={n.id} name={n} onClick={() => setSelected(n)} />
+                <NameCard key={n.id} name={n} shimmerArabic onClick={() => setSelected(n)} />
               ))}
             </div>
           </div>
