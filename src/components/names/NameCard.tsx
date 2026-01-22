@@ -52,10 +52,10 @@ export function NameCard({ name, onClick, className }: Props) {
 
       <div className="relative flex gap-4">
         {/* Arabic (left) */}
-        <div className="shrink-0 w-[9.5rem] sm:w-[11rem] flex items-center justify-center">
+        <div className="shrink-0 w-[7.5rem] sm:w-[9rem] flex items-center justify-center">
           <p
             className={cn(
-              "font-arabic text-5xl sm:text-6xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]",
+              "font-arabic text-4xl sm:text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]",
               "text-center whitespace-nowrap"
             )}
           >
@@ -65,22 +65,22 @@ export function NameCard({ name, onClick, className }: Props) {
 
         {/* Details (right) */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
+          <p className="truncate text-2xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
             {name.title}
             {name.bn_name?.trim() ? (
-              <span className="ml-2 font-bangla text-[hsl(var(--dua-fg-muted))]">({name.bn_name})</span>
+              <span className="ml-2 font-bangla text-lg text-[hsl(var(--dua-fg-muted))]">({name.bn_name})</span>
             ) : null}
           </p>
 
           {name.meaning_bn?.trim() ? (
-            <p className="mt-2 truncate font-bangla text-sm font-semibold text-[hsl(var(--dua-fg))]">
+            <p className="mt-2 truncate font-bangla text-base font-semibold text-[hsl(var(--dua-fg))]">
               <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">অর্থ (BN):</span>
               {name.meaning_bn}
             </p>
           ) : null}
 
           {name.meaning_en?.trim() ? (
-            <p className="mt-1 truncate text-sm text-[hsl(var(--dua-fg-muted))]">
+            <p className="mt-1 truncate text-base text-[hsl(var(--dua-fg-muted))]">
               <span className="mr-1 font-medium text-[hsl(var(--dua-accent))]">Meaning:</span>
               {name.meaning_en}
             </p>
