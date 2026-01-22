@@ -56,7 +56,7 @@ export function NameCard({ name, onClick, className }: Props) {
           <p className="truncate text-2xl font-semibold tracking-tight text-[hsl(var(--dua-fg))]">
             {name.title}
             {name.bn_name?.trim() ? (
-              <span className="ml-2 font-bangla text-xl text-[hsl(var(--dua-fg-muted))]">{name.bn_name}</span>
+              <span className="ml-2 font-bangla text-2xl leading-7 text-[hsl(var(--dua-fg-muted))]">{name.bn_name}</span>
             ) : null}
           </p>
 
