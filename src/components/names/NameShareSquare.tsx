@@ -85,8 +85,12 @@ export const NameShareSquare = forwardRef<HTMLDivElement, Props>(function NameSh
 
         <div className="mt-12 flex items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 overflow-hidden rounded-2xl bg-[hsl(var(--dua-fg)/0.08)] p-2">
-              <img src={noorLogo} alt={`${appName} logo`} className="h-full w-full object-contain" />
+            {/* NOTE: Avoid raster images in canvas exports; some environments drop them.
+                Use pure text branding so PNG export is always consistent. */}
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[hsl(var(--dua-fg)/0.08)]">
+              <span className="text-[22px] font-bold tracking-tight text-[hsl(var(--dua-fg))]">
+                {appName.slice(0, 1).toUpperCase()}
+              </span>
             </div>
             <div>
               <p className="text-[26px] font-semibold text-[hsl(var(--dua-fg))]">{appName}</p>
