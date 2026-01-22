@@ -91,12 +91,8 @@ export function NameCard({ name, onClick, className }: Props) {
         <div className="shrink-0 w-[7.5rem] sm:w-[9rem] flex items-center justify-center">
           <p
             className={cn(
-              "font-arabic text-4xl sm:text-5xl font-bold leading-[1.1]",
-              "text-center whitespace-nowrap",
-              // Real-gold look (gradient + subtle highlight + depth) using semantic tokens
-              "text-transparent bg-clip-text",
-              "bg-[linear-gradient(180deg,hsl(var(--dua-accent))_0%,hsl(var(--dua-accent)/0.95)_18%,hsl(var(--dua-accent)/0.62)_52%,hsl(var(--dua-accent)/0.98)_72%,hsl(var(--dua-accent))_100%)]",
-              "[text-shadow:0_1px_0_hsl(var(--dua-bg)/0.65),0_10px_22px_hsl(var(--dua-accent)/0.22)]"
+              "font-arabic text-4xl sm:text-5xl font-bold leading-[1.1] text-[hsl(var(--dua-accent))]",
+              "text-center whitespace-nowrap"
             )}
           >
             {arabicText}
