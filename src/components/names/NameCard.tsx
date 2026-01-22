@@ -20,9 +20,11 @@ type Props = {
   name: NameCardModel;
   onClick: () => void;
   className?: string;
+  /** Optional: adds a subtle animated metallic shimmer on the Arabic text */
+  shimmerArabic?: boolean;
 };
 
-export function NameCard({ name, onClick, className }: Props) {
+export function NameCard({ name, onClick, className, shimmerArabic = false }: Props) {
   const genderLabel = (name.gender ?? "").trim();
   // Keep the right column perfectly aligned across cards by normalizing
   // the Arabic column width (Arabic glyphs vary a lot in natural width).
@@ -95,7 +97,9 @@ export function NameCard({ name, onClick, className }: Props) {
               "text-center whitespace-nowrap",
               // Real-gold look (gradient + subtle highlight + depth) using semantic tokens
               "text-transparent bg-clip-text",
-              "bg-[linear-gradient(180deg,hsl(var(--dua-accent))_0%,hsl(var(--dua-accent)/0.95)_18%,hsl(var(--dua-accent)/0.62)_52%,hsl(var(--dua-accent)/0.98)_72%,hsl(var(--dua-accent))_100%)]",
+              shimmerArabic
+                ? "bg-[linear-gradient(110deg,hsl(var(--dua-accent)/0.75)_0%,hsl(var(--dua-accent))_28%,hsl(var(--dua-fg))_45%,hsl(var(--dua-accent))_60%,hsl(var(--dua-accent)/0.75)_100%)] bg-[length:220%_100%] animate-[shimmer_2.6s_ease-in-out_infinite] motion-reduce:animate-none"
+                : "bg-[linear-gradient(180deg,hsl(var(--dua-accent))_0%,hsl(var(--dua-accent)/0.95)_18%,hsl(var(--dua-accent)/0.62)_52%,hsl(var(--dua-accent)/0.98)_72%,hsl(var(--dua-accent))_100%)]",
               "[text-shadow:0_1px_0_hsl(var(--dua-bg)/0.65),0_10px_22px_hsl(var(--dua-accent)/0.22)]"
             )}
           >
