@@ -21,6 +21,14 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
   const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState(false);
 
+  const isInIframe = useMemo(() => {
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  }, []);
+
   const safeName = useMemo(() => name, [name]);
   const fileName = useMemo(() => {
     const base = (safeName?.title ?? "name").trim().replace(/\s+/g, "-").toLowerCase();
@@ -81,10 +89,14 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const canShareBest = (navigator as any).canShare ? (navigator as any).canShare(bestShare) : true;
 
-      // If share is unavailable, fallback to download.
+      // If share is unavailable (common in desktop browsers + preview iframes), fallback to download.
       if (!navigator.share) {
         await download();
-        toast.success("PNG downloaded", { description: "Now share it from your gallery." });
+        toast.success("PNG downloaded", {
+          description: isInIframe
+            ? "Direct share may be blocked in preview. Open the app in a new tab on mobile for Native Share."
+            : "Direct share isn't supported in this browser. Share it from your gallery.",
+        });
         return;
       }
 
@@ -268,6 +280,16 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
                       <Share2 className="mr-2 h-4 w-4" />
                       {navigator.share ? "Share (Native)" : "Generate PNG"}
                     </Button>
+                    {!navigator.share ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="mt-2 w-full border-[hsl(var(--dua-fg)/0.18)] bg-transparent text-[hsl(var(--dua-fg))] hover:bg-[hsl(var(--dua-fg)/0.10)]"
+                        onClick={() => window.open(window.location.href, "_blank", "noopener,noreferrer")}
+                      >
+                        Open in new tab (for share)
+                      </Button>
+                    ) : null}
                     <p className="mt-2 text-center text-[11px] text-[hsl(var(--dua-fg-soft))]">
                       Best quality: use Native Share on mobile.
                     </p>

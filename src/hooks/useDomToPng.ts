@@ -24,6 +24,10 @@ export function useDomToPng(ref: React.RefObject<HTMLElement>, opts?: UseDomToPn
     try {
       const dataUrl = await toPng(node, {
         cacheBust: true,
+        // Avoid cross-origin stylesheet SecurityError from Google Fonts while exporting.
+        // This keeps the export reliable across browsers and inside iframes/webviews.
+        // (Text will still render using loaded fonts; we just skip embedding font CSS.)
+        skipFonts: true,
         pixelRatio: overrides?.pixelRatio ?? opts?.pixelRatio ?? 2,
         width: overrides?.width ?? opts?.width,
         height: overrides?.height ?? opts?.height,
