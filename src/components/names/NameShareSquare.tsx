@@ -38,13 +38,7 @@ export const NameShareSquare = forwardRef<HTMLDivElement, Props>(function NameSh
     >
       {/* Two-layer background: base gradient + subtle geometric overlay (matches cards) */}
       <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.06]" />
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(720px circle at 22% 18%, hsl(var(--dua-accent) / 0.10), transparent 58%), radial-gradient(820px circle at 86% 30%, hsl(var(--dua-fg) / 0.05), transparent 62%), radial-gradient(980px circle at 50% 110%, hsl(var(--dua-accent) / 0.08), transparent 58%)",
-        }}
-      />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.10),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
       {/* Vignette for legibility */}
       <div
         className="pointer-events-none absolute inset-0"
@@ -55,8 +49,8 @@ export const NameShareSquare = forwardRef<HTMLDivElement, Props>(function NameSh
       />
 
       {/* Premium gold frame (like cards) */}
-      <div className="pointer-events-none absolute inset-8 rounded-[44px] border border-[hsl(var(--dua-accent)/0.22)]" />
-      <div className="pointer-events-none absolute inset-10 rounded-[42px] border border-[hsl(var(--dua-fg)/0.08)]" />
+      <div className="pointer-events-none absolute inset-2 rounded-[calc(48px_+_0.5rem)] border border-[hsl(var(--dua-accent)/0.22)]" />
+      <div className="pointer-events-none absolute inset-3 rounded-[calc(48px_+_0.45rem)] border border-[hsl(var(--dua-fg)/0.08)]" />
 
       <div className="relative flex h-full flex-col px-20 pb-20 pt-24">
         <div className="flex-1">
