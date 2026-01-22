@@ -65,27 +65,50 @@ export function NameSharePreviewModal({ open, onOpenChange, name }: Props) {
     if (!safeName) return;
 
     try {
-      const { file } = await render();
       const title = safeName.title_arabic?.trim()
         ? `${safeName.title_arabic} (${safeName.title})`
         : safeName.title;
 
-      const shareData: ShareData = {
+      // 1) Try best-quality file first.
+      const best = await render();
+      const bestShare: ShareData = {
         title,
         text: "Islamic Name Meaning",
-        files: [file],
+        files: [best.file],
       };
 
       // Some browsers expose navigator.canShare
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const canShare = (navigator as any).canShare ? (navigator as any).canShare(shareData) : true;
-      if (!navigator.share || !canShare) {
+      const canShareBest = (navigator as any).canShare ? (navigator as any).canShare(bestShare) : true;
+
+      // If share is unavailable, fallback to download.
+      if (!navigator.share) {
         await download();
         toast.success("PNG downloaded", { description: "Now share it from your gallery." });
         return;
       }
 
-      await navigator.share(shareData);
+      // If canShare fails (often file too large / unsupported), try a lighter file.
+      if (!canShareBest) {
+        const lite = await render({ pixelRatio: 1 });
+        const liteShare: ShareData = {
+          title,
+          text: "Islamic Name Meaning",
+          files: [lite.file],
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const canShareLite = (navigator as any).canShare ? (navigator as any).canShare(liteShare) : true;
+        if (canShareLite) {
+          await navigator.share(liteShare);
+          return;
+        }
+
+        await download();
+        toast.success("PNG downloaded", { description: "Your browser can't share this image directly." });
+        return;
+      }
+
+      await navigator.share(bestShare);
     } catch (e) {
       // user cancelled or browser failed
       console.warn(e);
