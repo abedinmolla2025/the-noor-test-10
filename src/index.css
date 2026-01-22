@@ -147,6 +147,8 @@
       Uses only design tokens (HSL) so it stays theme-consistent.
     */
     background-image:
+      /* subtle film grain for more realistic texture */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
       /* tiny lattice dots */
       radial-gradient(circle at 12px 12px, hsl(var(--dua-fg) / 0.18) 0 1px, transparent 1px 36px),
       radial-gradient(circle at 36px 36px, hsl(var(--dua-fg) / 0.12) 0 1px, transparent 1px 36px),
@@ -163,8 +165,8 @@
       ),
       /* faint diagonal weave */
       repeating-linear-gradient(135deg, hsl(var(--dua-fg) / 0.08) 0 1px, transparent 1px 18px);
-    background-size: 72px 72px, 72px 72px, 72px 72px, 72px 72px, 72px 72px;
-    background-position: 0 0, 36px 36px, 0 0, 0 0, 0 0;
+    background-size: 220px 220px, 72px 72px, 72px 72px, 72px 72px, 72px 72px, 72px 72px;
+    background-position: 0 0, 0 0, 36px 36px, 0 0, 0 0, 0 0;
   }
 
   .islamic-card {
