@@ -8,6 +8,7 @@ import { useState, ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import BackendHealthWidget from '@/components/BackendHealthWidget';
 
 interface AppSettingRow {
   id: string;
@@ -154,6 +155,7 @@ export default function AdminSettings() {
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="system">System</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
+          <TabsTrigger value="health">Health</TabsTrigger>
         </TabsList>
 
         <TabsContent value="branding">
@@ -481,6 +483,10 @@ export default function AdminSettings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="health">
+          <BackendHealthWidget />
         </TabsContent>
       </Tabs>
     </div>
