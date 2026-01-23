@@ -11,6 +11,7 @@ import NamesPage from "./pages/NamesPage";
 import QiblaPage from "./pages/QiblaPage";
 import TasbihPage from "./pages/TasbihPage";
 import DuaPage from "./pages/DuaPage";
+import DuaDetailPage from "./pages/DuaDetailPage";
 import QuranPage from "./pages/QuranPage";
 import NamesOfAllahPage from "./pages/NamesOfAllahPage";
 import PrayerTimesPage from "./pages/PrayerTimesPage";
@@ -63,6 +64,7 @@ const AppRoutes = () => (
       <Route path="/qibla" element={<QiblaPage />} />
       <Route path="/tasbih" element={<TasbihPage />} />
       <Route path="/dua" element={<DuaPage />} />
+      <Route path="/dua/:id" element={<DuaDetailPage />} />
       <Route path="/quran" element={<QuranPage />} />
       <Route path="/99-names" element={<NamesOfAllahPage />} />
       <Route path="/prayer-times" element={<PrayerTimesPage />} />
