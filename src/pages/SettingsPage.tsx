@@ -13,6 +13,7 @@ import { useAppSettings } from "@/context/AppSettingsContext";
 import { AdminUnlockModal } from "@/components/admin/AdminUnlockModal";
 import { PrayerNotificationSettings } from "@/components/PrayerNotificationSettings";
 import { QuizReminderSettings } from "@/components/QuizReminderSettings";
+import BackendHealthWidget from "@/components/BackendHealthWidget";
 
 
 const QUIZ_WARNING_SOUNDS_MUTED_KEY = "quizWarningSoundsMuted";
@@ -458,6 +459,15 @@ const SettingsPage = () => {
           transition={{ delay: 0.45 }}
         >
           <QuizReminderSettings />
+        </motion.div>
+
+        {/* Backend Health */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.48 }}
+        >
+          <BackendHealthWidget />
         </motion.div>
 
         {/* App Info */}
