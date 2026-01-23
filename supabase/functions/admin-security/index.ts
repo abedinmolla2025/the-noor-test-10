@@ -101,7 +101,14 @@ Deno.serve(async (req) => {
 
     // Load config (service role bypasses RLS).
     // IMPORTANT: passcode hashing/verification is done in Postgres (crypt), not in JS.
-    const ensureConfig = async () => {
+    // If the config row is missing (common in remixes), we auto-bootstrap it with secure defaults:
+    // - random initial passcode (unknown to anyone)
+    // - require_fingerprint=false
+    // Then the admin should use the "request_reset_code" flow to set a known passcode.
+    const ensureConfig = async (): Promise<{
+      cfg: { id: number; admin_email: string; require_fingerprint: boolean; passcode_hash: string };
+      bootstrapped: boolean;
+    }> => {
       const { data: existing, error: existingErr } = await supabase
         .from("admin_security_config")
         .select("id, admin_email, require_fingerprint, passcode_hash")
@@ -110,15 +117,74 @@ Deno.serve(async (req) => {
 
       if (existingErr) throw existingErr;
 
-      // We expect this row to exist (created by initial setup). If missing, fail with a clear message.
-      if (!existing?.passcode_hash) {
-        throw new Error("admin_security_not_configured");
+      if (existing?.passcode_hash) {
+        return {
+          cfg: {
+            id: Number(existing.id),
+            admin_email: String(existing.admin_email),
+            require_fingerprint: Boolean(existing.require_fingerprint),
+            passcode_hash: String(existing.passcode_hash),
+          },
+          bootstrapped: false,
+        };
       }
 
-      return existing;
+      // Auto-bootstrap
+      const initialPasscode = `${randomDigits(6)}-${randomHex(8)}`; // random + non-guessable, not meant for direct use
+      const { data: inserted, error: insertErr } = await supabase
+        .from("admin_security_config")
+        .insert({
+          id: 1,
+          admin_email: DEFAULT_ADMIN_EMAIL,
+          // hash server-side via Postgres crypt(); avoids handling hash logic in JS
+          passcode_hash: null, // placeholder; will be set via RPC below
+          require_fingerprint: false,
+          failed_attempts: 0,
+          locked_until: null,
+          updated_at: new Date().toISOString(),
+        } as any)
+        .select("id, admin_email, require_fingerprint")
+        .maybeSingle();
+
+      // If row already exists due to a race, continue gracefully.
+      if (insertErr && !String(insertErr.message ?? "").toLowerCase().includes("duplicate")) {
+        throw insertErr;
+      }
+
+      // Ensure passcode_hash is set using existing RPC (which hashes in DB)
+      const { data: setOk, error: setErr } = await supabase.rpc("set_admin_passcode", {
+        new_passcode: initialPasscode,
+      });
+      if (setErr || !setOk) throw setErr ?? new Error("bootstrap_set_passcode_failed");
+
+      // Seed history best-effort (reuse protections)
+      const { data: updatedCfg, error: updatedCfgErr } = await supabase
+        .from("admin_security_config")
+        .select("id, admin_email, require_fingerprint, passcode_hash")
+        .eq("id", 1)
+        .single();
+      if (updatedCfgErr || !updatedCfg?.passcode_hash) throw updatedCfgErr ?? new Error("bootstrap_read_failed");
+
+      try {
+        await supabase
+          .from("admin_passcode_history")
+          .insert({ passcode_hash: String(updatedCfg.passcode_hash) });
+      } catch {
+        // best-effort: history seeding should not block bootstrap
+      }
+
+      return {
+        cfg: {
+          id: Number(updatedCfg.id),
+          admin_email: String(updatedCfg.admin_email),
+          require_fingerprint: Boolean(updatedCfg.require_fingerprint),
+          passcode_hash: String(updatedCfg.passcode_hash),
+        },
+        bootstrapped: true,
+      };
     };
 
-    const cfg = await ensureConfig();
+    const { cfg, bootstrapped } = await ensureConfig();
 
     const adminEmail = String(cfg.admin_email);
 
@@ -219,7 +285,7 @@ Deno.serve(async (req) => {
     };
 
     if (action === "get_config") {
-      return json({ ok: true, require_fingerprint: Boolean(cfg.require_fingerprint) });
+      return json({ ok: true, require_fingerprint: Boolean(cfg.require_fingerprint), bootstrapped });
     }
 
     if (action === "log_event") {
@@ -248,6 +314,19 @@ Deno.serve(async (req) => {
     }
 
     if (action === "unlock") {
+      if (bootstrapped) {
+        // We just created a secure random passcode unknown to the user.
+        // Force the safer reset-code flow rather than encouraging guessing.
+        return json(
+          {
+            ok: false,
+            error: "setup_required",
+            message: "Admin security was initialized. Please request a reset code to set a new passcode.",
+          },
+          200,
+        );
+      }
+
       const passcode = String(payload?.passcode ?? "");
       const deviceFingerprint = payload?.device_fingerprint ? String(payload.device_fingerprint) : null;
 
