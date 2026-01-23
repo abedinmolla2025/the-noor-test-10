@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import DuaAudioPlayer from "@/components/DuaAudioPlayer";
 import { supabase } from "@/integrations/supabase/client";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { IslamicPatternOverlay } from "@/components/IslamicPatternOverlay";
 
 type Language = "bengali" | "english" | "hindi" | "urdu";
 
@@ -174,7 +175,7 @@ const DuaPage = () => {
   return (
     <div className="min-h-screen dua-page relative overflow-hidden">
       {/* Page texture (matches reference) */}
-      <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.10]" />
+      <IslamicPatternOverlay className="pointer-events-none absolute inset-0 text-[hsl(var(--dua-fg))] opacity-[0.10]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_10%,hsl(var(--dua-fg)/0.06),transparent_58%),radial-gradient(900px_circle_at_20%_60%,hsl(var(--dua-accent)/0.07),transparent_62%)]" />
       {/* soft vignette */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1200px_circle_at_50%_0%,transparent_40%,hsl(var(--dua-bg))_92%)]" />
@@ -186,7 +187,7 @@ const DuaPage = () => {
         className="sticky top-0 z-50 border-b dua-header relative overflow-hidden"
       >
         {/* Header subtle texture */}
-        <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.08]" />
+        <IslamicPatternOverlay className="pointer-events-none absolute inset-0 text-[hsl(var(--dua-fg))] opacity-[0.08]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_20%,hsl(var(--dua-accent)/0.08),transparent_62%)]" />
 
         <div className="flex items-center gap-3 px-4 py-4">
@@ -252,7 +253,7 @@ const DuaPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="relative dua-card rounded-3xl p-6 overflow-hidden"
               >
-                <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.07]" />
+                <IslamicPatternOverlay className="pointer-events-none absolute inset-0 text-[hsl(var(--dua-fg))] opacity-[0.07]" />
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.10),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_35%,transparent_34%,hsl(var(--dua-bg))_80%)]" />
                 <div className="relative">
@@ -396,7 +397,7 @@ const DuaPage = () => {
                     className="w-full text-left p-4 rounded-2xl dua-card relative overflow-hidden transition-all active:scale-[0.98] group hover:border-[hsl(var(--dua-accent)/0.28)]"
                   >
                     {/* Card texture like reference */}
-                    <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.07]" />
+                    <IslamicPatternOverlay className="pointer-events-none absolute inset-0 text-[hsl(var(--dua-fg))] opacity-[0.07]" />
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.06),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_35%,transparent_34%,hsl(var(--dua-bg))_84%)]" />
 
