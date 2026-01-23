@@ -172,24 +172,34 @@ const DuaPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(158,64%,18%)]">
+    <div className="min-h-screen dua-page relative overflow-hidden">
+      {/* Page texture (matches reference) */}
+      <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.10]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_10%,hsl(var(--dua-fg)/0.06),transparent_58%),radial-gradient(900px_circle_at_20%_60%,hsl(var(--dua-accent)/0.07),transparent_62%)]" />
+      {/* soft vignette */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1200px_circle_at_50%_0%,transparent_40%,hsl(var(--dua-bg))_92%)]" />
+
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-50 bg-gradient-to-b from-[hsl(158,55%,22%)] to-[hsl(158,55%,22%)]/95 backdrop-blur-lg border-b border-white/10"
+        className="sticky top-0 z-50 border-b dua-header relative overflow-hidden"
       >
+        {/* Header subtle texture */}
+        <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.08]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_20%,hsl(var(--dua-accent)/0.08),transparent_62%)]" />
+
         <div className="flex items-center gap-3 px-4 py-4">
           <button
             onClick={handleBack}
-            className="p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors"
+            className="p-2 -ml-2 dua-icon-btn"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-[hsl(var(--dua-fg))]" />
           </button>
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(45,93%,58%)] to-[hsl(45,93%,48%)] flex items-center justify-center">
-            <BookOpen className="w-4 h-4 text-[hsl(158,64%,15%)]" />
+          <div className="w-8 h-8 rounded-lg bg-[linear-gradient(90deg,hsl(var(--dua-accent)),hsl(var(--dua-accent-strong)))] flex items-center justify-center shadow-soft">
+            <BookOpen className="w-4 h-4 text-[hsl(var(--dua-accent-fg))]" />
           </div>
-          <h1 className="text-xl font-bold text-white">{getTitle()}</h1>
+          <h1 className="text-xl font-bold text-[hsl(var(--dua-fg))]">{getTitle()}</h1>
         </div>
 
         {/* Language Selector */}
@@ -202,11 +212,7 @@ const DuaPage = () => {
                   setLanguage(lang);
                   setSelectedCategory(null);
                 }}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                  language === lang
-                    ? "bg-gradient-to-r from-[hsl(45,93%,58%)] to-[hsl(45,93%,48%)] text-[hsl(158,64%,15%)] shadow-md"
-                    : "bg-white/10 text-white/70 hover:bg-white/20"
-                }`}
+                className={language === lang ? "dua-chip dua-chip-active" : "dua-chip"}
               >
                 {LANGUAGE_LABELS[lang]}
               </button>
@@ -223,10 +229,10 @@ const DuaPage = () => {
       )}
 
       {loading && (
-        <div className="p-4 text-center text-white/70 text-sm">Loading duas...</div>
+        <div className="relative p-4 text-center text-[hsl(var(--dua-fg-muted))] text-sm">Loading duas...</div>
       )}
       {error && (
-        <div className="p-4 text-center text-red-300 text-sm">{error}</div>
+        <div className="relative p-4 text-center text-sm text-destructive">{error}</div>
       )}
 
       <AnimatePresence mode="wait">
@@ -244,19 +250,20 @@ const DuaPage = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] rounded-3xl p-6 border border-[hsl(45,93%,58%)]/20 shadow-lg overflow-hidden"
+                className="relative dua-card rounded-3xl p-6 overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(45,93%,58%)]/10 rounded-full blur-2xl" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-[hsl(158,64%,30%)]/30 rounded-full blur-xl" />
+                <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.07]" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.10),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_35%,transparent_34%,hsl(var(--dua-bg))_80%)]" />
                 <div className="relative">
                   <div className="flex items-center justify-center gap-2 mb-4">
-                    <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
-                    <span className="text-xs font-medium text-[hsl(45,93%,58%)]">
+                    <Sparkles className="w-4 h-4 text-[hsl(var(--dua-accent))]" />
+                    <span className="text-xs font-medium text-[hsl(var(--dua-accent))]">
                       {SECTION_LABELS.arabic[language]}
                     </span>
-                    <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
+                    <Sparkles className="w-4 h-4 text-[hsl(var(--dua-accent))]" />
                   </div>
-                  <p className="text-3xl md:text-4xl font-arabic leading-[2] text-white">
+                  <p className="text-3xl md:text-4xl font-arabic leading-[2] text-[hsl(var(--dua-fg))]">
                     {selectedDua.arabic}
                   </p>
                 </div>
@@ -287,15 +294,15 @@ const DuaPage = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
-                    className="bg-white/5 rounded-2xl p-5 border border-white/10"
+                    className="dua-surface p-5"
                   >
                     <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
-                      <p className="text-xs font-medium text-[hsl(45,93%,58%)]">
+                      <Sparkles className="w-4 h-4 text-[hsl(var(--dua-accent))]" />
+                      <p className="text-xs font-medium text-[hsl(var(--dua-accent))]">
                         {SECTION_LABELS.transliteration[language]}
                       </p>
                     </div>
-                    <p className="text-white/90 text-lg md:text-xl leading-relaxed">
+                    <p className="text-[hsl(var(--dua-fg))] text-lg md:text-xl leading-relaxed">
                       {fallbackText}
                     </p>
                   </motion.div>
@@ -307,15 +314,15 @@ const DuaPage = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-[hsl(45,93%,58%)]/10 to-transparent rounded-2xl p-5 border border-[hsl(45,93%,58%)]/20"
+                className="rounded-2xl p-5 border bg-[radial-gradient(900px_circle_at_50%_0%,hsl(var(--dua-accent)/0.10),transparent_60%)] border-[hsl(var(--dua-accent)/0.20)]"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <Heart className="w-4 h-4 text-[hsl(45,93%,58%)]" />
-                  <p className="text-xs font-medium text-[hsl(45,93%,58%)]">
+                  <Heart className="w-4 h-4 text-[hsl(var(--dua-accent))]" />
+                  <p className="text-xs font-medium text-[hsl(var(--dua-accent))]">
                     {SECTION_LABELS.translation[language]}
                   </p>
                 </div>
-                <p className="text-white text-lg md:text-xl leading-relaxed">
+                <p className="text-[hsl(var(--dua-fg))] text-lg md:text-xl leading-relaxed">
                   {selectedDua.translations[language].translation}
                 </p>
               </motion.div>
@@ -338,12 +345,12 @@ const DuaPage = () => {
           >
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[hsl(var(--dua-fg-soft))]" />
               <Input
                 placeholder={language === "bengali" ? "দোয়া খুঁজুন..." : language === "hindi" ? "दुआ खोजें..." : language === "urdu" ? "دعا تلاش کریں..." : "Search duas..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 rounded-2xl bg-white/10 border-white/10 text-white placeholder:text-white/50 focus:border-[hsl(45,93%,58%)]/50"
+                className="pl-12 h-12 rounded-2xl dua-surface dua-input focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-[hsl(var(--dua-accent)/0.35)]"
               />
             </div>
 
@@ -358,7 +365,7 @@ const DuaPage = () => {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className="px-4 py-2 rounded-full text-sm font-medium bg-white/10 text-white/80 hover:bg-[hsl(45,93%,58%)]/20 hover:text-[hsl(45,93%,58%)] transition-all border border-transparent hover:border-[hsl(45,93%,58%)]/30"
+                    className={selectedCategory === cat ? "dua-chip dua-chip-active" : "dua-chip"}
                   >
                     {cat}
                   </button>
@@ -368,7 +375,7 @@ const DuaPage = () => {
 
             {/* Dua List */}
             {!loading && !error && filteredDuas.length === 0 ? (
-              <div className="py-8 text-center text-white/70 text-sm">
+              <div className="py-8 text-center text-[hsl(var(--dua-fg-muted))] text-sm">
                 {language === "bengali"
                   ? "কোনো দোয়া পাওয়া যায়নি।"
                   : language === "hindi"
@@ -386,21 +393,26 @@ const DuaPage = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => setSelectedDua(dua)}
-                    className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
+                    className="w-full text-left p-4 rounded-2xl dua-card relative overflow-hidden transition-all active:scale-[0.98] group hover:border-[hsl(var(--dua-accent)/0.28)]"
                   >
+                    {/* Card texture like reference */}
+                    <div className="pointer-events-none absolute inset-0 noor-islamic-pattern opacity-[0.07]" />
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_circle_at_22%_18%,hsl(var(--dua-accent)/0.06),transparent_58%),radial-gradient(620px_circle_at_86%_30%,hsl(var(--dua-fg)/0.05),transparent_62%)]" />
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_35%,transparent_34%,hsl(var(--dua-bg))_84%)]" />
+
                     <div className="flex items-center justify-between">
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full bg-[hsl(45,93%,58%)]/20 flex items-center justify-center text-xs font-bold text-[hsl(45,93%,58%)]">
+                          <span className="w-6 h-6 rounded-full bg-[hsl(var(--dua-accent)/0.20)] flex items-center justify-center text-xs font-bold text-[hsl(var(--dua-accent))]">
                             {index + 1}
                           </span>
-                          <p className="font-semibold text-white">{dua.translations[language].title}</p>
+                          <p className="font-semibold text-[hsl(var(--dua-fg))]">{dua.translations[language].title}</p>
                         </div>
-                        <p className="text-sm text-white/60 line-clamp-1 font-arabic">
+                        <p className="text-sm text-[hsl(var(--dua-fg-soft))] line-clamp-1 font-arabic">
                           {dua.arabic}
                         </p>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-[hsl(45,93%,58%)] transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-[hsl(var(--dua-fg-soft))] group-hover:text-[hsl(var(--dua-accent))] transition-colors" />
                     </div>
                   </motion.button>
                 ))}
