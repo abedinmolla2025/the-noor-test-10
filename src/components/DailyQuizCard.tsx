@@ -14,18 +14,17 @@ export const DailyQuizCard = () => {
   const playedToday = hasPlayedToday();
 
   return (
-    <Card className="relative overflow-hidden border-primary/25 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--primary)/0.30)_0%,transparent_55%),radial-gradient(120%_100%_at_100%_0%,hsl(var(--accent)/0.22)_0%,transparent_50%),linear-gradient(135deg,hsl(var(--card))_0%,hsl(var(--card)/0.65)_100%)]">
+    <Card className="relative overflow-hidden border-primary/25 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--primary)/0.28)_0%,transparent_55%),radial-gradient(120%_100%_at_100%_0%,hsl(var(--accent)/0.18)_0%,transparent_52%),linear-gradient(135deg,hsl(var(--card))_0%,hsl(var(--card)/0.70)_100%)]">
       {/* Ambient brain overlay */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_45%,hsl(var(--primary)/0.18)_0%,transparent_70%)]" />
         <img
           src={brainOverlay}
           alt=""
-          className="absolute -right-8 -top-10 w-[19rem] sm:w-[22rem] opacity-45 mix-blend-screen rotate-6 select-none contrast-125 saturate-150 drop-shadow-[0_18px_50px_hsl(var(--primary)/0.25)]"
+          className="absolute -right-8 -top-10 w-[19rem] sm:w-[22rem] opacity-35 rotate-6 select-none transform-gpu"
           loading="lazy"
           draggable={false}
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,hsl(var(--primary)/0.10),transparent)] opacity-70 [mask-image:linear-gradient(to_bottom,transparent,black,transparent)] animate-[shimmer_6s_linear_infinite]" />
       </div>
 
       <CardContent className="relative p-6 space-y-4">
