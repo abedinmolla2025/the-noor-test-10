@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ArrowLeft, Search, Sparkles, Crown, Volume2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
@@ -116,9 +116,28 @@ const namesOfAllah: NameOfAllah[] = [
 
 const NamesOfAllahPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedName, setSelectedName] = useState<NameOfAllah | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  const selectedIdParam = searchParams.get("name");
+  const selectedId = selectedIdParam ? Number(selectedIdParam) : null;
+
+  useEffect(() => {
+    if (!selectedId || !Number.isFinite(selectedId)) {
+      setSelectedName(null);
+      return;
+    }
+    const found = namesOfAllah.find((n) => n.id === selectedId) ?? null;
+    setSelectedName(found);
+  }, [selectedId]);
+
+  const openName = (id: number) => {
+    setSearchParams({ name: String(id) }, { replace: false });
+  };
+
+  const goBack = () => navigate(-1);
 
   const speakArabic = useCallback((arabicText: string, transliteration: string) => {
     // Cancel any ongoing speech
@@ -234,7 +253,7 @@ const NamesOfAllahPage = () => {
             className="px-4 py-8 max-w-2xl mx-auto"
           >
             <button 
-              onClick={() => setSelectedName(null)}
+              onClick={goBack}
               className="mb-8 flex items-center gap-2 text-amber-700 hover:text-amber-600 transition-colors font-medium"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -445,7 +464,7 @@ const NamesOfAllahPage = () => {
                   }}
                   whileHover={{ scale: 1.03, y: -6 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setSelectedName(name)}
+                  onClick={() => openName(name.id)}
                   className="group relative rounded-2xl overflow-hidden text-left transition-all duration-300"
                   layoutId={`card-${name.id}`}
                 >

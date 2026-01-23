@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Search, BookOpen, ChevronRight, Globe } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -802,12 +802,48 @@ const uiText = {
 
 const BukhariPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [language, setLanguage] = useState<Language>("bn");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedHadith, setSelectedHadith] = useState<Hadith | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<"chapters" | "hadiths">("hadiths");
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  const chapterParam = searchParams.get("chapter");
+  const hadithParam = searchParams.get("hadith");
+  const chapterId = chapterParam ? Number(chapterParam) : null;
+
+  useEffect(() => {
+    if (!chapterId || !Number.isFinite(chapterId)) {
+      setSelectedChapter(null);
+      return;
+    }
+    setSelectedChapter(chapterId);
+  }, [chapterId]);
+
+  useEffect(() => {
+    if (!hadithParam) {
+      setSelectedHadith(null);
+      return;
+    }
+    const found = hadiths.find((h) => String(h.id) === hadithParam) ?? null;
+    setSelectedHadith(found);
+  }, [hadithParam]);
+
+  const goBack = () => navigate(-1);
+
+  const openChapter = (id: number) => {
+    setSearchParams({ chapter: String(id) }, { replace: false });
+    setActiveTab("hadiths");
+  };
+
+  const openHadith = (id: number) => {
+    const next: Record<string, string> = {};
+    if (selectedChapter !== null) next.chapter = String(selectedChapter);
+    next.hadith = String(id);
+    setSearchParams(next, { replace: false });
+  };
 
   const t = uiText[language];
   const isRtl = language === "ar";
@@ -843,15 +879,7 @@ const BukhariPage = () => {
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => {
-                if (selectedHadith) {
-                  setSelectedHadith(null);
-                } else if (selectedChapter !== null) {
-                  setSelectedChapter(null);
-                } else {
-                  navigate("/");
-                }
-              }}
+              onClick={goBack}
               className="p-2 -ml-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors"
             >
               <ArrowLeft className="w-5 h-5" style={{ transform: isRtl ? "scaleX(-1)" : "none" }} />
@@ -1028,7 +1056,7 @@ const BukhariPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.03 }}
-                    onClick={() => setSelectedHadith(hadith)}
+                    onClick={() => openHadith(hadith.id)}
                     className="w-full text-left bg-white/10 backdrop-blur-md rounded-2xl p-5 hover:bg-white/15 transition-all active:scale-[0.98] shadow-xl border border-white/20"
                   >
                     <div className="flex items-start gap-4">
@@ -1065,8 +1093,7 @@ const BukhariPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }}
                       onClick={() => {
-                        setSelectedChapter(chapter.id);
-                        setActiveTab("hadiths");
+                        openChapter(chapter.id);
                       }}
                       className="w-full text-left bg-white/10 backdrop-blur-md rounded-2xl p-5 hover:bg-white/15 transition-all active:scale-[0.98] shadow-xl border border-white/20"
                     >

@@ -1,26 +1,57 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BookOpen, Search, Loader2, Star, BookMarked, Clock, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuranData, Surah } from "@/hooks/useQuranData";
 import SurahReader from "@/components/SurahReader";
 
 const QuranPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { surahs, loading, error } = useQuranData();
   const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"surah" | "juz" | "bookmark">("surah");
 
-  const filteredSurahs = surahs.filter(
-    (surah) =>
-      surah.englishName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      surah.name.includes(searchQuery) ||
-      surah.number.toString().includes(searchQuery)
-  );
+  const surahParam = searchParams.get("surah");
+  const surahNumberParam = surahParam ? Number(surahParam) : null;
+
+  const surahByNumber = useMemo(() => {
+    const m = new Map<number, Surah>();
+    for (const s of surahs) m.set(s.number, s);
+    return m;
+  }, [surahs]);
+
+  // Sync reader from URL so browser back is step-by-step
+  useEffect(() => {
+    if (!surahNumberParam) {
+      setSelectedSurah(null);
+      return;
+    }
+    setSelectedSurah(surahByNumber.get(surahNumberParam) ?? null);
+  }, [surahNumberParam, surahByNumber]);
+
+  const filteredSurahs = useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    return surahs.filter(
+      (surah) =>
+        surah.englishName.toLowerCase().includes(q) ||
+        surah.name.includes(searchQuery) ||
+        surah.number.toString().includes(searchQuery)
+    );
+  }, [surahs, searchQuery]);
 
   // Featured surahs for quick access
-  const featuredSurahs = surahs.filter(s => [1, 36, 67, 55, 56, 18].includes(s.number));
+  const featuredSurahs = useMemo(
+    () => surahs.filter((s) => [1, 36, 67, 55, 56, 18].includes(s.number)),
+    [surahs]
+  );
+
+  const openSurah = (s: Surah) => {
+    setSearchParams({ surah: String(s.number) }, { replace: false });
+  };
+
+  const goBack = () => navigate(-1);
 
   if (loading) {
     return (
@@ -62,7 +93,7 @@ const QuranPage = () => {
             <motion.header className="sticky top-0 z-50 bg-[hsl(158,55%,22%)] border-b border-white/10 shadow-lg">
               <div className="flex items-center gap-3 px-4 py-3">
                 <button
-                  onClick={() => setSelectedSurah(null)}
+                  onClick={goBack}
                   className="p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors text-white"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -93,7 +124,7 @@ const QuranPage = () => {
               {/* Top Bar */}
               <div className="flex items-center justify-between px-4 py-3">
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={goBack}
                   className="p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors text-white"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -205,7 +236,7 @@ const QuranPage = () => {
                         key={surah.number}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => setSelectedSurah(surah)}
+                        onClick={() => openSurah(surah)}
                         className="shrink-0 px-4 py-3 rounded-xl bg-white/5 border-2 border-[hsl(45,93%,58%)]/30 hover:border-[hsl(45,93%,58%)] hover:shadow-[0_0_20px_hsl(45,93%,58%,0.2)] transition-all"
                       >
                         <p className="font-arabic text-[hsl(45,93%,58%)] text-xl">{surah.name}</p>
@@ -227,7 +258,7 @@ const QuranPage = () => {
                       transition={{ delay: Math.min(index * 0.01, 0.5) }}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
-                      onClick={() => setSelectedSurah(surah)}
+                      onClick={() => openSurah(surah)}
                       className="w-full text-left p-3 rounded-xl bg-white/5 border border-white/10 hover:border-[hsl(45,93%,58%)]/50 hover:shadow-md transition-all group"
                     >
                       <div className="flex items-center gap-3">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, Heart, User, ArrowLeft, Globe, ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1452,6 +1452,7 @@ const babyNames: BabyName[] = [
 
 const BabyNamesPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<number[]>(() => {
     const saved = localStorage.getItem("baby_names_favorites");
@@ -1466,6 +1467,24 @@ const BabyNamesPage = () => {
 
   const t = translations[language];
   const isRtl = language === "ar" || language === "ur";
+
+  const selectedIdParam = searchParams.get("name");
+  const selectedId = selectedIdParam ? Number(selectedIdParam) : null;
+
+  useEffect(() => {
+    if (!selectedId) {
+      setSelectedName(null);
+      return;
+    }
+    const found = babyNames.find((n) => n.id === selectedId) ?? null;
+    setSelectedName(found);
+  }, [selectedId]);
+
+  const openName = (name: BabyName) => {
+    setSearchParams({ name: String(name.id) }, { replace: false });
+  };
+
+  const goBack = () => navigate(-1);
 
   useEffect(() => {
     localStorage.setItem("baby_names_favorites", JSON.stringify(favorites));
@@ -1497,7 +1516,7 @@ const BabyNamesPage = () => {
     <motion.button
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      onClick={() => setSelectedName(name)}
+      onClick={() => openName(name)}
       className="w-full text-left p-4 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/15 transition-all active:scale-[0.98]"
       style={{ direction: isRtl ? "rtl" : "ltr" }}
     >
@@ -1579,7 +1598,7 @@ const BabyNamesPage = () => {
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => selectedName ? setSelectedName(null) : navigate("/")}
+              onClick={goBack}
               className="p-2 -ml-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors"
             >
               <ArrowLeft className="w-5 h-5" style={{ transform: isRtl ? "scaleX(-1)" : "none" }} />
