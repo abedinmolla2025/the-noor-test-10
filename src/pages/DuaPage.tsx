@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, BookOpen, ChevronRight, ArrowLeft, Sparkles, Heart, Volume2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import DuaAudioPlayer from "@/components/DuaAudioPlayer";
@@ -74,6 +74,7 @@ interface AdminContentDuaRow {
 
 const DuaPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [language, setLanguage] = useState<Language>("bengali");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -81,6 +82,9 @@ const DuaPage = () => {
   const [duas, setDuas] = useState<Dua[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const categoryParam = searchParams.get("category");
+  const duaParam = searchParams.get("dua");
 
   useEffect(() => {
     const fetchDuas = async () => {
@@ -138,9 +142,28 @@ const DuaPage = () => {
     fetchDuas();
   }, []);
 
-  const categories = [...new Set(duas.map((d) => d.translations[language].category))];
+  // Sync UI state from URL (enables step-by-step browser back)
+  useEffect(() => {
+    // Category from URL
+    setSelectedCategory(categoryParam || null);
 
-  const filteredDuas = duas.filter((dua) => {
+    // Dua from URL (wait until data exists)
+    if (duaParam) {
+      const found = duas.find((d) => d.id === duaParam) ?? null;
+      setSelectedDua(found);
+    } else {
+      setSelectedDua(null);
+    }
+    // Intentionally depends on `duas` (so it resolves after fetch)
+  }, [categoryParam, duaParam, duas]);
+
+  const categories = useMemo(
+    () => [...new Set(duas.map((d) => d.translations[language].category))],
+    [duas, language]
+  );
+
+  const filteredDuas = useMemo(() => {
+    return duas.filter((dua) => {
     const translation = dua.translations[language];
     const matchesSearch =
       translation.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -151,16 +174,24 @@ const DuaPage = () => {
       translation.translation.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !selectedCategory || translation.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  });
+    });
+  }, [duas, language, searchQuery, selectedCategory]);
+
+  const pushCategory = (cat: string) => {
+    setSearchParams({ category: cat }, { replace: false });
+  };
+
+  const pushDua = (duaId: string) => {
+    const cat = selectedCategory || categoryParam || "";
+    const next: Record<string, string> = {};
+    if (cat) next.category = cat;
+    next.dua = duaId;
+    setSearchParams(next, { replace: false });
+  };
 
   const handleBack = () => {
-    if (selectedDua) {
-      setSelectedDua(null);
-    } else if (selectedCategory) {
-      setSelectedCategory(null);
-    } else {
-      navigate("/");
-    }
+    // Let router history unwind (dua -> category -> list -> previous route)
+    navigate(-1);
   };
 
   const getTitle = () => {
@@ -200,7 +231,8 @@ const DuaPage = () => {
                 key={lang}
                 onClick={() => {
                   setLanguage(lang);
-                  setSelectedCategory(null);
+                  // Reset drilldown when language changes (and keep history clean)
+                  setSearchParams({}, { replace: true });
                 }}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                   language === lang
@@ -357,7 +389,7 @@ const DuaPage = () => {
                 {categories.map((cat) => (
                   <button
                     key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => pushCategory(cat)}
                     className="px-4 py-2 rounded-full text-sm font-medium bg-white/10 text-white/80 hover:bg-[hsl(45,93%,58%)]/20 hover:text-[hsl(45,93%,58%)] transition-all border border-transparent hover:border-[hsl(45,93%,58%)]/30"
                   >
                     {cat}
@@ -385,7 +417,7 @@ const DuaPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    onClick={() => setSelectedDua(dua)}
+                    onClick={() => pushDua(dua.id)}
                     className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
                   >
                     <div className="flex items-center justify-between">

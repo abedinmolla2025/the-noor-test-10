@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { ComponentProps } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { supabase } from "@/integrations/supabase/client";
 import { NameCard, type NameCardModel } from "@/components/names/NameCard";
@@ -75,6 +76,8 @@ const fetchNames = async (): Promise<NameContentRow[]> => {
 };
 
 const NamesPage = () => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [q, setQ] = useState("");
   const [activeQuickFilter, setActiveQuickFilter] = useState<ComponentProps<typeof NamesQuickFilters>["active"]>(
     "all"
@@ -82,6 +85,8 @@ const NamesPage = () => {
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [selected, setSelected] = useState<NameCardModel | null>(null);
   const [stickyHeaderRaised, setStickyHeaderRaised] = useState(false);
+
+  const selectedId = searchParams.get("name");
 
   useEffect(() => {
     const onScroll = () => {
@@ -179,6 +184,36 @@ const NamesPage = () => {
     });
   }, [filtered]);
 
+  const cardById = useMemo(() => {
+    const m = new Map<string, NameCardModel>();
+    for (const c of cards) m.set(c.id, c);
+    return m;
+  }, [cards]);
+
+  // Sync modal from URL so browser back closes it step-by-step
+  useEffect(() => {
+    if (!selectedId) {
+      setSelected(null);
+      return;
+    }
+
+    const found = cardById.get(selectedId) ?? null;
+    setSelected(found);
+  }, [selectedId, cardById]);
+
+  const openCard = (n: NameCardModel) => {
+    setSearchParams({ name: n.id }, { replace: false });
+  };
+
+  const closeModal = () => {
+    // Prefer history unwind (so it behaves exactly like pressing Back)
+    if (selectedId) {
+      navigate(-1);
+      return;
+    }
+    setSelected(null);
+  };
+
   return (
     <div className="min-h-screen dua-page pb-20">
       <header className="sticky top-0 z-40 border-b dua-header">
@@ -212,13 +247,13 @@ const NamesPage = () => {
           hasResults={!namesQuery.isLoading && !namesQuery.isError && filtered.length > 0}
           stickyHeaderRaised={stickyHeaderRaised}
           cards={cards}
-          onSelect={setSelected}
+          onSelect={openCard}
           emptyStateTitle={activeLetter ? "কোনো নাম পাওয়া যায়নি" : undefined}
           emptyStateDescription={activeLetter ? "এই অক্ষরে কোনো নাম পাওয়া যায়নি" : undefined}
         />
       </main>
 
-      <NameSharePreviewModal open={!!selected} onOpenChange={(o) => !o && setSelected(null)} name={selected} />
+      <NameSharePreviewModal open={!!selected} onOpenChange={(o) => !o && closeModal()} name={selected} />
     </div>
   );
 };
