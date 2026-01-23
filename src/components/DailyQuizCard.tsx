@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Zap, Flame, Clock } from "lucide-react";
 import { useQuizProgress } from "@/hooks/useQuizProgress";
 import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
+import brainOverlay from "@/assets/brain-overlay.png";
 
 export const DailyQuizCard = () => {
   const navigate = useNavigate();
@@ -13,8 +14,21 @@ export const DailyQuizCard = () => {
   const playedToday = hasPlayedToday();
 
   return (
-    <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-card to-card/50">
-      <CardContent className="p-6 space-y-4">
+    <Card className="relative overflow-hidden border-primary/25 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--primary)/0.30)_0%,transparent_55%),radial-gradient(120%_100%_at_100%_0%,hsl(var(--accent)/0.22)_0%,transparent_50%),linear-gradient(135deg,hsl(var(--card))_0%,hsl(var(--card)/0.65)_100%)]">
+      {/* Ambient brain overlay */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_45%,hsl(var(--primary)/0.18)_0%,transparent_70%)]" />
+        <img
+          src={brainOverlay}
+          alt=""
+          className="absolute -right-10 -top-10 w-[18rem] sm:w-[20rem] opacity-25 mix-blend-overlay rotate-6 select-none"
+          loading="lazy"
+          draggable={false}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,hsl(var(--primary)/0.10),transparent)] opacity-70 [mask-image:linear-gradient(to_bottom,transparent,black,transparent)] animate-[shimmer_6s_linear_infinite]" />
+      </div>
+
+      <CardContent className="relative p-6 space-y-4">
         {/* Header Badge */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -23,7 +37,10 @@ export const DailyQuizCard = () => {
               Daily Challenge
             </span>
           </div>
-          <Badge variant="secondary" className="text-xs font-bold px-2 py-0.5">
+          <Badge
+            variant="secondary"
+            className="text-xs font-bold px-2 py-0.5 bg-[hsl(var(--secondary)/0.55)] backdrop-blur"
+          >
             PRO
           </Badge>
         </div>
@@ -45,7 +62,7 @@ export const DailyQuizCard = () => {
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <Flame className="w-3 h-3 text-orange-500" />
+              <Flame className="w-3 h-3 text-accent" />
               <span className="font-semibold text-foreground">{progress.currentStreak}</span> day streak
             </span>
             <span className="flex items-center gap-1">
@@ -59,10 +76,10 @@ export const DailyQuizCard = () => {
         {/* CTA Button */}
         {playedToday ? (
           <div className="space-y-3">
-            <div className="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+            <div className="p-3 rounded-lg border border-primary/20 bg-[hsl(var(--primary)/0.08)] backdrop-blur">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <span className="text-2xl">✅</span>
-                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                <p className="text-sm font-semibold text-foreground">
                   আজকের কুইজ সম্পূর্ণ!
                 </p>
               </div>
@@ -75,7 +92,7 @@ export const DailyQuizCard = () => {
             <Button
               onClick={() => navigate("/quiz")}
               variant="outline"
-              className="w-full"
+              className="w-full bg-[hsl(var(--card)/0.35)] backdrop-blur border-primary/20 hover:bg-[hsl(var(--card)/0.55)]"
               size="lg"
             >
               ফলাফল এবং ব্যাজ দেখুন
@@ -84,7 +101,7 @@ export const DailyQuizCard = () => {
         ) : (
           <Button
             onClick={() => navigate("/quiz")}
-            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg"
+            className="w-full font-semibold shadow-lg bg-[linear-gradient(135deg,hsl(var(--primary))_0%,hsl(var(--accent))_55%,hsl(var(--primary))_100%)] text-primary-foreground hover:opacity-95"
             size="lg"
           >
             <span className="flex items-center gap-2">
