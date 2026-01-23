@@ -393,12 +393,34 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Read body once (request streams can only be consumed once)
+    const rawBody = await req.text().catch(() => "");
+    const body: any = rawBody
+      ? (() => {
+          try {
+            return JSON.parse(rawBody);
+          } catch {
+            return null;
+          }
+        })()
+      : {};
+
+    // Public health check (no secrets, no side effects)
+    // Used by the Settings "Backend health" widget.
+    if (body && typeof body === "object" && body.action === "health") {
+      return json(200, { ok: true });
+    }
+
+    if (body === null) {
+      return json(400, { error: "Invalid JSON" });
+    }
+
     const authHeader = req.headers.get("Authorization") ?? "";
     if (!authHeader.startsWith("Bearer ")) {
       return json(401, { error: "Unauthorized" });
     }
 
-    const { notificationId, platform, dryRun, deviceId, tokenId } = (await req.json()) as SendPushRequest;
+    const { notificationId, platform, dryRun, deviceId, tokenId } = body as SendPushRequest;
     if (!notificationId || typeof notificationId !== "string") {
       return json(400, { error: "notificationId is required" });
     }
