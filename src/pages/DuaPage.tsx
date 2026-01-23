@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
-import { Search, BookOpen, ChevronRight, ArrowLeft, Sparkles, Heart, Volume2 } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
+import { ArrowLeft, BookOpen, ChevronRight, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { motion, AnimatePresence } from "framer-motion";
-import DuaAudioPlayer from "@/components/DuaAudioPlayer";
+import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { AdSlot } from "@/components/ads/AdSlot";
 
 type Language = "bengali" | "english" | "hindi" | "urdu";
 
@@ -15,27 +13,6 @@ const LANGUAGE_LABELS: Record<Language, string> = {
   hindi: "हिंदी",
   urdu: "اردو",
 };
-
-const SECTION_LABELS = {
-  arabic: {
-    bengali: "আরবি",
-    english: "Arabic",
-    hindi: "अरबी",
-    urdu: "عربی",
-  },
-  transliteration: {
-    bengali: "বাংলা উচ্চারণ",
-    english: "Transliteration",
-    hindi: "उच्चारण",
-    urdu: "تلفظ",
-  },
-  translation: {
-    bengali: "অনুবাদ",
-    english: "Translation",
-    hindi: "अनुवाद",
-    urdu: "ترجمہ",
-  },
-} as const;
 
 interface DuaTranslation {
   title: string;
@@ -77,7 +54,6 @@ const DuaPage = () => {
   const [language, setLanguage] = useState<Language>("bengali");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedDua, setSelectedDua] = useState<Dua | null>(null);
   const [duas, setDuas] = useState<Dua[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -138,58 +114,69 @@ const DuaPage = () => {
     fetchDuas();
   }, []);
 
-  const categories = [...new Set(duas.map((d) => d.translations[language].category))];
+  const categoryChips = useMemo(
+    () =>
+      [
+        { key: "Morning", label: "🌅 Morning" },
+        { key: "Evening", label: "🌙 Evening" },
+        { key: "Salah", label: "🕌 Salah" },
+        { key: "Travel", label: "✈️ Travel" },
+        { key: "Forgiveness", label: "🤲 Forgiveness" },
+      ] as const,
+    [],
+  );
 
-  const filteredDuas = duas.filter((dua) => {
-    const translation = dua.translations[language];
-    const matchesSearch =
-      translation.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (dua.bengaliTransliteration || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (dua.pronunciationEn || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (dua.pronunciationHi || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (dua.pronunciationUr || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      translation.translation.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || translation.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const normalize = (s: string) => s.trim().toLowerCase();
+
+  const filteredDuas = useMemo(() => {
+    const q = normalize(searchQuery);
+    return duas.filter((dua) => {
+      const t = dua.translations[language];
+      const matchesSearch =
+        !q ||
+        normalize(t.title).includes(q) ||
+        normalize(dua.arabic || "").includes(q);
+
+      const matchesCategory =
+        !selectedCategory || normalize(t.category) === normalize(selectedCategory);
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [duas, language, searchQuery, selectedCategory]);
+
+  const availableCategories = useMemo(() => {
+    const set = new Set(duas.map((d) => normalize(d.translations[language].category)));
+    return set;
+  }, [duas, language]);
 
   const handleBack = () => {
-    if (selectedDua) {
-      setSelectedDua(null);
-    } else if (selectedCategory) {
+    if (selectedCategory) {
       setSelectedCategory(null);
-    } else {
-      navigate("/");
+      return;
     }
-  };
-
-  const getTitle = () => {
-    if (selectedDua) return selectedDua.translations[language].title;
-    if (selectedCategory) return selectedCategory;
-    return language === "bengali" ? "দোয়া সংকলন" : 
-           language === "hindi" ? "दुआ संग्रह" : 
-           language === "urdu" ? "دعا مجموعہ" : "Dua Collection";
+    navigate(-1);
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(158,64%,18%)]">
+    <div className="min-h-screen bg-islamic-dark">
       {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-50 bg-gradient-to-b from-[hsl(158,55%,22%)] to-[hsl(158,55%,22%)]/95 backdrop-blur-lg border-b border-white/10"
+        className="sticky top-0 z-50 bg-islamic-dark/90 backdrop-blur border-b border-border"
       >
         <div className="flex items-center gap-3 px-4 py-4">
           <button
             onClick={handleBack}
-            className="p-2 -ml-2 hover:bg-white/10 rounded-full transition-colors"
+            className="p-2 -ml-2 hover:bg-background/10 rounded-full transition"
+            aria-label="Back"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[hsl(45,93%,58%)] to-[hsl(45,93%,48%)] flex items-center justify-center">
-            <BookOpen className="w-4 h-4 text-[hsl(158,64%,15%)]" />
+          <div className="w-10 h-8 rounded-xl bg-islamic-gold flex items-center justify-center shadow-soft">
+            <BookOpen className="w-4 h-4 text-islamic-dark" />
           </div>
-          <h1 className="text-xl font-bold text-white">{getTitle()}</h1>
+          <h1 className="text-xl font-bold text-foreground font-bangla">দোয়া সংগ্রহ</h1>
         </div>
 
         {/* Language Selector */}
@@ -202,11 +189,12 @@ const DuaPage = () => {
                   setLanguage(lang);
                   setSelectedCategory(null);
                 }}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                  language === lang
-                    ? "bg-gradient-to-r from-[hsl(45,93%,58%)] to-[hsl(45,93%,48%)] text-[hsl(158,64%,15%)] shadow-md"
-                    : "bg-white/10 text-white/70 hover:bg-white/20"
-                }`}
+                className={
+                  "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition " +
+                  (language === lang
+                    ? "bg-islamic-gold text-islamic-dark shadow-soft"
+                    : "bg-islamic-green/40 text-foreground/80 hover:bg-islamic-green/55")
+                }
               >
                 {LANGUAGE_LABELS[lang]}
               </button>
@@ -215,200 +203,105 @@ const DuaPage = () => {
         </div>
       </motion.header>
 
-      {/* Web Ad Slot */}
-      {!loading && !error && (
-        <div className="px-4 pt-4">
-          <AdSlot placement="web_dua_middle" />
+      {loading && <div className="p-4 text-center text-muted-foreground text-sm">Loading…</div>}
+      {error && <div className="p-4 text-center text-destructive text-sm">{error}</div>}
+
+      {/* Main: discovery only */}
+      <motion.main
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="p-4 space-y-4"
+      >
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/50" />
+          <Input
+            placeholder="দোয়া খুঁজুন (নাম বা আরবি শব্দ)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={
+              "pl-12 h-12 rounded-2xl bg-islamic-green/30 border-border text-foreground " +
+              "placeholder:text-foreground/50 focus-visible:ring-2 focus-visible:ring-islamic-gold/25 focus-visible:border-islamic-gold/40"
+            }
+          />
         </div>
-      )}
 
-      {loading && (
-        <div className="p-4 text-center text-white/70 text-sm">Loading duas...</div>
-      )}
-      {error && (
-        <div className="p-4 text-center text-red-300 text-sm">{error}</div>
-      )}
-
-      <AnimatePresence mode="wait">
-        {selectedDua ? (
-          // Dua Detail View
-          <motion.div
-            key="detail"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            className="p-4 space-y-6"
-          >
-            <div className="text-center space-y-6 py-6">
-              {/* Arabic Text Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] rounded-3xl p-6 border border-[hsl(45,93%,58%)]/20 shadow-lg overflow-hidden"
+        {/* Category chips (primary) */}
+        <div className="flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide pb-1">
+          {categoryChips.map((c) => {
+            const active = selectedCategory === c.key;
+            const hasAny = availableCategories.has(normalize(c.key));
+            return (
+              <button
+                key={c.key}
+                type="button"
+                onClick={() => setSelectedCategory((prev) => (prev === c.key ? null : c.key))}
+                disabled={!hasAny && !active}
+                className={
+                  "px-4 py-2 rounded-full text-sm font-medium transition border " +
+                  (active
+                    ? "bg-islamic-gold text-islamic-dark border-islamic-gold shadow-soft"
+                    : "bg-islamic-green/35 text-foreground/85 border-transparent hover:bg-islamic-green/50") +
+                  (!hasAny && !active ? " opacity-50" : "")
+                }
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[hsl(45,93%,58%)]/10 rounded-full blur-2xl" />
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-[hsl(158,64%,30%)]/30 rounded-full blur-xl" />
-                <div className="relative">
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
-                    <span className="text-xs font-medium text-[hsl(45,93%,58%)]">
-                      {SECTION_LABELS.arabic[language]}
-                    </span>
-                    <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
-                  </div>
-                  <p className="text-3xl md:text-4xl font-arabic leading-[2] text-white">
-                    {selectedDua.arabic}
-                  </p>
-                </div>
-              </motion.div>
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
 
-              {/* Transliteration */}
-              {(() => {
-                const translitText =
-                  language === "bengali"
-                    ? selectedDua.bengaliTransliteration
-                    : language === "english"
-                    ? selectedDua.pronunciationEn
-                    : language === "hindi"
-                    ? selectedDua.pronunciationHi
-                    : selectedDua.pronunciationUr;
+        {/* Helper text */}
+        <p className="text-sm text-foreground/60 font-bangla">
+          📖 যে কোনো দোয়া ট্যাপ করুন সম্পূর্ণ পড়তে ও শুনতে
+        </p>
 
-                const fallbackText =
-                  translitText ||
-                  selectedDua.bengaliTransliteration ||
-                  selectedDua.pronunciationEn ||
-                  selectedDua.pronunciationHi ||
-                  selectedDua.pronunciationUr;
-
-                if (!fallbackText) return null;
-
-                return (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className="bg-white/5 rounded-2xl p-5 border border-white/10"
-                  >
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="w-4 h-4 text-[hsl(45,93%,58%)]" />
-                      <p className="text-xs font-medium text-[hsl(45,93%,58%)]">
-                        {SECTION_LABELS.transliteration[language]}
+        {/* List */}
+        {!loading && !error && filteredDuas.length === 0 ? (
+          <div className="py-10 text-center text-foreground/65 text-sm font-bangla">
+            এই ক্যাটাগরিতে কোনো দোয়া পাওয়া যায়নি
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredDuas.map((dua, index) => (
+              <motion.button
+                key={dua.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(index * 0.03, 0.3) }}
+                onClick={() =>
+                  navigate(`/dua/${dua.id}`, {
+                    state: { language, dua },
+                  })
+                }
+                className={
+                  "w-full text-left rounded-2xl overflow-hidden shadow-card " +
+                  "bg-gradient-to-br from-islamic-green to-islamic-dark border border-border/70 " +
+                  "active:scale-[0.99] transition-transform"
+                }
+              >
+                <div className="relative p-4">
+                  <div className="absolute inset-0 noor-islamic-pattern opacity-[0.06]" />
+                  <div className="relative flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-islamic-gold/20 flex items-center justify-center text-sm font-bold text-islamic-gold">
+                      {index + 1}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-base font-bold text-foreground font-bangla truncate">
+                        {dua.translations[language].title}
+                      </p>
+                      <p className="mt-1 text-sm text-foreground/70 font-arabic line-clamp-1">
+                        {dua.arabic}
                       </p>
                     </div>
-                    <p className="text-white/90 text-lg md:text-xl leading-relaxed">
-                      {fallbackText}
-                    </p>
-                  </motion.div>
-                );
-              })()}
-
-              {/* Translation */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-[hsl(45,93%,58%)]/10 to-transparent rounded-2xl p-5 border border-[hsl(45,93%,58%)]/20"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Heart className="w-4 h-4 text-[hsl(45,93%,58%)]" />
-                  <p className="text-xs font-medium text-[hsl(45,93%,58%)]">
-                    {SECTION_LABELS.translation[language]}
-                  </p>
+                    <ChevronRight className="w-5 h-5 text-foreground/45" />
+                  </div>
                 </div>
-                <p className="text-white text-lg md:text-xl leading-relaxed">
-                  {selectedDua.translations[language].translation}
-                </p>
-              </motion.div>
-
-              {/* Audio Player */}
-              <DuaAudioPlayer 
-                arabicText={selectedDua.arabic} 
-                duaId={selectedDua.id} 
-              />
-            </div>
-          </motion.div>
-        ) : (
-          // List View
-          <motion.div
-            key="list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="p-4 space-y-4"
-          >
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-              <Input
-                placeholder={language === "bengali" ? "দোয়া খুঁজুন..." : language === "hindi" ? "दुआ खोजें..." : language === "urdu" ? "دعا تلاش کریں..." : "Search duas..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 rounded-2xl bg-white/10 border-white/10 text-white placeholder:text-white/50 focus:border-[hsl(45,93%,58%)]/50"
-              />
-            </div>
-
-            {/* Categories */}
-            {!selectedCategory && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex gap-2 flex-wrap"
-              >
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className="px-4 py-2 rounded-full text-sm font-medium bg-white/10 text-white/80 hover:bg-[hsl(45,93%,58%)]/20 hover:text-[hsl(45,93%,58%)] transition-all border border-transparent hover:border-[hsl(45,93%,58%)]/30"
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-
-            {/* Dua List */}
-            {!loading && !error && filteredDuas.length === 0 ? (
-              <div className="py-8 text-center text-white/70 text-sm">
-                {language === "bengali"
-                  ? "কোনো দোয়া পাওয়া যায়নি।"
-                  : language === "hindi"
-                  ? "कोई दुआ नहीं मिली।"
-                  : language === "urdu"
-                  ? "کوئی دعا نہیں ملی۔"
-                  : "No duas found."}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredDuas.map((dua, index) => (
-                  <motion.button
-                    key={dua.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => setSelectedDua(dua)}
-                    className="w-full text-left p-4 rounded-2xl bg-gradient-to-br from-[hsl(158,55%,25%)] to-[hsl(158,64%,20%)] border border-white/10 hover:border-[hsl(45,93%,58%)]/30 transition-all active:scale-[0.98] group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-full bg-[hsl(45,93%,58%)]/20 flex items-center justify-center text-xs font-bold text-[hsl(45,93%,58%)]">
-                            {index + 1}
-                          </span>
-                          <p className="font-semibold text-white">{dua.translations[language].title}</p>
-                        </div>
-                        <p className="text-sm text-white/60 line-clamp-1 font-arabic">
-                          {dua.arabic}
-                        </p>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-[hsl(45,93%,58%)] transition-colors" />
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-            )}
-          </motion.div>
+              </motion.button>
+            ))}
+          </div>
         )}
-      </AnimatePresence>
+      </motion.main>
     </div>
   );
 };
