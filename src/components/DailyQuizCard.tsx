@@ -21,7 +21,7 @@ export const DailyQuizCard = () => {
         <img
           src={brainOverlay}
           alt=""
-          className="absolute -right-10 -top-10 w-[18rem] sm:w-[20rem] opacity-25 mix-blend-overlay rotate-6 select-none"
+          className="absolute -right-8 -top-10 w-[19rem] sm:w-[22rem] opacity-45 mix-blend-screen rotate-6 select-none contrast-125 saturate-150 drop-shadow-[0_18px_50px_hsl(var(--primary)/0.25)]"
           loading="lazy"
           draggable={false}
         />
