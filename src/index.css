@@ -147,6 +147,13 @@
     will-change: transform;
   }
 
+  .occasion-tilt {
+    /* subtle, premium “printed card” feel */
+    transform: rotate(-1deg) translateY(-1px);
+    transform-origin: center;
+    will-change: transform;
+  }
+
   .occasion-shimmer {
     @apply relative overflow-hidden;
   }
@@ -171,14 +178,61 @@
     animation: shimmer 2.4s linear infinite;
   }
 
+  @keyframes occasion-glow-pulse {
+    0%, 100% {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.75;
+      transform: scale(1.01);
+    }
+  }
+
+  .occasion-glow {
+    @apply relative;
+    border: 1px solid hsl(var(--primary) / 0.40);
+    box-shadow:
+      0 0 0 2px hsl(var(--primary) / 0.10) inset,
+      0 18px 60px -40px hsl(var(--primary) / 0.55);
+  }
+
+  .occasion-glow::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+    border-radius: inherit;
+    /* soft halo */
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.25) inset,
+      0 0 28px hsl(var(--primary) / 0.22);
+    opacity: 0.35;
+    transform: translateZ(0);
+    animation: occasion-glow-pulse 2.6s ease-in-out infinite;
+  }
+
+  /* Respect reduced motion */
+  .motion-reduce\:no-occasion-effects {
+    /* helper class if needed in future */
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .occasion-float {
       animation: none !important;
       transform: none !important;
     }
+    .occasion-tilt {
+      transform: none !important;
+    }
     .occasion-shimmer::after {
       animation: none !important;
       opacity: 0 !important;
+    }
+    .occasion-glow::before {
+      animation: none !important;
+      opacity: 0 !important;
+      transform: none !important;
     }
   }
 
