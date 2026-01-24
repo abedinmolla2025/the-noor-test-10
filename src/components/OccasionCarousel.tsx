@@ -124,6 +124,7 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
                     alt={o.title}
                     loading="lazy"
                     className="h-44 w-full object-cover sm:h-52"
+                    style={{ objectPosition: "var(--occasion-image-position, 50% 50%)" }}
                   />
                 ) : (
                   <div className="h-44 w-full bg-muted sm:h-52" />

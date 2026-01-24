@@ -46,6 +46,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } 
 import { CSS } from "@dnd-kit/utilities";
 
 import { CalendarDays, GripVertical, Image as ImageIcon, Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { ImageCropDialog } from "@/components/admin/ImageCropDialog";
 
 type OccasionPlatform = "web" | "app" | "both";
 
@@ -409,6 +410,10 @@ export default function AdminOccasions() {
   const [previewWidth, setPreviewWidth] = useState<"auto" | "320" | "360" | "390">("auto");
   const [localImagePreviewUrl, setLocalImagePreviewUrl] = useState<string | null>(null);
 
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [cropDialogSrc, setCropDialogSrc] = useState<string | null>(null);
+  const [pendingCropMeta, setPendingCropMeta] = useState<{ baseName: string } | null>(null);
+
   const applyDesignPreset = (presetClassName: string) => {
     setForm((p) => {
       const current = p.container_class_name ?? "";
@@ -458,6 +463,26 @@ export default function AdminOccasions() {
       if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
     };
   }, [localImagePreviewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (cropDialogSrc) URL.revokeObjectURL(cropDialogSrc);
+    };
+  }, [cropDialogSrc]);
+
+  const setOccasionImagePosition = (pos: "50% 20%" | "50% 50%" | "50% 80%") => {
+    setForm((p) => {
+      const current = (p.card_css ?? "").trim();
+      const without = current
+        .split("\n")
+        .filter((line) => !line.trim().startsWith("--occasion-image-position:"))
+        .join("\n")
+        .trim();
+
+      const next = [without, `--occasion-image-position: ${pos};`].filter(Boolean).join("\n").trim();
+      return { ...p, card_css: next };
+    });
+  };
 
   const applyBlankTemplate = () => {
     setForm((p) => ({
@@ -1010,13 +1035,27 @@ export default function AdminOccasions() {
                       setImageProcessing(true);
                       try {
                         const optimized = await compressImageFile(raw);
-                        setForm((p) => ({ ...p, imageFile: optimized, image_url: "" }));
 
-                        // Local preview for UI only
-                        if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
-                        setLocalImagePreviewUrl(URL.createObjectURL(optimized));
+                        // GIF: keep animation (can't reliably crop on-client without heavy processing)
+                        if (optimized.type === "image/gif") {
+                          setForm((p) => ({ ...p, imageFile: optimized, image_url: "" }));
+                          if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
+                          setLocalImagePreviewUrl(URL.createObjectURL(optimized));
+                          // default focus to center
+                          setOccasionImagePosition("50% 50%");
+                          return;
+                        }
+
+                        // Still images: open cropper first
+                        if (cropDialogSrc) URL.revokeObjectURL(cropDialogSrc);
+                        const src = URL.createObjectURL(optimized);
+                        setCropDialogSrc(src);
+                        setPendingCropMeta({ baseName: raw.name.replace(/\.[^.]+$/, "") || "occasion" });
+                        setCropDialogOpen(true);
                       } finally {
                         setImageProcessing(false);
+                        // allow re-selecting same file later
+                        e.currentTarget.value = "";
                       }
                     }}
                   />
@@ -1028,6 +1067,55 @@ export default function AdminOccasions() {
                     </p>
                   )}
                 </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Image focus (crop position)</Label>
+                  <Select
+                    value={(() => {
+                      const css = form.card_css ?? "";
+                      const m = css.match(/--occasion-image-position:\s*([^;]+);/);
+                      const v = (m?.[1] ?? "50% 50%").trim();
+                      if (v === "50% 20%") return "top";
+                      if (v === "50% 80%") return "bottom";
+                      return "center";
+                    })()}
+                    onValueChange={(v) => {
+                      if (v === "top") setOccasionImagePosition("50% 20%");
+                      else if (v === "bottom") setOccasionImagePosition("50% 80%");
+                      else setOccasionImagePosition("50% 50%");
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="top">Top</SelectItem>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="bottom">Bottom</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    GIF-এর ক্ষেত্রে এটা সবচেয়ে কাজের (কারণ GIF crop করলে animation নষ্ট হতে পারে)।
+                  </p>
+                </div>
+
+                <ImageCropDialog
+                  open={cropDialogOpen}
+                  onOpenChange={setCropDialogOpen}
+                  imageSrc={cropDialogSrc}
+                  title="Crop banner image"
+                  aspect={16 / 9}
+                  onConfirm={async (blob) => {
+                    const base = pendingCropMeta?.baseName ?? "occasion";
+                    const ext = blob.type === "image/webp" ? "webp" : "jpg";
+                    const file = new File([blob], `${base}-cropped.${ext}`, { type: blob.type });
+                    setForm((p) => ({ ...p, imageFile: file, image_url: "" }));
+
+                    if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
+                    setLocalImagePreviewUrl(URL.createObjectURL(file));
+                    setOccasionImagePosition("50% 50%");
+                  }}
+                />
 
                  <div className="space-y-2 md:col-span-2">
                    <Label>Card CSS (advanced)</Label>
