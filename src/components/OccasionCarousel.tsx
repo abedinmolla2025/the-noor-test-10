@@ -83,9 +83,10 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
         opts={{ align: "start", loop: true }}
         setApi={(a) => setApi(a)}
       >
-        <CarouselContent className="-ml-3">
+        {/* Avoid negative margins here: the page uses overflow-x-hidden, which can clip the card on small screens. */}
+        <CarouselContent className="ml-0 gap-3">
           {items.map((o) => (
-            <CarouselItem key={o.id} className="pl-3">
+            <CarouselItem key={o.id} className="pl-0">
               <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
                 {o.image_url ? (
                   <img
