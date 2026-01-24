@@ -5,6 +5,21 @@ import { useActiveOccasions } from "@/hooks/useOccasions";
 import type { LayoutPlatform } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 
+function sanitizeOccasionCardCss(input: string) {
+  // Admin UI asks for *declarations only* (no selector / braces / @rules).
+  // Users sometimes paste full CSS blocks with @keyframes or braces which can break the injected <style>.
+  // Keep this intentionally conservative.
+  let s = input ?? "";
+  // Remove @rules blocks and single-line @rules.
+  s = s.replace(/@[^;{]*;\s*/g, "");
+  s = s.replace(/@[^{}]*\{[\s\S]*?\}\s*/g, "");
+  // Drop any braces to prevent selector injection.
+  s = s.replace(/[{}]/g, "");
+  // Basic size limit.
+  if (s.length > 4000) s = s.slice(0, 4000);
+  return s.trim();
+}
+
 function Dots({ count, activeIndex, onSelect }: { count: number; activeIndex: number; onSelect: (idx: number) => void }) {
   if (count <= 1) return null;
 
@@ -89,7 +104,7 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
             <CarouselItem key={o.id} className="pl-0">
               {o.card_css?.trim() ? (
                 <style>
-                  {`.occasion-card[data-occasion-id="${o.id}"]{${o.card_css}}`}
+                  {`.occasion-card[data-occasion-id="${o.id}"]{${sanitizeOccasionCardCss(o.card_css)}}`}
                 </style>
               ) : null}
 

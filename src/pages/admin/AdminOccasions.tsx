@@ -19,6 +19,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
+function sanitizeOccasionCardCss(input: string) {
+  let s = input ?? "";
+  s = s.replace(/@[^;{]*;\s*/g, "");
+  s = s.replace(/@[^{}]*\{[\s\S]*?\}\s*/g, "");
+  s = s.replace(/[{}]/g, "");
+  if (s.length > 4000) s = s.slice(0, 4000);
+  return s.trim();
+}
+
 import {
   DndContext,
   PointerSensor,
@@ -1161,7 +1170,9 @@ export default function AdminOccasions() {
                   <div className="mx-auto" style={{ width: previewWidth === "auto" ? "100%" : `${previewWidth}px` }}>
                     {(editing?.card_css?.trim() || form.card_css?.trim()) ? (
                       <style>
-                        {`.occasion-card[data-occasion-id="preview"]{${(editing?.card_css ?? form.card_css) as string}}`}
+                        {`.occasion-card[data-occasion-id="preview"]{${sanitizeOccasionCardCss(
+                          ((editing?.card_css ?? form.card_css) as string) ?? "",
+                        )}}`}
                       </style>
                     ) : null}
 
