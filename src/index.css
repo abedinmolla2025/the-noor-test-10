@@ -506,6 +506,19 @@
   }
 
   /* Occasions: text + layout presets (applied via className on the card container) */
+  /* Custom sizing via CSS variables (set from Admin "Custom mode" sliders) */
+  .occasion-title {
+    font-size: var(--occasion-title-size, 1.125rem);
+  }
+
+  .occasion-message {
+    font-size: var(--occasion-message-size, 0.875rem);
+  }
+
+  .occasion-dua {
+    font-size: var(--occasion-dua-size, 0.875rem);
+  }
+
   .occasion-card.occasion-pos-left .occasion-content {
     text-align: left;
   }

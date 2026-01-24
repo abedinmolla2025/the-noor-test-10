@@ -51,6 +51,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 import { CalendarDays, GripVertical, Image as ImageIcon, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { ImageCropDialog } from "@/components/admin/ImageCropDialog";
+import { Slider } from "@/components/ui/slider";
 
 type OccasionPlatform = "web" | "app" | "both";
 
@@ -513,6 +514,32 @@ export default function AdminOccasions() {
       const next = [without, `--occasion-image-position: ${pos};`].filter(Boolean).join("\n").trim();
       return { ...p, card_css: next };
     });
+  };
+
+  const setOccasionCssVar = (name: string, value: string | null) => {
+    setForm((p) => {
+      const current = (p.card_css ?? "").trim();
+      const lines = current ? current.split("\n") : [];
+      const filtered = lines.filter((line) => !line.trim().startsWith(`${name}:`));
+      const next = value ? [...filtered, `${name}: ${value};`].join("\n") : filtered.join("\n");
+      return { ...p, card_css: next.trim() };
+    });
+  };
+
+  const getOccasionCssVar = (name: string) => {
+    const css = form.card_css ?? "";
+    const re = new RegExp(`${name}:\\s*([^;]+);`);
+    return (css.match(re)?.[1] ?? "").trim();
+  };
+
+  const parsePx = (raw: string, fallback: number) => {
+    const m = raw.match(/([0-9.]+)px/);
+    if (m?.[1]) {
+      const n = Number(m[1]);
+      return Number.isFinite(n) ? n : fallback;
+    }
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : fallback;
   };
 
   const applyBlankTemplate = () => {
@@ -1297,6 +1324,77 @@ export default function AdminOccasions() {
                      </div>
 
                      <OccasionTextPresetGallery value={form.container_class_name} onApply={applyTextPreset} />
+
+                     <div className="mt-4 rounded-lg border border-border p-3">
+                       <div className="flex items-start justify-between gap-3">
+                         <div>
+                           <p className="text-sm font-medium">Custom text sizing</p>
+                           <p className="mt-1 text-xs text-muted-foreground">
+                             Title/Message/Dua pill এর size slider দিয়ে নিয়ন্ত্রণ করুন (Preview + Home এ apply হবে)।
+                           </p>
+                         </div>
+                         <Button
+                           type="button"
+                           variant="ghost"
+                           size="sm"
+                           onClick={() => {
+                             setOccasionCssVar("--occasion-title-size", null);
+                             setOccasionCssVar("--occasion-message-size", null);
+                             setOccasionCssVar("--occasion-dua-size", null);
+                           }}
+                         >
+                           Reset
+                         </Button>
+                       </div>
+
+                       <div className="mt-4 grid gap-4">
+                         <div className="grid gap-2">
+                           <div className="flex items-center justify-between">
+                             <p className="text-xs text-muted-foreground">Title size</p>
+                             <p className="text-xs text-muted-foreground">
+                               {parsePx(getOccasionCssVar("--occasion-title-size"), 18)}px
+                             </p>
+                           </div>
+                           <Slider
+                             value={[parsePx(getOccasionCssVar("--occasion-title-size"), 18)]}
+                             min={14}
+                             max={30}
+                             step={1}
+                             onValueChange={(v) => setOccasionCssVar("--occasion-title-size", `${v[0]}px`)}
+                           />
+                         </div>
+
+                         <div className="grid gap-2">
+                           <div className="flex items-center justify-between">
+                             <p className="text-xs text-muted-foreground">Message size</p>
+                             <p className="text-xs text-muted-foreground">
+                               {parsePx(getOccasionCssVar("--occasion-message-size"), 14)}px
+                             </p>
+                           </div>
+                           <Slider
+                             value={[parsePx(getOccasionCssVar("--occasion-message-size"), 14)]}
+                             min={12}
+                             max={20}
+                             step={1}
+                             onValueChange={(v) => setOccasionCssVar("--occasion-message-size", `${v[0]}px`)}
+                           />
+                         </div>
+
+                         <div className="grid gap-2">
+                           <div className="flex items-center justify-between">
+                             <p className="text-xs text-muted-foreground">Dua pill size</p>
+                             <p className="text-xs text-muted-foreground">{parsePx(getOccasionCssVar("--occasion-dua-size"), 14)}px</p>
+                           </div>
+                           <Slider
+                             value={[parsePx(getOccasionCssVar("--occasion-dua-size"), 14)]}
+                             min={12}
+                             max={20}
+                             step={1}
+                             onValueChange={(v) => setOccasionCssVar("--occasion-dua-size", `${v[0]}px`)}
+                           />
+                         </div>
+                       </div>
+                     </div>
 
                     <OccasionPresetGallery
                       value={form.container_class_name}
