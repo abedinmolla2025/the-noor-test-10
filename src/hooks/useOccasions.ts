@@ -9,6 +9,7 @@ export type AdminOccasionRow = {
   message: string;
   dua_text: string | null;
   image_url: string | null;
+  card_css?: string | null;
   start_date: string;
   end_date: string;
   is_active: boolean;
@@ -27,7 +28,7 @@ export function useActiveOccasions(platform: "web" | "app") {
 
       const { data, error } = await (supabase as any)
         .from("admin_occasions")
-        .select("id,title,message,dua_text,image_url,start_date,end_date,is_active,display_order,platform")
+        .select("id,title,message,dua_text,image_url,card_css,start_date,end_date,is_active,display_order,platform")
         .eq("is_active", true)
         .lte("start_date", nowIso)
         .gte("end_date", nowIso)

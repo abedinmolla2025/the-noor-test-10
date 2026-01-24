@@ -87,7 +87,16 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
         <CarouselContent className="ml-0 gap-3">
           {items.map((o) => (
             <CarouselItem key={o.id} className="pl-0">
-              <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+              {o.card_css?.trim() ? (
+                <style>
+                  {`.occasion-card[data-occasion-id="${o.id}"]{${o.card_css}}`}
+                </style>
+              ) : null}
+
+              <div
+                className="occasion-card relative overflow-hidden rounded-2xl border border-border bg-card"
+                data-occasion-id={o.id}
+              >
                 {o.image_url ? (
                   <img
                     src={o.image_url}

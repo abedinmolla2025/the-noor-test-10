@@ -434,6 +434,7 @@ export type Database = {
       }
       admin_occasions: {
         Row: {
+          card_css: string | null
           created_at: string
           display_order: number
           dua_text: string | null
@@ -448,6 +449,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          card_css?: string | null
           created_at?: string
           display_order?: number
           dua_text?: string | null
@@ -462,6 +464,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          card_css?: string | null
           created_at?: string
           display_order?: number
           dua_text?: string | null

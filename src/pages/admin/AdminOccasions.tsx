@@ -40,6 +40,7 @@ type OccasionRow = {
   message: string;
   dua_text: string | null;
   image_url: string | null;
+  card_css?: string | null;
   start_date: string;
   end_date: string;
   is_active: boolean;
@@ -263,6 +264,11 @@ function SortableOccasionRow({
             <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
               {item.platform}
             </span>
+            {item.card_css?.trim() ? (
+              <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                css
+              </span>
+            ) : null}
             {!item.is_active && (
               <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">inactive</span>
             )}
@@ -322,6 +328,7 @@ export default function AdminOccasions() {
       templateStyle: null as OccasionTemplate["style"] | null,
       imageFile: null as File | null,
       image_url: "",
+      card_css: "",
     }),
     [],
   );
@@ -512,6 +519,7 @@ export default function AdminOccasions() {
       platform: row.platform ?? "both",
       is_active: !!row.is_active,
       image_url: row.image_url ?? "",
+      card_css: (row.card_css as any) ?? "",
       dateRange: {
         from: row.start_date ? new Date(row.start_date) : undefined,
         to: row.end_date ? new Date(row.end_date) : undefined,
@@ -606,6 +614,7 @@ export default function AdminOccasions() {
         message: form.message.trim(),
         dua_text: form.dua_text.trim() ? form.dua_text.trim() : null,
         image_url: image_url ?? null,
+        card_css: form.card_css?.trim() ? form.card_css.trim() : null,
         start_date: startIso,
         end_date: endIso,
         is_active: !!form.is_active,
@@ -911,6 +920,19 @@ export default function AdminOccasions() {
                     </p>
                   )}
                 </div>
+
+                 <div className="space-y-2 md:col-span-2">
+                   <Label>Card CSS (advanced)</Label>
+                   <Textarea
+                     value={form.card_css}
+                     onChange={(e) => setForm((p) => ({ ...p, card_css: e.target.value }))}
+                     rows={6}
+                     placeholder={"/* CSS declarations only (no selector) */\nborder-radius: 28px;\ntransform: rotate(-1deg);"}
+                   />
+                   <p className="text-xs text-muted-foreground">
+                     এখানে শুধু CSS declarations লিখুন (selector/braces নয়)। এটা শুধু এই occasion card-এ apply হবে।
+                   </p>
+                 </div>
               </div>
 
               <DialogFooter className="mt-2">
@@ -997,7 +1019,16 @@ export default function AdminOccasions() {
                   </div>
 
                   {/* Exact same card markup as src/components/OccasionCarousel.tsx */}
-                  <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+                   {(editing?.card_css?.trim() || form.card_css?.trim()) ? (
+                     <style>
+                       {`.occasion-card[data-occasion-id="preview"]{${(editing?.card_css ?? form.card_css) as string}}`}
+                     </style>
+                   ) : null}
+
+                   <div
+                     className="occasion-card relative overflow-hidden rounded-2xl border border-border bg-card"
+                     data-occasion-id="preview"
+                   >
                     {bannerImg ? (
                       <img
                         src={bannerImg}
