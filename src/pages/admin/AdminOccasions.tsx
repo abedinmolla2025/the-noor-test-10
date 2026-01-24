@@ -1097,9 +1097,11 @@ export default function AdminOccasions() {
         <Card>
           <CardContent className="p-4">
             {(() => {
-              const title = (editing ? editing.title : form.title) || "ঈদ মোবারক";
-              const message = (editing ? editing.message : form.message) || "আপনার দিন কাটুক আনন্দ ও বরকতে।";
-              const dua = (editing ? editing.dua_text : form.dua_text) || "তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম";
+              // Always preview the current *form* state while the dialog is open,
+              // even when editing an existing row.
+              const title = (form.title || editing?.title) || "ঈদ মোবারক";
+              const message = (form.message || editing?.message) || "আপনার দিন কাটুক আনন্দ ও বরকতে।";
+              const dua = (form.dua_text || editing?.dua_text) || "তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম";
               const bannerImg = localImagePreviewUrl || form.image_url || editing?.image_url || null;
 
               const willShowOnSelectedPlatform =
@@ -1168,10 +1170,10 @@ export default function AdminOccasions() {
 
                   {/* Exact same card markup as src/components/OccasionCarousel.tsx */}
                   <div className="mx-auto" style={{ width: previewWidth === "auto" ? "100%" : `${previewWidth}px` }}>
-                    {(editing?.card_css?.trim() || form.card_css?.trim()) ? (
+                    {(form.card_css?.trim() || editing?.card_css?.trim()) ? (
                       <style>
                         {`.occasion-card[data-occasion-id="preview"]{${sanitizeOccasionCardCss(
-                          ((editing?.card_css ?? form.card_css) as string) ?? "",
+                          ((form.card_css ?? editing?.card_css) as string) ?? "",
                         )}}`}
                       </style>
                     ) : null}
@@ -1179,7 +1181,7 @@ export default function AdminOccasions() {
                     <div
                       className={cn(
                         "occasion-card relative overflow-hidden rounded-2xl border border-border bg-card",
-                        (editing?.container_class_name ?? form.container_class_name) as any,
+                        (form.container_class_name ?? editing?.container_class_name) as any,
                       )}
                       data-occasion-id="preview"
                     >
