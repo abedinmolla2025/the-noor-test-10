@@ -691,7 +691,27 @@ export default function AdminOccasions() {
       setEditing(null);
       setForm(emptyForm);
     } catch (e: any) {
-      toast({ title: "Failed", description: e?.message ?? "Could not save.", variant: "destructive" });
+      // Surface more actionable info during admin troubleshooting.
+      // Supabase client often throws an object with { message, details, hint, code }.
+      console.error("[AdminOccasions] Save failed", e);
+
+      const code = e?.code ? String(e.code) : "";
+      const details = e?.details ? String(e.details) : "";
+      const hint = e?.hint ? String(e.hint) : "";
+      const msg = e?.message ? String(e.message) : "Could not save.";
+
+      const friendly =
+        code === "42501" || /permission|not authorized|row-level security/i.test(msg)
+          ? "Admin access লাগবে (permission denied). Admin account দিয়ে লগইন আছেন কিনা চেক করুন।"
+          : code === "PGRST301" || /jwt|token|auth/i.test(msg)
+            ? "আপনি লগইন নেই/সেশন এক্সপায়ার হতে পারে—আবার লগইন করে চেষ্টা করুন।"
+            : null;
+
+      toast({
+        title: "Failed",
+        description: [friendly ?? msg, details, hint, code ? `code: ${code}` : ""].filter(Boolean).join("\n"),
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
