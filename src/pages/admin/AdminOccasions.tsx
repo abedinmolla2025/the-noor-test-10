@@ -1082,6 +1082,35 @@ export default function AdminOccasions() {
                       >
                         Shimmer
                       </Button>
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          setForm((p) => ({
+                            ...p,
+                            container_class_name: [p.container_class_name, "occasion-tilt"].filter(Boolean).join(" "),
+                          }))
+                        }
+                      >
+                        Tilt
+                      </Button>
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          setForm((p) => ({
+                            ...p,
+                            container_class_name: [p.container_class_name, "occasion-glow"].filter(Boolean).join(" "),
+                          }))
+                        }
+                      >
+                        Glow
+                      </Button>
+
                       <Button
                         type="button"
                         size="sm"
@@ -1092,12 +1121,14 @@ export default function AdminOccasions() {
                             container_class_name: (p.container_class_name ?? "")
                               .replace(/\boccasion-float\b/g, "")
                               .replace(/\boccasion-shimmer\b/g, "")
+                              .replace(/\boccasion-tilt\b/g, "")
+                              .replace(/\boccasion-glow\b/g, "")
                               .replace(/\s{2,}/g, " ")
                               .trim(),
                           }))
                         }
                       >
-                        Clear anim
+                        Clear effects
                       </Button>
                     </div>
 
@@ -1107,7 +1138,7 @@ export default function AdminOccasions() {
                      placeholder="e.g. rounded-3xl shadow-lg md:rotate-1"
                    />
                    <p className="text-xs text-muted-foreground">
-                      এই className শুধু occasion card container-এ যোগ হবে (Home + preview দু’জায়গায়)। Presets: occasion-float, occasion-shimmer
+                      এই className শুধু occasion card container-এ যোগ হবে (Home + preview দু’জায়গায়)। Presets: occasion-float, occasion-shimmer, occasion-tilt, occasion-glow
                    </p>
                  </div>
               </div>
