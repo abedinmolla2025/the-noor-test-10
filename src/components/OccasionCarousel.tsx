@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useActiveOccasions } from "@/hooks/useOccasions";
 import type { LayoutPlatform } from "@/lib/layout";
 import { cn } from "@/lib/utils";
+import { OccasionCard, type OccasionType } from "@/components/OccasionCard";
 
 function sanitizeOccasionCardCss(input: string) {
   // Admin UI asks for *declarations only* (no selector / braces / @rules).
@@ -47,9 +48,44 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
 
   const items = useMemo(() => data ?? [], [data]);
 
+  const supported = useMemo(() => {
+    const mapKeyToType = (key: string): OccasionType | null => {
+      switch (key) {
+        case "eid_fitr":
+        case "eid_adha":
+        case "eid":
+          return "eid";
+        case "ramadan_start":
+          return "ramadan_start";
+        case "laylatul_qadr":
+          return "laylatul_qadr";
+        case "shab_e_barat":
+          return "shab_e_barat";
+        case "milad_un_nabi":
+          return "milad_un_nabi";
+        case "islamic_new_year":
+        case "hijri_new_year":
+          return "islamic_new_year";
+        default:
+          return null;
+      }
+    };
+
+    const getTypeFromClass = (className?: string | null): OccasionType | null => {
+      if (!className) return null;
+      const m = className.match(/\boccasion-type-([a-z_]+)\b/i);
+      if (!m?.[1]) return null;
+      return mapKeyToType(m[1].toLowerCase());
+    };
+
+    return items
+      .map((o) => ({ o, type: getTypeFromClass(o.container_class_name) }))
+      .filter((x): x is { o: (typeof items)[number]; type: OccasionType } => Boolean(x.type));
+  }, [items]);
+
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [active, setActive] = useState(0);
-  const snapCount = api?.scrollSnapList().length ?? items.length ?? 0;
+  const snapCount = api?.scrollSnapList().length ?? supported.length ?? 0;
 
   useEffect(() => {
     if (!api) return;
@@ -89,7 +125,7 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
     );
   }
 
-  if (!items.length) return null;
+  if (!supported.length) return null;
 
   return (
     <div className="w-full">
@@ -100,7 +136,7 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
       >
         {/* Avoid negative margins here: the page uses overflow-x-hidden, which can clip the card on small screens. */}
         <CarouselContent className="ml-0 gap-3">
-          {items.map((o) => (
+          {supported.map(({ o, type }) => (
             <CarouselItem key={o.id} className="pl-0">
               {o.card_css?.trim() ? (
                 <style>
@@ -108,45 +144,14 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
                 </style>
               ) : null}
 
-              <div
-                className={cn(
-                  "occasion-card relative overflow-hidden rounded-2xl border border-border bg-card",
-                  o.container_class_name,
-                )}
-                data-occasion-id={o.id}
-              >
-                {/* Theme overlay layer (driven by optional theme classes on the card) */}
-                <div className="occasion-theme-overlay pointer-events-none absolute inset-0" />
-
-                {o.image_url ? (
-                  <img
-                    src={o.image_url}
-                    alt={o.title}
-                    loading="lazy"
-                    className="h-44 w-full object-cover sm:h-52"
-                    style={{ objectPosition: "var(--occasion-image-position, 50% 50%)" }}
-                  />
-                ) : (
-                  <div className="h-44 w-full bg-muted sm:h-52" />
-                )}
-
-                {/* Gradient overlay */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
-
-                {/* Content */}
-                <div className="occasion-content absolute inset-x-0 bottom-0 p-4">
-                  <p className="occasion-title font-semibold tracking-tight text-foreground text-lg sm:text-xl">
-                    {o.title}
-                  </p>
-                  <p className="occasion-message mt-1 text-sm text-foreground/90 line-clamp-2">{o.message}</p>
-                  {o.dua_text ? (
-                    <p className="occasion-dua mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
-                      {o.dua_text}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
+              <OccasionCard
+                id={o.id}
+                occasionType={type}
+                title={o.title}
+                message={o.message}
+                duaText={o.dua_text}
+                containerClassName={cn(o.container_class_name)}
+              />
             </CarouselItem>
           ))}
         </CarouselContent>
