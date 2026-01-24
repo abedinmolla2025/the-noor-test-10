@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Zap, Flame, Clock } from "lucide-react";
 import { useQuizProgress } from "@/hooks/useQuizProgress";
 import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
-import brainOverlay from "@/assets/brain-overlay.png";
+import brainOverlay from "@/assets/quiz-brain-quran-overlay.png";
 
 export const DailyQuizCard = () => {
   const navigate = useNavigate();
