@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { OccasionCarousel } from "@/components/OccasionCarousel";
+import { OccasionPresetGallery } from "@/components/admin/OccasionPresetGallery";
 
 function sanitizeOccasionCardCss(input: string) {
   let s = input ?? "";
@@ -1054,6 +1055,20 @@ export default function AdminOccasions() {
 
                  <div className="space-y-2 md:col-span-2">
                    <Label>Card Tailwind className (recommended)</Label>
+
+                    <OccasionPresetGallery
+                      value={form.container_class_name}
+                      onApply={(presetClassName) =>
+                        setForm((p) => ({
+                          ...p,
+                          container_class_name: [p.container_class_name, presetClassName]
+                            .filter(Boolean)
+                            .join(" ")
+                            .replace(/\s{2,}/g, " ")
+                            .trim(),
+                        }))
+                      }
+                    />
 
                     <div className="flex flex-wrap gap-2">
                       <Button
