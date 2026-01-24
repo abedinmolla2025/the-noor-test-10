@@ -435,6 +435,7 @@ export type Database = {
       admin_occasions: {
         Row: {
           card_css: string | null
+          container_class_name: string | null
           created_at: string
           display_order: number
           dua_text: string | null
@@ -450,6 +451,7 @@ export type Database = {
         }
         Insert: {
           card_css?: string | null
+          container_class_name?: string | null
           created_at?: string
           display_order?: number
           dua_text?: string | null
@@ -465,6 +467,7 @@ export type Database = {
         }
         Update: {
           card_css?: string | null
+          container_class_name?: string | null
           created_at?: string
           display_order?: number
           dua_text?: string | null

@@ -94,7 +94,10 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
               ) : null}
 
               <div
-                className="occasion-card relative overflow-hidden rounded-2xl border border-border bg-card"
+                className={cn(
+                  "occasion-card relative overflow-hidden rounded-2xl border border-border bg-card",
+                  o.container_class_name,
+                )}
                 data-occasion-id={o.id}
               >
                 {o.image_url ? (
