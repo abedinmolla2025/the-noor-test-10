@@ -1110,28 +1110,32 @@ export default function AdminOccasions() {
                     </>
                   ) : null}
 
-                <div className="space-y-2 md:col-span-2">
-                  <Label>HTML code</Label>
-                  <Textarea
-                    value={(form.html_code ?? "") as any}
-                    onChange={(e) => setForm((p) => ({ ...p, html_code: e.target.value }))}
-                    rows={8}
-                    placeholder={`<div class=\"card\">\n  <h2 class=\"title\">Eid Mubarak</h2>\n  <p class=\"sub\">আপনার ঈদ হোক বরকতময়</p>\n</div>`}
-                  />
-                </div>
+                 {isCustomHtmlCssOnly ? (
+                   <>
+                     <div className="space-y-2 md:col-span-2">
+                       <Label>HTML code</Label>
+                       <Textarea
+                         value={(form.html_code ?? "") as any}
+                         onChange={(e) => setForm((p) => ({ ...p, html_code: e.target.value }))}
+                         rows={8}
+                         placeholder={`<div class=\"card\">\n  <h2 class=\"title\">Eid Mubarak</h2>\n  <p class=\"sub\">আপনার ঈদ হোক বরকতময়</p>\n</div>`}
+                       />
+                     </div>
 
-                <div className="space-y-2 md:col-span-2">
-                  <Label>CSS code</Label>
-                  <Textarea
-                    value={(form.css_code ?? "") as any}
-                    onChange={(e) => setForm((p) => ({ ...p, css_code: e.target.value }))}
-                    rows={10}
-                    placeholder={`/* IMPORTANT: scope your selectors to .occasion-scope */\n.occasion-scope {\n  width: 100%;\n}`}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Tip: সব selector <code>.occasion-scope</code> দিয়ে শুরু করুন, যেন CSS global-এ না ছড়ায়। Keyframes/gradients allowed.
-                  </p>
-                </div>
+                     <div className="space-y-2 md:col-span-2">
+                       <Label>CSS code</Label>
+                       <Textarea
+                         value={(form.css_code ?? "") as any}
+                         onChange={(e) => setForm((p) => ({ ...p, css_code: e.target.value }))}
+                         rows={10}
+                         placeholder={`/* IMPORTANT: scope your selectors to .occasion-scope */\n.occasion-scope {\n  width: 100%;\n}`}
+                       />
+                       <p className="text-xs text-muted-foreground">
+                         Tip: সব selector <code>.occasion-scope</code> দিয়ে শুরু করুন, যেন CSS global-এ না ছড়ায়। Keyframes/gradients allowed.
+                       </p>
+                     </div>
+                   </>
+                 ) : null}
 
                  {!isCustomHtmlCssOnly ? (
                    <>
