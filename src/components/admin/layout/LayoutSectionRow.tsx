@@ -110,6 +110,15 @@ export function LayoutSectionRow({
     });
   };
 
+  const removeSettingsKeys = (keys: string[]) => {
+    const next = { ...(item.settings ?? {}) } as Record<string, any>;
+    keys.forEach((k) => {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete next[k];
+    });
+    onChange({ ...item, settings: next });
+  };
+
   type QuizOverlayPreset = {
     opacity?: number;
     widthRem?: number;
@@ -142,6 +151,11 @@ export function LayoutSectionRow({
 
   const updateDailyQuizCard = (patch: Partial<DailyQuizCardSettings>) => {
     updateSettings({ dailyQuizCard: { ...(dailyQuizCard ?? {}), ...patch } } as any);
+  };
+
+  const resetDailyQuizCardToDefault = () => {
+    // Remove both tuning + card settings objects so the UI falls back to built-in defaults.
+    removeSettingsKeys(["quizOverlay", "dailyQuizCard"]);
   };
 
   const getPresetValue = (
@@ -423,6 +437,20 @@ export function LayoutSectionRow({
                     <p className="text-[11px] text-muted-foreground">
                       PNG replace/disable + card style override (শুধু DailyQuizCard)
                     </p>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={resetDailyQuizCardToDefault}
+                      >
+                        Reset to default
+                      </Button>
+                      <p className="text-[11px] text-muted-foreground">
+                        (className + CSS + overlay settings reset হবে)
+                      </p>
+                    </div>
 
                     <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
