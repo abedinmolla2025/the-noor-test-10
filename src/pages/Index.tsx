@@ -183,6 +183,31 @@ const Index = () => {
             };
           }
 
+          // Daily hadith: allow wrapper style override
+          if (r.section_key === "daily_hadith") {
+            const hadithCfg =
+              typeof rowSettings?.dailyHadithCard === "object" && rowSettings?.dailyHadithCard
+                ? rowSettings.dailyHadithCard
+                : undefined;
+
+            const cls = typeof hadithCfg?.cardClassName === "string" ? hadithCfg.cardClassName : "";
+            const css = typeof hadithCfg?.cardCss === "string" ? hadithCfg.cardCss.trim() : "";
+            const scopedCss =
+              css && !css.includes("{") ? `[data-daily-hadith-card]{${css}}` : css;
+
+            return {
+              key: r.id,
+              el: wrapWithVariant(
+                <div data-daily-hadith-card className={cls}>
+                  {scopedCss ? <style>{scopedCss}</style> : null}
+                  <DailyHadith />
+                </div>,
+                rowSettings?.styleVariant,
+              ),
+              pad: sizeToPad(r.size as any),
+            };
+          }
+
           // Ad slot: placement override via settings.adPlacement
           if (typeof r.section_key === "string" && r.section_key.startsWith("ad_")) {
             const fallbackPlacement = getDefaultPlacementForSection(r.section_key);
