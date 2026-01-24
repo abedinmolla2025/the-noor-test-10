@@ -130,6 +130,53 @@ type OccasionTemplate = {
   daysActive?: number;
 };
 
+type CssPreset = {
+  id: "shadow" | "tilt" | "glass" | "border_glow";
+  label: string;
+  css: string;
+};
+
+const OCCASION_CSS_PRESETS: CssPreset[] = [
+  {
+    id: "shadow",
+    label: "Shadow",
+    css: [
+      "box-shadow:",
+      "  0 20px 50px -25px hsl(var(--foreground) / 0.35),",
+      "  0 8px 18px -10px hsl(var(--foreground) / 0.25);",
+    ].join("\n"),
+  },
+  {
+    id: "tilt",
+    label: "Tilt",
+    css: [
+      "transform: rotate(-1deg) translateY(-1px);",
+      "transform-origin: center;",
+      "will-change: transform;",
+    ].join("\n"),
+  },
+  {
+    id: "glass",
+    label: "Glass",
+    css: [
+      "background: hsl(var(--card) / 0.78);",
+      "backdrop-filter: blur(10px);",
+      "-webkit-backdrop-filter: blur(10px);",
+      "border: 1px solid hsl(var(--border) / 0.9);",
+    ].join("\n"),
+  },
+  {
+    id: "border_glow",
+    label: "Border glow",
+    css: [
+      "border: 1px solid hsl(var(--primary) / 0.45);",
+      "box-shadow:",
+      "  0 0 0 2px hsl(var(--primary) / 0.12) inset,",
+      "  0 18px 60px -35px hsl(var(--primary) / 0.55);",
+    ].join("\n"),
+  },
+];
+
 const OCCASION_TEMPLATES: OccasionTemplate[] = [
   {
     id: "eid_festive_1",
@@ -923,6 +970,38 @@ export default function AdminOccasions() {
 
                  <div className="space-y-2 md:col-span-2">
                    <Label>Card CSS (advanced)</Label>
+
+                   <div className="flex flex-wrap gap-2">
+                     {OCCASION_CSS_PRESETS.map((p) => (
+                       <Button
+                         key={p.id}
+                         type="button"
+                         size="sm"
+                         variant="outline"
+                         onClick={() => {
+                           setForm((prev) => {
+                             const existing = (prev.card_css ?? "").trim();
+                             const next = existing
+                               ? `${existing}\n\n/* Preset: ${p.label} */\n${p.css}`
+                               : p.css;
+                             return { ...prev, card_css: next };
+                           });
+                         }}
+                       >
+                         {p.label}
+                       </Button>
+                     ))}
+
+                     <Button
+                       type="button"
+                       size="sm"
+                       variant="ghost"
+                       onClick={() => setForm((p) => ({ ...p, card_css: "" }))}
+                     >
+                       Clear
+                     </Button>
+                   </div>
+
                    <Textarea
                      value={form.card_css}
                      onChange={(e) => setForm((p) => ({ ...p, card_css: e.target.value }))}
