@@ -437,15 +437,18 @@ export type Database = {
           card_css: string | null
           container_class_name: string | null
           created_at: string
+          css_code: string | null
           display_order: number
           dua_text: string | null
           end_date: string
+          html_code: string | null
           id: string
           image_url: string | null
           is_active: boolean
           message: string
           platform: Database["public"]["Enums"]["occasion_platform"]
           start_date: string
+          subtitle: string | null
           title: string
           updated_at: string
         }
@@ -453,15 +456,18 @@ export type Database = {
           card_css?: string | null
           container_class_name?: string | null
           created_at?: string
+          css_code?: string | null
           display_order?: number
           dua_text?: string | null
           end_date: string
+          html_code?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
           message: string
           platform?: Database["public"]["Enums"]["occasion_platform"]
           start_date: string
+          subtitle?: string | null
           title: string
           updated_at?: string
         }
@@ -469,15 +475,18 @@ export type Database = {
           card_css?: string | null
           container_class_name?: string | null
           created_at?: string
+          css_code?: string | null
           display_order?: number
           dua_text?: string | null
           end_date?: string
+          html_code?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
           message?: string
           platform?: Database["public"]["Enums"]["occasion_platform"]
           start_date?: string
+          subtitle?: string | null
           title?: string
           updated_at?: string
         }
