@@ -115,6 +115,9 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
                 )}
                 data-occasion-id={o.id}
               >
+                {/* Theme overlay layer (driven by optional theme classes on the card) */}
+                <div className="occasion-theme-overlay pointer-events-none absolute inset-0" />
+
                 {o.image_url ? (
                   <img
                     src={o.image_url}
@@ -132,12 +135,12 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
 
                 {/* Content */}
                 <div className="absolute inset-x-0 bottom-0 p-4">
-                  <p className="font-semibold tracking-tight text-foreground text-lg sm:text-xl">
+                  <p className="occasion-title font-semibold tracking-tight text-foreground text-lg sm:text-xl">
                     {o.title}
                   </p>
-                  <p className="mt-1 text-sm text-foreground/90 line-clamp-2">{o.message}</p>
+                  <p className="occasion-message mt-1 text-sm text-foreground/90 line-clamp-2">{o.message}</p>
                   {o.dua_text ? (
-                    <p className="mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
+                    <p className="occasion-dua mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
                       {o.dua_text}
                     </p>
                   ) : null}
