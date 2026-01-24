@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import {
   Collapsible,
   CollapsibleContent,
@@ -65,11 +66,13 @@ export function LayoutSectionRow({
   const isAdSection = useMemo(() => item.section_key.startsWith("ad_"), [item.section_key]);
   const isFeatureIcons = useMemo(() => item.section_key === "feature_icons", [item.section_key]);
   const isFooter = useMemo(() => item.section_key === "footer", [item.section_key]);
+  const isFocusZone = useMemo(() => item.section_key === "focus_zone", [item.section_key]);
 
   const hasSettings = useMemo(() => {
     const s = item.settings ?? {};
     const hasGrid = isFeatureIcons && Boolean(s.gridColumns);
     const hasPlacement = isAdSection && Boolean(s.adPlacement);
+    const hasQuizOverlay = isFocusZone && Boolean((s as any).quizOverlay);
     const hasFooterLinks =
       isFooter &&
       Boolean(
@@ -83,8 +86,8 @@ export function LayoutSectionRow({
           s.developerLine,
       );
 
-    return Boolean(hasGrid || hasPlacement || hasFooterLinks || s.styleVariant);
-  }, [isAdSection, isFeatureIcons, isFooter, item.settings]);
+    return Boolean(hasGrid || hasPlacement || hasFooterLinks || hasQuizOverlay || s.styleVariant);
+  }, [isAdSection, isFeatureIcons, isFooter, isFocusZone, item.settings]);
 
   const updateSettings = (patch: Partial<SectionSettings>) => {
     onChange({
@@ -94,6 +97,35 @@ export function LayoutSectionRow({
         ...patch,
       },
     });
+  };
+
+  type QuizOverlayPreset = {
+    opacity?: number;
+    widthRem?: number;
+    offsetXRem?: number;
+    offsetYRem?: number;
+  };
+
+  const quizOverlay = (item.settings as any)?.quizOverlay as
+    | { mobile?: QuizOverlayPreset; desktop?: QuizOverlayPreset }
+    | undefined;
+
+  const updateQuizOverlay = (target: "mobile" | "desktop", patch: QuizOverlayPreset) => {
+    const next = {
+      mobile: { ...(quizOverlay?.mobile ?? {}) },
+      desktop: { ...(quizOverlay?.desktop ?? {}) },
+    };
+    next[target] = { ...next[target], ...patch };
+    updateSettings({ quizOverlay: next } as any);
+  };
+
+  const getPresetValue = (
+    target: "mobile" | "desktop",
+    key: keyof QuizOverlayPreset,
+    fallback: number,
+  ) => {
+    const v = quizOverlay?.[target]?.[key];
+    return typeof v === "number" ? v : fallback;
   };
 
   return (
@@ -356,6 +388,152 @@ export function LayoutSectionRow({
                   <p className="text-[11px] text-muted-foreground">
                     এই লেখা/লিংকগুলো শুধু Footer section‑এ ব্যবহার হবে।
                   </p>
+                </div>
+              )}
+
+              {isFocusZone && (
+                <div className="space-y-3 sm:col-span-3">
+                  <div className="rounded-xl border border-border bg-background/50 p-3">
+                    <p className="text-sm font-medium">Daily Quiz overlay (Mobile)</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Opacity, size ও position fine-tune করুন (শুধু DailyQuizCard overlay)
+                    </p>
+
+                    <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Opacity</Label>
+                          <span className="text-xs text-muted-foreground">
+                            {getPresetValue("mobile", "opacity", 0.35).toFixed(2)}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[getPresetValue("mobile", "opacity", 0.35)]}
+                          min={0.05}
+                          max={0.8}
+                          step={0.05}
+                          onValueChange={(v) => updateQuizOverlay("mobile", { opacity: v[0] })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Width (rem)</Label>
+                          <span className="text-xs text-muted-foreground">
+                            {getPresetValue("mobile", "widthRem", 19).toFixed(1)}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[getPresetValue("mobile", "widthRem", 19)]}
+                          min={12}
+                          max={32}
+                          step={0.5}
+                          onValueChange={(v) => updateQuizOverlay("mobile", { widthRem: v[0] })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Right offset (rem)</Label>
+                          <span className="text-xs text-muted-foreground">
+                            {getPresetValue("mobile", "offsetXRem", -2).toFixed(1)}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[getPresetValue("mobile", "offsetXRem", -2)]}
+                          min={-8}
+                          max={8}
+                          step={0.5}
+                          onValueChange={(v) => updateQuizOverlay("mobile", { offsetXRem: v[0] })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Top offset (rem)</Label>
+                          <span className="text-xs text-muted-foreground">
+                            {getPresetValue("mobile", "offsetYRem", -2.5).toFixed(1)}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[getPresetValue("mobile", "offsetYRem", -2.5)]}
+                          min={-8}
+                          max={8}
+                          step={0.5}
+                          onValueChange={(v) => updateQuizOverlay("mobile", { offsetYRem: v[0] })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-border bg-background/50 p-3">
+                    <p className="text-sm font-medium">Daily Quiz overlay (Desktop)</p>
+                    <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Opacity</Label>
+                          <span className="text-xs text-muted-foreground">
+                            {getPresetValue("desktop", "opacity", 0.35).toFixed(2)}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[getPresetValue("desktop", "opacity", 0.35)]}
+                          min={0.05}
+                          max={0.8}
+                          step={0.05}
+                          onValueChange={(v) => updateQuizOverlay("desktop", { opacity: v[0] })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Width (rem)</Label>
+                          <span className="text-xs text-muted-foreground">
+                            {getPresetValue("desktop", "widthRem", 22).toFixed(1)}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[getPresetValue("desktop", "widthRem", 22)]}
+                          min={12}
+                          max={40}
+                          step={0.5}
+                          onValueChange={(v) => updateQuizOverlay("desktop", { widthRem: v[0] })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Right offset (rem)</Label>
+                          <span className="text-xs text-muted-foreground">
+                            {getPresetValue("desktop", "offsetXRem", -2).toFixed(1)}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[getPresetValue("desktop", "offsetXRem", -2)]}
+                          min={-10}
+                          max={10}
+                          step={0.5}
+                          onValueChange={(v) => updateQuizOverlay("desktop", { offsetXRem: v[0] })}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Top offset (rem)</Label>
+                          <span className="text-xs text-muted-foreground">
+                            {getPresetValue("desktop", "offsetYRem", -2.5).toFixed(1)}
+                          </span>
+                        </div>
+                        <Slider
+                          value={[getPresetValue("desktop", "offsetYRem", -2.5)]}
+                          min={-10}
+                          max={10}
+                          step={0.5}
+                          onValueChange={(v) => updateQuizOverlay("desktop", { offsetYRem: v[0] })}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

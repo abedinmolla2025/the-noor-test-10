@@ -6,12 +6,42 @@ import { Trophy, Zap, Flame, Clock } from "lucide-react";
 import { useQuizProgress } from "@/hooks/useQuizProgress";
 import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
 import brainOverlay from "@/assets/quiz-brain-quran-overlay.png";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-export const DailyQuizCard = () => {
+type OverlayPreset = {
+  opacity?: number;
+  widthRem?: number;
+  offsetXRem?: number; // right
+  offsetYRem?: number; // top
+};
+
+export type DailyQuizOverlayTuning = {
+  mobile?: OverlayPreset;
+  desktop?: OverlayPreset;
+};
+
+type Props = {
+  overlayTuning?: DailyQuizOverlayTuning;
+};
+
+export const DailyQuizCard = ({ overlayTuning }: Props) => {
   const navigate = useNavigate();
   const { progress, hasPlayedToday } = useQuizProgress();
   const countdown = useCountdownToMidnight();
   const playedToday = hasPlayedToday();
+  const isMobile = useIsMobile();
+
+  const defaults: Required<OverlayPreset> = isMobile
+    ? { opacity: 0.35, widthRem: 19, offsetXRem: -2, offsetYRem: -2.5 }
+    : { opacity: 0.35, widthRem: 22, offsetXRem: -2, offsetYRem: -2.5 };
+
+  const preset = (isMobile ? overlayTuning?.mobile : overlayTuning?.desktop) ?? {};
+  const overlay: Required<OverlayPreset> = {
+    opacity: typeof preset.opacity === "number" ? preset.opacity : defaults.opacity,
+    widthRem: typeof preset.widthRem === "number" ? preset.widthRem : defaults.widthRem,
+    offsetXRem: typeof preset.offsetXRem === "number" ? preset.offsetXRem : defaults.offsetXRem,
+    offsetYRem: typeof preset.offsetYRem === "number" ? preset.offsetYRem : defaults.offsetYRem,
+  };
 
   return (
     <Card className="relative overflow-hidden border-primary/25 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--primary)/0.28)_0%,transparent_55%),radial-gradient(120%_100%_at_100%_0%,hsl(var(--accent)/0.18)_0%,transparent_52%),linear-gradient(135deg,hsl(var(--card))_0%,hsl(var(--card)/0.70)_100%)]">
@@ -21,7 +51,13 @@ export const DailyQuizCard = () => {
         <img
           src={brainOverlay}
           alt=""
-          className="absolute -right-8 -top-10 w-[19rem] sm:w-[22rem] opacity-35 rotate-6 select-none transform-gpu"
+          className="absolute rotate-6 select-none transform-gpu"
+          style={{
+            right: `${overlay.offsetXRem}rem`,
+            top: `${overlay.offsetYRem}rem`,
+            width: `${overlay.widthRem}rem`,
+            opacity: overlay.opacity,
+          }}
           loading="lazy"
           draggable={false}
         />
