@@ -414,6 +414,10 @@ export default function AdminOccasions() {
   const [cropDialogSrc, setCropDialogSrc] = useState<string | null>(null);
   const [pendingCropMeta, setPendingCropMeta] = useState<{ baseName: string } | null>(null);
 
+  const [templateCropOpen, setTemplateCropOpen] = useState(false);
+  const [templateCropSrc, setTemplateCropSrc] = useState<string | null>(null);
+  const [templateCropMeta, setTemplateCropMeta] = useState<{ templateId: string; baseName: string } | null>(null);
+
   const applyDesignPreset = (presetClassName: string) => {
     setForm((p) => {
       const current = p.container_class_name ?? "";
@@ -469,6 +473,12 @@ export default function AdminOccasions() {
       if (cropDialogSrc) URL.revokeObjectURL(cropDialogSrc);
     };
   }, [cropDialogSrc]);
+
+  useEffect(() => {
+    return () => {
+      if (templateCropSrc) URL.revokeObjectURL(templateCropSrc);
+    };
+  }, [templateCropSrc]);
 
   const setOccasionImagePosition = (pos: "50% 20%" | "50% 50%" | "50% 80%") => {
     setForm((p) => {
@@ -906,9 +916,33 @@ export default function AdminOccasions() {
                            onChange={(e) => {
                              const f = e.target.files?.[0];
                              if (!f) return;
-                             void uploadTemplatePhoto(templateId, f);
-                             // allow re-selecting same file later
-                             e.currentTarget.value = "";
+
+                              // allow re-selecting same file later
+                              e.currentTarget.value = "";
+
+                              // GIF: keep animation (skip crop)
+                              if (f.type === "image/gif") {
+                                void uploadTemplatePhoto(templateId, f);
+                                return;
+                              }
+
+                              // Still images: open cropper first
+                              void (async () => {
+                                try {
+                                  const optimized = await compressImageFile(f);
+                                  if (templateCropSrc) URL.revokeObjectURL(templateCropSrc);
+                                  const src = URL.createObjectURL(optimized);
+                                  setTemplateCropSrc(src);
+                                  setTemplateCropMeta({
+                                    templateId,
+                                    baseName: f.name.replace(/\.[^.]+$/, "") || "template",
+                                  });
+                                  setTemplateCropOpen(true);
+                                } catch {
+                                  // fallback to direct upload if anything fails
+                                  void uploadTemplatePhoto(templateId, f);
+                                }
+                              })();
                            }}
                          />
                          <Button
@@ -924,6 +958,21 @@ export default function AdminOccasions() {
                        </div>
                      </div>
                    ) : null}
+
+                    <ImageCropDialog
+                      open={templateCropOpen}
+                      onOpenChange={setTemplateCropOpen}
+                      imageSrc={templateCropSrc}
+                      title="Crop template image"
+                      aspect={16 / 9}
+                      onConfirm={async (blob) => {
+                        const id = templateCropMeta?.templateId ?? templateId;
+                        const base = templateCropMeta?.baseName ?? "template";
+                        const ext = blob.type === "image/webp" ? "webp" : "jpg";
+                        const file = new File([blob], `${base}-cropped.${ext}`, { type: blob.type });
+                        await uploadTemplatePhoto(id, file);
+                      }}
+                    />
 
                    <p className="text-xs text-muted-foreground">
                      টেমপ্লেট সিলেক্ট করলে Title/Message/Dua + Date range auto-fill হবে।
