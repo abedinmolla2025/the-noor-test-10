@@ -475,6 +475,111 @@
   .dua-icon-btn:hover {
     background: hsl(var(--dua-fg) / 0.10);
   }
+
+  /* Occasions: design presets (applied via className on the card container) */
+  .occasion-theme-overlay {
+    /* default: off */
+    opacity: 0;
+  }
+
+  .occasion-card.occasion-theme-minimal .occasion-theme-overlay {
+    opacity: 1;
+    background:
+      radial-gradient(700px circle at 12% 15%, hsl(var(--primary) / 0.12), transparent 55%),
+      radial-gradient(700px circle at 88% 18%, hsl(var(--accent) / 0.08), transparent 55%);
+  }
+  .occasion-card.occasion-theme-minimal .occasion-title {
+    letter-spacing: -0.01em;
+  }
+  .occasion-card.occasion-theme-minimal .occasion-dua {
+    background: hsl(var(--foreground) / 0.06);
+    color: hsl(var(--foreground) / 0.85);
+    font-style: normal;
+  }
+
+  .occasion-card.occasion-theme-festive .occasion-theme-overlay {
+    opacity: 1;
+    background:
+      radial-gradient(900px circle at 15% 10%, hsl(var(--accent) / 0.16), transparent 58%),
+      radial-gradient(800px circle at 92% 22%, hsl(var(--primary) / 0.12), transparent 56%),
+      linear-gradient(135deg, hsl(var(--primary) / 0.08), transparent 45%, hsl(var(--accent) / 0.10));
+  }
+  .occasion-card.occasion-theme-festive .occasion-theme-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    background:
+      repeating-conic-gradient(
+        from 0deg,
+        hsl(var(--foreground) / 1) 0 6deg,
+        transparent 6deg 15deg
+      );
+    mix-blend-mode: overlay;
+  }
+  .occasion-card.occasion-theme-festive .occasion-title {
+    letter-spacing: -0.02em;
+  }
+  .occasion-card.occasion-theme-festive .occasion-dua {
+    background: hsl(var(--accent) / 0.20);
+    color: hsl(var(--accent-foreground) / 1);
+    font-style: normal;
+  }
+
+  .occasion-card.occasion-theme-editorial .occasion-theme-overlay {
+    opacity: 1;
+    background:
+      linear-gradient(180deg, hsl(var(--foreground) / 0.00), hsl(var(--foreground) / 0.04)),
+      radial-gradient(900px circle at 10% 12%, hsl(var(--primary) / 0.10), transparent 60%);
+  }
+  .occasion-card.occasion-theme-editorial .occasion-title {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    letter-spacing: -0.015em;
+  }
+  .occasion-card.occasion-theme-editorial .occasion-message {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+  .occasion-card.occasion-theme-editorial .occasion-dua {
+    background: hsl(var(--primary) / 0.16);
+    color: hsl(var(--primary-foreground) / 0.95);
+  }
+
+  .occasion-card.occasion-theme-playful .occasion-theme-overlay {
+    opacity: 1;
+    background:
+      radial-gradient(800px circle at 20% 18%, hsl(var(--accent) / 0.14), transparent 55%),
+      radial-gradient(800px circle at 85% 30%, hsl(var(--primary) / 0.12), transparent 55%),
+      linear-gradient(135deg, transparent, hsl(var(--accent) / 0.06));
+  }
+  .occasion-card.occasion-theme-playful .occasion-theme-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image:
+      radial-gradient(circle at 12px 12px, hsl(var(--foreground) / 0.55) 0 1px, transparent 1px 36px),
+      radial-gradient(circle at 36px 36px, hsl(var(--foreground) / 0.35) 0 1px, transparent 1px 36px);
+    background-size: 72px 72px;
+    mix-blend-mode: overlay;
+  }
+  .occasion-card.occasion-theme-playful .occasion-title {
+    letter-spacing: -0.02em;
+  }
+  .occasion-card.occasion-theme-playful .occasion-dua {
+    background: hsl(var(--primary) / 0.14);
+    color: hsl(var(--foreground) / 0.90);
+    font-style: normal;
+  }
+
+  /* Reduced motion: keep visuals, remove motion-only effects */
+  @media (prefers-reduced-motion: reduce) {
+    .occasion-card.occasion-theme-festive .occasion-theme-overlay::before,
+    .occasion-card.occasion-theme-playful .occasion-theme-overlay::before {
+      /* pattern is fine; keep it */
+    }
+  }
 }
 
 

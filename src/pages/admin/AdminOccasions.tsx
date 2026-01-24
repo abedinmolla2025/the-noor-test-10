@@ -20,6 +20,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { OccasionCarousel } from "@/components/OccasionCarousel";
 import { OccasionPresetGallery } from "@/components/admin/OccasionPresetGallery";
+import {
+  OCCASION_DESIGN_PRESETS,
+  OccasionDesignPresetGallery,
+} from "@/components/admin/OccasionDesignPresetGallery";
 
 function sanitizeOccasionCardCss(input: string) {
   let s = input ?? "";
@@ -404,6 +408,23 @@ export default function AdminOccasions() {
   const [previewPlatform, setPreviewPlatform] = useState<"web" | "app">("web");
   const [previewWidth, setPreviewWidth] = useState<"auto" | "320" | "360" | "390">("auto");
   const [localImagePreviewUrl, setLocalImagePreviewUrl] = useState<string | null>(null);
+
+  const applyDesignPreset = (presetClassName: string) => {
+    setForm((p) => {
+      const current = p.container_class_name ?? "";
+      // Replace theme + motion effect classes to keep presets deterministic.
+      const stripped = current
+        .replace(/\boccasion-theme-(minimal|festive|editorial|playful)\b/g, "")
+        .replace(/\boccasion-(float|shimmer|tilt|glow)\b/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+
+      return {
+        ...p,
+        container_class_name: [stripped, presetClassName].filter(Boolean).join(" ").replace(/\s{2,}/g, " ").trim(),
+      };
+    });
+  };
 
 
   useEffect(() => {
@@ -1056,6 +1077,36 @@ export default function AdminOccasions() {
                  <div className="space-y-2 md:col-span-2">
                    <Label>Card Tailwind className (recommended)</Label>
 
+                    <div className="grid gap-2">
+                      <Label className="text-xs text-muted-foreground">Design preset</Label>
+                      <Select
+                        value={(() => {
+                          const v = form.container_class_name ?? "";
+                          const match = v.match(/\boccasion-theme-(minimal|festive|editorial|playful)\b/);
+                          return match?.[1] ?? "custom";
+                        })()}
+                        onValueChange={(v) => {
+                          if (v === "custom") return;
+                          const preset = OCCASION_DESIGN_PRESETS.find((p) => p.id === v);
+                          if (preset) applyDesignPreset(preset.className);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a design preset" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="custom">Custom</SelectItem>
+                          {OCCASION_DESIGN_PRESETS.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <OccasionDesignPresetGallery value={form.container_class_name} onApply={applyDesignPreset} />
+
                     <OccasionPresetGallery
                       value={form.container_class_name}
                       onApply={(presetClassName) =>
@@ -1251,6 +1302,8 @@ export default function AdminOccasions() {
                           )}
                           data-occasion-id="preview"
                         >
+                          <div className="occasion-theme-overlay pointer-events-none absolute inset-0" />
+
                           {bannerImg ? (
                             <img
                               src={bannerImg}
@@ -1266,10 +1319,10 @@ export default function AdminOccasions() {
                           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
 
                           <div className="absolute inset-x-0 bottom-0 p-4">
-                            <p className="font-semibold tracking-tight text-foreground text-lg sm:text-xl">{title}</p>
-                            <p className="mt-1 text-sm text-foreground/90 line-clamp-2">{message}</p>
+                            <p className="occasion-title font-semibold tracking-tight text-foreground text-lg sm:text-xl">{title}</p>
+                            <p className="occasion-message mt-1 text-sm text-foreground/90 line-clamp-2">{message}</p>
                             {dua ? (
-                              <p className="mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
+                              <p className="occasion-dua mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
                                 {dua}
                               </p>
                             ) : null}
