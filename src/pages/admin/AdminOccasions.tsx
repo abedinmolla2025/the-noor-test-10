@@ -59,6 +59,9 @@ type OccasionRow = {
   id: string;
   title: string;
   message: string;
+  subtitle?: string | null;
+  html_code?: string | null;
+  css_code?: string | null;
   dua_text: string | null;
   image_url: string | null;
   card_css?: string | null;
@@ -333,6 +336,16 @@ function SortableOccasionRow({
             <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
               {item.platform}
             </span>
+            {item.html_code?.trim() ? (
+              <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                html
+              </span>
+            ) : null}
+            {item.css_code?.trim() ? (
+              <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                css
+              </span>
+            ) : null}
             {item.card_css?.trim() ? (
               <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
                 css
@@ -342,7 +355,7 @@ function SortableOccasionRow({
               <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">inactive</span>
             )}
           </div>
-          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{item.message}</p>
+          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{(item.subtitle ?? item.message) as any}</p>
           <p className="mt-2 text-[11px] text-muted-foreground">
             {new Date(item.start_date).toLocaleString()} → {new Date(item.end_date).toLocaleString()}
           </p>
@@ -389,6 +402,9 @@ export default function AdminOccasions() {
   const emptyForm = useMemo(
     () => ({
       title: "",
+      subtitle: "",
+      html_code: "",
+      css_code: "",
       message: "",
       dua_text: "",
       platform: "both" as OccasionPlatform,
@@ -679,6 +695,9 @@ export default function AdminOccasions() {
     setForm({
       ...emptyForm,
       title: row.title ?? "",
+      subtitle: (row.subtitle ?? row.message ?? "") as any,
+      html_code: (row.html_code ?? "") as any,
+      css_code: (row.css_code ?? row.card_css ?? "") as any,
       message: row.message ?? "",
       dua_text: row.dua_text ?? "",
       platform: row.platform ?? "both",
@@ -777,7 +796,11 @@ export default function AdminOccasions() {
 
       const payload: any = {
         title: form.title.trim(),
-        message: form.message.trim(),
+        subtitle: (form.subtitle ?? "").trim() || null,
+        html_code: (form.html_code ?? "").trim() || null,
+        css_code: (form.css_code ?? "").trim() || null,
+        // keep legacy column in sync
+        message: ((form.subtitle ?? form.message) ?? "").trim(),
         dua_text: form.dua_text.trim() ? form.dua_text.trim() : null,
         image_url: image_url ?? null,
         card_css: form.card_css?.trim() ? form.card_css.trim() : null,
@@ -1033,12 +1056,36 @@ export default function AdminOccasions() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Message</Label>
+                  <Label>Subtitle</Label>
                   <Textarea
-                    value={form.message}
-                    onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))}
-                    rows={4}
+                    value={(form.subtitle ?? "") as any}
+                    onChange={(e) => setForm((p) => ({ ...p, subtitle: e.target.value, message: e.target.value }))}
+                    rows={2}
+                    placeholder="e.g. হাজার মাসের চেয়ে উত্তম রজনী"
                   />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label>HTML code</Label>
+                  <Textarea
+                    value={(form.html_code ?? "") as any}
+                    onChange={(e) => setForm((p) => ({ ...p, html_code: e.target.value }))}
+                    rows={8}
+                    placeholder={`<div class=\"card\">\n  <h2 class=\"title\">Eid Mubarak</h2>\n  <p class=\"sub\">আপনার ঈদ হোক বরকতময়</p>\n</div>`}
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label>CSS code</Label>
+                  <Textarea
+                    value={(form.css_code ?? "") as any}
+                    onChange={(e) => setForm((p) => ({ ...p, css_code: e.target.value }))}
+                    rows={10}
+                    placeholder={`/* IMPORTANT: scope your selectors to .occasion-scope */\n.occasion-scope {\n  width: 100%;\n}`}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Tip: সব selector <code>.occasion-scope</code> দিয়ে শুরু করুন, যেন CSS global-এ না ছড়ায়। Keyframes/gradients allowed.
+                  </p>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">

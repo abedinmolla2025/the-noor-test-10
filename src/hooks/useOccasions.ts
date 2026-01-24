@@ -30,7 +30,7 @@ export function useActiveOccasions(platform: "web" | "app") {
       const { data, error } = await (supabase as any)
         .from("admin_occasions")
         .select(
-          "id,title,message,dua_text,image_url,card_css,container_class_name,start_date,end_date,is_active,display_order,platform",
+          "id,title,message,subtitle,html_code,css_code,dua_text,image_url,card_css,container_class_name,start_date,end_date,is_active,display_order,platform",
         )
         .eq("is_active", true)
         .lte("start_date", nowIso)
@@ -38,7 +38,7 @@ export function useActiveOccasions(platform: "web" | "app") {
         .in("platform", platforms)
         .order("display_order", { ascending: true })
         .order("created_at", { ascending: false })
-        .limit(20);
+        .limit(1);
 
       if (error) throw error;
       return (data ?? []) as any;
