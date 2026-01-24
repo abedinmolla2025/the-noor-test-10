@@ -1054,13 +1054,60 @@ export default function AdminOccasions() {
 
                  <div className="space-y-2 md:col-span-2">
                    <Label>Card Tailwind className (recommended)</Label>
+
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          setForm((p) => ({
+                            ...p,
+                            container_class_name: [p.container_class_name, "occasion-float"].filter(Boolean).join(" "),
+                          }))
+                        }
+                      >
+                        Float
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          setForm((p) => ({
+                            ...p,
+                            container_class_name: [p.container_class_name, "occasion-shimmer"].filter(Boolean).join(" "),
+                          }))
+                        }
+                      >
+                        Shimmer
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() =>
+                          setForm((p) => ({
+                            ...p,
+                            container_class_name: (p.container_class_name ?? "")
+                              .replace(/\boccasion-float\b/g, "")
+                              .replace(/\boccasion-shimmer\b/g, "")
+                              .replace(/\s{2,}/g, " ")
+                              .trim(),
+                          }))
+                        }
+                      >
+                        Clear anim
+                      </Button>
+                    </div>
+
                    <Input
                      value={form.container_class_name}
                      onChange={(e) => setForm((p) => ({ ...p, container_class_name: e.target.value }))}
                      placeholder="e.g. rounded-3xl shadow-lg md:rotate-1"
                    />
                    <p className="text-xs text-muted-foreground">
-                     এই className শুধু occasion card container-এ যোগ হবে (Home + preview দু’জায়গায়)।
+                      এই className শুধু occasion card container-এ যোগ হবে (Home + preview দু’জায়গায়)। Presets: occasion-float, occasion-shimmer
                    </p>
                  </div>
               </div>
