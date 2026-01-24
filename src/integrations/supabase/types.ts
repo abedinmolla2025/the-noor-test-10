@@ -445,7 +445,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
-          message: string
+          message: string | null
           platform: Database["public"]["Enums"]["occasion_platform"]
           start_date: string
           subtitle: string | null
@@ -464,7 +464,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
-          message: string
+          message?: string | null
           platform?: Database["public"]["Enums"]["occasion_platform"]
           start_date: string
           subtitle?: string | null
@@ -483,7 +483,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
-          message?: string
+          message?: string | null
           platform?: Database["public"]["Enums"]["occasion_platform"]
           start_date?: string
           subtitle?: string | null
