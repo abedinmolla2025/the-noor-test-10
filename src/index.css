@@ -504,6 +504,125 @@
       radial-gradient(800px circle at 92% 22%, hsl(var(--primary) / 0.12), transparent 56%),
       linear-gradient(135deg, hsl(var(--primary) / 0.08), transparent 45%, hsl(var(--accent) / 0.10));
   }
+
+  /* Occasions: text + layout presets (applied via className on the card container) */
+  .occasion-card.occasion-pos-left .occasion-content {
+    text-align: left;
+  }
+
+  .occasion-card.occasion-pos-center .occasion-content {
+    text-align: center;
+  }
+
+  .occasion-card.occasion-pos-center .occasion-dua {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .occasion-card.occasion-pos-right .occasion-content {
+    text-align: right;
+  }
+
+  .occasion-card.occasion-pos-right .occasion-dua {
+    margin-left: auto;
+  }
+
+  .occasion-card.occasion-text-classic .occasion-title {
+    font-family: Cairo, Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    letter-spacing: -0.01em;
+  }
+  .occasion-card.occasion-text-classic .occasion-message {
+    color: hsl(var(--foreground) / 0.86);
+  }
+
+  .occasion-card.occasion-text-gold .occasion-title {
+    font-family: Amiri, ui-serif, Georgia, serif;
+    font-weight: 700;
+    color: hsl(var(--accent));
+    text-shadow: 0 10px 30px hsl(var(--accent) / 0.25);
+    letter-spacing: -0.02em;
+  }
+  .occasion-card.occasion-text-gold .occasion-message {
+    color: hsl(var(--foreground) / 0.88);
+  }
+  .occasion-card.occasion-text-gold .occasion-dua {
+    background: hsl(var(--accent) / 0.18);
+    color: hsl(var(--foreground) / 0.96);
+    font-style: normal;
+  }
+
+  .occasion-card.occasion-text-hero .occasion-title {
+    font-family: Poppins, Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+    letter-spacing: -0.03em;
+  }
+  .occasion-card.occasion-text-hero .occasion-message {
+    font-size: 0.95rem;
+    color: hsl(var(--foreground) / 0.88);
+  }
+
+  .occasion-card.occasion-text-dua .occasion-title {
+    font-family: Cairo, Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .occasion-card.occasion-text-dua .occasion-dua {
+    background: hsl(var(--primary) / 0.26);
+    border: 1px solid hsl(var(--primary) / 0.25);
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* Occasions: text animations */
+  .occasion-card.occasion-anim-enter .occasion-title,
+  .occasion-card.occasion-anim-enter .occasion-message,
+  .occasion-card.occasion-anim-enter .occasion-dua {
+    @apply animate-fade-in;
+  }
+
+  .occasion-card.occasion-anim-enter .occasion-message {
+    animation-delay: 80ms;
+  }
+
+  .occasion-card.occasion-anim-enter .occasion-dua {
+    animation-delay: 140ms;
+  }
+
+  .occasion-card.occasion-anim-fade .occasion-title,
+  .occasion-card.occasion-anim-fade .occasion-message,
+  .occasion-card.occasion-anim-fade .occasion-dua {
+    @apply animate-fade-in;
+  }
+
+  @keyframes occasion-pop {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.96);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .occasion-card.occasion-anim-pop .occasion-title {
+    animation: occasion-pop 0.35s ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .occasion-card.occasion-anim-enter .occasion-title,
+    .occasion-card.occasion-anim-enter .occasion-message,
+    .occasion-card.occasion-anim-enter .occasion-dua,
+    .occasion-card.occasion-anim-fade .occasion-title,
+    .occasion-card.occasion-anim-fade .occasion-message,
+    .occasion-card.occasion-anim-fade .occasion-dua,
+    .occasion-card.occasion-anim-pop .occasion-title {
+      animation: none !important;
+      transform: none !important;
+    }
+  }
   .occasion-card.occasion-theme-festive .occasion-theme-overlay::before {
     content: "";
     position: absolute;

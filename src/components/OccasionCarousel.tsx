@@ -135,7 +135,7 @@ export function OccasionCarousel({ platform }: { platform: LayoutPlatform }) {
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
 
                 {/* Content */}
-                <div className="absolute inset-x-0 bottom-0 p-4">
+                <div className="occasion-content absolute inset-x-0 bottom-0 p-4">
                   <p className="occasion-title font-semibold tracking-tight text-foreground text-lg sm:text-xl">
                     {o.title}
                   </p>

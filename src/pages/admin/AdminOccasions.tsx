@@ -24,6 +24,10 @@ import {
   OCCASION_DESIGN_PRESETS,
   OccasionDesignPresetGallery,
 } from "@/components/admin/OccasionDesignPresetGallery";
+import {
+  OCCASION_TEXT_PRESETS,
+  OccasionTextPresetGallery,
+} from "@/components/admin/OccasionTextPresetGallery";
 
 function sanitizeOccasionCardCss(input: string) {
   let s = input ?? "";
@@ -425,6 +429,23 @@ export default function AdminOccasions() {
       const stripped = current
         .replace(/\boccasion-theme-(minimal|festive|editorial|playful)\b/g, "")
         .replace(/\boccasion-(float|shimmer|tilt|glow)\b/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+
+      return {
+        ...p,
+        container_class_name: [stripped, presetClassName].filter(Boolean).join(" ").replace(/\s{2,}/g, " ").trim(),
+      };
+    });
+  };
+
+  const applyTextPreset = (presetClassName: string) => {
+    setForm((p) => {
+      const current = p.container_class_name ?? "";
+      const stripped = current
+        .replace(/\boccasion-text-(classic|gold|hero|dua)\b/g, "")
+        .replace(/\boccasion-pos-(left|center|right)\b/g, "")
+        .replace(/\boccasion-anim-(enter|fade|pop)\b/g, "")
         .replace(/\s{2,}/g, " ")
         .trim();
 
@@ -1244,6 +1265,39 @@ export default function AdminOccasions() {
 
                     <OccasionDesignPresetGallery value={form.container_class_name} onApply={applyDesignPreset} />
 
+                     <div className="mt-4 grid gap-2">
+                       <Label className="text-xs text-muted-foreground">Text preset</Label>
+                       <Select
+                         value={(() => {
+                           const v = form.container_class_name ?? "";
+                           if (/\boccasion-text-classic\b/.test(v)) return "classic";
+                           if (/\boccasion-text-gold\b/.test(v)) return "gold_center";
+                           if (/\boccasion-text-hero\b/.test(v)) return "hero";
+                           if (/\boccasion-text-dua\b/.test(v)) return "dua_focus";
+                           return "custom";
+                         })()}
+                         onValueChange={(v) => {
+                           if (v === "custom") return;
+                           const preset = OCCASION_TEXT_PRESETS.find((p) => p.id === v);
+                           if (preset) applyTextPreset(preset.className);
+                         }}
+                       >
+                         <SelectTrigger>
+                           <SelectValue placeholder="Choose a text preset" />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="custom">Custom</SelectItem>
+                           {OCCASION_TEXT_PRESETS.map((p) => (
+                             <SelectItem key={p.id} value={p.id}>
+                               {p.label}
+                             </SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                     </div>
+
+                     <OccasionTextPresetGallery value={form.container_class_name} onApply={applyTextPreset} />
+
                     <OccasionPresetGallery
                       value={form.container_class_name}
                       onApply={(presetClassName) =>
@@ -1447,6 +1501,7 @@ export default function AdminOccasions() {
                               alt={title}
                               loading="lazy"
                               className="h-44 w-full object-cover sm:h-52"
+                              style={{ objectPosition: "var(--occasion-image-position, 50% 50%)" }}
                             />
                           ) : (
                             <div className="h-44 w-full bg-muted sm:h-52" />
@@ -1455,7 +1510,7 @@ export default function AdminOccasions() {
                           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
                           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
 
-                          <div className="absolute inset-x-0 bottom-0 p-4">
+                          <div className="occasion-content absolute inset-x-0 bottom-0 p-4">
                             <p className="occasion-title font-semibold tracking-tight text-foreground text-lg sm:text-xl">{title}</p>
                             <p className="occasion-message mt-1 text-sm text-foreground/90 line-clamp-2">{message}</p>
                             {dua ? (
