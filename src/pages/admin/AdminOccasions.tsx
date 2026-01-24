@@ -55,6 +55,9 @@ import { Slider } from "@/components/ui/slider";
 
 type OccasionPlatform = "web" | "app" | "both";
 
+// Special editor mode: only show HTML/CSS + date range inputs.
+const CUSTOM_HTML_CSS_TEMPLATE_ID = "custom_html_css_only";
+
 type OccasionRow = {
   id: string;
   title: string;
@@ -431,6 +434,8 @@ export default function AdminOccasions() {
   const [previewWidth, setPreviewWidth] = useState<"auto" | "320" | "360" | "390">("auto");
   const [localImagePreviewUrl, setLocalImagePreviewUrl] = useState<string | null>(null);
 
+  const isCustomHtmlCssOnly = templateId === CUSTOM_HTML_CSS_TEMPLATE_ID;
+
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
   const [cropDialogSrc, setCropDialogSrc] = useState<string | null>(null);
   const [pendingCropMeta, setPendingCropMeta] = useState<{ baseName: string } | null>(null);
@@ -563,11 +568,43 @@ export default function AdminOccasions() {
       ...p,
       title: "",
       message: "",
+      subtitle: "",
+      html_code: "",
+      css_code: "",
       dua_text: "",
       dateRange: undefined,
       templateStyle: null,
       imageFile: null,
       image_url: "",
+      card_css: "",
+      container_class_name: "",
+      platform: "both" as OccasionPlatform,
+      is_active: true,
+    }));
+
+    if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
+    setLocalImagePreviewUrl(null);
+  };
+
+  const applyCustomHtmlCssOnlyTemplate = () => {
+    setForm((p) => ({
+      ...p,
+      // Title is required in DB; keep a sensible default but hide the field in this mode.
+      title: p.title?.trim() ? p.title : "Custom celebration",
+      subtitle: "",
+      message: "",
+      dua_text: "",
+      imageFile: null,
+      image_url: "",
+      card_css: "",
+      container_class_name: "",
+      platform: "both" as OccasionPlatform,
+      is_active: true,
+      templateStyle: null,
+      dateRange: undefined,
+      // keep current html/css input (user will edit these)
+      html_code: p.html_code ?? "",
+      css_code: p.css_code ?? "",
     }));
 
     if (localImagePreviewUrl) URL.revokeObjectURL(localImagePreviewUrl);
@@ -931,6 +968,8 @@ export default function AdminOccasions() {
                          setDateError(null);
                          if (v === "blank") {
                            applyBlankTemplate();
+                          } else if (v === CUSTOM_HTML_CSS_TEMPLATE_ID) {
+                            applyCustomHtmlCssOnlyTemplate();
                          } else {
                            applyTemplate(v);
                          }
@@ -941,6 +980,7 @@ export default function AdminOccasions() {
                        </SelectTrigger>
                        <SelectContent>
                          <SelectItem value="blank">Blank (custom)</SelectItem>
+                          <SelectItem value={CUSTOM_HTML_CSS_TEMPLATE_ID}>Custom HTML/CSS (only)</SelectItem>
                          {OCCASION_TEMPLATES.map((t) => (
                            <SelectItem key={t.id} value={t.id}>
                              {t.label}
@@ -955,6 +995,7 @@ export default function AdminOccasions() {
                        onClick={() => {
                          setDateError(null);
                          if (templateId === "blank") applyBlankTemplate();
+                          else if (templateId === CUSTOM_HTML_CSS_TEMPLATE_ID) applyCustomHtmlCssOnlyTemplate();
                          else applyTemplate(templateId);
                        }}
                      >
@@ -962,7 +1003,7 @@ export default function AdminOccasions() {
                      </Button>
                    </div>
 
-                   {templateId && templateId !== "blank" ? (
+                    {templateId && templateId !== "blank" && templateId !== CUSTOM_HTML_CSS_TEMPLATE_ID ? (
                      <div className="mt-3 rounded-lg border border-border p-3">
                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                          <div className="min-w-0">
@@ -1050,20 +1091,24 @@ export default function AdminOccasions() {
                    </p>
                  </div>
 
-                 <div className="space-y-2 md:col-span-2">
-                  <Label>Title</Label>
-                  <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
-                </div>
+                  {!isCustomHtmlCssOnly ? (
+                    <>
+                      <div className="space-y-2 md:col-span-2">
+                        <Label>Title</Label>
+                        <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
+                      </div>
 
-                <div className="space-y-2 md:col-span-2">
-                  <Label>Subtitle</Label>
-                  <Textarea
-                    value={(form.subtitle ?? "") as any}
-                    onChange={(e) => setForm((p) => ({ ...p, subtitle: e.target.value, message: e.target.value }))}
-                    rows={2}
-                    placeholder="e.g. হাজার মাসের চেয়ে উত্তম রজনী"
-                  />
-                </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <Label>Subtitle</Label>
+                        <Textarea
+                          value={(form.subtitle ?? "") as any}
+                          onChange={(e) => setForm((p) => ({ ...p, subtitle: e.target.value, message: e.target.value }))}
+                          rows={2}
+                          placeholder="e.g. হাজার মাসের চেয়ে উত্তম রজনী"
+                        />
+                      </div>
+                    </>
+                  ) : null}
 
                 <div className="space-y-2 md:col-span-2">
                   <Label>HTML code</Label>
@@ -1088,32 +1133,42 @@ export default function AdminOccasions() {
                   </p>
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
-                  <Label>Dua text (optional)</Label>
-                  <Input value={form.dua_text} onChange={(e) => setForm((p) => ({ ...p, dua_text: e.target.value }))} />
-                </div>
+                 {!isCustomHtmlCssOnly ? (
+                   <>
+                     <div className="space-y-2 md:col-span-2">
+                       <Label>Dua text (optional)</Label>
+                       <Input
+                         value={form.dua_text}
+                         onChange={(e) => setForm((p) => ({ ...p, dua_text: e.target.value }))}
+                       />
+                     </div>
 
-                <div className="space-y-2">
-                  <Label>Platform</Label>
-                  <Select value={form.platform} onValueChange={(v) => setForm((p) => ({ ...p, platform: v as OccasionPlatform }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="both">Both</SelectItem>
-                      <SelectItem value="web">Web</SelectItem>
-                      <SelectItem value="app">App</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                     <div className="space-y-2">
+                       <Label>Platform</Label>
+                       <Select
+                         value={form.platform}
+                         onValueChange={(v) => setForm((p) => ({ ...p, platform: v as OccasionPlatform }))}
+                       >
+                         <SelectTrigger>
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="both">Both</SelectItem>
+                           <SelectItem value="web">Web</SelectItem>
+                           <SelectItem value="app">App</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
 
-                <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
-                  <div>
-                    <p className="text-sm font-medium">Active</p>
-                    <p className="text-xs text-muted-foreground">Only active + in date range shows on Home.</p>
-                  </div>
-                  <Switch checked={form.is_active} onCheckedChange={(v) => setForm((p) => ({ ...p, is_active: v }))} />
-                </div>
+                     <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                       <div>
+                         <p className="text-sm font-medium">Active</p>
+                         <p className="text-xs text-muted-foreground">Only active + in date range shows on Home.</p>
+                       </div>
+                       <Switch checked={form.is_active} onCheckedChange={(v) => setForm((p) => ({ ...p, is_active: v }))} />
+                     </div>
+                   </>
+                 ) : null}
 
                 <div className="space-y-2 md:col-span-2">
                   <Label>Date range</Label>
@@ -1159,6 +1214,8 @@ export default function AdminOccasions() {
                   <p className="text-xs text-muted-foreground">Home carousel দেখাতে এই তারিখের মধ্যে থাকতে হবে।</p>
                 </div>
 
+                {!isCustomHtmlCssOnly ? (
+                <>
                 <div className="space-y-2 md:col-span-2">
                   <Label className="flex items-center gap-2">
                     <ImageIcon className="h-4 w-4" />
@@ -1260,9 +1317,13 @@ export default function AdminOccasions() {
                     setOccasionImagePosition("50% 50%");
                   }}
                 />
+                </>
+                ) : null}
 
+                 {!isCustomHtmlCssOnly ? (
+                 <>
                  <div className="space-y-2 md:col-span-2">
-                   <Label>Card CSS (advanced)</Label>
+                    <Label>Card CSS (advanced)</Label>
 
                    <div className="flex flex-wrap gap-2">
                      {OCCASION_CSS_PRESETS.map((p) => (
@@ -1306,7 +1367,7 @@ export default function AdminOccasions() {
                    </p>
                  </div>
 
-                 <div className="space-y-2 md:col-span-2">
+                  <div className="space-y-2 md:col-span-2">
                    <Label>Card Tailwind className (recommended)</Label>
 
                     <div className="grid gap-2">
@@ -1543,6 +1604,8 @@ export default function AdminOccasions() {
                       এই className শুধু occasion card container-এ যোগ হবে (Home + preview দু’জায়গায়)। Presets: occasion-float, occasion-shimmer, occasion-tilt, occasion-glow
                    </p>
                  </div>
+                 </>
+                 ) : null}
               </div>
 
             {/* Draft preview inside dialog (so it updates while typing on mobile) */}
