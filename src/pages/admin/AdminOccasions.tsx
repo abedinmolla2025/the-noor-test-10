@@ -389,6 +389,7 @@ export default function AdminOccasions() {
   const [templatePhotoUploading, setTemplatePhotoUploading] = useState(false);
   const templatePhotoInputRef = useRef<HTMLInputElement | null>(null);
   const [previewPlatform, setPreviewPlatform] = useState<"web" | "app">("web");
+  const [previewWidth, setPreviewWidth] = useState<"auto" | "320" | "360" | "390">("auto");
   const [localImagePreviewUrl, setLocalImagePreviewUrl] = useState<string | null>(null);
 
 
@@ -1074,6 +1075,29 @@ export default function AdminOccasions() {
                     <div className="flex flex-col items-end gap-2">
                       <ToggleGroup
                         type="single"
+                        value={previewWidth}
+                        onValueChange={(v) => {
+                          if (v === "auto" || v === "320" || v === "360" || v === "390") setPreviewWidth(v);
+                        }}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <ToggleGroupItem value="auto" aria-label="Preview auto width">
+                          Auto
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="320" aria-label="Preview 320px width">
+                          320
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="360" aria-label="Preview 360px width">
+                          360
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="390" aria-label="Preview 390px width">
+                          390
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+
+                      <ToggleGroup
+                        type="single"
                         value={previewPlatform}
                         onValueChange={(v) => {
                           if (v === "web" || v === "app") setPreviewPlatform(v);
@@ -1098,40 +1122,42 @@ export default function AdminOccasions() {
                   </div>
 
                   {/* Exact same card markup as src/components/OccasionCarousel.tsx */}
-                   {(editing?.card_css?.trim() || form.card_css?.trim()) ? (
-                     <style>
-                       {`.occasion-card[data-occasion-id="preview"]{${(editing?.card_css ?? form.card_css) as string}}`}
-                     </style>
-                   ) : null}
+                  <div className="mx-auto" style={{ width: previewWidth === "auto" ? "100%" : `${previewWidth}px` }}>
+                    {(editing?.card_css?.trim() || form.card_css?.trim()) ? (
+                      <style>
+                        {`.occasion-card[data-occasion-id="preview"]{${(editing?.card_css ?? form.card_css) as string}}`}
+                      </style>
+                    ) : null}
 
-                   <div
-                     className="occasion-card relative overflow-hidden rounded-2xl border border-border bg-card"
-                     data-occasion-id="preview"
-                   >
-                    {bannerImg ? (
-                      <img
-                        src={bannerImg}
-                        alt={title}
-                        loading="lazy"
-                        className="h-44 w-full object-cover sm:h-52"
-                      />
-                    ) : (
-                      <div className="h-44 w-full bg-muted sm:h-52" />
-                    )}
+                    <div
+                      className="occasion-card relative overflow-hidden rounded-2xl border border-border bg-card"
+                      data-occasion-id="preview"
+                    >
+                      {bannerImg ? (
+                        <img
+                          src={bannerImg}
+                          alt={title}
+                          loading="lazy"
+                          className="h-44 w-full object-cover sm:h-52"
+                        />
+                      ) : (
+                        <div className="h-44 w-full bg-muted sm:h-52" />
+                      )}
 
-                    {/* Gradient overlay */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
+                      {/* Gradient overlay */}
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
 
-                    {/* Content */}
-                    <div className="absolute inset-x-0 bottom-0 p-4">
-                      <p className="font-semibold tracking-tight text-foreground text-lg sm:text-xl">{title}</p>
-                      <p className="mt-1 text-sm text-foreground/90 line-clamp-2">{message}</p>
-                      {dua ? (
-                        <p className="mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
-                          {dua}
-                        </p>
-                      ) : null}
+                      {/* Content */}
+                      <div className="absolute inset-x-0 bottom-0 p-4">
+                        <p className="font-semibold tracking-tight text-foreground text-lg sm:text-xl">{title}</p>
+                        <p className="mt-1 text-sm text-foreground/90 line-clamp-2">{message}</p>
+                        {dua ? (
+                          <p className="mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
+                            {dua}
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>
