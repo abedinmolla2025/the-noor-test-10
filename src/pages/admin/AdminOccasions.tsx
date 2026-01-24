@@ -41,6 +41,7 @@ type OccasionRow = {
   dua_text: string | null;
   image_url: string | null;
   card_css?: string | null;
+  container_class_name?: string | null;
   start_date: string;
   end_date: string;
   is_active: boolean;
@@ -376,6 +377,7 @@ export default function AdminOccasions() {
       imageFile: null as File | null,
       image_url: "",
       card_css: "",
+      container_class_name: "",
     }),
     [],
   );
@@ -568,6 +570,7 @@ export default function AdminOccasions() {
       is_active: !!row.is_active,
       image_url: row.image_url ?? "",
       card_css: (row.card_css as any) ?? "",
+      container_class_name: (row.container_class_name as any) ?? "",
       dateRange: {
         from: row.start_date ? new Date(row.start_date) : undefined,
         to: row.end_date ? new Date(row.end_date) : undefined,
@@ -663,6 +666,7 @@ export default function AdminOccasions() {
         dua_text: form.dua_text.trim() ? form.dua_text.trim() : null,
         image_url: image_url ?? null,
         card_css: form.card_css?.trim() ? form.card_css.trim() : null,
+        container_class_name: form.container_class_name?.trim() ? form.container_class_name.trim() : null,
         start_date: startIso,
         end_date: endIso,
         is_active: !!form.is_active,
@@ -1013,6 +1017,18 @@ export default function AdminOccasions() {
                      এখানে শুধু CSS declarations লিখুন (selector/braces নয়)। এটা শুধু এই occasion card-এ apply হবে।
                    </p>
                  </div>
+
+                 <div className="space-y-2 md:col-span-2">
+                   <Label>Card Tailwind className (recommended)</Label>
+                   <Input
+                     value={form.container_class_name}
+                     onChange={(e) => setForm((p) => ({ ...p, container_class_name: e.target.value }))}
+                     placeholder="e.g. rounded-3xl shadow-lg md:rotate-1"
+                   />
+                   <p className="text-xs text-muted-foreground">
+                     এই className শুধু occasion card container-এ যোগ হবে (Home + preview দু’জায়গায়)।
+                   </p>
+                 </div>
               </div>
 
               <DialogFooter className="mt-2">
@@ -1130,7 +1146,10 @@ export default function AdminOccasions() {
                     ) : null}
 
                     <div
-                      className="occasion-card relative overflow-hidden rounded-2xl border border-border bg-card"
+                      className={cn(
+                        "occasion-card relative overflow-hidden rounded-2xl border border-border bg-card",
+                        (editing?.container_class_name ?? form.container_class_name) as any,
+                      )}
                       data-occasion-id="preview"
                     >
                       {bannerImg ? (
