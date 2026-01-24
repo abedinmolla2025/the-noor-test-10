@@ -140,6 +140,48 @@
 }
 
 @layer components {
+  /* Occasions: animation presets (safe for admin-applied className) */
+  .occasion-float {
+    /* Only animate when user allows motion */
+    @apply motion-safe:animate-float;
+    will-change: transform;
+  }
+
+  .occasion-shimmer {
+    @apply relative overflow-hidden;
+  }
+
+  .occasion-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background: linear-gradient(
+      110deg,
+      transparent 0%,
+      hsl(var(--accent) / 0.18) 45%,
+      hsl(var(--accent) / 0.28) 50%,
+      hsl(var(--accent) / 0.18) 55%,
+      transparent 100%
+    );
+    background-size: 220% 100%;
+    transform: translateZ(0);
+    /* keyframes shimmer exists globally in this file */
+    animation: shimmer 2.4s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .occasion-float {
+      animation: none !important;
+      transform: none !important;
+    }
+    .occasion-shimmer::after {
+      animation: none !important;
+      opacity: 0 !important;
+    }
+  }
+
   /* Subtle Islamic geometric overlay (use with opacity 5–8%) */
   .noor-islamic-pattern {
     /*
