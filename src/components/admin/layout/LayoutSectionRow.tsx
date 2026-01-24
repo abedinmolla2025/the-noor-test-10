@@ -67,6 +67,7 @@ export function LayoutSectionRow({
   const isFeatureIcons = useMemo(() => item.section_key === "feature_icons", [item.section_key]);
   const isFooter = useMemo(() => item.section_key === "footer", [item.section_key]);
   const isFocusZone = useMemo(() => item.section_key === "focus_zone", [item.section_key]);
+  const isDailyHadith = useMemo(() => item.section_key === "daily_hadith", [item.section_key]);
 
   const hasSettings = useMemo(() => {
     const s = item.settings ?? {};
@@ -82,6 +83,9 @@ export function LayoutSectionRow({
           (s as any).dailyQuizCard?.cardClassName ||
           (s as any).dailyQuizCard?.cardCss,
       );
+    const hasDailyHadithCard =
+      isDailyHadith &&
+      Boolean((s as any).dailyHadithCard?.cardClassName || (s as any).dailyHadithCard?.cardCss);
     const hasFooterLinks =
       isFooter &&
       Boolean(
@@ -96,9 +100,15 @@ export function LayoutSectionRow({
       );
 
     return Boolean(
-      hasGrid || hasPlacement || hasFooterLinks || hasQuizOverlay || hasDailyQuizCard || s.styleVariant,
+      hasGrid ||
+        hasPlacement ||
+        hasFooterLinks ||
+        hasQuizOverlay ||
+        hasDailyQuizCard ||
+        hasDailyHadithCard ||
+        s.styleVariant,
     );
-  }, [isAdSection, isFeatureIcons, isFooter, isFocusZone, item.settings]);
+  }, [isAdSection, isDailyHadith, isFeatureIcons, isFooter, isFocusZone, item.settings]);
 
   const updateSettings = (patch: Partial<SectionSettings>) => {
     onChange({
@@ -134,11 +144,18 @@ export function LayoutSectionRow({
     cardCss?: string;
   };
 
+  type DailyHadithCardSettings = {
+    cardClassName?: string;
+    cardCss?: string;
+  };
+
   const quizOverlay = (item.settings as any)?.quizOverlay as
     | { mobile?: QuizOverlayPreset; desktop?: QuizOverlayPreset }
     | undefined;
 
   const dailyQuizCard = (item.settings as any)?.dailyQuizCard as DailyQuizCardSettings | undefined;
+  const dailyHadithCard =
+    (item.settings as any)?.dailyHadithCard as DailyHadithCardSettings | undefined;
 
   const updateQuizOverlay = (target: "mobile" | "desktop", patch: QuizOverlayPreset) => {
     const next = {
@@ -153,9 +170,17 @@ export function LayoutSectionRow({
     updateSettings({ dailyQuizCard: { ...(dailyQuizCard ?? {}), ...patch } } as any);
   };
 
+  const updateDailyHadithCard = (patch: Partial<DailyHadithCardSettings>) => {
+    updateSettings({ dailyHadithCard: { ...(dailyHadithCard ?? {}), ...patch } } as any);
+  };
+
   const resetDailyQuizCardToDefault = () => {
     // Remove both tuning + card settings objects so the UI falls back to built-in defaults.
     removeSettingsKeys(["quizOverlay", "dailyQuizCard"]);
+  };
+
+  const resetDailyHadithCardToDefault = () => {
+    removeSettingsKeys(["dailyHadithCard"]);
   };
 
   const getPresetValue = (
@@ -657,6 +682,59 @@ export function LayoutSectionRow({
                           step={0.5}
                           onValueChange={(v) => updateQuizOverlay("desktop", { offsetYRem: v[0] })}
                         />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isDailyHadith && (
+                <div className="space-y-3 sm:col-span-3">
+                  <div className="rounded-xl border border-border bg-background/50 p-3">
+                    <p className="text-sm font-medium">Daily Hadith card style</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Admin থেকে DailyHadith কার্ডের wrapper style change করুন
+                    </p>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={resetDailyHadithCardToDefault}
+                      >
+                        Reset to default
+                      </Button>
+                      <p className="text-[11px] text-muted-foreground">(className + CSS reset হবে)</p>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label className="text-xs">Wrapper Tailwind className (optional)</Label>
+                        <Input
+                          value={
+                            typeof dailyHadithCard?.cardClassName === "string"
+                              ? dailyHadithCard.cardClassName
+                              : ""
+                          }
+                          onChange={(e) => updateDailyHadithCard({ cardClassName: e.target.value })}
+                          placeholder="e.g. rounded-3xl overflow-hidden"
+                        />
+                      </div>
+
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label className="text-xs">Wrapper CSS (declarations) (optional)</Label>
+                        <Textarea
+                          value={typeof dailyHadithCard?.cardCss === "string" ? dailyHadithCard.cardCss : ""}
+                          onChange={(e) => updateDailyHadithCard({ cardCss: e.target.value })}
+                          placeholder={
+                            "border-radius: 28px;\nbox-shadow: 0 18px 60px -26px hsl(var(--foreground) / 0.25);"
+                          }
+                          className="min-h-[110px] font-mono text-xs"
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          এটা wrapper-এ apply হবে। (selector না দিয়ে শুধু declarations লিখতে পারেন)
+                        </p>
                       </div>
                     </div>
                   </div>
