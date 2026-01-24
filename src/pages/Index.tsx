@@ -140,6 +140,26 @@ const Index = () => {
         .map((r) => {
           const rowSettings = (r as any).settings ?? {};
 
+          // Focus zone: allow DailyQuizCard overlay tuning
+          if (r.section_key === "focus_zone") {
+            const overlayTuning =
+              typeof rowSettings?.quizOverlay === "object" && rowSettings?.quizOverlay
+                ? rowSettings.quizOverlay
+                : undefined;
+
+            return {
+              key: r.id,
+              el: wrapWithVariant(
+                <div className="space-y-4">
+                  <AudioRecitationCard />
+                  <DailyQuizCard overlayTuning={overlayTuning} />
+                </div>,
+                rowSettings?.styleVariant,
+              ),
+              pad: sizeToPad(r.size as any),
+            };
+          }
+
           // Ad slot: placement override via settings.adPlacement
           if (typeof r.section_key === "string" && r.section_key.startsWith("ad_")) {
             const fallbackPlacement = getDefaultPlacementForSection(r.section_key);
