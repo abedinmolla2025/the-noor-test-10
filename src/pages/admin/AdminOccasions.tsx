@@ -18,6 +18,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { OccasionCarousel } from "@/components/OccasionCarousel";
 
 function sanitizeOccasionCardCss(input: string) {
   let s = input ?? "";
@@ -1064,6 +1065,130 @@ export default function AdminOccasions() {
                  </div>
               </div>
 
+            {/* Draft preview inside dialog (so it updates while typing on mobile) */}
+            <Card>
+              <CardContent className="p-4">
+                {(() => {
+                  const title = (form.title || editing?.title) || "ঈদ মোবারক";
+                  const message = (form.message || editing?.message) || "আপনার দিন কাটুক আনন্দ ও বরকতে।";
+                  const dua = (form.dua_text || editing?.dua_text) || "তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম";
+                  const bannerImg = localImagePreviewUrl || form.image_url || editing?.image_url || null;
+
+                  const willShowOnSelectedPlatform =
+                    form.platform === "both" ||
+                    (form.platform === "web" && previewPlatform === "web") ||
+                    (form.platform === "app" && previewPlatform === "app");
+
+                  return (
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold">Draft preview (updates as you type)</p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            এটা আপনার ফর্মের বর্তমান ইনপুট—Save করার আগে কেমন দেখাবে তা দেখায়।
+                          </p>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-2">
+                          <ToggleGroup
+                            type="single"
+                            value={previewWidth}
+                            onValueChange={(v) => {
+                              if (v === "auto" || v === "320" || v === "360" || v === "390") setPreviewWidth(v);
+                            }}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <ToggleGroupItem value="auto" aria-label="Preview auto width">
+                              Auto
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="320" aria-label="Preview 320px width">
+                              320
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="360" aria-label="Preview 360px width">
+                              360
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="390" aria-label="Preview 390px width">
+                              390
+                            </ToggleGroupItem>
+                          </ToggleGroup>
+
+                          <ToggleGroup
+                            type="single"
+                            value={previewPlatform}
+                            onValueChange={(v) => {
+                              if (v === "web" || v === "app") setPreviewPlatform(v);
+                            }}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <ToggleGroupItem value="web" aria-label="Preview web">
+                              Web
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="app" aria-label="Preview app">
+                              App
+                            </ToggleGroupItem>
+                          </ToggleGroup>
+
+                          {!willShowOnSelectedPlatform ? (
+                            <span className="text-[11px] text-muted-foreground">
+                              Note: এই occasion টি {previewPlatform} এ show হবে না (platform={form.platform}).
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      {/* Exact same card markup as src/components/OccasionCarousel.tsx */}
+                      <div
+                        className="mx-auto"
+                        style={{ width: previewWidth === "auto" ? "100%" : `${previewWidth}px` }}
+                      >
+                        {(form.card_css?.trim() || editing?.card_css?.trim()) ? (
+                          <style>
+                            {`.occasion-card[data-occasion-id="preview"]{${sanitizeOccasionCardCss(
+                              ((form.card_css ?? editing?.card_css) as string) ?? "",
+                            )}}`}
+                          </style>
+                        ) : null}
+
+                        <div
+                          className={cn(
+                            "occasion-card relative overflow-hidden rounded-2xl border border-border bg-card",
+                            (form.container_class_name ?? editing?.container_class_name) as any,
+                          )}
+                          data-occasion-id="preview"
+                        >
+                          {bannerImg ? (
+                            <img
+                              src={bannerImg}
+                              alt={title}
+                              loading="lazy"
+                              className="h-44 w-full object-cover sm:h-52"
+                            />
+                          ) : (
+                            <div className="h-44 w-full bg-muted sm:h-52" />
+                          )}
+
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
+
+                          <div className="absolute inset-x-0 bottom-0 p-4">
+                            <p className="font-semibold tracking-tight text-foreground text-lg sm:text-xl">{title}</p>
+                            <p className="mt-1 text-sm text-foreground/90 line-clamp-2">{message}</p>
+                            {dua ? (
+                              <p className="mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
+                                {dua}
+                              </p>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+
               <DialogFooter className="mt-2">
                 <Button onClick={save} disabled={saving || imageProcessing} className="gap-2">
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -1100,125 +1225,35 @@ export default function AdminOccasions() {
 
         <Card>
           <CardContent className="p-4">
-            {(() => {
-              // Always preview the current *form* state while the dialog is open,
-              // even when editing an existing row.
-              const title = (form.title || editing?.title) || "ঈদ মোবারক";
-              const message = (form.message || editing?.message) || "আপনার দিন কাটুক আনন্দ ও বরকতে।";
-              const dua = (form.dua_text || editing?.dua_text) || "তাকাব্বালাল্লাহু মিন্না ওয়া মিনকুম";
-              const bannerImg = localImagePreviewUrl || form.image_url || editing?.image_url || null;
-
-              const willShowOnSelectedPlatform =
-                form.platform === "both" ||
-                (form.platform === "web" && previewPlatform === "web") ||
-                (form.platform === "app" && previewPlatform === "app");
-
-              return (
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold">Live preview (Home carousel)</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Homepage এর carousel card-এর exact UI স্টাইলে preview দেখাচ্ছে।
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-2">
-                      <ToggleGroup
-                        type="single"
-                        value={previewWidth}
-                        onValueChange={(v) => {
-                          if (v === "auto" || v === "320" || v === "360" || v === "390") setPreviewWidth(v);
-                        }}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <ToggleGroupItem value="auto" aria-label="Preview auto width">
-                          Auto
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="320" aria-label="Preview 320px width">
-                          320
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="360" aria-label="Preview 360px width">
-                          360
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="390" aria-label="Preview 390px width">
-                          390
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-
-                      <ToggleGroup
-                        type="single"
-                        value={previewPlatform}
-                        onValueChange={(v) => {
-                          if (v === "web" || v === "app") setPreviewPlatform(v);
-                        }}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <ToggleGroupItem value="web" aria-label="Preview web">
-                          Web
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="app" aria-label="Preview app">
-                          App
-                        </ToggleGroupItem>
-                      </ToggleGroup>
-
-                      {!willShowOnSelectedPlatform ? (
-                        <span className="text-[11px] text-muted-foreground">
-                          Note: এই occasion টি {previewPlatform} এ show হবে না (platform={form.platform}).
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  {/* Exact same card markup as src/components/OccasionCarousel.tsx */}
-                  <div className="mx-auto" style={{ width: previewWidth === "auto" ? "100%" : `${previewWidth}px` }}>
-                    {(form.card_css?.trim() || editing?.card_css?.trim()) ? (
-                      <style>
-                        {`.occasion-card[data-occasion-id="preview"]{${sanitizeOccasionCardCss(
-                          ((form.card_css ?? editing?.card_css) as string) ?? "",
-                        )}}`}
-                      </style>
-                    ) : null}
-
-                    <div
-                      className={cn(
-                        "occasion-card relative overflow-hidden rounded-2xl border border-border bg-card",
-                        (form.container_class_name ?? editing?.container_class_name) as any,
-                      )}
-                      data-occasion-id="preview"
-                    >
-                      {bannerImg ? (
-                        <img
-                          src={bannerImg}
-                          alt={title}
-                          loading="lazy"
-                          className="h-44 w-full object-cover sm:h-52"
-                        />
-                      ) : (
-                        <div className="h-44 w-full bg-muted sm:h-52" />
-                      )}
-
-                      {/* Gradient overlay */}
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-accent/20" />
-
-                      {/* Content */}
-                      <div className="absolute inset-x-0 bottom-0 p-4">
-                        <p className="font-semibold tracking-tight text-foreground text-lg sm:text-xl">{title}</p>
-                        <p className="mt-1 text-sm text-foreground/90 line-clamp-2">{message}</p>
-                        {dua ? (
-                          <p className="mt-2 text-sm italic text-primary-foreground/90 bg-primary/20 inline-flex rounded-full px-3 py-1">
-                            {dua}
-                          </p>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold">Home carousel (live data)</p>
+                  <p className="mt-1 text-xs text-muted-foreground">এটা হোমপেজে আসলেই যা দেখাবে—সেভের পর এখানেই আপডেট দেখুন।</p>
                 </div>
-              );
-            })()}
+
+                <ToggleGroup
+                  type="single"
+                  value={previewPlatform}
+                  onValueChange={(v) => {
+                    if (v === "web" || v === "app") setPreviewPlatform(v);
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <ToggleGroupItem value="web" aria-label="Live web">
+                    Web
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="app" aria-label="Live app">
+                    App
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+
+              <div className="mx-auto" style={{ width: previewWidth === "auto" ? "100%" : `${previewWidth}px` }}>
+                <OccasionCarousel platform={previewPlatform as any} />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
