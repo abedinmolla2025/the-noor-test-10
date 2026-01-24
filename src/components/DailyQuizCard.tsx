@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Zap, Flame, Clock } from "lucide-react";
 import { useQuizProgress } from "@/hooks/useQuizProgress";
 import { useCountdownToMidnight } from "@/hooks/useCountdownToMidnight";
-import brainOverlay from "@/assets/quiz-brain-quran-overlay.png";
+import overlayNew from "@/assets/quiz-brain-quran-overlay.png";
+import overlayOld from "@/assets/brain-overlay.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 type OverlayPreset = {
@@ -20,48 +21,83 @@ export type DailyQuizOverlayTuning = {
   desktop?: OverlayPreset;
 };
 
-type Props = {
-  overlayTuning?: DailyQuizOverlayTuning;
+export type DailyQuizOverlayConfig = {
+  enabled?: boolean;
+  // If provided (https://...), overrides preset images.
+  imageUrl?: string;
+  preset?: "old" | "new";
 };
 
-export const DailyQuizCard = ({ overlayTuning }: Props) => {
+type Props = {
+  overlayTuning?: DailyQuizOverlayTuning;
+  overlayConfig?: DailyQuizOverlayConfig;
+  cardClassName?: string;
+  /** CSS declarations applied to card root, e.g. "border-radius: 24px;" */
+  cardCss?: string;
+};
+
+export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, cardCss }: Props) => {
   const navigate = useNavigate();
   const { progress, hasPlayedToday } = useQuizProgress();
   const countdown = useCountdownToMidnight();
   const playedToday = hasPlayedToday();
   const isMobile = useIsMobile();
 
+  const overlayEnabled = overlayConfig?.enabled ?? true;
+  const overlayPreset = overlayConfig?.preset ?? "new";
+  const customUrl = typeof overlayConfig?.imageUrl === "string" ? overlayConfig.imageUrl.trim() : "";
+  const overlaySrc = /^https?:\/\//i.test(customUrl)
+    ? customUrl
+    : overlayPreset === "old"
+      ? overlayOld
+      : overlayNew;
+
+  const css = typeof cardCss === "string" ? cardCss.trim() : "";
+  const scopedCss =
+    css && !css.includes("{")
+      ? `[data-daily-quiz-card]{${css}}`
+      : css;
+
   const defaults: Required<OverlayPreset> = isMobile
     ? { opacity: 0.35, widthRem: 19, offsetXRem: -2, offsetYRem: -2.5 }
     : { opacity: 0.35, widthRem: 22, offsetXRem: -2, offsetYRem: -2.5 };
 
-  const preset = (isMobile ? overlayTuning?.mobile : overlayTuning?.desktop) ?? {};
+  const tuningPreset = (isMobile ? overlayTuning?.mobile : overlayTuning?.desktop) ?? {};
   const overlay: Required<OverlayPreset> = {
-    opacity: typeof preset.opacity === "number" ? preset.opacity : defaults.opacity,
-    widthRem: typeof preset.widthRem === "number" ? preset.widthRem : defaults.widthRem,
-    offsetXRem: typeof preset.offsetXRem === "number" ? preset.offsetXRem : defaults.offsetXRem,
-    offsetYRem: typeof preset.offsetYRem === "number" ? preset.offsetYRem : defaults.offsetYRem,
+    opacity: typeof tuningPreset.opacity === "number" ? tuningPreset.opacity : defaults.opacity,
+    widthRem: typeof tuningPreset.widthRem === "number" ? tuningPreset.widthRem : defaults.widthRem,
+    offsetXRem: typeof tuningPreset.offsetXRem === "number" ? tuningPreset.offsetXRem : defaults.offsetXRem,
+    offsetYRem: typeof tuningPreset.offsetYRem === "number" ? tuningPreset.offsetYRem : defaults.offsetYRem,
   };
 
   return (
-    <Card className="relative overflow-hidden border-primary/25 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--primary)/0.28)_0%,transparent_55%),radial-gradient(120%_100%_at_100%_0%,hsl(var(--accent)/0.18)_0%,transparent_52%),linear-gradient(135deg,hsl(var(--card))_0%,hsl(var(--card)/0.70)_100%)]">
-      {/* Ambient brain overlay */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_45%,hsl(var(--primary)/0.18)_0%,transparent_70%)]" />
-        <img
-          src={brainOverlay}
-          alt=""
-          className="absolute rotate-6 select-none transform-gpu"
-          style={{
-            right: `${overlay.offsetXRem}rem`,
-            top: `${overlay.offsetYRem}rem`,
-            width: `${overlay.widthRem}rem`,
-            opacity: overlay.opacity,
-          }}
-          loading="lazy"
-          draggable={false}
-        />
-      </div>
+    <Card
+      data-daily-quiz-card
+      className={`relative overflow-hidden border-primary/25 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--primary)/0.28)_0%,transparent_55%),radial-gradient(120%_100%_at_100%_0%,hsl(var(--accent)/0.18)_0%,transparent_52%),linear-gradient(135deg,hsl(var(--card))_0%,hsl(var(--card)/0.70)_100%)] ${
+        cardClassName ?? ""
+      }`}
+    >
+      {scopedCss ? <style>{scopedCss}</style> : null}
+
+      {/* Ambient overlay */}
+      {overlayEnabled ? (
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_45%,hsl(var(--primary)/0.18)_0%,transparent_70%)]" />
+          <img
+            src={overlaySrc}
+            alt=""
+            className="absolute rotate-6 select-none transform-gpu"
+            style={{
+              right: `${overlay.offsetXRem}rem`,
+              top: `${overlay.offsetYRem}rem`,
+              width: `${overlay.widthRem}rem`,
+              opacity: overlay.opacity,
+            }}
+            loading="lazy"
+            draggable={false}
+          />
+        </div>
+      ) : null}
 
       <CardContent className="relative p-6 space-y-4">
         {/* Header Badge */}

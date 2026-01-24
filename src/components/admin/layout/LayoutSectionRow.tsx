@@ -73,6 +73,15 @@ export function LayoutSectionRow({
     const hasGrid = isFeatureIcons && Boolean(s.gridColumns);
     const hasPlacement = isAdSection && Boolean(s.adPlacement);
     const hasQuizOverlay = isFocusZone && Boolean((s as any).quizOverlay);
+    const hasDailyQuizCard =
+      isFocusZone &&
+      Boolean(
+        (s as any).dailyQuizCard?.overlayEnabled !== undefined ||
+          (s as any).dailyQuizCard?.overlayPreset ||
+          (s as any).dailyQuizCard?.overlayImageUrl ||
+          (s as any).dailyQuizCard?.cardClassName ||
+          (s as any).dailyQuizCard?.cardCss,
+      );
     const hasFooterLinks =
       isFooter &&
       Boolean(
@@ -86,7 +95,9 @@ export function LayoutSectionRow({
           s.developerLine,
       );
 
-    return Boolean(hasGrid || hasPlacement || hasFooterLinks || hasQuizOverlay || s.styleVariant);
+    return Boolean(
+      hasGrid || hasPlacement || hasFooterLinks || hasQuizOverlay || hasDailyQuizCard || s.styleVariant,
+    );
   }, [isAdSection, isFeatureIcons, isFooter, isFocusZone, item.settings]);
 
   const updateSettings = (patch: Partial<SectionSettings>) => {
@@ -106,9 +117,19 @@ export function LayoutSectionRow({
     offsetYRem?: number;
   };
 
+  type DailyQuizCardSettings = {
+    overlayEnabled?: boolean;
+    overlayPreset?: "old" | "new";
+    overlayImageUrl?: string;
+    cardClassName?: string;
+    cardCss?: string;
+  };
+
   const quizOverlay = (item.settings as any)?.quizOverlay as
     | { mobile?: QuizOverlayPreset; desktop?: QuizOverlayPreset }
     | undefined;
+
+  const dailyQuizCard = (item.settings as any)?.dailyQuizCard as DailyQuizCardSettings | undefined;
 
   const updateQuizOverlay = (target: "mobile" | "desktop", patch: QuizOverlayPreset) => {
     const next = {
@@ -117,6 +138,10 @@ export function LayoutSectionRow({
     };
     next[target] = { ...next[target], ...patch };
     updateSettings({ quizOverlay: next } as any);
+  };
+
+  const updateDailyQuizCard = (patch: Partial<DailyQuizCardSettings>) => {
+    updateSettings({ dailyQuizCard: { ...(dailyQuizCard ?? {}), ...patch } } as any);
   };
 
   const getPresetValue = (
@@ -393,6 +418,79 @@ export function LayoutSectionRow({
 
               {isFocusZone && (
                 <div className="space-y-3 sm:col-span-3">
+                  <div className="rounded-xl border border-border bg-background/50 p-3">
+                    <p className="text-sm font-medium">Daily Quiz card settings</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      PNG replace/disable + card style override (শুধু DailyQuizCard)
+                    </p>
+
+                    <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Overlay enabled</Label>
+                          <Switch
+                            checked={typeof dailyQuizCard?.overlayEnabled === "boolean" ? dailyQuizCard.overlayEnabled : true}
+                            onCheckedChange={(checked) => updateDailyQuizCard({ overlayEnabled: checked })}
+                          />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Off করলে overlay image show হবে না।
+                        </p>
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-xs">Overlay preset</Label>
+                        <Select
+                          value={dailyQuizCard?.overlayPreset ?? "new"}
+                          onValueChange={(v) => updateDailyQuizCard({ overlayPreset: v as any })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="new">New (Quran+Brain)</SelectItem>
+                            <SelectItem value="old">Old (Brain)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-[11px] text-muted-foreground">Custom URL দিলে preset override হবে।</p>
+                      </div>
+
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label className="text-xs">Overlay Image URL (optional)</Label>
+                        <Input
+                          value={typeof dailyQuizCard?.overlayImageUrl === "string" ? dailyQuizCard.overlayImageUrl : ""}
+                          onChange={(e) => updateDailyQuizCard({ overlayImageUrl: e.target.value })}
+                          placeholder="https://.../image.png"
+                        />
+                      </div>
+
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label className="text-xs">Card Tailwind className (optional)</Label>
+                        <Input
+                          value={typeof dailyQuizCard?.cardClassName === "string" ? dailyQuizCard.cardClassName : ""}
+                          onChange={(e) => updateDailyQuizCard({ cardClassName: e.target.value })}
+                          placeholder="e.g. rounded-3xl border-primary/40"
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          টিপ: এখানে semantic token-based utility দিন (যেমন border-primary/20)।
+                        </p>
+                      </div>
+
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label className="text-xs">Card CSS (declarations) (optional)</Label>
+                        <Textarea
+                          value={typeof dailyQuizCard?.cardCss === "string" ? dailyQuizCard.cardCss : ""}
+                          onChange={(e) => updateDailyQuizCard({ cardCss: e.target.value })}
+                          placeholder={"border-radius: 24px;\nbox-shadow: 0 16px 48px -20px hsl(var(--primary) / 0.35);"}
+                          className="min-h-[110px] font-mono text-xs"
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          এটা card root-এ apply হবে। (আপনি selector না দিয়ে শুধু declarations লিখতে পারেন)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="rounded-xl border border-border bg-background/50 p-3">
                     <p className="text-sm font-medium">Daily Quiz overlay (Mobile)</p>
                     <p className="text-[11px] text-muted-foreground">
