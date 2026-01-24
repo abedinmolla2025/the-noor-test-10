@@ -482,6 +482,360 @@
     opacity: 0;
   }
 
+  /* ============================
+     Occasions: Celebration system
+     ============================ */
+  .occasion-celebration-base {
+    border-radius: 20px; /* strict global rule */
+    border: 1px solid hsl(var(--border));
+    background: linear-gradient(135deg, hsl(var(--dua-card-from)), hsl(var(--dua-card-to)));
+    box-shadow:
+      0 0 0 2px hsl(var(--accent) / 0.08) inset,
+      0 18px 60px -38px hsl(var(--primary) / 0.55);
+    min-height: 176px;
+  }
+
+  .occasion-celebration-base .occasion-content {
+    /* default placement: bottom (mobile banner) */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 176px;
+  }
+
+  .occasion-pattern {
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+    @apply noor-islamic-pattern;
+  }
+
+  .occasion-rays {
+    opacity: 0;
+  }
+
+  .occasion-particles {
+    opacity: 0;
+  }
+
+  /* Text rules */
+  @keyframes occasion-title-glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 12px hsl(var(--accent) / 0.22));
+      opacity: 0.98;
+      transform: translateZ(0);
+    }
+    50% {
+      filter: drop-shadow(0 0 20px hsl(var(--accent) / 0.32));
+      opacity: 1;
+    }
+  }
+
+  @keyframes occasion-subtext-enter {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .occasion-celebration-base .occasion-title {
+    font-family: Cairo, Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.08;
+    /* Default sizing: overridable via admin CSS vars */
+    font-size: var(--occasion-title-size, 1.25rem);
+    background: linear-gradient(
+      90deg,
+      hsl(var(--accent) / 0.98),
+      hsl(var(--accent) / 0.65),
+      hsl(var(--foreground) / 0.96)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .occasion-title-glow {
+    @apply motion-safe:animate-[occasion-title-glow_3.2s_ease-in-out_infinite];
+  }
+
+  .occasion-celebration-base .occasion-message {
+    font-size: var(--occasion-message-size, 0.95rem);
+    color: hsl(var(--foreground) / 0.92);
+  }
+
+  .occasion-message-fade {
+    animation: occasion-subtext-enter 600ms ease-out both;
+    animation-delay: 120ms;
+  }
+
+  .occasion-celebration-base .occasion-dua {
+    font-size: var(--occasion-dua-size, 0.875rem);
+    background: hsl(var(--foreground) / 0.10);
+    color: hsl(var(--foreground) / 0.90);
+    border: 1px solid hsl(var(--foreground) / 0.10);
+  }
+
+  /* Ornaments positioning */
+  .occasion-ornament {
+    position: absolute;
+    inset: auto;
+    pointer-events: none;
+  }
+
+  .occasion-ornament-moon {
+    top: 10px;
+    right: 8px;
+    width: 170px;
+    opacity: 0.9;
+    @apply motion-safe:animate-[occasion-moon-float_6.5s_ease-in-out_infinite];
+  }
+
+  .occasion-ornament-mosque {
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 110px;
+    opacity: 0.95;
+  }
+
+  .occasion-ornament-lanterns {
+    top: -8px;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    opacity: 0.95;
+  }
+
+  .occasion-ornament-stars {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    opacity: 0.9;
+  }
+
+  .occasion-ornament-horizon {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    opacity: 0.9;
+  }
+
+  .occasion-ornament-roses {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 140px;
+    opacity: 0.9;
+  }
+
+  /* Animations */
+  @keyframes occasion-moon-float {
+    0%, 100% {
+      transform: translateY(0) translateX(0);
+    }
+    50% {
+      transform: translateY(-6px) translateX(-2px);
+    }
+  }
+
+  @keyframes occasion-stars-twinkle {
+    0%, 100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .occasion-stars {
+    transform-origin: center;
+    @apply motion-safe:animate-[occasion-stars-twinkle_3.8s_ease-in-out_infinite];
+  }
+
+  @keyframes occasion-lantern-sway {
+    0%, 100% {
+      transform: rotate(-1.2deg);
+    }
+    50% {
+      transform: rotate(1.2deg);
+    }
+  }
+
+  .occasion-lantern {
+    transform-origin: top center;
+  }
+  .occasion-lantern-1 {
+    animation: occasion-lantern-sway 3.8s ease-in-out infinite;
+  }
+  .occasion-lantern-2 {
+    animation: occasion-lantern-sway 4.6s ease-in-out infinite;
+  }
+  .occasion-lantern-3 {
+    animation: occasion-lantern-sway 4.1s ease-in-out infinite;
+  }
+
+  @keyframes occasion-sparkles-fall {
+    0% {
+      background-position: 0 0;
+      opacity: 0.75;
+    }
+    100% {
+      background-position: 0 220px;
+      opacity: 0.25;
+    }
+  }
+
+  @keyframes occasion-rays-pulse {
+    0%, 100% {
+      opacity: 0.18;
+      transform: translateY(-2px);
+    }
+    50% {
+      opacity: 0.38;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes occasion-bg-drift {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-14px);
+    }
+  }
+
+  @keyframes occasion-particles-up {
+    0% {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.45;
+    }
+    100% {
+      transform: translateY(-24px);
+      opacity: 0;
+    }
+  }
+
+  /* Theme variables per occasion type */
+  .occasion-card.occasion-type-eid {
+    --occasion-sky: var(--dua-card-to);
+    --occasion-gold: var(--accent);
+    --occasion-ink: 0 0% 0%;
+  }
+
+  .occasion-card.occasion-type-ramadan_start {
+    --occasion-sky: var(--dua-card-from);
+    --occasion-gold: var(--accent);
+    --occasion-ink: 0 0% 0%;
+  }
+
+  .occasion-card.occasion-type-laylatul_qadr {
+    --occasion-sky: 222.2 84% 4.9%;
+    --occasion-gold: var(--accent);
+    --occasion-ink: 0 0% 0%;
+  }
+
+  .occasion-card.occasion-type-shab_e_barat {
+    --occasion-sky: 222.2 84% 4.9%;
+    --occasion-gold: var(--accent);
+    --occasion-ink: 0 0% 0%;
+  }
+
+  .occasion-card.occasion-type-milad_un_nabi {
+    --occasion-sky: var(--dua-card-to);
+    --occasion-gold: var(--accent);
+    --occasion-ink: 0 0% 0%;
+  }
+
+  .occasion-card.occasion-type-islamic_new_year {
+    --occasion-sky: 222.2 84% 4.9%;
+    --occasion-gold: var(--accent);
+    --occasion-ink: 0 0% 0%;
+  }
+
+  /* Per-occasion visuals/animations (CSS-only, calm) */
+  .occasion-card.occasion-celebration.occasion-type-eid .occasion-particles {
+    opacity: 1;
+    background:
+      radial-gradient(circle at 14px 14px, hsl(var(--occasion-gold) / 0.35) 0 1px, transparent 2px),
+      radial-gradient(circle at 46px 22px, hsl(var(--occasion-gold) / 0.25) 0 1px, transparent 2px),
+      radial-gradient(circle at 80px 10px, hsl(var(--occasion-gold) / 0.20) 0 1px, transparent 2px);
+    background-size: 120px 120px;
+    animation: occasion-sparkles-fall 4.8s linear infinite;
+    mask-image: linear-gradient(to bottom, hsl(var(--foreground) / 1), transparent);
+  }
+
+  .occasion-card.occasion-celebration.occasion-type-ramadan_start .occasion-rays {
+    opacity: 1;
+    background:
+      radial-gradient(800px circle at 50% -20%, hsl(var(--occasion-gold) / 0.22), transparent 60%),
+      radial-gradient(700px circle at 20% 0%, hsl(var(--primary) / 0.18), transparent 62%);
+    animation: occasion-rays-pulse 4.6s ease-in-out infinite;
+  }
+
+  .occasion-card.occasion-celebration.occasion-type-laylatul_qadr .occasion-rays {
+    opacity: 1;
+    background:
+      linear-gradient(to bottom, hsl(var(--occasion-gold) / 0.20), transparent 55%),
+      radial-gradient(900px circle at 50% 12%, hsl(var(--occasion-gold) / 0.18), transparent 60%);
+    animation: occasion-rays-pulse 5.4s ease-in-out infinite;
+  }
+
+  .occasion-card.occasion-celebration.occasion-type-shab_e_barat .occasion-particles {
+    opacity: 1;
+    background:
+      radial-gradient(circle at 18px 18px, hsl(var(--occasion-gold) / 0.20) 0 1px, transparent 2px),
+      radial-gradient(circle at 54px 30px, hsl(var(--occasion-gold) / 0.14) 0 1px, transparent 2px),
+      radial-gradient(circle at 92px 12px, hsl(var(--occasion-gold) / 0.12) 0 1px, transparent 2px);
+    background-size: 140px 140px;
+    animation: occasion-particles-up 3.8s ease-in-out infinite;
+    mask-image: linear-gradient(to top, hsl(var(--foreground) / 1), transparent);
+  }
+
+  .occasion-card.occasion-celebration.occasion-type-milad_un_nabi {
+    background: linear-gradient(135deg, hsl(var(--dua-card-from)), hsl(var(--dua-card-to)));
+  }
+  .occasion-card.occasion-celebration.occasion-type-milad_un_nabi .occasion-rays {
+    opacity: 1;
+    background:
+      radial-gradient(900px circle at 30% 10%, hsl(var(--primary) / 0.20), transparent 60%),
+      radial-gradient(700px circle at 80% 20%, hsl(var(--occasion-gold) / 0.16), transparent 62%);
+    animation: occasion-bg-drift 8.5s ease-in-out infinite;
+  }
+
+  .occasion-card.occasion-celebration.occasion-type-islamic_new_year .occasion-rays {
+    opacity: 1;
+    background:
+      radial-gradient(900px circle at 50% 100%, hsl(var(--occasion-gold) / 0.16), transparent 60%),
+      radial-gradient(800px circle at 50% 20%, hsl(var(--primary) / 0.12), transparent 62%);
+    animation: occasion-bg-drift 10.5s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .occasion-title-glow,
+    .occasion-message-fade,
+    .occasion-ornament-moon,
+    .occasion-stars,
+    .occasion-lantern-1,
+    .occasion-lantern-2,
+    .occasion-lantern-3,
+    .occasion-card.occasion-celebration .occasion-rays,
+    .occasion-card.occasion-celebration .occasion-particles {
+      animation: none !important;
+    }
+  }
+
   .occasion-card.occasion-theme-minimal .occasion-theme-overlay {
     opacity: 1;
     background:
