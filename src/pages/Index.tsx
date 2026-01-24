@@ -147,12 +147,35 @@ const Index = () => {
                 ? rowSettings.quizOverlay
                 : undefined;
 
+            const cardCfg =
+              typeof rowSettings?.dailyQuizCard === "object" && rowSettings?.dailyQuizCard
+                ? rowSettings.dailyQuizCard
+                : undefined;
+
             return {
               key: r.id,
               el: wrapWithVariant(
                 <div className="space-y-4">
                   <AudioRecitationCard />
-                  <DailyQuizCard overlayTuning={overlayTuning} />
+                  <DailyQuizCard
+                    overlayTuning={overlayTuning}
+                    overlayConfig={
+                      cardCfg
+                        ? {
+                            enabled:
+                              typeof cardCfg?.overlayEnabled === "boolean"
+                                ? cardCfg.overlayEnabled
+                                : undefined,
+                            preset: cardCfg?.overlayPreset === "old" || cardCfg?.overlayPreset === "new"
+                              ? cardCfg.overlayPreset
+                              : undefined,
+                            imageUrl: typeof cardCfg?.overlayImageUrl === "string" ? cardCfg.overlayImageUrl : undefined,
+                          }
+                        : undefined
+                    }
+                    cardClassName={typeof cardCfg?.cardClassName === "string" ? cardCfg.cardClassName : undefined}
+                    cardCss={typeof cardCfg?.cardCss === "string" ? cardCfg.cardCss : undefined}
+                  />
                 </div>,
                 rowSettings?.styleVariant,
               ),
