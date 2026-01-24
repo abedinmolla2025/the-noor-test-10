@@ -694,7 +694,11 @@ export default function AdminOccasions() {
         if (error) throw error;
       }
 
-      await qc.invalidateQueries({ queryKey: ["admin-occasions"] });
+      // Refresh both admin list and Home carousel data (which uses a different query key).
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["admin-occasions"] }),
+        qc.invalidateQueries({ queryKey: ["active-occasions"] }),
+      ]);
       toast({ title: "Saved" });
       setDialogOpen(false);
       setEditing(null);
