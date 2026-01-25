@@ -14,6 +14,12 @@ export interface BrandingSettings {
   logoUrl?: string;
   iconUrl?: string;
   faviconUrl?: string;
+  faviconVariants?: {
+    png16?: string;
+    png32?: string;
+    png48?: string;
+    png180?: string; // apple-touch-icon
+  };
 }
 
 export interface ThemeSettings {
@@ -64,6 +70,18 @@ const GlobalConfigContext = createContext<GlobalConfigContextValue | undefined>(
 function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
   if (typeof document === "undefined") return;
 
+  const upsertLink = (selector: string, attrs: Record<string, string>) => {
+    let link = document.querySelector<HTMLLinkElement>(selector);
+    if (!link) {
+      link = document.createElement("link");
+      document.head.appendChild(link);
+    }
+    for (const [k, v] of Object.entries(attrs)) {
+      link.setAttribute(k, v);
+    }
+    return link;
+  };
+
   if (seo.title) {
     document.title = seo.title;
   } else if (branding.appName) {
@@ -105,16 +123,62 @@ function applyDocumentBranding(branding: BrandingSettings, seo: SeoSettings) {
   }
 
   const faviconHref = branding.faviconUrl || branding.iconUrl || branding.logoUrl;
+
+  // Prefer generated PNG variants when available (best browser support).
+  const v = branding.faviconVariants;
+  if (v?.png16) upsertLink('link[rel="icon"][sizes="16x16"]', { rel: "icon", sizes: "16x16", type: "image/png", href: v.png16 });
+  if (v?.png32) upsertLink('link[rel="icon"][sizes="32x32"]', { rel: "icon", sizes: "32x32", type: "image/png", href: v.png32 });
+  if (v?.png48) upsertLink('link[rel="icon"][sizes="48x48"]', { rel: "icon", sizes: "48x48", type: "image/png", href: v.png48 });
+  if (v?.png180) upsertLink('link[rel="apple-touch-icon"]', { rel: "apple-touch-icon", sizes: "180x180", href: v.png180 });
+
   if (faviconHref) {
-    let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-    if (!link) {
-      link = document.createElement("link");
-      link.rel = "icon";
-      document.head.appendChild(link);
+    // Fallback/default favicon link
+    upsertLink('link[rel="icon"]:not([sizes])', { rel: "icon", href: v?.png32 || faviconHref });
+  }
+
+  // Dynamic PWA manifest (keeps icons in sync without a static manifest file).
+  // Note: using an object URL so changes are visible immediately.
+  const manifestIcons = [
+    v?.png180
+      ? {
+          src: v.png180,
+          sizes: "180x180",
+          type: "image/png",
+          purpose: "any maskable",
+        }
+      : null,
+    v?.png48
+      ? {
+          src: v.png48,
+          sizes: "48x48",
+          type: "image/png",
+          purpose: "any",
+        }
+      : null,
+  ].filter(Boolean) as any[];
+
+  if (branding.appName && manifestIcons.length) {
+    const manifest = {
+      name: branding.appName,
+      short_name: branding.appName,
+      start_url: "/",
+      display: "standalone",
+      icons: manifestIcons,
+    };
+
+    // Keep the last object URL so we can revoke it.
+    const w = window as any;
+    if (w.__noorManifestUrl) {
+      try {
+        URL.revokeObjectURL(w.__noorManifestUrl);
+      } catch {
+        // ignore
+      }
     }
-    if (link.href !== faviconHref) {
-      link.href = faviconHref;
-    }
+    const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+    const url = URL.createObjectURL(blob);
+    w.__noorManifestUrl = url;
+    upsertLink('link[rel="manifest"]', { rel: "manifest", href: url });
   }
 }
 
