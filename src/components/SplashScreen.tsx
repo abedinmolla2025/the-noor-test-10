@@ -1,8 +1,13 @@
- import { useEffect, useState } from "react";
+ import { useEffect, useState, useMemo } from "react";
  import Lottie from "lottie-react";
  
- export function SplashScreen(props: { lottieUrl?: string; onComplete: () => void }) {
-   const { lottieUrl, onComplete } = props;
+ export function SplashScreen(props: { 
+   lottieUrl?: string; 
+   duration?: number;
+   fadeOutDuration?: number;
+   onComplete: () => void;
+ }) {
+   const { lottieUrl, duration = 3000, fadeOutDuration = 500, onComplete } = props;
    const [animationData, setAnimationData] = useState<any>(null);
    const [visible, setVisible] = useState(true);
    const [fadeOut, setFadeOut] = useState(false);
@@ -18,27 +23,33 @@
        .then((res) => res.json())
        .then((data) => {
          setAnimationData(data);
-         // Auto-hide after 3 seconds
+           // Auto-hide after specified duration
          setTimeout(() => {
            setFadeOut(true);
            setTimeout(() => {
              setVisible(false);
              onComplete();
-           }, 500); // Fade out duration
-         }, 3000);
+             }, fadeOutDuration);
+           }, duration);
        })
        .catch(() => {
          onComplete();
        });
-   }, [lottieUrl, onComplete]);
+   }, [lottieUrl, duration, fadeOutDuration, onComplete]);
+
+   const transitionStyle = useMemo(() => 
+     `transition-opacity duration-[${fadeOutDuration}ms]`,
+     [fadeOutDuration]
+   );
  
    if (!visible) return null;
  
    return (
      <div
-       className={`fixed inset-0 z-[9999] flex items-center justify-center bg-background transition-opacity duration-500 ${
+         className={`fixed inset-0 z-[9999] flex items-center justify-center bg-background ${transitionStyle} ${
          fadeOut ? "opacity-0" : "opacity-100"
        }`}
+       style={{ transitionDuration: `${fadeOutDuration}ms` }}
      >
        {animationData ? (
          <div className="w-full max-w-md px-8">
