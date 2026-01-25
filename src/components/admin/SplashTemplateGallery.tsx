@@ -38,9 +38,9 @@
          </DialogHeader>
  
          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-           <TabsList className="grid w-full grid-cols-6">
+           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
              {TEMPLATE_CATEGORIES.map((cat) => (
-               <TabsTrigger key={cat.value} value={cat.value}>
+               <TabsTrigger key={cat.value} value={cat.value} className="text-xs sm:text-sm px-2">
                  {cat.label}
                </TabsTrigger>
              ))}

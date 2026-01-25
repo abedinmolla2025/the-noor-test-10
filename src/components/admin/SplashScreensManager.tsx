@@ -151,11 +151,11 @@
    return (
      <div className="space-y-6">
        {/* Global Status Bar */}
-       <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
-         <div className="flex items-center gap-3">
+       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-muted/50 rounded-lg border">
+         <div className="flex items-center gap-3 w-full sm:w-auto">
            <div className={`h-3 w-3 rounded-full ${activeCount > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
            <div>
-             <p className="font-medium">
+             <p className="font-medium text-sm sm:text-base">
                {activeCount > 0 ? `${activeCount} Splash Screen${activeCount > 1 ? 's' : ''} Active` : 'All Splash Screens Disabled'}
              </p>
              <p className="text-xs text-muted-foreground">
@@ -166,39 +166,41 @@
            </div>
          </div>
          {hasAny && (
-           <div className="flex gap-2">
+           <div className="flex gap-2 w-full sm:w-auto">
              <Button
                variant={activeCount > 0 ? "outline" : "default"}
                size="sm"
+               className="gap-2 flex-1 sm:flex-none"
                onClick={() => toggleAllMutation.mutate(true)}
                disabled={toggleAllMutation.isPending}
-               className="gap-2"
              >
                <Power className="h-4 w-4" />
-               Enable All
+               <span className="hidden sm:inline">Enable All</span>
+               <span className="sm:hidden">Enable</span>
              </Button>
              <Button
                variant={activeCount > 0 ? "destructive" : "outline"}
                size="sm"
+               className="gap-2 flex-1 sm:flex-none"
                onClick={() => toggleAllMutation.mutate(false)}
                disabled={toggleAllMutation.isPending}
-               className="gap-2"
              >
                <PowerOff className="h-4 w-4" />
-               Disable All
+               <span className="hidden sm:inline">Disable All</span>
+               <span className="sm:hidden">Disable</span>
              </Button>
            </div>
          )}
        </div>
 
-       <div className="flex items-center justify-between">
-         <div>
-           <h2 className="text-2xl font-bold">Splash Screens</h2>
+       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+         <div className="w-full sm:w-auto">
+           <h2 className="text-xl sm:text-2xl font-bold">Splash Screens</h2>
            <p className="text-sm text-muted-foreground">
              Manage multiple splash screens for different occasions and events
            </p>
          </div>
-         <div className="flex gap-2">
+         <div className="flex gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
            <SplashTemplateGallery
              onSelectTemplate={(template) => {
                createMutation.mutate({
@@ -220,13 +222,14 @@
            />
            <Button onClick={handleCreateNew}>
              <Plus className="mr-2 h-4 w-4" />
-             Create Custom
+             <span className="hidden sm:inline">Create Custom</span>
+             <span className="sm:hidden">Custom</span>
            </Button>
          </div>
        </div>
  
        <Tabs defaultValue="active">
-         <TabsList>
+         <TabsList className="grid w-full grid-cols-3">
            <TabsTrigger value="active">Active</TabsTrigger>
            <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
            <TabsTrigger value="all">All</TabsTrigger>
@@ -319,8 +322,8 @@
    return (
      <Card>
        <CardHeader>
-         <div className="flex items-center justify-between">
-           <div className="flex items-center gap-3">
+         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
              <CardTitle className="text-lg">{splash.title}</CardTitle>
              {splash.is_active && (
                <Badge variant="default" className="gap-1">
@@ -335,8 +338,8 @@
                </Badge>
              )}
            </div>
-           <div className="flex items-center gap-2">
-             <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-md">
+           <div className="flex items-center gap-2 w-full sm:w-auto">
+             <div className="flex items-center gap-2 bg-muted/50 px-2 sm:px-3 py-1.5 rounded-md flex-1 sm:flex-none justify-center">
                <span className="text-xs font-medium text-muted-foreground">
                  {splash.is_active ? 'Enabled' : 'Disabled'}
                </span>
@@ -345,10 +348,18 @@
                onCheckedChange={(checked) => onUpdate({ is_active: checked })}
              />
              </div>
-             <Button variant="ghost" size="sm" onClick={onEdit}>
+             <Button variant="ghost" size="sm" onClick={onEdit} className="hidden sm:inline-flex">
                Edit
              </Button>
-             <Button variant="ghost" size="sm" onClick={onDelete}>
+             <Button variant="ghost" size="sm" onClick={onDelete} className="hidden sm:inline-flex">
+               <Trash2 className="h-4 w-4" />
+             </Button>
+             {/* Mobile: Show icons only */}
+             <Button variant="ghost" size="sm" onClick={onEdit} className="sm:hidden">
+               <span className="sr-only">Edit</span>
+               ✏️
+             </Button>
+             <Button variant="ghost" size="sm" onClick={onDelete} className="sm:hidden">
                <Trash2 className="h-4 w-4" />
              </Button>
            </div>
@@ -357,7 +368,7 @@
        <CardContent className="space-y-4">
          {isEditing ? (
            <>
-             <div className="grid gap-4 md:grid-cols-2">
+             <div className="grid gap-4 sm:grid-cols-2">
                <div className="space-y-2">
                  <Label>Title</Label>
                  <Input
@@ -385,7 +396,7 @@
                </div>
              </div>
  
-             <div className="grid gap-4 md:grid-cols-2">
+             <div className="grid gap-4 sm:grid-cols-2">
                <div className="space-y-2">
                  <Label>Start Date</Label>
                  <Input
@@ -408,7 +419,7 @@
                </div>
              </div>
  
-             <div className="grid gap-4 md:grid-cols-3">
+             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                <div className="space-y-2">
                  <Label>Duration (ms)</Label>
                  <Input
@@ -443,10 +454,11 @@
  
              <div className="space-y-2">
                <Label>Lottie Animation</Label>
-               <div className="flex gap-2 mb-2">
+               <div className="flex flex-col sm:flex-row gap-2 mb-2">
                  <SplashTemplateGallery onSelectTemplate={handleApplyTemplate} />
                  <Button
                    variant="outline"
+                   className="w-full sm:w-auto"
                    disabled={uploading}
                    onClick={() => {
                      const input = document.createElement('input');
