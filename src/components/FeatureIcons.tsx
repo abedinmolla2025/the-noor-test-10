@@ -83,7 +83,7 @@ const FeatureIcons = ({ layout = "scroll", columns }: FeatureIconsProps) => {
   }, [columns, layout]);
 
   return (
-    <div className={containerProps.className} style={containerProps.style}>
+    <div className={containerProps.className} style={{ ...containerProps.style, transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
       {features.map((feature, index) => (
         <motion.button
           key={feature.label}

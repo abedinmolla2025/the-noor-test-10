@@ -279,7 +279,7 @@ const Index = () => {
     : defaultSections.map((s, idx) => ({ key: String(idx), el: s.el, pad: "space-y-4" }));
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden" style={{ willChange: 'scroll-position' }}>
+    <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
       <NotificationOptInPrompt />
       {/* Maintenance banner */}
       {system.maintenanceMode && (
@@ -311,13 +311,17 @@ const Index = () => {
       )}
 
       {/* Main Content */}
-      <main className="w-full px-3 py-4">
+      <main className="w-full px-3 py-4" style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
         <div className="space-y-4">
           {orderedSections.map((s, idx) => (
             <section
               key={s.key}
               className={idx < 2 ? "animate-fade-in" : ""}
-              style={idx < 2 ? { animationDelay: `${idx * 80}ms` } : { contentVisibility: 'auto', contain: 'layout style paint' }}
+              style={
+                idx < 2 
+                  ? { animationDelay: `${idx * 80}ms`, transform: 'translateZ(0)' } 
+                  : { contentVisibility: 'auto', contain: 'layout style paint', transform: 'translateZ(0)' }
+              }
             >
               <div className={s.pad ?? "space-y-4"}>{s.el}</div>
             </section>

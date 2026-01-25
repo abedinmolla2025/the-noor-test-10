@@ -74,7 +74,7 @@ const BottomNavigation = () => {
   if (!isMobile) return null;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/50 bg-background md:bottom-4 md:mx-auto md:max-w-lg md:rounded-2xl md:border md:shadow-card">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/50 bg-background md:bottom-4 md:mx-auto md:max-w-lg md:rounded-2xl md:border md:shadow-card" style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
       <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-1.5 px-2 pt-2 pb-4 sm:px-4">
         {navItems
           .filter((item) => (item.moduleKey ? modules[item.moduleKey] !== false : true))
