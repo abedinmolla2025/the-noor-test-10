@@ -1,3 +1,6 @@
+ import { useEffect, useState } from "react";
+ import { supabase } from "@/integrations/supabase/client";
+ import { SplashScreen } from "@/components/SplashScreen";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -267,6 +270,61 @@ const AppRoutes = () => (
 );
 
 const App = () => {
+   const [showSplash, setShowSplash] = useState(true);
+   const [splashConfig, setSplashConfig] = useState<{
+     lottieUrl: string;
+     duration: number;
+     fadeOutDuration: number;
+   } | null>(null);
+
+   useEffect(() => {
+     const fetchActiveSplash = async () => {
+       const now = new Date().toISOString();
+       const platform = typeof window !== 'undefined' && (window as any).Capacitor ? 'app' : 'web';
+       const platforms = platform === 'web' ? ['web', 'both'] : ['app', 'both'];
+
+       // Try to fetch from admin_splash_screens first
+       const { data: splashData } = await supabase
+         .from('admin_splash_screens')
+         .select('*')
+         .eq('is_active', true)
+         .lte('start_date', now)
+         .gte('end_date', now)
+         .in('platform', platforms)
+         .order('priority', { ascending: false })
+         .order('start_date', { ascending: false })
+         .limit(1)
+         .single();
+
+       if (splashData) {
+         setSplashConfig({
+           lottieUrl: splashData.lottie_url,
+           duration: splashData.duration,
+           fadeOutDuration: splashData.fade_out_duration,
+         });
+       } else {
+         // Fallback to branding settings
+         const { data: brandingData } = await supabase
+           .from('app_settings')
+           .select('setting_value')
+           .eq('setting_key', 'branding')
+           .single();
+
+         const brandingValue = brandingData?.setting_value as any;
+         if (brandingValue?.lottieSplashUrl) {
+           setSplashConfig({
+             lottieUrl: brandingValue.lottieSplashUrl,
+             duration: brandingValue.splashDuration || 3000,
+             fadeOutDuration: brandingValue.splashFadeOutDuration || 500,
+           });
+         } else {
+           setShowSplash(false);
+         }
+       }
+     };
+     fetchActiveSplash();
+   }, []);
+
   // Native-only: register device token for future push delivery.
   usePushTokenRegistration();
   // Web-only: register browser for web push notifications.
@@ -275,6 +333,15 @@ const App = () => {
   useQuizReminder();
 
   return (
+     <>
+       {showSplash && splashConfig && (
+         <SplashScreen 
+           lottieUrl={splashConfig.lottieUrl}
+           duration={splashConfig.duration}
+           fadeOutDuration={splashConfig.fadeOutDuration}
+           onComplete={() => setShowSplash(false)}
+         />
+       )}
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AdminProvider>
@@ -290,6 +357,7 @@ const App = () => {
         </AdminProvider>
       </TooltipProvider>
     </QueryClientProvider>
+     </>
   );
 };
 
