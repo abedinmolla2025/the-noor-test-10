@@ -106,16 +106,16 @@
      try {
        const fileExt = file.name.split('.').pop();
        const fileName = `splash-${Date.now()}.${fileExt}`;
-       const filePath = `splash-screens/${fileName}`;
+         const filePath = `${fileName}`;
  
        const { error: uploadError } = await supabase.storage
-         .from('media')
+           .from('splash-screens')
          .upload(filePath, file);
  
        if (uploadError) throw uploadError;
  
        const { data: { publicUrl } } = supabase.storage
-         .from('media')
+           .from('splash-screens')
          .getPublicUrl(filePath);
  
        await updateMutation.mutateAsync({ id: splashId, lottie_url: publicUrl });
