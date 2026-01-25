@@ -20,16 +20,20 @@ async function cropToBlob(params: {
   crop: Area;
   outputType: "image/jpeg" | "image/webp";
   quality: number;
+  outputWidth?: number;
+  outputHeight?: number;
 }): Promise<Blob> {
-  const { imageSrc, crop, outputType, quality } = params;
+  const { imageSrc, crop, outputType, quality, outputWidth, outputHeight } = params;
 
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas not supported");
 
-  canvas.width = Math.max(1, Math.floor(crop.width));
-  canvas.height = Math.max(1, Math.floor(crop.height));
+  const targetW = outputWidth ? Math.max(1, Math.floor(outputWidth)) : Math.max(1, Math.floor(crop.width));
+  const targetH = outputHeight ? Math.max(1, Math.floor(outputHeight)) : Math.max(1, Math.floor(crop.height));
+  canvas.width = targetW;
+  canvas.height = targetH;
 
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(
@@ -57,6 +61,9 @@ export function ImageCropDialog(props: {
   aspect?: number;
   outputType?: "image/jpeg" | "image/webp";
   quality?: number;
+  outputWidth?: number;
+  outputHeight?: number;
+  showPositionPresets?: boolean;
   onConfirm: (blob: Blob) => void | Promise<void>;
 }) {
   const {
@@ -67,6 +74,9 @@ export function ImageCropDialog(props: {
     aspect = 16 / 9,
     outputType = "image/webp",
     quality = 0.9,
+    outputWidth,
+    outputHeight,
+    showPositionPresets = false,
     onConfirm,
   } = props;
 
@@ -81,12 +91,25 @@ export function ImageCropDialog(props: {
     if (!imageSrc || !croppedPixels) return;
     setSaving(true);
     try {
-      const blob = await cropToBlob({ imageSrc, crop: croppedPixels, outputType, quality });
+      const blob = await cropToBlob({
+        imageSrc,
+        crop: croppedPixels,
+        outputType,
+        quality,
+        outputWidth,
+        outputHeight,
+      });
       await onConfirm(blob);
       onOpenChange(false);
     } finally {
       setSaving(false);
     }
+  };
+
+  const nudgeCrop = (dx: number, dy: number) => {
+    // react-easy-crop uses a centered coordinate system where x/y are percentages.
+    // Keep it simple: nudge by fixed steps.
+    setCrop((p) => ({ x: p.x + dx, y: p.y + dy }));
   };
 
   return (
@@ -118,6 +141,30 @@ export function ImageCropDialog(props: {
             </div>
             <Slider value={[zoom]} min={1} max={3} step={0.01} onValueChange={(v) => setZoom(v[0] ?? 1)} />
           </div>
+
+          {showPositionPresets ? (
+            <div className="grid gap-2">
+              <p className="text-sm font-medium">Position</p>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => setCrop({ x: 0, y: 0 })}>
+                  Center
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => nudgeCrop(0, -20)}>
+                  Up
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => nudgeCrop(0, 20)}>
+                  Down
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => nudgeCrop(-20, 0)}>
+                  Left
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => nudgeCrop(20, 0)}>
+                  Right
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Tip: drag inside the crop area for precise positioning.</p>
+            </div>
+          ) : null}
         </div>
 
         <DialogFooter>
