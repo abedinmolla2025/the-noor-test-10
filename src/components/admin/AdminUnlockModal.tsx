@@ -72,6 +72,10 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
       if (fnError) throw fnError;
 
       if (!data?.ok) {
+        if (data?.error === "setup_required") {
+          setError("Admin security was just initialized. Please use 'Forgot passcode?' to set up your passcode.");
+          return;
+        }
         if (data?.reason === "fingerprint_required") {
           setError("Device fingerprint is required. Please enable the toggle and try again.");
         } else if (data?.locked_until) {
