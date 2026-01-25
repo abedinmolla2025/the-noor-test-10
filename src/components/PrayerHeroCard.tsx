@@ -139,7 +139,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
       onClick={() => navigate("/prayer-times")}
     >
       {/* Premium Glass Card */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-xl" style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}>
         {/* Dynamic Gradient Background - Solid Emerald Green */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700" />
         

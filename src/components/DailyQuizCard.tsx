@@ -76,6 +76,7 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
       className={`relative overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-accent/5 ${
         cardClassName ?? ""
       }`}
+      style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}
     >
       {scopedCss ? <style>{scopedCss}</style> : null}
 
