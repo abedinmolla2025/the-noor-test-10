@@ -293,7 +293,7 @@ const Index = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="fixed top-4 left-4 right-4 z-40 bg-gradient-to-r from-emerald-600 to-teal-600 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-white/20"
+          className="fixed top-4 left-4 right-4 z-40 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl px-4 py-3 shadow-lg border border-white/20"
         >
           <div className="flex items-center gap-3">
             <BellRing className="w-5 h-5 text-white animate-pulse" />

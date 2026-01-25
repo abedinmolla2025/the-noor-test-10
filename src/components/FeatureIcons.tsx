@@ -6,7 +6,7 @@ interface FeatureItem {
   emoji: string;
   label: string;
   labelBn: string;
-  animation: TargetAndTransition;
+  animation?: TargetAndTransition;
   path: string;
   gradient: string;
 }
@@ -18,10 +18,6 @@ const features: FeatureItem[] = [
     labelBn: "কুরআন",
     path: "/quran",
     gradient: "from-emerald-500/30 to-teal-600/40",
-    animation: {
-      rotateY: [0, 15, 0, -15, 0],
-      transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const },
-    },
   },
   {
     emoji: "🤲",
@@ -29,11 +25,6 @@ const features: FeatureItem[] = [
     labelBn: "দোয়া",
     path: "/dua",
     gradient: "from-amber-500/30 to-orange-600/40",
-    animation: {
-      y: [0, -4, 0],
-      scale: [1, 1.05, 1],
-      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" as const },
-    },
   },
   {
     emoji: "👶",
@@ -41,10 +32,6 @@ const features: FeatureItem[] = [
     labelBn: "নাম",
     path: "/names",
     gradient: "from-pink-500/30 to-rose-600/40",
-    animation: {
-      rotate: [-5, 5, -5],
-      transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" as const },
-    },
   },
   {
     emoji: "🧭",
@@ -52,10 +39,6 @@ const features: FeatureItem[] = [
     labelBn: "কিবলা",
     path: "/qibla",
     gradient: "from-blue-500/30 to-cyan-600/40",
-    animation: {
-      rotate: [0, 20, -20, 0],
-      transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const },
-    },
   },
   {
     emoji: "📿",
@@ -63,11 +46,6 @@ const features: FeatureItem[] = [
     labelBn: "তাসবিহ",
     path: "/tasbih",
     gradient: "from-purple-500/30 to-violet-600/40",
-    animation: {
-      y: [0, -3, 0],
-      rotate: [0, 10, 0],
-      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" as const },
-    },
   },
   {
     emoji: "✨",
@@ -75,11 +53,6 @@ const features: FeatureItem[] = [
     labelBn: "৯৯ নাম",
     path: "/99-names",
     gradient: "from-[hsl(45,93%,58%)]/30 to-amber-600/40",
-    animation: {
-      scale: [1, 1.2, 1],
-      opacity: [1, 0.8, 1],
-      transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" as const },
-    },
   },
 ];
 
@@ -131,9 +104,9 @@ const FeatureIcons = ({ layout = "scroll", columns }: FeatureIconsProps) => {
           >
             {/* Inner highlight for 3D effect */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent rounded-2xl pointer-events-none" />
-            <motion.span className="text-2xl drop-shadow-md relative z-10" animate={feature.animation}>
+            <span className="text-2xl drop-shadow-md relative z-10">
               {feature.emoji}
-            </motion.span>
+            </span>
           </div>
           <span className="text-[10px] text-muted-foreground font-medium tracking-wide">
             {feature.label}

@@ -31,7 +31,7 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 2000);
     return () => clearInterval(timer);
   }, []);
 
@@ -271,35 +271,16 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                 {/* Praying Man 3D Image - Fixed Position with Light Rays */}
                 <div className="absolute right-32 top-1/2 -translate-y-1/2">
                   {/* Light Rays from Above - CSS Animation for better performance */}
-                  <div className="absolute -top-16 left-1/2 -translate-x-[40%] w-32 h-24 overflow-visible pointer-events-none">
+                  <div className="absolute -top-16 left-1/2 -translate-x-[40%] w-32 h-24 overflow-visible pointer-events-none will-change-opacity">
                     {/* Main Light Beam - CSS animation */}
                     <div
                       className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-28 animate-pulse"
                       style={{
                         background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.4) 40%, rgba(255, 255, 255, 0.1) 100%)',
                         clipPath: 'polygon(35% 0%, 65% 0%, 100% 100%, 0% 100%)',
-                        filter: 'blur(4px)',
-                        willChange: 'opacity',
                       }}
                     />
                     
-                    {/* Side Light Rays - static for performance */}
-                    <div
-                      className="absolute top-0 left-1/2 -translate-x-[70%] w-10 h-24 opacity-50"
-                      style={{
-                        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%)',
-                        clipPath: 'polygon(60% 0%, 100% 0%, 100% 100%, 0% 100%)',
-                        filter: 'blur(3px)',
-                      }}
-                    />
-                    <div
-                      className="absolute top-0 left-1/2 -translate-x-[30%] w-10 h-24 opacity-50"
-                      style={{
-                        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%)',
-                        clipPath: 'polygon(0% 0%, 40% 0%, 100% 100%, 0% 100%)',
-                        filter: 'blur(3px)',
-                      }}
-                    />
                   </div>
                   
                   {/* Glow on Hands - static for performance */}
