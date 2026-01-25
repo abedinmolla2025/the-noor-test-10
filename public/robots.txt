@@ -13,4 +13,6 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: /sitemap.xml
+# Dynamic sitemap served from edge function
+# Replace YOUR_PROJECT_ID with your actual Supabase project ID
+Sitemap: https://clturlfaudwztlmysxpm.supabase.co/functions/v1/sitemap

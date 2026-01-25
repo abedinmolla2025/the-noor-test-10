@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Save, Globe, FileText } from "lucide-react";
+import { Search, Save, Globe, ExternalLink } from "lucide-react";
 
 type SeoPageRow = {
   id: string;
@@ -140,67 +140,11 @@ export default function AdminSeoPage() {
   const titleLen = form.title.length;
   const descLen = form.description.length;
 
-  const generateSitemapMutation = useMutation({
-    mutationFn: async () => {
-      // Fetch all indexable pages
-      const { data, error } = await (supabase as any)
-        .from("seo_pages")
-        .select("path, updated_at, robots")
-        .order("path", { ascending: true });
-      if (error) throw error;
+  const sitemapUrl = "https://clturlfaudwztlmysxpm.supabase.co/functions/v1/sitemap";
 
-      const indexablePages = (data ?? []).filter((p: any) => {
-        const robots = (p.robots || "").toLowerCase();
-        return !robots.includes("noindex");
-      });
-
-      const origin = typeof window !== "undefined" ? window.location.origin : "https://example.com";
-
-      const urls = indexablePages
-        .map((p: any) => {
-          const lastmod = p.updated_at ? new Date(p.updated_at).toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
-          const priority = p.path === "/" ? "1.0" : "0.8";
-          return `  <url>
-    <loc>${origin}${p.path}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>${priority}</priority>
-  </url>`;
-        })
-        .join("\n");
-
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>`;
-
-      return xml;
-    },
-    onSuccess: (xml) => {
-      // Download the generated sitemap
-      const blob = new Blob([xml], { type: "application/xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "sitemap.xml";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "Sitemap generated",
-        description: "sitemap.xml downloaded. Upload it to your public/ folder for SEO.",
-      });
-    },
-    onError: (e: any) => {
-      toast({
-        title: "Sitemap generation failed",
-        description: e?.message ?? "Unknown error",
-        variant: "destructive",
-      });
-    },
-  });
+  const openSitemap = () => {
+    window.open(sitemapUrl, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="space-y-6">
@@ -210,18 +154,13 @@ ${urls}
         icon={Globe}
         actions={
           <div className="flex items-center gap-2">
-            <Button
-              onClick={() => generateSitemapMutation.mutate()}
-              disabled={generateSitemapMutation.isPending}
-              variant="outline"
-              className="gap-2"
-            >
-              <FileText className="h-4 w-4" />
-              Generate Sitemap
-            </Button>
             <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="gap-2">
               <Save className="h-4 w-4" />
               Save
+            </Button>
+            <Button onClick={openSitemap} variant="outline" className="gap-2">
+              <ExternalLink className="h-4 w-4" />
+              View Sitemap
             </Button>
             <AdminPageActionsDropdown
               exportData={pages ?? []}
@@ -231,6 +170,31 @@ ${urls}
           </div>
         }
       />
+
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <Globe className="h-5 w-5 text-primary" />
+            <div className="flex-1 space-y-1">
+              <p className="text-sm font-medium">Dynamic Sitemap Active</p>
+              <p className="text-xs text-muted-foreground">
+                Your sitemap is automatically generated from this page's data. Search engines can access it at:{" "}
+                <a
+                  href={sitemapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-primary underline"
+                >
+                  {sitemapUrl}
+                </a>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Changes to page titles, robots directives, or adding/removing pages will automatically update the sitemap.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <Card>
