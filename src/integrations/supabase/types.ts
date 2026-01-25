@@ -901,6 +901,39 @@ export type Database = {
         }
         Relationships: []
       }
+      indexnow_config: {
+        Row: {
+          api_key: string
+          created_at: string
+          host: string
+          id: number
+          key_location: string | null
+          last_tested_at: string | null
+          test_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          host: string
+          id?: number
+          key_location?: string | null
+          last_tested_at?: string | null
+          test_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          host?: string
+          id?: number
+          key_location?: string | null
+          last_tested_at?: string | null
+          test_status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_deliveries: {
         Row: {
           browser: string | null
