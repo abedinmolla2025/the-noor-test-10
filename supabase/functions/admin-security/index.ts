@@ -131,27 +131,8 @@ Deno.serve(async (req) => {
 
       // Auto-bootstrap
       const initialPasscode = `${randomDigits(6)}-${randomHex(8)}`; // random + non-guessable, not meant for direct use
-      const { data: inserted, error: insertErr } = await supabase
-        .from("admin_security_config")
-        .insert({
-          id: 1,
-          admin_email: DEFAULT_ADMIN_EMAIL,
-          // hash server-side via Postgres crypt(); avoids handling hash logic in JS
-          passcode_hash: null, // placeholder; will be set via RPC below
-          require_fingerprint: false,
-          failed_attempts: 0,
-          locked_until: null,
-          updated_at: new Date().toISOString(),
-        } as any)
-        .select("id, admin_email, require_fingerprint")
-        .maybeSingle();
-
-      // If row already exists due to a race, continue gracefully.
-      if (insertErr && !String(insertErr.message ?? "").toLowerCase().includes("duplicate")) {
-        throw insertErr;
-      }
-
-      // Ensure passcode_hash is set using existing RPC (which hashes in DB)
+      
+      // Use RPC directly - it handles INSERT OR UPDATE (upsert) atomically with hash set
       const { data: setOk, error: setErr } = await supabase.rpc("set_admin_passcode", {
         new_passcode: initialPasscode,
       });
