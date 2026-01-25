@@ -4,8 +4,10 @@
  import { Alert, AlertDescription } from "@/components/ui/alert";
  import { supabase } from "@/integrations/supabase/client";
  import { useToast } from "@/hooks/use-toast";
- import { Droplets, Upload, ExternalLink, Info } from "lucide-react";
+ import { Droplets, Upload, ExternalLink, Info, Power, PowerOff } from "lucide-react";
  import { useQueryClient } from "@tanstack/react-query";
+ import { Badge } from "@/components/ui/badge";
+ import { Switch } from "@/components/ui/switch";
  
  export function LottieSplashUploader(props: { branding: any; setBranding: (updater: any) => void }) {
    const { branding, setBranding } = props;
@@ -13,6 +15,7 @@
    const queryClient = useQueryClient();
    const fileInputRef = useRef<HTMLInputElement>(null);
    const [uploading, setUploading] = useState(false);
+   const [enabled, setEnabled] = useState(props.branding.splashEnabled ?? true);
  
    const uploadLottieJson = async (file: File) => {
      setUploading(true);
@@ -49,13 +52,34 @@
      }
    };
  
+   const handleToggle = (checked: boolean) => {
+     setEnabled(checked);
+     setBranding((prev: any) => ({ ...prev, splashEnabled: checked }));
+   };
+
    return (
      <Card>
        <CardHeader>
-         <div className="flex items-center gap-2">
+           <div className="flex items-center justify-between">
+             <div className="flex items-center gap-2">
            <Droplets className="h-5 w-5 text-primary" />
            <CardTitle>Lottie Animated Splash Screen</CardTitle>
          </div>
+             <div className="flex items-center gap-2">
+               {enabled ? (
+                 <Badge variant="default" className="gap-1">
+                   <Power className="h-3 w-3" />
+                   Enabled
+                 </Badge>
+               ) : (
+                 <Badge variant="secondary" className="gap-1">
+                   <PowerOff className="h-3 w-3" />
+                   Disabled
+                 </Badge>
+               )}
+               <Switch checked={enabled} onCheckedChange={handleToggle} />
+             </div>
+           </div>
          <CardDescription>Upload a Lottie JSON animation for web & Capacitor app loading</CardDescription>
        </CardHeader>
        <CardContent className="space-y-4">
@@ -80,7 +104,7 @@
            </AlertDescription>
          </Alert>
  
-         {branding.lottieSplashUrl ? (
+           {enabled && branding.lottieSplashUrl ? (
            <Alert className="border-primary/20 bg-primary/5">
              <Droplets className="h-4 w-4 text-primary" />
              <AlertDescription>
@@ -118,9 +142,18 @@
                </div>
              </AlertDescription>
            </Alert>
-         ) : null}
+           ) : !enabled && branding.lottieSplashUrl ? (
+             <Alert className="border-muted bg-muted/30">
+               <PowerOff className="h-4 w-4 text-muted-foreground" />
+               <AlertDescription>
+                 <p className="text-sm font-medium text-muted-foreground">Splash screen is disabled</p>
+                 <p className="text-xs text-muted-foreground mt-1">Enable the toggle above to show splash screen to users</p>
+               </AlertDescription>
+             </Alert>
+           ) : null}
  
-         <div className="flex gap-2">
+           {enabled && (
+             <div className="flex gap-2">
            <input
              ref={fileInputRef}
              type="file"
@@ -138,6 +171,7 @@
              {uploading ? "Uploading…" : "Upload Lottie JSON"}
            </Button>
          </div>
+           )}
        </CardContent>
      </Card>
    );

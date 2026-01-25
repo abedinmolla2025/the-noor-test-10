@@ -311,7 +311,7 @@ const App = () => {
            .single();
 
          const brandingValue = brandingData?.setting_value as any;
-         if (brandingValue?.lottieSplashUrl) {
+         if (brandingValue?.lottieSplashUrl && brandingValue?.splashEnabled !== false) {
            setSplashConfig({
              lottieUrl: brandingValue.lottieSplashUrl,
              duration: brandingValue.splashDuration || 3000,

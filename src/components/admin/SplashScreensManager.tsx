@@ -8,7 +8,8 @@
  import { Switch } from '@/components/ui/switch';
  import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
  import { useToast } from '@/hooks/use-toast';
- import { Plus, Trash2, Upload } from 'lucide-react';
+ import { Badge } from '@/components/ui/badge';
+ import { Plus, Trash2, Upload, Power, PowerOff } from 'lucide-react';
  import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
  import { SplashScreenPreview } from './SplashScreenPreview';
  import { SplashTemplateGallery } from './SplashTemplateGallery';
@@ -83,6 +84,23 @@
      },
    });
  
+   const toggleAllMutation = useMutation({
+     mutationFn: async (enable: boolean) => {
+       const { error } = await supabase
+         .from('admin_splash_screens')
+         .update({ is_active: enable })
+         .neq('id', '00000000-0000-0000-0000-000000000000'); // Update all
+       if (error) throw error;
+     },
+     onSuccess: (_, enable) => {
+       queryClient.invalidateQueries({ queryKey: ['admin-splash-screens'] });
+       toast({ 
+         title: enable ? 'All splash screens enabled' : 'All splash screens disabled',
+         description: enable ? 'Users will see splash screens when applicable' : 'Splash screens are now hidden'
+       });
+     },
+   });
+
    const handleFileUpload = async (file: File, splashId: string) => {
      setUploadingFile(true);
      try {
@@ -127,8 +145,52 @@
      });
    };
  
+   const activeCount = splashScreens.filter(s => s.is_active).length;
+   const hasAny = splashScreens.length > 0;
+
    return (
      <div className="space-y-6">
+       {/* Global Status Bar */}
+       <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+         <div className="flex items-center gap-3">
+           <div className={`h-3 w-3 rounded-full ${activeCount > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+           <div>
+             <p className="font-medium">
+               {activeCount > 0 ? `${activeCount} Splash Screen${activeCount > 1 ? 's' : ''} Active` : 'All Splash Screens Disabled'}
+             </p>
+             <p className="text-xs text-muted-foreground">
+               {activeCount > 0 
+                 ? 'Users will see splash screens based on schedule and platform'
+                 : 'No splash screens are currently shown to users'}
+             </p>
+           </div>
+         </div>
+         {hasAny && (
+           <div className="flex gap-2">
+             <Button
+               variant={activeCount > 0 ? "outline" : "default"}
+               size="sm"
+               onClick={() => toggleAllMutation.mutate(true)}
+               disabled={toggleAllMutation.isPending}
+               className="gap-2"
+             >
+               <Power className="h-4 w-4" />
+               Enable All
+             </Button>
+             <Button
+               variant={activeCount > 0 ? "destructive" : "outline"}
+               size="sm"
+               onClick={() => toggleAllMutation.mutate(false)}
+               disabled={toggleAllMutation.isPending}
+               className="gap-2"
+             >
+               <PowerOff className="h-4 w-4" />
+               Disable All
+             </Button>
+           </div>
+         )}
+       </div>
+
        <div className="flex items-center justify-between">
          <div>
            <h2 className="text-2xl font-bold">Splash Screens</h2>
@@ -258,12 +320,31 @@
      <Card>
        <CardHeader>
          <div className="flex items-center justify-between">
-           <CardTitle className="text-lg">{splash.title}</CardTitle>
+           <div className="flex items-center gap-3">
+             <CardTitle className="text-lg">{splash.title}</CardTitle>
+             {splash.is_active && (
+               <Badge variant="default" className="gap-1">
+                 <Power className="h-3 w-3" />
+                 Active
+               </Badge>
+             )}
+             {!splash.is_active && (
+               <Badge variant="secondary" className="gap-1">
+                 <PowerOff className="h-3 w-3" />
+                 Inactive
+               </Badge>
+             )}
+           </div>
            <div className="flex items-center gap-2">
-             <Switch
+             <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-md">
+               <span className="text-xs font-medium text-muted-foreground">
+                 {splash.is_active ? 'Enabled' : 'Disabled'}
+               </span>
+               <Switch
                checked={splash.is_active}
                onCheckedChange={(checked) => onUpdate({ is_active: checked })}
              />
+             </div>
              <Button variant="ghost" size="sm" onClick={onEdit}>
                Edit
              </Button>
