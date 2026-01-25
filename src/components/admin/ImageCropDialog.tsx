@@ -22,8 +22,9 @@ async function cropToBlob(params: {
   quality: number;
   outputWidth?: number;
   outputHeight?: number;
+  maskShape?: "square" | "circle";
 }): Promise<Blob> {
-  const { imageSrc, crop, outputType, quality, outputWidth, outputHeight } = params;
+  const { imageSrc, crop, outputType, quality, outputWidth, outputHeight, maskShape = "square" } = params;
 
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
@@ -36,6 +37,16 @@ async function cropToBlob(params: {
   canvas.height = targetH;
 
   ctx.imageSmoothingQuality = "high";
+
+  if (maskShape === "circle") {
+    const r = Math.min(canvas.width, canvas.height) / 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, canvas.height / 2, r, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+  }
+
   ctx.drawImage(
     image,
     crop.x,
@@ -47,6 +58,10 @@ async function cropToBlob(params: {
     canvas.width,
     canvas.height,
   );
+
+  if (maskShape === "circle") {
+    ctx.restore();
+  }
 
   const blob: Blob | null = await new Promise((resolve) => canvas.toBlob((b) => resolve(b), outputType, quality));
   if (!blob) throw new Error("Failed to export cropped image");
@@ -63,6 +78,7 @@ export function ImageCropDialog(props: {
   quality?: number;
   outputWidth?: number;
   outputHeight?: number;
+  maskShape?: "square" | "circle";
   showPositionPresets?: boolean;
   onConfirm: (blob: Blob) => void | Promise<void>;
 }) {
@@ -76,6 +92,7 @@ export function ImageCropDialog(props: {
     quality = 0.9,
     outputWidth,
     outputHeight,
+    maskShape = "square",
     showPositionPresets = false,
     onConfirm,
   } = props;
@@ -98,6 +115,7 @@ export function ImageCropDialog(props: {
         quality,
         outputWidth,
         outputHeight,
+        maskShape,
       });
       await onConfirm(blob);
       onOpenChange(false);

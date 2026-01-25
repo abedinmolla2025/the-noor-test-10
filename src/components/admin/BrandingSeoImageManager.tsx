@@ -267,6 +267,11 @@ export function BrandingSeoImageManager(props: {
           quality={0.92}
           outputWidth={activePreset.exportSize?.w}
           outputHeight={activePreset.exportSize?.h}
+          maskShape={
+            cropMeta?.field === "logoUrl" || cropMeta?.field === "iconUrl" || cropMeta?.field === "faviconUrl"
+              ? "circle"
+              : "square"
+          }
           showPositionPresets
           onConfirm={async (blob) => {
             if (!cropMeta) return;
