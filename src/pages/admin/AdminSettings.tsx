@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import BackendHealthWidget from '@/components/BackendHealthWidget';
+import { BrandingSeoImageManager } from '@/components/admin/BrandingSeoImageManager';
 
 interface AppSettingRow {
   id: string;
@@ -100,44 +101,7 @@ export default function AdminSettings() {
     updateSettingMutation.mutate({ key, value });
   };
 
-  const handleFileUpload = async (
-    e: ChangeEvent<HTMLInputElement>,
-    field: string,
-    target: 'branding' | 'seo',
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${target}/${field}-${Date.now()}.${fileExt}`;
-
-    const { data, error } = await supabase.storage
-      .from('branding')
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: true,
-      });
-
-    if (error) {
-      console.error('Upload error', error);
-      toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
-      return;
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from('branding')
-      .getPublicUrl(data.path);
-
-    const url = publicUrlData.publicUrl;
-
-    if (target === 'branding') {
-      setBranding((prev: any) => ({ ...prev, [field]: url }));
-    } else {
-      setSeo((prev: any) => ({ ...prev, [field]: url }));
-    }
-
-    toast({ title: 'Image uploaded' });
-  };
+  // Image uploads/cropping are handled by BrandingSeoImageManager.
 
   return (
     <div className="space-y-6">
@@ -186,35 +150,13 @@ export default function AdminSettings() {
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Logo</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload(e, 'logoUrl', 'branding')}
+                <div className="md:col-span-2">
+                  <BrandingSeoImageManager
+                    branding={branding}
+                    setBranding={setBranding}
+                    seo={seo}
+                    setSeo={setSeo}
                   />
-                  {branding.logoUrl && (
-                    <img
-                      src={branding.logoUrl}
-                      alt="Logo preview"
-                      className="h-12 w-12 rounded-full object-cover mt-2 border border-border"
-                    />
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>App Icon / Favicon</Label>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload(e, 'iconUrl', 'branding')}
-                  />
-                  {branding.iconUrl && (
-                    <img
-                      src={branding.iconUrl}
-                      alt="Icon preview"
-                      className="h-12 w-12 rounded-lg object-cover mt-2 border border-border"
-                    />
-                  )}
                 </div>
               </div>
 
@@ -329,21 +271,9 @@ export default function AdminSettings() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Share / Open Graph image</Label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileUpload(e, 'shareImageUrl', 'seo')}
-                />
-                {seo.shareImageUrl && (
-                  <img
-                    src={seo.shareImageUrl}
-                    alt="Share preview"
-                    className="h-24 rounded-xl object-cover mt-2 border border-border"
-                  />
-                )}
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Share image (OG), logo, icon, and favicon uploads are managed in the Branding tab → Image Manager.
+              </p>
 
               <div className="flex justify-end">
                 <Button onClick={() => handleSave(SEO_KEY, seo)}>Save SEO</Button>
