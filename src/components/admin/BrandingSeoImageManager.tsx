@@ -33,6 +33,8 @@ type CropMeta = {
   preset: PresetKey;
 };
 
+type MaskShape = "square" | "circle";
+
 function extForBlobType(type: string) {
   if (type === "image/webp") return "webp";
   if (type === "image/jpeg") return "jpg";
@@ -65,8 +67,16 @@ function ImageSlot(props: {
   onPresetChange: (p: PresetKey) => void;
   onPick: (file: File) => void;
   previewShape?: "circle" | "square" | "wide";
+  showMaskToggle?: boolean;
+  maskShape?: MaskShape;
+  onMaskShapeChange?: (shape: MaskShape) => void;
 }) {
   const { title, description, valueUrl, preset, onPresetChange, onPick, previewShape = "square" } = props;
+  const {
+    showMaskToggle = false,
+    maskShape = "square",
+    onMaskShapeChange,
+  } = props;
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const previewClass =
@@ -113,6 +123,24 @@ function ImageSlot(props: {
           </Select>
         </div>
 
+        {showMaskToggle ? (
+          <div className="grid gap-2">
+            <Label className="text-xs">Shape</Label>
+            <Select
+              value={maskShape}
+              onValueChange={(v) => onMaskShapeChange?.(v as MaskShape)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="circle">Circle</SelectItem>
+                <SelectItem value="square">Square</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
+
         <div className="flex gap-2">
           <input
             ref={inputRef}
@@ -150,6 +178,12 @@ export function BrandingSeoImageManager(props: {
     iconUrl: "square_1_1",
     faviconUrl: "favicon_1_1",
     shareImageUrl: "carousel_16_9",
+  });
+
+  const [maskByField, setMaskByField] = useState<Record<string, MaskShape>>({
+    logoUrl: "circle",
+    iconUrl: "square",
+    faviconUrl: "circle",
   });
 
   const [cropOpen, setCropOpen] = useState(false);
@@ -191,6 +225,9 @@ export function BrandingSeoImageManager(props: {
             previewShape="circle"
             preset={presetByField.logoUrl}
             onPresetChange={(p) => setPresetByField((m) => ({ ...m, logoUrl: p }))}
+            showMaskToggle
+            maskShape={maskByField.logoUrl}
+            onMaskShapeChange={(shape) => setMaskByField((m) => ({ ...m, logoUrl: shape }))}
             onPick={(file) =>
               beginCrop(
                 { target: "branding", field: "logoUrl", title: "Crop Logo", preset: presetByField.logoUrl },
@@ -206,6 +243,9 @@ export function BrandingSeoImageManager(props: {
             previewShape="square"
             preset={presetByField.iconUrl}
             onPresetChange={(p) => setPresetByField((m) => ({ ...m, iconUrl: p }))}
+            showMaskToggle
+            maskShape={maskByField.iconUrl}
+            onMaskShapeChange={(shape) => setMaskByField((m) => ({ ...m, iconUrl: shape }))}
             onPick={(file) =>
               beginCrop(
                 { target: "branding", field: "iconUrl", title: "Crop App Icon", preset: presetByField.iconUrl },
@@ -221,6 +261,9 @@ export function BrandingSeoImageManager(props: {
             previewShape="square"
             preset={presetByField.faviconUrl}
             onPresetChange={(p) => setPresetByField((m) => ({ ...m, faviconUrl: p }))}
+            showMaskToggle
+            maskShape={maskByField.faviconUrl}
+            onMaskShapeChange={(shape) => setMaskByField((m) => ({ ...m, faviconUrl: shape }))}
             onPick={(file) =>
               beginCrop(
                 { target: "branding", field: "faviconUrl", title: "Crop Favicon", preset: presetByField.faviconUrl },
@@ -267,11 +310,7 @@ export function BrandingSeoImageManager(props: {
           quality={0.92}
           outputWidth={activePreset.exportSize?.w}
           outputHeight={activePreset.exportSize?.h}
-          maskShape={
-            cropMeta?.field === "logoUrl" || cropMeta?.field === "iconUrl" || cropMeta?.field === "faviconUrl"
-              ? "circle"
-              : "square"
-          }
+          maskShape={cropMeta?.field ? (maskByField[cropMeta.field] ?? "square") : "square"}
           showPositionPresets
           onConfirm={async (blob) => {
             if (!cropMeta) return;
