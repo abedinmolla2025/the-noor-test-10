@@ -628,7 +628,16 @@ Deno.serve(async (req) => {
 
     return json({ ok: false, error: "unknown_action" }, 200);
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
+    // Properly serialize all error types (Supabase errors, Error objects, etc.)
+    let msg: string;
+    if (e instanceof Error) {
+      msg = e.message;
+    } else if (typeof e === "object" && e !== null) {
+      msg = JSON.stringify(e);
+    } else {
+      msg = String(e);
+    }
+    console.error("admin-security error:", msg);
     return json({ ok: false, error: msg }, 500);
   }
 });
