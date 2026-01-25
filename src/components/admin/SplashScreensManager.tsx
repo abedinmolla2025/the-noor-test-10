@@ -11,6 +11,8 @@
  import { Plus, Trash2, Upload } from 'lucide-react';
  import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
  import { SplashScreenPreview } from './SplashScreenPreview';
+ import { SplashTemplateGallery } from './SplashTemplateGallery';
+ import { SplashTemplate } from '@/lib/splashTemplates';
  
  interface SplashScreen {
    id: string;
@@ -134,10 +136,31 @@
              Manage multiple splash screens for different occasions and events
            </p>
          </div>
-         <Button onClick={handleCreateNew}>
-           <Plus className="mr-2 h-4 w-4" />
-           Add New
-         </Button>
+         <div className="flex gap-2">
+           <SplashTemplateGallery
+             onSelectTemplate={(template) => {
+               createMutation.mutate({
+                 title: template.name,
+                 lottie_url: template.lottieUrl,
+                 duration: template.duration,
+                 fade_out_duration: template.fadeOutDuration,
+                 start_date: new Date().toISOString().split('T')[0],
+                 end_date: (() => {
+                   const date = new Date();
+                   date.setMonth(date.getMonth() + 1);
+                   return date.toISOString().split('T')[0];
+                 })(),
+                 is_active: false,
+                 priority: 0,
+                 platform: 'both',
+               });
+             }}
+           />
+           <Button onClick={handleCreateNew}>
+             <Plus className="mr-2 h-4 w-4" />
+             Create Custom
+           </Button>
+         </div>
        </div>
  
        <Tabs defaultValue="active">
@@ -214,6 +237,18 @@
    uploading: boolean;
  }) {
    const [localData, setLocalData] = useState(splash);
+   const [showTemplates, setShowTemplates] = useState(false);
+ 
+   const handleApplyTemplate = (template: SplashTemplate) => {
+     setLocalData({
+       ...localData,
+       title: template.name,
+       lottie_url: template.lottieUrl,
+       duration: template.duration,
+       fade_out_duration: template.fadeOutDuration,
+     });
+     setShowTemplates(false);
+   };
  
    const handleSave = () => {
      onUpdate(localData);
@@ -327,14 +362,8 @@
  
              <div className="space-y-2">
                <Label>Lottie Animation</Label>
-               <div className="flex gap-2">
-                 <Input
-                   value={localData.lottie_url}
-                   onChange={(e) =>
-                     setLocalData({ ...localData, lottie_url: e.target.value })
-                   }
-                   placeholder="URL or upload JSON file"
-                 />
+               <div className="flex gap-2 mb-2">
+                 <SplashTemplateGallery onSelectTemplate={handleApplyTemplate} />
                  <Button
                    variant="outline"
                    disabled={uploading}
@@ -349,9 +378,22 @@
                      input.click();
                    }}
                  >
-                   <Upload className="h-4 w-4" />
+                   <Upload className="mr-2 h-4 w-4" />
+                   Upload JSON
                  </Button>
                </div>
+               <div className="flex gap-2">
+                 <Input
+                   value={localData.lottie_url}
+                   onChange={(e) =>
+                     setLocalData({ ...localData, lottie_url: e.target.value })
+                   }
+                   placeholder="Enter Lottie URL or use template/upload"
+                 />
+               </div>
+               <p className="text-xs text-muted-foreground">
+                 Choose from templates, upload your own JSON, or paste a URL
+               </p>
              </div>
  
              <Button onClick={handleSave}>Save Changes</Button>
