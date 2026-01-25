@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ImageCropDialog } from "@/components/admin/ImageCropDialog";
 import { resizeToPng } from "@/lib/imagePngVariants";
 
-type PresetKey = "carousel_16_9" | "square_1_1" | "favicon_1_1";
+type PresetKey = "carousel_16_9" | "square_1_1" | "circle_1_1" | "favicon_square" | "favicon_circle";
 
 const PRESETS: Record<
   PresetKey,
@@ -18,11 +18,14 @@ const PRESETS: Record<
     label: string;
     aspect: number;
     exportSize?: { w: number; h: number };
+    maskShape?: MaskShape;
   }
 > = {
   carousel_16_9: { label: "Carousel 16:9", aspect: 16 / 9, exportSize: { w: 1200, h: 675 } },
-  square_1_1: { label: "Square 1:1", aspect: 1, exportSize: { w: 1024, h: 1024 } },
-  favicon_1_1: { label: "Favicon 1:1", aspect: 1, exportSize: { w: 256, h: 256 } },
+  square_1_1: { label: "Square 1:1", aspect: 1, exportSize: { w: 1024, h: 1024 }, maskShape: "square" },
+  circle_1_1: { label: "Circle 1:1", aspect: 1, exportSize: { w: 1024, h: 1024 }, maskShape: "circle" },
+  favicon_square: { label: "Favicon Square", aspect: 1, exportSize: { w: 256, h: 256 }, maskShape: "square" },
+  favicon_circle: { label: "Favicon Circle", aspect: 1, exportSize: { w: 256, h: 256 }, maskShape: "circle" },
 };
 
 type Target = "branding" | "seo";
@@ -193,16 +196,10 @@ export function BrandingSeoImageManager(props: {
   const { toast } = useToast();
 
   const [presetByField, setPresetByField] = useState<Record<string, PresetKey>>({
-    logoUrl: "square_1_1",
+    logoUrl: "circle_1_1",
     iconUrl: "square_1_1",
-    faviconUrl: "favicon_1_1",
+    faviconUrl: "favicon_circle",
     shareImageUrl: "carousel_16_9",
-  });
-
-  const [maskByField, setMaskByField] = useState<Record<string, MaskShape>>({
-    logoUrl: "circle",
-    iconUrl: "square",
-    faviconUrl: "circle",
   });
 
   const [cropOpen, setCropOpen] = useState(false);
@@ -216,6 +213,10 @@ export function BrandingSeoImageManager(props: {
     if (!cropMeta) return PRESETS.square_1_1;
     return PRESETS[cropMeta.preset];
   }, [cropMeta]);
+
+  const activeMaskShape = useMemo(() => {
+    return activePreset.maskShape ?? "square";
+  }, [activePreset]);
 
   const beginCrop = (meta: CropMeta, file: File) => {
     if (cropSrc) URL.revokeObjectURL(cropSrc);
@@ -246,9 +247,6 @@ export function BrandingSeoImageManager(props: {
             previewShape="circle"
             preset={presetByField.logoUrl}
             onPresetChange={(p) => setPresetByField((m) => ({ ...m, logoUrl: p }))}
-            showMaskToggle
-            maskShape={maskByField.logoUrl}
-            onMaskShapeChange={(shape) => setMaskByField((m) => ({ ...m, logoUrl: shape }))}
             onPick={(file) =>
               beginCrop(
                 { target: "branding", field: "logoUrl", title: "Crop Logo", preset: presetByField.logoUrl },
@@ -264,9 +262,6 @@ export function BrandingSeoImageManager(props: {
             previewShape="square"
             preset={presetByField.iconUrl}
             onPresetChange={(p) => setPresetByField((m) => ({ ...m, iconUrl: p }))}
-            showMaskToggle
-            maskShape={maskByField.iconUrl}
-            onMaskShapeChange={(shape) => setMaskByField((m) => ({ ...m, iconUrl: shape }))}
             onPick={(file) =>
               beginCrop(
                 { target: "branding", field: "iconUrl", title: "Crop App Icon", preset: presetByField.iconUrl },
@@ -282,9 +277,6 @@ export function BrandingSeoImageManager(props: {
             previewShape="square"
             preset={presetByField.faviconUrl}
             onPresetChange={(p) => setPresetByField((m) => ({ ...m, faviconUrl: p }))}
-            showMaskToggle
-            maskShape={maskByField.faviconUrl}
-            onMaskShapeChange={(shape) => setMaskByField((m) => ({ ...m, faviconUrl: shape }))}
             onPick={(file) =>
               beginCrop(
                 { target: "branding", field: "faviconUrl", title: "Crop Favicon", preset: presetByField.faviconUrl },
@@ -331,7 +323,7 @@ export function BrandingSeoImageManager(props: {
           quality={isFaviconFlow ? 1 : 0.92}
           outputWidth={activePreset.exportSize?.w}
           outputHeight={activePreset.exportSize?.h}
-          maskShape={cropMeta?.field ? (maskByField[cropMeta.field] ?? "square") : "square"}
+          maskShape={activeMaskShape}
           showPositionPresets
           onConfirm={async (blob) => {
             if (!cropMeta) return;
@@ -346,7 +338,7 @@ export function BrandingSeoImageManager(props: {
 
               // Auto-generate favicon PNG variants
               if (cropMeta.target === "branding" && cropMeta.field === "faviconUrl") {
-                const shape = maskByField.faviconUrl ?? "square";
+                const shape = activeMaskShape;
                 const [png16, png32, png48, png180] = await Promise.all([
                   resizeToPng({ source: blob, size: 16, maskShape: shape }),
                   resizeToPng({ source: blob, size: 32, maskShape: shape }),
