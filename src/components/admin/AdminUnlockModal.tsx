@@ -25,6 +25,7 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
   const [resetCode, setResetCode] = useState("");
   const [resetNewPasscode, setResetNewPasscode] = useState("");
   const [resetConfirmPasscode, setResetConfirmPasscode] = useState("");
+  const [resetSentTo, setResetSentTo] = useState<string | null>(null);
 
   const canSubmit = useMemo(() => passcode.trim().length >= 6 && passcode.length <= 128, [passcode]);
 
@@ -46,6 +47,7 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
       setResetCode("");
       setResetNewPasscode("");
       setResetConfirmPasscode("");
+      setResetSentTo(null);
     }
   }, [open]);
 
@@ -140,10 +142,17 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
 
       if (!data?.ok) {
         const err = String(data?.error ?? "");
+        if (err === "email_send_failed") {
+          // backend may include details (safe-ish, mostly resend status text)
+          const details = data?.details ? String(data.details) : "";
+          setError(details ? `Failed to send code: ${details}` : "Failed to send code.");
+          return;
+        }
         setError(err === "too_many_requests" ? "Too many requests. Please wait and try again." : "Failed to send code.");
         return;
       }
 
+      setResetSentTo(data?.to ? String(data.to) : null);
       setResetStep("verify");
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -234,6 +243,9 @@ export const AdminUnlockModal = ({ open, onOpenChange, onUnlocked }: Props) => {
               ) : (
                 <p className="text-sm text-muted-foreground">
                   Enter the 6-digit code and your new passcode.
+                  {resetSentTo ? (
+                    <span className="block text-xs text-muted-foreground">Sent to: {resetSentTo} (check Spam/Promotions)</span>
+                  ) : null}
                 </p>
               )}
 

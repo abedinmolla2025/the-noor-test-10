@@ -528,7 +528,8 @@ Deno.serve(async (req) => {
       }
 
       await logAudit(actor, "passcode_reset_code_requested", { ip });
-      return json({ ok: true });
+      // Return the destination email for transparency in UI (helps debug “no code received”).
+      return json({ ok: true, to: adminEmail });
     }
 
     if (action === "reset_passcode_with_code") {
