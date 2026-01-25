@@ -279,7 +279,7 @@ const Index = () => {
     : defaultSections.map((s, idx) => ({ key: String(idx), el: s.el, pad: "space-y-4" }));
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
+    <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden" style={{ willChange: 'scroll-position' }}>
       <NotificationOptInPrompt />
       {/* Maintenance banner */}
       {system.maintenanceMode && (
@@ -296,7 +296,7 @@ const Index = () => {
           className="fixed top-4 left-4 right-4 z-40 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl px-4 py-3 shadow-lg border border-white/20"
         >
           <div className="flex items-center gap-3">
-            <BellRing className="w-5 h-5 text-white animate-pulse" />
+            <BellRing className="w-5 h-5 text-white" />
             <div className="flex-1">
               <p className="text-sm font-medium text-white">{currentPrayer} আযান চলছে...</p>
             </div>
@@ -316,8 +316,8 @@ const Index = () => {
           {orderedSections.map((s, idx) => (
             <section
               key={s.key}
-              className="animate-fade-in"
-              style={{ animationDelay: `${Math.min(idx * 80, 420)}ms` }}
+              className={idx < 2 ? "animate-fade-in" : ""}
+              style={idx < 2 ? { animationDelay: `${idx * 80}ms` } : { contentVisibility: 'auto', contain: 'layout style paint' }}
             >
               <div className={s.pad ?? "space-y-4"}>{s.el}</div>
             </section>

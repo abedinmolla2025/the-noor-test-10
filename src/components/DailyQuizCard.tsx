@@ -73,7 +73,7 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
   return (
     <Card
       data-daily-quiz-card
-      className={`relative overflow-hidden border-primary/25 bg-[radial-gradient(120%_100%_at_0%_0%,hsl(var(--primary)/0.28)_0%,transparent_55%),radial-gradient(120%_100%_at_100%_0%,hsl(var(--accent)/0.18)_0%,transparent_52%),linear-gradient(135deg,hsl(var(--card))_0%,hsl(var(--card)/0.70)_100%)] ${
+      className={`relative overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-accent/5 ${
         cardClassName ?? ""
       }`}
     >
@@ -82,11 +82,10 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
       {/* Ambient overlay */}
       {overlayEnabled ? (
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_45%,hsl(var(--primary)/0.18)_0%,transparent_70%)]" />
           <img
             src={overlaySrc}
             alt=""
-            className="absolute rotate-6 select-none transform-gpu"
+            className="absolute rotate-6 select-none"
             style={{
               right: `${overlay.offsetXRem}rem`,
               top: `${overlay.offsetYRem}rem`,
