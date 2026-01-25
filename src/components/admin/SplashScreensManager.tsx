@@ -10,6 +10,7 @@
  import { useToast } from '@/hooks/use-toast';
  import { Plus, Trash2, Upload } from 'lucide-react';
  import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+ import { SplashScreenPreview } from './SplashScreenPreview';
  
  interface SplashScreen {
    id: string;
@@ -354,6 +355,16 @@
              </div>
  
              <Button onClick={handleSave}>Save Changes</Button>
+
+             {localData.lottie_url && (
+               <div className="mt-6">
+                 <SplashScreenPreview
+                   lottieUrl={localData.lottie_url}
+                   duration={localData.duration}
+                   fadeOutDuration={localData.fade_out_duration}
+                 />
+               </div>
+             )}
            </>
          ) : (
            <div className="grid gap-2 text-sm">
