@@ -270,18 +270,6 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
 
                 {/* Praying Man 3D Image - Fixed Position with Light Rays */}
                 <div className="absolute right-32 top-1/2 -translate-y-1/2">
-                  {/* Light Rays from Above - CSS Animation for better performance */}
-                  <div className="absolute -top-16 left-1/2 -translate-x-[40%] w-32 h-24 overflow-visible pointer-events-none will-change-opacity">
-                    {/* Main Light Beam - CSS animation */}
-                    <div
-                      className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-28 animate-pulse"
-                      style={{
-                        background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.4) 40%, rgba(255, 255, 255, 0.1) 100%)',
-                        clipPath: 'polygon(35% 0%, 65% 0%, 100% 100%, 0% 100%)',
-                      }}
-                    />
-                    
-                  </div>
                   
                   {/* Glow on Hands - static for performance */}
                   <div
