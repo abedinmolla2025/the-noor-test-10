@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ImageCropDialog } from "@/components/admin/ImageCropDialog";
+import { resizeToPng } from "@/lib/imagePngVariants";
 
 type PresetKey = "carousel_16_9" | "square_1_1" | "favicon_1_1";
 
@@ -35,6 +36,13 @@ type CropMeta = {
 
 type MaskShape = "square" | "circle";
 
+type FaviconVariants = {
+  png16?: string;
+  png32?: string;
+  png48?: string;
+  png180?: string;
+};
+
 function extForBlobType(type: string) {
   if (type === "image/webp") return "webp";
   if (type === "image/jpeg") return "jpg";
@@ -57,6 +65,17 @@ async function uploadCroppedImage(params: {
 
   const { data: publicUrlData } = supabase.storage.from("branding").getPublicUrl(data.path);
   return publicUrlData.publicUrl;
+}
+
+async function uploadBlobAsPng(params: {
+  blob: Blob;
+  target: Target;
+  field: string;
+  name: string;
+}) {
+  const { blob, target, field, name } = params;
+  const file = new File([blob], name, { type: "image/png" });
+  return await uploadCroppedImage({ file, target, field });
 }
 
 function ImageSlot(props: {
@@ -191,6 +210,8 @@ export function BrandingSeoImageManager(props: {
   const [cropMeta, setCropMeta] = useState<CropMeta | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const isFaviconFlow = cropMeta?.field === "faviconUrl";
+
   const activePreset = useMemo(() => {
     if (!cropMeta) return PRESETS.square_1_1;
     return PRESETS[cropMeta.preset];
@@ -306,8 +327,8 @@ export function BrandingSeoImageManager(props: {
           imageSrc={cropSrc}
           title={cropMeta?.title}
           aspect={activePreset.aspect}
-          outputType="image/webp"
-          quality={0.92}
+          outputType={isFaviconFlow ? "image/png" : "image/webp"}
+          quality={isFaviconFlow ? 1 : 0.92}
           outputWidth={activePreset.exportSize?.w}
           outputHeight={activePreset.exportSize?.h}
           maskShape={cropMeta?.field ? (maskByField[cropMeta.field] ?? "square") : "square"}
@@ -319,7 +340,39 @@ export function BrandingSeoImageManager(props: {
               const ext = extForBlobType(blob.type);
               const file = new File([blob], `${cropMeta.field}.${ext}`, { type: blob.type });
               const url = await uploadCroppedImage({ file, target: cropMeta.target, field: cropMeta.field });
+
+              // Save main URL
               commitUrl(cropMeta.target, cropMeta.field, url);
+
+              // Auto-generate favicon PNG variants
+              if (cropMeta.target === "branding" && cropMeta.field === "faviconUrl") {
+                const shape = maskByField.faviconUrl ?? "square";
+                const [png16, png32, png48, png180] = await Promise.all([
+                  resizeToPng({ source: blob, size: 16, maskShape: shape }),
+                  resizeToPng({ source: blob, size: 32, maskShape: shape }),
+                  resizeToPng({ source: blob, size: 48, maskShape: shape }),
+                  resizeToPng({ source: blob, size: 180, maskShape: shape }),
+                ]);
+
+                const [url16, url32, url48, url180] = await Promise.all([
+                  uploadBlobAsPng({ blob: png16, target: "branding", field: "faviconVariants", name: "favicon-16.png" }),
+                  uploadBlobAsPng({ blob: png32, target: "branding", field: "faviconVariants", name: "favicon-32.png" }),
+                  uploadBlobAsPng({ blob: png48, target: "branding", field: "faviconVariants", name: "favicon-48.png" }),
+                  uploadBlobAsPng({ blob: png180, target: "branding", field: "faviconVariants", name: "apple-touch-icon-180.png" }),
+                ]);
+
+                setBranding((prev: any) => ({
+                  ...prev,
+                  faviconVariants: {
+                    ...(prev?.faviconVariants || ({} as FaviconVariants)),
+                    png16: url16,
+                    png32: url32,
+                    png48: url48,
+                    png180: url180,
+                  },
+                }));
+              }
+
               toast({ title: "Image saved" });
             } catch (e: any) {
               toast({

@@ -18,7 +18,7 @@ async function createImage(src: string): Promise<HTMLImageElement> {
 async function cropToBlob(params: {
   imageSrc: string;
   crop: Area;
-  outputType: "image/jpeg" | "image/webp";
+  outputType: "image/jpeg" | "image/webp" | "image/png";
   quality: number;
   outputWidth?: number;
   outputHeight?: number;
@@ -74,7 +74,7 @@ export function ImageCropDialog(props: {
   imageSrc: string | null;
   title?: string;
   aspect?: number;
-  outputType?: "image/jpeg" | "image/webp";
+  outputType?: "image/jpeg" | "image/webp" | "image/png";
   quality?: number;
   outputWidth?: number;
   outputHeight?: number;
