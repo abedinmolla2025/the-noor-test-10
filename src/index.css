@@ -130,12 +130,24 @@
     overflow-x: hidden;
     width: 100%;
     max-width: 100vw;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   #root {
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
+  }
+
+  /* Optimize scrolling performance */
+  section, article, .card {
+    will-change: auto;
+  }
+  
+  /* Prevent layout shifts */
+  img, video {
+    content-visibility: auto;
   }
 }
 
@@ -350,7 +362,6 @@
     background: hsl(var(--glass-bg));
     border-color: hsl(var(--glass-border));
     box-shadow: var(--shadow-glass);
-    @apply backdrop-blur-xl;
   }
 
   .quiz-glass-accent {
@@ -422,7 +433,6 @@
       hsl(var(--dua-header) / 0.95)
     );
     border-color: hsl(var(--dua-border));
-    @apply backdrop-blur-lg;
   }
 
   .dua-surface {

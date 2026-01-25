@@ -48,7 +48,7 @@ export default function AnnouncementTicker() {
   const durationSeconds = speed === "slow" ? 26 : speed === "fast" ? 12 : 18;
 
   return (
-    <div className="border-b border-border bg-background/80 backdrop-blur">
+    <div className="border-b border-border bg-background">
       <div className="mx-auto flex max-w-lg items-center gap-2 px-3 py-2">
         <button
           type="button"
