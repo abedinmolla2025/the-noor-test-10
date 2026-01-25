@@ -615,6 +615,54 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_splash_screens: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          duration: number | null
+          end_date: string
+          fade_out_duration: number | null
+          id: string
+          is_active: boolean | null
+          lottie_url: string
+          platform: string | null
+          priority: number | null
+          start_date: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          duration?: number | null
+          end_date: string
+          fade_out_duration?: number | null
+          id?: string
+          is_active?: boolean | null
+          lottie_url: string
+          platform?: string | null
+          priority?: number | null
+          start_date: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          duration?: number | null
+          end_date?: string
+          fade_out_duration?: number | null
+          id?: string
+          is_active?: boolean | null
+          lottie_url?: string
+          platform?: string | null
+          priority?: number | null
+          start_date?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       admin_unlock_attempts: {
         Row: {
           created_at: string
