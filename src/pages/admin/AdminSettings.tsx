@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import BackendHealthWidget from '@/components/BackendHealthWidget';
 import { BrandingSeoImageManager } from '@/components/admin/BrandingSeoImageManager';
+import { BrandingSeoLivePreview } from '@/components/admin/BrandingSeoLivePreview';
 
 interface AppSettingRow {
   id: string;
@@ -151,12 +152,15 @@ export default function AdminSettings() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <BrandingSeoImageManager
-                    branding={branding}
-                    setBranding={setBranding}
-                    seo={seo}
-                    setSeo={setSeo}
-                  />
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    <BrandingSeoImageManager
+                      branding={branding}
+                      setBranding={setBranding}
+                      seo={seo}
+                      setSeo={setSeo}
+                    />
+                    <BrandingSeoLivePreview branding={branding} seo={seo} />
+                  </div>
                 </div>
               </div>
 
