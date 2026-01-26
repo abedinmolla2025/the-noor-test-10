@@ -82,7 +82,7 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
 
       {/* Ambient overlay */}
       {overlayEnabled ? (
-        <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div aria-hidden className="pointer-events-none absolute inset-0 z-[1]">
           <img
             src={overlaySrc}
             alt=""
@@ -99,7 +99,7 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
         </div>
       ) : null}
 
-      <CardContent className="relative p-6 space-y-4">
+      <CardContent className="relative z-[2] p-6 space-y-4">
         {/* Header Badge */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
