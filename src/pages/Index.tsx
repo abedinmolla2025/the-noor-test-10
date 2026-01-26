@@ -23,6 +23,9 @@ import type { LayoutPlatform } from "@/lib/layout";
 import { detectLayoutPlatform } from "@/lib/layout";
 import { useLayoutSettings } from "@/hooks/useLayoutSettings";
 import { NotificationOptInPrompt } from "@/components/NotificationOptInPrompt";
+import { PullToRefresh } from "@/components/PullToRefresh";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Index = () => {
   const [athanModalOpen, setAthanModalOpen] = useState(false);
@@ -30,6 +33,8 @@ const Index = () => {
   const { prayerTimes } = usePrayerTimes();
   const navigate = useNavigate();
   const { system, branding } = useGlobalConfig();
+  const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
   const layoutQuery = useLayoutSettings("home", layoutPlatform);
 
@@ -279,8 +284,16 @@ const Index = () => {
     : defaultSections.map((s, idx) => ({ key: String(idx), el: s.el, pad: "space-y-4" }));
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
-      <NotificationOptInPrompt />
+    <PullToRefresh
+      disabled={!isMobile}
+      onRefresh={async () => {
+        // Refetch everything that's currently active (best UX) and also mark stale queries.
+        await queryClient.invalidateQueries();
+        await queryClient.refetchQueries({ type: "active" });
+      }}
+    >
+      <div className="min-h-screen min-h-[100dvh] bg-background pb-20 w-full overflow-x-hidden">
+        <NotificationOptInPrompt />
       {/* Maintenance banner */}
       {system.maintenanceMode && (
         <div className="w-full bg-amber-500/90 text-amber-950 text-center text-xs py-2 px-3">
@@ -343,9 +356,10 @@ const Index = () => {
         onStop={stopAthan}
       />
 
-      {/* Bottom Navigation */}
-      <BottomNavigation />
-    </div>
+        {/* Bottom Navigation */}
+        <BottomNavigation />
+      </div>
+    </PullToRefresh>
   );
 };
 
