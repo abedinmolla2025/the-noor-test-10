@@ -80,6 +80,29 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
     >
       {scopedCss ? <style>{scopedCss}</style> : null}
 
+      {/* Subtle Islamic geometric motif (background texture) */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "repeating-conic-gradient(from 20deg, hsl(var(--primary) / 0.08) 0 10deg, transparent 10deg 22deg), repeating-linear-gradient(135deg, hsl(var(--accent) / 0.06) 0 1px, transparent 1px 18px)",
+          opacity: 0.9,
+          transform: "translateZ(0)",
+        }}
+      />
+
+      {/* Soft glow vignette */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(520px circle at 18% 22%, hsl(var(--primary) / 0.18), transparent 55%), radial-gradient(520px circle at 92% 18%, hsl(var(--accent) / 0.16), transparent 58%)",
+          transform: "translateZ(0)",
+        }}
+      />
+
       {/* Ambient overlay */}
       {overlayEnabled ? (
         <div aria-hidden className="pointer-events-none absolute inset-0 z-[1]">
@@ -92,6 +115,7 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
               top: `${overlay.offsetYRem}rem`,
               width: `${overlay.widthRem}rem`,
               opacity: overlay.opacity,
+              filter: "drop-shadow(0 18px 30px hsl(var(--primary) / 0.18))",
             }}
             loading="lazy"
             draggable={false}
@@ -112,20 +136,20 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
             variant="secondary"
             className="text-xs font-bold px-2 py-0.5 bg-[hsl(var(--secondary)/0.55)] backdrop-blur"
           >
-            PRO
+            Daily
           </Badge>
         </div>
 
         {/* Title & Description */}
         <div className="space-y-2">
           <h3 className="text-lg font-bold text-foreground">
-            Daily Islamic Quiz
+            Daily Islamic Quiz • আজকের কুইজ
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            প্রতিদিন ৫টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
+            প্রতিদিন ৫টি ছোট প্রশ্ন—ইসলামি জ্ঞান ও অভ্যাস দুটোই গড়ুন।
           </p>
           <p className="text-xs text-muted-foreground/80 italic">
-            Build your daily Islamic habit
+            Build your habit, one day at a time.
           </p>
         </div>
 
@@ -176,8 +200,8 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
             size="lg"
           >
             <span className="flex items-center gap-2">
-              আজকের কুইজ দিন
-              <span className="text-xs opacity-90">• START • 5 QUESTIONS</span>
+              শুরু করুন
+              <span className="text-xs opacity-90">• Start • 5 Questions</span>
             </span>
           </Button>
         )}
