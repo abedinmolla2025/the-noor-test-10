@@ -118,13 +118,15 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
 
         {/* Title & Description */}
         <div className="space-y-2">
-          <h3 className="text-lg font-bold text-foreground">
+          <h3 className="text-[1.15rem] sm:text-xl font-extrabold text-foreground tracking-tight font-display">
             Daily Islamic Quiz
           </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            প্রতিদিন ৫টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
+
+          <p className="text-sm sm:text-[0.95rem] text-muted-foreground leading-snug font-bangla">
+            প্রতিদিন ৫টি ছোট কুইজ — ধীরে ধীরে জ্ঞান বাড়ান
           </p>
-          <p className="text-xs text-muted-foreground/80 italic">
+
+          <p className="text-xs sm:text-sm text-muted-foreground/85 font-quizEnPremium tracking-wide">
             Build your daily Islamic habit
           </p>
         </div>
