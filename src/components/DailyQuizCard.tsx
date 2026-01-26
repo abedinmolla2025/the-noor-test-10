@@ -73,8 +73,11 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
   return (
     <Card
       data-daily-quiz-card
-      className={`relative overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-card to-accent/5 ${
-        cardClassName ?? ""
+      className={`relative overflow-hidden border border-primary/35 shadow-glow ring-1 ring-primary/15 backdrop-blur-xl bg-[hsl(var(--card)/0.55)] ${
+        // Glass highlight + subtle depth
+        "before:pointer-events-none before:absolute before:inset-0 before:z-[0] before:bg-[linear-gradient(135deg,hsl(var(--primary)/0.16)_0%,hsl(var(--background)/0.10)_38%,hsl(var(--accent)/0.12)_100%)] before:opacity-100 " +
+        "after:pointer-events-none after:absolute after:inset-0 after:z-[0] after:bg-[radial-gradient(circle_at_20%_15%,hsl(var(--primary)/0.22),transparent_55%)] after:opacity-100 " +
+        (cardClassName ?? "")
       }`}
       style={{ transform: 'translateZ(0)', WebkitTransform: 'translateZ(0)' }}
     >
