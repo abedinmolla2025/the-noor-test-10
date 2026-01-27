@@ -14,6 +14,7 @@ interface AdminLayoutProps {
 const pageTitleFromPath = (pathname: string) => {
   if (pathname.startsWith('/admin/users')) return 'Users';
   if (pathname.startsWith('/admin/content')) return 'Content';
+  if (pathname.startsWith('/admin/splash-screens')) return 'Splash Screens';
   if (pathname.startsWith('/admin/notifications')) return 'Notifications';
   if (pathname.startsWith('/admin/analytics') || pathname.startsWith('/admin/reports')) return 'Reports';
   if (pathname.startsWith('/admin/layout')) return 'Layout';
