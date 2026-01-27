@@ -11,7 +11,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import BackendHealthWidget from '@/components/BackendHealthWidget';
 import { BrandingSeoImageManager } from '@/components/admin/BrandingSeoImageManager';
 import { BrandingSeoLivePreview } from '@/components/admin/BrandingSeoLivePreview';
-import { LottieSplashUploader } from '@/components/admin/LottieSplashUploader';
 
 interface AppSettingRow {
   id: string;
@@ -162,10 +161,6 @@ export default function AdminSettings() {
                     />
                     <BrandingSeoLivePreview branding={branding} seo={seo} />
                   </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <LottieSplashUploader branding={branding} setBranding={setBranding} />
                 </div>
               </div>
 
