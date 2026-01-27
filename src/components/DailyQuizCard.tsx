@@ -120,14 +120,14 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
         </div>
 
         {/* Title & Description */}
-        <div className="space-y-2">
-          <h3 className="text-lg font-bold text-foreground">
+        <div className="space-y-3">
+          <h3 className="text-xl font-bold text-foreground font-quizBnPremium leading-tight">
             Daily Islamic Quiz
           </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed font-bangla">
             প্রতিদিন ৫টি ছোট কুইজ, ধীরে ধীরে জ্ঞান বাড়ান
           </p>
-          <p className="text-xs text-muted-foreground/80 italic">
+          <p className="text-xs text-muted-foreground/80 italic font-quizEnPremium mt-1.5">
             Build your daily Islamic habit
           </p>
         </div>
@@ -175,12 +175,12 @@ export const DailyQuizCard = ({ overlayTuning, overlayConfig, cardClassName, car
         ) : (
           <Button
             onClick={() => navigate("/quiz")}
-            className="w-full font-semibold shadow-lg bg-[linear-gradient(135deg,hsl(var(--primary))_0%,hsl(var(--accent))_55%,hsl(var(--primary))_100%)] text-primary-foreground hover:opacity-95"
+            className="w-full font-bold shadow-lg bg-[linear-gradient(135deg,hsl(var(--primary))_0%,hsl(var(--accent))_55%,hsl(var(--primary))_100%)] text-primary-foreground hover:opacity-95 tracking-wide"
             size="lg"
           >
-            <span className="flex items-center gap-2">
-              আজকের কুইজ দিন
-              <span className="text-xs opacity-90">• START • 5 QUESTIONS</span>
+            <span className="flex items-center justify-center gap-2.5 font-bangla">
+              <span className="text-base">আজকের কুইজ শুরু করুন</span>
+              <span className="text-[10px] opacity-90 font-quizEnPremium uppercase tracking-wider">5 Questions</span>
             </span>
           </Button>
         )}
