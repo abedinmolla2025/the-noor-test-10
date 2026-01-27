@@ -12,7 +12,6 @@ import BackendHealthWidget from '@/components/BackendHealthWidget';
 import { BrandingSeoImageManager } from '@/components/admin/BrandingSeoImageManager';
 import { BrandingSeoLivePreview } from '@/components/admin/BrandingSeoLivePreview';
 import { LottieSplashUploader } from '@/components/admin/LottieSplashUploader';
- import { SplashScreensManager } from '@/components/admin/SplashScreensManager';
 
 interface AppSettingRow {
   id: string;
@@ -122,7 +121,6 @@ export default function AdminSettings() {
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="system">System</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
-           <TabsTrigger value="splash">Splash Screens</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
         </TabsList>
 
@@ -425,10 +423,6 @@ export default function AdminSettings() {
             </CardContent>
           </Card>
         </TabsContent>
-
-       <TabsContent value="splash">
-         <SplashScreensManager />
-       </TabsContent>
 
         <TabsContent value="health">
           <BackendHealthWidget />

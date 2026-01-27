@@ -15,6 +15,7 @@ import {
   LogOut,
   Settings,
   Shield,
+  Sparkles,
   Users,
   Zap,
 } from "lucide-react";
@@ -69,6 +70,7 @@ export const AdminSidebar = ({ showQuickShortcuts = false, onNavigate }: AdminSi
         { to: '/admin/content', icon: BookOpen, label: 'Content' },
         { to: '/admin/quiz', icon: BookOpen, label: 'Quiz Questions' },
         { to: '/admin/occasions', icon: CalendarDays, label: 'Occasions' },
+        { to: '/admin/splash-screens', icon: Sparkles, label: 'Splash Screens' },
         { to: '/admin/notifications', icon: Bell, label: 'Send Notification' },
         { to: '/admin/notifications/history', icon: HistoryIcon, label: 'Notification History' },
         { to: '/admin/notifications/diagnostics', icon: Zap, label: 'Notification Diagnostics' },
