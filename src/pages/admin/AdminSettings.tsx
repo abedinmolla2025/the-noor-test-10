@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState, ChangeEvent } from 'react';
+import { useEffect, useRef, useState, ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -58,6 +58,26 @@ export default function AdminSettings() {
     quiz: true,
     ...(getValue(MODULES_KEY) || {}),
   }));
+
+  // Hydrate local form state after async settings load (only once)
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (!settings || hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    setBranding(getValue(BRANDING_KEY));
+    setTheme(getValue(THEME_KEY));
+    setSeo(getValue(SEO_KEY));
+    setSystem((prev) => ({
+      ...prev,
+      ...(getValue(SYSTEM_KEY) || {}),
+    }));
+    setModules((prev) => ({
+      ...prev,
+      ...(getValue(MODULES_KEY) || {}),
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
 
   const updateSettingMutation = useMutation({
     mutationFn: async ({
