@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
 import { Button } from "@/components/ui/button";
@@ -80,7 +80,8 @@ export function ImageCropDialog(props: {
   outputHeight?: number;
   maskShape?: "square" | "circle";
   showPositionPresets?: boolean;
-  onConfirm: (blob: Blob) => void | Promise<void>;
+  showShapePresets?: boolean;
+  onConfirm: (blob: Blob, meta?: { maskShape: "square" | "circle" }) => void | Promise<void>;
 }) {
   const {
     open,
@@ -94,6 +95,7 @@ export function ImageCropDialog(props: {
     outputHeight,
     maskShape = "square",
     showPositionPresets = false,
+    showShapePresets = false,
     onConfirm,
   } = props;
 
@@ -101,6 +103,12 @@ export function ImageCropDialog(props: {
   const [zoom, setZoom] = useState(1);
   const [croppedPixels, setCroppedPixels] = useState<Area | null>(null);
   const [saving, setSaving] = useState(false);
+  const [selectedMaskShape, setSelectedMaskShape] = useState<"square" | "circle">(maskShape);
+
+  useEffect(() => {
+    // Keep the dialog UI in sync with caller defaults.
+    setSelectedMaskShape(maskShape);
+  }, [maskShape, open]);
 
   const disabled = useMemo(() => !imageSrc || !croppedPixels || saving, [imageSrc, croppedPixels, saving]);
 
@@ -115,9 +123,9 @@ export function ImageCropDialog(props: {
         quality,
         outputWidth,
         outputHeight,
-        maskShape,
+        maskShape: selectedMaskShape,
       });
-      await onConfirm(blob);
+      await onConfirm(blob, { maskShape: selectedMaskShape });
       onOpenChange(false);
     } finally {
       setSaving(false);
@@ -181,6 +189,29 @@ export function ImageCropDialog(props: {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">Tip: drag inside the crop area for precise positioning.</p>
+            </div>
+          ) : showShapePresets ? (
+            <div className="grid gap-2">
+              <p className="text-sm font-medium">Crop preset</p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant={selectedMaskShape === "circle" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedMaskShape("circle")}
+                >
+                  Circle
+                </Button>
+                <Button
+                  type="button"
+                  variant={selectedMaskShape === "square" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedMaskShape("square")}
+                >
+                  Square
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Tip: drag inside the crop area for positioning.</p>
             </div>
           ) : null}
         </div>

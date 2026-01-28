@@ -215,7 +215,7 @@ export function BrandingSeoImageManager(props: {
   }, [cropMeta]);
 
   const activeMaskShape = useMemo(() => {
-    return activePreset.maskShape ?? "square";
+    return activePreset.maskShape ?? "circle";
   }, [activePreset]);
 
   const beginCrop = (meta: CropMeta, file: File) => {
@@ -324,8 +324,8 @@ export function BrandingSeoImageManager(props: {
           outputWidth={activePreset.exportSize?.w}
           outputHeight={activePreset.exportSize?.h}
           maskShape={activeMaskShape}
-          showPositionPresets
-          onConfirm={async (blob) => {
+          showShapePresets
+          onConfirm={async (blob, meta) => {
             if (!cropMeta) return;
             setSaving(true);
             try {
@@ -338,7 +338,7 @@ export function BrandingSeoImageManager(props: {
 
               // Auto-generate favicon PNG variants
               if (cropMeta.target === "branding" && cropMeta.field === "faviconUrl") {
-                const shape = activeMaskShape;
+                const shape = meta?.maskShape ?? activeMaskShape;
                 const [png16, png32, png48, png180] = await Promise.all([
                   resizeToPng({ source: blob, size: 16, maskShape: shape }),
                   resizeToPng({ source: blob, size: 32, maskShape: shape }),
