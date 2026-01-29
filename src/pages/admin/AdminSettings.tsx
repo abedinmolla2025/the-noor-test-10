@@ -178,6 +178,10 @@ export default function AdminSettings() {
                       setBranding={setBranding}
                       seo={seo}
                       setSeo={setSeo}
+                      onAutoSaveSetting={(key, value) => {
+                        // Persist immediately so the real app picks up new logo/icon/favicon without requiring a manual Save.
+                        updateSettingMutation.mutate({ key, value });
+                      }}
                     />
                     <BrandingSeoLivePreview branding={branding} seo={seo} />
                   </div>
