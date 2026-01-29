@@ -191,13 +191,15 @@ export function BrandingSeoImageManager(props: {
   setBranding: (updater: any) => void;
   seo: any;
   setSeo: (updater: any) => void;
+  /** Persist updated setting immediately (used so changes reflect in the real app without pressing Save). */
+  onAutoSaveSetting?: (key: "branding" | "seo", value: any) => void;
 }) {
   const { branding, setBranding, seo, setSeo } = props;
   const { toast } = useToast();
 
   const [presetByField, setPresetByField] = useState<Record<string, PresetKey>>({
     logoUrl: "circle_1_1",
-    iconUrl: "square_1_1",
+    iconUrl: "circle_1_1",
     faviconUrl: "favicon_circle",
     shareImageUrl: "carousel_16_9",
   });
@@ -218,6 +220,8 @@ export function BrandingSeoImageManager(props: {
     return activePreset.maskShape ?? "circle";
   }, [activePreset]);
 
+  const wantsAlpha = activeMaskShape === "circle";
+
   const beginCrop = (meta: CropMeta, file: File) => {
     if (cropSrc) URL.revokeObjectURL(cropSrc);
     setCropMeta(meta);
@@ -227,9 +231,17 @@ export function BrandingSeoImageManager(props: {
 
   const commitUrl = (target: Target, field: string, url: string) => {
     if (target === "branding") {
-      setBranding((prev: any) => ({ ...prev, [field]: url }));
+      setBranding((prev: any) => {
+        const next = { ...prev, [field]: url };
+        props.onAutoSaveSetting?.("branding", next);
+        return next;
+      });
     } else {
-      setSeo((prev: any) => ({ ...prev, [field]: url }));
+      setSeo((prev: any) => {
+        const next = { ...prev, [field]: url };
+        props.onAutoSaveSetting?.("seo", next);
+        return next;
+      });
     }
   };
 
@@ -259,7 +271,7 @@ export function BrandingSeoImageManager(props: {
             title="App Icon"
             description="Square icon used inside the app."
             valueUrl={branding.iconUrl}
-            previewShape="square"
+            previewShape="circle"
             preset={presetByField.iconUrl}
             onPresetChange={(p) => setPresetByField((m) => ({ ...m, iconUrl: p }))}
             onPick={(file) =>
@@ -274,7 +286,7 @@ export function BrandingSeoImageManager(props: {
             title="Favicon"
             description="Shown in browser tab. Recommend simple, high-contrast."
             valueUrl={branding.faviconUrl}
-            previewShape="square"
+            previewShape="circle"
             preset={presetByField.faviconUrl}
             onPresetChange={(p) => setPresetByField((m) => ({ ...m, faviconUrl: p }))}
             onPick={(file) =>
@@ -319,8 +331,8 @@ export function BrandingSeoImageManager(props: {
           imageSrc={cropSrc}
           title={cropMeta?.title}
           aspect={activePreset.aspect}
-          outputType={isFaviconFlow ? "image/png" : "image/webp"}
-          quality={isFaviconFlow ? 1 : 0.92}
+          outputType={isFaviconFlow || wantsAlpha ? "image/png" : "image/webp"}
+          quality={isFaviconFlow || wantsAlpha ? 1 : 0.92}
           outputWidth={activePreset.exportSize?.w}
           outputHeight={activePreset.exportSize?.h}
           maskShape={activeMaskShape}
@@ -353,16 +365,20 @@ export function BrandingSeoImageManager(props: {
                   uploadBlobAsPng({ blob: png180, target: "branding", field: "faviconVariants", name: "apple-touch-icon-180.png" }),
                 ]);
 
-                setBranding((prev: any) => ({
-                  ...prev,
-                  faviconVariants: {
-                    ...(prev?.faviconVariants || ({} as FaviconVariants)),
-                    png16: url16,
-                    png32: url32,
-                    png48: url48,
-                    png180: url180,
-                  },
-                }));
+                setBranding((prev: any) => {
+                  const next = {
+                    ...prev,
+                    faviconVariants: {
+                      ...(prev?.faviconVariants || ({} as FaviconVariants)),
+                      png16: url16,
+                      png32: url32,
+                      png48: url48,
+                      png180: url180,
+                    },
+                  };
+                  props.onAutoSaveSetting?.("branding", next);
+                  return next;
+                });
               }
 
               toast({ title: "Image saved" });
