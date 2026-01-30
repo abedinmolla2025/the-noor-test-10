@@ -89,12 +89,26 @@ export default function AdminSettings() {
     }) => {
       const { error } = await supabase
         .from('app_settings')
-        .upsert({ setting_key: key, setting_value: value });
+        // Important: upsert must conflict on setting_key (not the id PK), otherwise it will insert
+        // new rows and your UI may still read an older row, looking like it "didn't save".
+        .upsert(
+          { setting_key: key, setting_value: value },
+          {
+            onConflict: 'setting_key',
+          },
+        );
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['app-settings'] });
       toast({ title: 'Settings updated' });
+    },
+    onError: (e: any) => {
+      toast({
+        title: 'Save failed',
+        description: e?.message ?? 'Could not save settings',
+        variant: 'destructive',
+      });
     },
   });
 
