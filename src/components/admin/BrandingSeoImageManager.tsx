@@ -4,8 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ImageCropDialog } from "@/components/admin/ImageCropDialog";
 import { resizeToPng } from "@/lib/imagePngVariants";
@@ -81,24 +79,29 @@ async function uploadBlobAsPng(params: {
   return await uploadCroppedImage({ file, target, field });
 }
 
+function presetForField(field: string): PresetKey {
+  // Crop preset is controlled inside the crop dialog (shape toggles + aspect),
+  // so the external dropdown is intentionally removed.
+  switch (field) {
+    case "shareImageUrl":
+      return "carousel_16_9";
+    case "faviconUrl":
+      return "favicon_circle";
+    case "logoUrl":
+    case "iconUrl":
+    default:
+      return "circle_1_1";
+  }
+}
+
 function ImageSlot(props: {
   title: string;
   description?: string;
   valueUrl?: string;
-  preset: PresetKey;
-  onPresetChange: (p: PresetKey) => void;
   onPick: (file: File) => void;
   previewShape?: "circle" | "square" | "wide";
-  showMaskToggle?: boolean;
-  maskShape?: MaskShape;
-  onMaskShapeChange?: (shape: MaskShape) => void;
 }) {
-  const { title, description, valueUrl, preset, onPresetChange, onPick, previewShape = "square" } = props;
-  const {
-    showMaskToggle = false,
-    maskShape = "square",
-    onMaskShapeChange,
-  } = props;
+  const { title, description, valueUrl, onPick, previewShape = "square" } = props;
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const previewClass =
@@ -128,42 +131,7 @@ function ImageSlot(props: {
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-        <div className="grid gap-2">
-          <Label className="text-xs">Crop preset</Label>
-          <Select value={preset} onValueChange={(v) => onPresetChange(v as PresetKey)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(PRESETS).map(([k, v]) => (
-                <SelectItem key={k} value={k}>
-                  {v.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {showMaskToggle ? (
-          <div className="grid gap-2">
-            <Label className="text-xs">Shape</Label>
-            <Select
-              value={maskShape}
-              onValueChange={(v) => onMaskShapeChange?.(v as MaskShape)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="circle">Circle</SelectItem>
-                <SelectItem value="square">Square</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        ) : null}
-
-        <div className="flex gap-2">
+      <div className="flex gap-2">
           <input
             ref={inputRef}
             type="file"
@@ -180,7 +148,6 @@ function ImageSlot(props: {
           <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
             Upload & crop
           </Button>
-        </div>
       </div>
     </div>
   );
@@ -196,13 +163,6 @@ export function BrandingSeoImageManager(props: {
 }) {
   const { branding, setBranding, seo, setSeo } = props;
   const { toast } = useToast();
-
-  const [presetByField, setPresetByField] = useState<Record<string, PresetKey>>({
-    logoUrl: "circle_1_1",
-    iconUrl: "circle_1_1",
-    faviconUrl: "favicon_circle",
-    shareImageUrl: "carousel_16_9",
-  });
 
   const [cropOpen, setCropOpen] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -257,11 +217,14 @@ export function BrandingSeoImageManager(props: {
             description="Used in app header and branding areas."
             valueUrl={branding.logoUrl}
             previewShape="circle"
-            preset={presetByField.logoUrl}
-            onPresetChange={(p) => setPresetByField((m) => ({ ...m, logoUrl: p }))}
             onPick={(file) =>
               beginCrop(
-                { target: "branding", field: "logoUrl", title: "Crop Logo", preset: presetByField.logoUrl },
+                {
+                  target: "branding",
+                  field: "logoUrl",
+                  title: "Crop Logo",
+                  preset: presetForField("logoUrl"),
+                },
                 file,
               )
             }
@@ -272,11 +235,14 @@ export function BrandingSeoImageManager(props: {
             description="Square icon used inside the app."
             valueUrl={branding.iconUrl}
             previewShape="circle"
-            preset={presetByField.iconUrl}
-            onPresetChange={(p) => setPresetByField((m) => ({ ...m, iconUrl: p }))}
             onPick={(file) =>
               beginCrop(
-                { target: "branding", field: "iconUrl", title: "Crop App Icon", preset: presetByField.iconUrl },
+                {
+                  target: "branding",
+                  field: "iconUrl",
+                  title: "Crop App Icon",
+                  preset: presetForField("iconUrl"),
+                },
                 file,
               )
             }
@@ -287,11 +253,14 @@ export function BrandingSeoImageManager(props: {
             description="Shown in browser tab. Recommend simple, high-contrast."
             valueUrl={branding.faviconUrl}
             previewShape="circle"
-            preset={presetByField.faviconUrl}
-            onPresetChange={(p) => setPresetByField((m) => ({ ...m, faviconUrl: p }))}
             onPick={(file) =>
               beginCrop(
-                { target: "branding", field: "faviconUrl", title: "Crop Favicon", preset: presetByField.faviconUrl },
+                {
+                  target: "branding",
+                  field: "faviconUrl",
+                  title: "Crop Favicon",
+                  preset: presetForField("faviconUrl"),
+                },
                 file,
               )
             }
@@ -302,15 +271,13 @@ export function BrandingSeoImageManager(props: {
             description="Used when sharing links on social apps."
             valueUrl={seo.shareImageUrl}
             previewShape="wide"
-            preset={presetByField.shareImageUrl}
-            onPresetChange={(p) => setPresetByField((m) => ({ ...m, shareImageUrl: p }))}
             onPick={(file) =>
               beginCrop(
                 {
                   target: "seo",
                   field: "shareImageUrl",
                   title: "Crop Share Image",
-                  preset: presetByField.shareImageUrl,
+                  preset: presetForField("shareImageUrl"),
                 },
                 file,
               )
