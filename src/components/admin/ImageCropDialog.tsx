@@ -112,6 +112,11 @@ export function ImageCropDialog(props: {
 
   const disabled = useMemo(() => !imageSrc || !croppedPixels || saving, [imageSrc, croppedPixels, saving]);
 
+  const cropShape = useMemo<"rect" | "round">(
+    () => (selectedMaskShape === "circle" ? "round" : "rect"),
+    [selectedMaskShape],
+  );
+
   const handleSave = async () => {
     if (!imageSrc || !croppedPixels) return;
     setSaving(true);
@@ -153,6 +158,7 @@ export function ImageCropDialog(props: {
                 crop={crop}
                 zoom={zoom}
                 aspect={aspect}
+                cropShape={cropShape}
                 onCropChange={setCrop}
                 onZoomChange={setZoom}
                 onCropComplete={(_, areaPixels) => setCroppedPixels(areaPixels)}
