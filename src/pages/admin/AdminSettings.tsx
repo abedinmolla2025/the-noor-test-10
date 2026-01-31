@@ -11,7 +11,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import BackendHealthWidget from '@/components/BackendHealthWidget';
 import { BrandingSeoImageManager } from '@/components/admin/BrandingSeoImageManager';
 import { BrandingSeoLivePreview } from '@/components/admin/BrandingSeoLivePreview';
-
+import { AppNameEditor } from '@/components/admin/AppNameEditor';
 interface AppSettingRow {
   id: string;
   setting_key: string;
@@ -158,55 +158,33 @@ export default function AdminSettings() {
         </TabsList>
 
         <TabsContent value="branding">
-          <Card>
-            <CardHeader>
-              <CardTitle>Branding</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="appName">App name</Label>
-                  <Input
-                    id="appName"
-                    value={branding.appName || ''}
-                    onChange={handleSimpleChange(setBranding, 'appName')}
-                    placeholder="NOOR"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tagline">Tagline</Label>
-                  <Input
-                    id="tagline"
-                    value={branding.tagline || ''}
-                    onChange={handleSimpleChange(setBranding, 'tagline')}
-                    placeholder="Prayer, Quran & more"
-                  />
-                </div>
-              </div>
+          <div className="space-y-6">
+            <AppNameEditor branding={branding} onChange={setBranding} />
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="md:col-span-2">
-                  <div className="grid gap-4 lg:grid-cols-2">
-                    <BrandingSeoImageManager
-                      branding={branding}
-                      setBranding={setBranding}
-                      seo={seo}
-                      setSeo={setSeo}
-                      onAutoSaveSetting={(key, value) => {
-                        // Persist immediately so the real app picks up new logo/icon/favicon without requiring a manual Save.
-                        updateSettingMutation.mutate({ key, value });
-                      }}
-                    />
-                    <BrandingSeoLivePreview branding={branding} seo={seo} />
-                  </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Logo & Images</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <BrandingSeoImageManager
+                    branding={branding}
+                    setBranding={setBranding}
+                    seo={seo}
+                    setSeo={setSeo}
+                    onAutoSaveSetting={(key, value) => {
+                      updateSettingMutation.mutate({ key, value });
+                    }}
+                  />
+                  <BrandingSeoLivePreview branding={branding} seo={seo} />
                 </div>
-              </div>
 
-              <div className="flex justify-end">
-                <Button onClick={() => handleSave(BRANDING_KEY, branding)}>Save branding</Button>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="flex justify-end">
+                  <Button onClick={() => handleSave(BRANDING_KEY, branding)}>Save branding</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="theme">
