@@ -12,30 +12,43 @@
    const [visible, setVisible] = useState(true);
    const [fadeOut, setFadeOut] = useState(false);
  
-   useEffect(() => {
-     if (!lottieUrl) {
-       onComplete();
-       return;
-     }
- 
-     // Load Lottie JSON
-     fetch(lottieUrl)
-       .then((res) => res.json())
-       .then((data) => {
-         setAnimationData(data);
-           // Auto-hide after specified duration
-         setTimeout(() => {
-           setFadeOut(true);
-           setTimeout(() => {
-             setVisible(false);
-             onComplete();
-             }, fadeOutDuration);
-           }, duration);
-       })
-       .catch(() => {
-         onComplete();
-       });
-   }, [lottieUrl, duration, fadeOutDuration, onComplete]);
+  useEffect(() => {
+    if (!lottieUrl) {
+      onComplete();
+      return;
+    }
+
+    let cancelled = false;
+
+    // Load Lottie JSON
+    fetch(lottieUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load lottie');
+        return res.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        setAnimationData(data);
+        // Auto-hide after specified duration
+        setTimeout(() => {
+          if (cancelled) return;
+          setFadeOut(true);
+          setTimeout(() => {
+            if (cancelled) return;
+            setVisible(false);
+            onComplete();
+          }, fadeOutDuration);
+        }, duration);
+      })
+      .catch((err) => {
+        console.warn('[SplashScreen] Failed to load lottie:', err);
+        if (!cancelled) onComplete();
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lottieUrl, duration, fadeOutDuration, onComplete]);
 
    const transitionStyle = useMemo(() => 
      `transition-opacity duration-[${fadeOutDuration}ms]`,
