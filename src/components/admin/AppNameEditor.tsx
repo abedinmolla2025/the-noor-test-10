@@ -26,9 +26,10 @@ interface AppNameEditorProps {
 // These are aligned with the fonts we actually load in index.html
 // and the Tailwind design tokens (arabic, bangla, premium, display, quiz fonts).
 const FONT_OPTIONS = [
-	// Neutral / default
-	{ value: 'DM Sans, system-ui, sans-serif', label: 'DM Sans (Clean Default)' },
+	// Defaults (keep these as the editor defaults)
+	{ value: 'Inter, sans-serif', label: 'Inter (Default)' },
 	{ value: 'Poppins, system-ui, sans-serif', label: 'Poppins (Modern)' },
+	{ value: 'DM Sans, system-ui, sans-serif', label: 'DM Sans (Clean)' },
 
 	// Premium Latin / logo style
 	{ value: 'Cinzel, Playfair Display, serif', label: 'Cinzel (Premium Logo)' },
@@ -43,9 +44,6 @@ const FONT_OPTIONS = [
 	// Bangla premium options
 	{ value: 'Noto Serif Bengali, Hind Siliguri, system-ui, serif', label: 'Noto Serif Bengali (Premium)' },
 	{ value: 'Hind Siliguri, system-ui, sans-serif', label: 'Hind Siliguri (Bangla UI)' },
-
-	// Utility fallbacks
-	{ value: 'Inter, system-ui, sans-serif', label: 'Inter (System Fallback)' },
 ];
 
 const FONT_WEIGHT_OPTIONS = [
