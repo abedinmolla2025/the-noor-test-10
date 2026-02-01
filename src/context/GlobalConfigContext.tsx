@@ -9,8 +9,11 @@ export type AppSettingKey =
   | "modules";
 
 export interface BrandingSettings {
+  // Core text
   appName?: string;
   tagline?: string;
+
+  // Brand imagery
   logoUrl?: string;
   iconUrl?: string;
   faviconUrl?: string;
@@ -20,6 +23,17 @@ export interface BrandingSettings {
     png48?: string;
     png180?: string; // apple-touch-icon
   };
+
+  // App name typography (used in header/navigation)
+  fontFamily?: string;
+  fontSize?: number;
+  fontWeight?: string;
+  color?: string; // hex or CSS color string
+
+  // Tagline typography
+  taglineFontFamily?: string;
+  taglineFontSize?: number;
+  taglineColor?: string;
 }
 
 export interface ThemeSettings {
