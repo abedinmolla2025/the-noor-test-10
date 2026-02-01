@@ -192,22 +192,30 @@ const PrayerHeroCard = ({ prayerData, athanSettings }: PrayerHeroCardProps) => {
                       </button>
                     </div>
                     <div className="flex flex-col ml-1.5">
-                      <span 
-                        className="text-lg font-premium font-semibold tracking-[0.2em] noor-shine-text"
-                        style={{ 
-                          background: 'linear-gradient(135deg, #ffffff 0%, #fef3c7 25%, #ffffff 50%, #fcd34d 75%, #ffffff 100%)',
-                          backgroundSize: '200% 100%',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          backgroundClip: 'text',
+                      {/* App name follows branding typography but always stays as the primary name */}
+                      <span
+                        className="font-semibold tracking-[0.18em] text-xs md:text-sm lg:text-base uppercase"
+                        style={{
+                          fontFamily: branding.fontFamily || undefined,
+                          fontSize: branding.fontSize ? `${branding.fontSize}px` : undefined,
+                          fontWeight: branding.fontWeight || undefined,
+                          // Fall back to semantic primary color when no custom brand color is set
+                          color: branding.color || undefined,
                         }}
                       >
-                        {branding.appName || 'NOOR'}
+                        {branding.appName || "Noor"}
                       </span>
-                      <span 
-                        className="text-[7px] font-premium uppercase tracking-[0.2em] font-medium text-amber-300/80"
+
+                      {/* Tagline / category is always secondary and smaller */}
+                      <span
+                        className="mt-0.5 text-[9px] md:text-[10px] uppercase tracking-[0.22em] font-medium text-muted-foreground"
+                        style={{
+                          fontFamily: branding.taglineFontFamily || undefined,
+                          fontSize: branding.taglineFontSize ? `${branding.taglineFontSize}px` : undefined,
+                          color: branding.taglineColor || undefined,
+                        }}
                       >
-                        {branding.tagline || 'Islamic App'}
+                        {branding.tagline || "Islamic App"}
                       </span>
                     </div>
                   </div>
