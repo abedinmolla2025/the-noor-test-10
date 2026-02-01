@@ -22,18 +22,30 @@ interface AppNameEditorProps {
   onChange: (branding: AppNameStyles) => void;
 }
 
+// Premium-focused font options for primary name & subtitle.
+// These are aligned with the fonts we actually load in index.html
+// and the Tailwind design tokens (arabic, bangla, premium, display, quiz fonts).
 const FONT_OPTIONS = [
-  { value: 'Inter, sans-serif', label: 'Inter (Default)' },
-  { value: 'Poppins, sans-serif', label: 'Poppins' },
-  { value: 'Roboto, sans-serif', label: 'Roboto' },
-  { value: 'Cairo, sans-serif', label: 'Cairo (Arabic)' },
-  { value: 'Amiri, serif', label: 'Amiri (Arabic Serif)' },
-  { value: 'Noto Sans Bengali, sans-serif', label: 'Noto Sans Bengali' },
-  { value: 'Hind Siliguri, sans-serif', label: 'Hind Siliguri (Bengali)' },
-  { value: 'Playfair Display, serif', label: 'Playfair Display' },
-  { value: 'Montserrat, sans-serif', label: 'Montserrat' },
-  { value: 'Oswald, sans-serif', label: 'Oswald' },
-  { value: 'Lato, sans-serif', label: 'Lato' },
+	// Neutral / default
+	{ value: 'DM Sans, system-ui, sans-serif', label: 'DM Sans (Clean Default)' },
+	{ value: 'Poppins, system-ui, sans-serif', label: 'Poppins (Modern)' },
+
+	// Premium Latin / logo style
+	{ value: 'Cinzel, Playfair Display, serif', label: 'Cinzel (Premium Logo)' },
+	{ value: 'Playfair Display, serif', label: 'Playfair Display (Elegant Serif)' },
+	{ value: 'Lora, DM Sans, system-ui, serif', label: 'Lora (Soft Serif)' },
+
+	// Arabic premium options
+	{ value: 'Cairo, Scheherazade New, Noto Naskh Arabic, serif', label: 'Cairo (Modern Arabic)' },
+	{ value: 'Scheherazade New, Noto Naskh Arabic, serif', label: 'Scheherazade New (Quranic)' },
+	{ value: 'Noto Naskh Arabic, Scheherazade New, serif', label: 'Noto Naskh Arabic' },
+
+	// Bangla premium options
+	{ value: 'Noto Serif Bengali, Hind Siliguri, system-ui, serif', label: 'Noto Serif Bengali (Premium)' },
+	{ value: 'Hind Siliguri, system-ui, sans-serif', label: 'Hind Siliguri (Bangla UI)' },
+
+	// Utility fallbacks
+	{ value: 'Inter, system-ui, sans-serif', label: 'Inter (System Fallback)' },
 ];
 
 const FONT_WEIGHT_OPTIONS = [
