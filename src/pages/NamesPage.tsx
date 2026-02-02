@@ -122,10 +122,7 @@ const NamesPage = () => {
     queryKey: ["public-names"],
     queryFn: ({ pageParam }) => fetchNamesPage(typeof pageParam === "number" ? pageParam : 0),
     initialPageParam: 0,
-    // Defensive: prevent React Query internals from touching undefined during initial render.
-    // (Some builds can compute hasNextPage before data is available.)
-    initialData: { pages: [], pageParams: [] } as any,
-    getNextPageParam: (lastPage) => lastPage?.nextOffset ?? undefined,
+    getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
     staleTime: 60_000,
   });
 
