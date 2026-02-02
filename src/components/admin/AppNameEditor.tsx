@@ -30,16 +30,22 @@ const FONT_OPTIONS = [
 	{ value: 'Inter, sans-serif', label: 'Inter (Default)' },
 	{ value: 'Poppins, system-ui, sans-serif', label: 'Poppins (Modern)' },
 	{ value: 'DM Sans, system-ui, sans-serif', label: 'DM Sans (Clean)' },
+	{ value: 'Noto Sans Bengali, Hind Siliguri, system-ui, sans-serif', label: 'Noto Sans Bengali (Clean Bangla)' },
 
 	// Premium Latin / logo style
 	{ value: 'Cinzel, Playfair Display, serif', label: 'Cinzel (Premium Logo)' },
 	{ value: 'Playfair Display, serif', label: 'Playfair Display (Elegant Serif)' },
 	{ value: 'Lora, DM Sans, system-ui, serif', label: 'Lora (Soft Serif)' },
+	{ value: 'Cormorant Garamond, Playfair Display, serif', label: 'Cormorant Garamond (Luxury)' },
+	{ value: 'Crimson Pro, Lora, serif', label: 'Crimson Pro (Editorial)' },
+	{ value: 'Marcellus, Cinzel, serif', label: 'Marcellus (Classic Display)' },
 
 	// Arabic premium options
 	{ value: 'Cairo, Scheherazade New, Noto Naskh Arabic, serif', label: 'Cairo (Modern Arabic)' },
 	{ value: 'Scheherazade New, Noto Naskh Arabic, serif', label: 'Scheherazade New (Quranic)' },
 	{ value: 'Noto Naskh Arabic, Scheherazade New, serif', label: 'Noto Naskh Arabic' },
+	{ value: 'Amiri, Scheherazade New, Noto Naskh Arabic, serif', label: 'Amiri (Traditional Arabic)' },
+	{ value: 'Reem Kufi, Noto Naskh Arabic, system-ui, sans-serif', label: 'Reem Kufi (Kufi Style)' },
 
 	// Bangla premium options
 	{ value: 'Noto Serif Bengali, Hind Siliguri, system-ui, serif', label: 'Noto Serif Bengali (Premium)' },
@@ -270,7 +276,7 @@ export function AppNameEditor({ branding, onChange }: AppNameEditorProps) {
             <div className="space-y-2">
               <Label>Color</Label>
               <div className="flex flex-wrap gap-2">
-                {COLOR_PRESETS.slice(0, 5).map((preset) => (
+                {COLOR_PRESETS.map((preset) => (
                   <button
                     key={preset.value}
                     type="button"
