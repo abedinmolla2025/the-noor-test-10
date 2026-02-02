@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import type { ComponentProps } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -62,17 +62,37 @@ const normalizeGender = (raw?: string) => {
   return g; // fallback (custom values)
 };
 
-const fetchNames = async (): Promise<NameContentRow[]> => {
-  const { data, error } = await supabase
+const PAGE_SIZE = 200;
+
+type NamesPageResult = {
+  rows: NameContentRow[];
+  total: number | null;
+  nextOffset: number | null;
+};
+
+const fetchNamesPage = async (offset: number): Promise<NamesPageResult> => {
+  const from = offset;
+  const to = offset + PAGE_SIZE - 1;
+
+  const query = (supabase as any)
     .from("admin_content")
-    .select("id,title,title_arabic,content,content_en,content_arabic,category,metadata,created_at,order_index,is_published,content_type")
+    .select(
+      "id,title,title_arabic,content,content_en,content_arabic,category,metadata,created_at,order_index,is_published,content_type",
+      { count: "exact" },
+    )
     .eq("content_type", "name")
     .eq("is_published", true)
     .order("order_index", { ascending: true, nullsFirst: false })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
+  const { data, error, count } = await query;
   if (error) throw error;
-  return (data ?? []) as unknown as NameContentRow[];
+
+  const rows = ((data ?? []) as unknown as NameContentRow[]).filter(Boolean);
+  const nextOffset = rows.length === PAGE_SIZE ? offset + PAGE_SIZE : null;
+
+  return { rows, total: typeof count === "number" ? count : null, nextOffset };
 };
 
 const NamesPage = () => {
@@ -98,15 +118,25 @@ const NamesPage = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const namesQuery = useQuery({
+  const namesQuery = useInfiniteQuery({
     queryKey: ["public-names"],
-    queryFn: fetchNames,
+    queryFn: ({ pageParam }) => fetchNamesPage(typeof pageParam === "number" ? pageParam : 0),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
+    staleTime: 60_000,
   });
+
+  const allRows = useMemo(() => {
+    const pages = namesQuery.data?.pages ?? [];
+    return pages.flatMap((p) => p.rows);
+  }, [namesQuery.data]);
+
+  const totalCount = namesQuery.data?.pages?.[0]?.total ?? null;
 
   const filteredBase = useMemo(() => {
     const query = q.trim().toLowerCase();
 
-    const list = namesQuery.data ?? [];
+    const list = allRows ?? [];
     const quickFiltered = list.filter((n) => {
       const meta = safeParseMeta(n.metadata);
       // Gender is primarily stored in metadata, but some datasets store it in `category`.
@@ -144,7 +174,7 @@ const NamesPage = () => {
       ];
       return parts.join(" ").toLowerCase().includes(query);
     });
-  }, [q, activeQuickFilter, namesQuery.data]);
+  }, [q, activeQuickFilter, allRows]);
 
   const alphabetCounts = useMemo<Record<string, number>>(() => {
     const out: Record<string, number> = {};
@@ -223,7 +253,7 @@ const NamesPage = () => {
             subtitle={
               namesQuery.isLoading
                 ? "লোড হচ্ছে…"
-                : `${filtered.length.toLocaleString()} ফলাফল • ${(namesQuery.data?.length ?? 0).toLocaleString()} মোট`
+                : `${filtered.length.toLocaleString()} ফলাফল • ${(totalCount ?? allRows.length).toLocaleString()} মোট`
             }
           />
 
@@ -251,6 +281,19 @@ const NamesPage = () => {
           emptyStateTitle={activeLetter ? "কোনো নাম পাওয়া যায়নি" : undefined}
           emptyStateDescription={activeLetter ? "এই অক্ষরে কোনো নাম পাওয়া যায়নি" : undefined}
         />
+
+        {!namesQuery.isLoading && !namesQuery.isError && namesQuery.hasNextPage ? (
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              onClick={() => namesQuery.fetchNextPage()}
+              disabled={namesQuery.isFetchingNextPage}
+              className="dua-card px-5 py-3 text-sm font-medium text-[hsl(var(--dua-fg))] transition-all hover:shadow-card disabled:opacity-60"
+            >
+              {namesQuery.isFetchingNextPage ? "লোড হচ্ছে…" : "আরও নাম লোড করুন"}
+            </button>
+          </div>
+        ) : null}
       </main>
 
       <NameSharePreviewModal open={!!selected} onOpenChange={(o) => !o && closeModal()} name={selected} />
