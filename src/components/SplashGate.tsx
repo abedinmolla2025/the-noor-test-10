@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SplashScreen } from "@/components/SplashScreen";
-import { SPLASH_TEMPLATES } from "@/lib/splashTemplates";
 
 type SplashConfig = {
   lottieUrl: string;
   duration: number;
   fadeOutDuration: number;
 };
-
-// Built-in Noor-style default splash (light / geometric pattern)
-const DEFAULT_SPLASH =
-  SPLASH_TEMPLATES.find((t) => t.id === "islamic-geometric") ??
-  SPLASH_TEMPLATES[0];
 
 /**
  * Ensures splash overlay is visible while we fetch splash config.
@@ -72,17 +66,7 @@ export function SplashGate(props: { children: React.ReactNode }) {
         if (cancelled) return;
 
         const brandingValue = brandingData?.setting_value as any;
-
-        // If admin explicitly disabled splash in branding settings, respect that.
-        if (brandingValue && brandingValue.splashEnabled === false) {
-          setDone(true);
-          return;
-        }
-
-        if (
-          brandingValue?.lottieSplashUrl &&
-          brandingValue?.splashEnabled !== false
-        ) {
+        if (brandingValue?.lottieSplashUrl && brandingValue?.splashEnabled !== false) {
           setConfig({
             lottieUrl: brandingValue.lottieSplashUrl,
             duration: brandingValue.splashDuration || 3000,
@@ -92,31 +76,10 @@ export function SplashGate(props: { children: React.ReactNode }) {
           return;
         }
 
-        // No splash configured in DB/branding: use a built-in Noor-style default
-        if (DEFAULT_SPLASH) {
-          setConfig({
-            lottieUrl: DEFAULT_SPLASH.lottieUrl,
-            duration: DEFAULT_SPLASH.duration,
-            fadeOutDuration: DEFAULT_SPLASH.fadeOutDuration,
-          });
-          setLoadingConfig(false);
-          return;
-        }
-
-        // Absolute fallback: no splash at all
+        // No splash configured
         setDone(true);
       } catch {
-        if (!cancelled) {
-          if (DEFAULT_SPLASH) {
-            setConfig({
-              lottieUrl: DEFAULT_SPLASH.lottieUrl,
-              duration: DEFAULT_SPLASH.duration,
-              fadeOutDuration: DEFAULT_SPLASH.fadeOutDuration,
-            });
-          } else {
-            setDone(true);
-          }
-        }
+        if (!cancelled) setDone(true);
       } finally {
         if (!cancelled) setLoadingConfig(false);
       }
