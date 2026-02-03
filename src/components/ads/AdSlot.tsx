@@ -7,6 +7,7 @@ import { detectPlatform, getOrCreateAdSessionId, isAdminRoutePath } from "@/lib/
 import type { AdPlacement, AdPlatform } from "@/lib/ads";
 import { useAdsForSlot } from "@/hooks/useAdsForSlot";
 import DOMPurify from "dompurify";
+import { AdMobTestSlot } from "@/components/ads/AdMobTestSlot";
 
 type AdSlotProps = {
   placement: AdPlacement;
@@ -82,6 +83,14 @@ export function AdSlot({ placement, platform: platformProp, itemIndex, className
   }, [ad, blockedByIndex, effectivePlatform, isAdmin, placement, sessionId]);
 
   if (isAdmin) return null;
+
+  // Native app: if there's no managed ad configured for this placement yet,
+  // show Google TEST AdMob units so we can safely test before publish.
+  if ((!ad || blockedByIndex) && effectivePlatform !== "web" && placement.startsWith("app_")) {
+    const format = placement === "app_interstitial" ? "interstitial" : "banner";
+    return <AdMobTestSlot placement={placement} format={format as any} className={className} />;
+  }
+
   if (!ad || blockedByIndex) return null;
 
   const isHtml = (ad.ad_type ?? "").toLowerCase() === "html";
