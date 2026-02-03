@@ -5,6 +5,8 @@ import type { AdPlacement, AdPlatform } from "@/lib/ads";
 export type AdRow = {
   id: string;
   title: string;
+  ad_type?: string;
+  ad_code?: string;
   image_path: string | null;
   link_url: string | null;
   button_text: string | null;

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { detectPlatform, getOrCreateAdSessionId, isAdminRoutePath } from "@/lib/ads";
 import type { AdPlacement, AdPlatform } from "@/lib/ads";
 import { useAdsForSlot } from "@/hooks/useAdsForSlot";
+import DOMPurify from "dompurify";
 
 type AdSlotProps = {
   placement: AdPlacement;
@@ -83,6 +84,9 @@ export function AdSlot({ placement, platform: platformProp, itemIndex, className
   if (isAdmin) return null;
   if (!ad || blockedByIndex) return null;
 
+  const isHtml = (ad.ad_type ?? "").toLowerCase() === "html";
+  const safeHtml = isHtml && ad.ad_code ? DOMPurify.sanitize(ad.ad_code, { FORBID_TAGS: ["script", "iframe"] }) : "";
+
   const onClick = async () => {
     try {
       await supabase.from("ad_events").insert({
@@ -103,27 +107,54 @@ export function AdSlot({ placement, platform: platformProp, itemIndex, className
 
   return (
     <Card className={className}>
-      <div className="flex items-center gap-3 p-3">
-        {ad.image_path ? (
-          <img
-            src={ad.image_path}
-            alt={ad.title}
-            loading="lazy"
-            className="h-14 w-14 shrink-0 rounded-md object-cover"
-          />
-        ) : (
-          <div className="h-14 w-14 shrink-0 rounded-md bg-muted" />
-        )}
+      {isHtml ? (
+        <div className="p-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground">Sponsored</p>
+              <p className="text-sm font-semibold leading-tight text-foreground line-clamp-2">{ad.title}</p>
+            </div>
 
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold leading-tight text-foreground line-clamp-2">{ad.title}</p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">Sponsored</p>
+            {ad.link_url ? (
+              <Button size="sm" onClick={onClick}>
+                {ad.button_text ?? "Open"}
+              </Button>
+            ) : null}
+          </div>
+
+          {safeHtml ? (
+            <div
+              className="mt-2 overflow-hidden rounded-md border border-border bg-background"
+              // NOTE: intentionally sanitized to forbid script/iframe.
+              dangerouslySetInnerHTML={{ __html: safeHtml }}
+            />
+          ) : (
+            <p className="mt-2 text-xs text-muted-foreground">No HTML provided.</p>
+          )}
         </div>
+      ) : (
+        <div className="flex items-center gap-3 p-3">
+          {ad.image_path ? (
+            <img
+              src={ad.image_path}
+              alt={ad.title}
+              loading="lazy"
+              className="h-14 w-14 shrink-0 rounded-md object-cover"
+            />
+          ) : (
+            <div className="h-14 w-14 shrink-0 rounded-md bg-muted" />
+          )}
 
-        <Button size="sm" onClick={onClick}>
-          {ad.button_text ?? "Open"}
-        </Button>
-      </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold leading-tight text-foreground line-clamp-2">{ad.title}</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">Sponsored</p>
+          </div>
+
+          <Button size="sm" onClick={onClick}>
+            {ad.button_text ?? "Open"}
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }
