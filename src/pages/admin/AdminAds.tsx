@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +23,8 @@ import { ALL_PLACEMENTS } from "@/lib/ads";
 type AdminAdRow = {
   id: string;
   title: string;
+  ad_type: string;
+  ad_code: string;
   image_path: string | null;
   link_url: string | null;
   button_text: string | null;
@@ -52,6 +55,15 @@ function toISODateTimeLocal(value: string) {
   return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+function fromISOToLocalInput(iso: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  // datetime-local expects local time: YYYY-MM-DDTHH:mm
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function AdminAds() {
   const qc = useQueryClient();
   const { toast } = useToast();
@@ -63,6 +75,8 @@ export default function AdminAds() {
   const emptyForm = useMemo(
     () => ({
       title: "",
+      ad_type: "image" as "image" | "html",
+      ad_code: "",
       link_url: "",
       button_text: "Learn more",
       target_platform: "all" as AdTargetPlatform,
@@ -185,6 +199,8 @@ export default function AdminAds() {
 
       const payload = {
         title: form.title.trim(),
+        ad_type: form.ad_type,
+        ad_code: form.ad_type === "html" ? form.ad_code : "managed",
         link_url: form.link_url.trim() || null,
         button_text: form.button_text.trim() || null,
         target_platform: form.target_platform,
@@ -197,9 +213,6 @@ export default function AdminAds() {
         frequency_per_session: form.frequency_per_session === "" ? null : Number(form.frequency_per_session),
         max_daily_views: form.max_daily_views === "" ? null : Number(form.max_daily_views),
         image_path,
-        // Keep legacy fields non-null where required
-        ad_code: "managed",
-        ad_type: "image",
         zone: "default",
         platform: "both",
       };
@@ -249,13 +262,15 @@ export default function AdminAds() {
     setForm({
       ...emptyForm,
       title: ad.title ?? "",
+      ad_type: (ad.ad_type as any) === "html" ? "html" : "image",
+      ad_code: ad.ad_type === "html" ? (ad.ad_code ?? "") : "",
       link_url: ad.link_url ?? "",
       button_text: ad.button_text ?? "Learn more",
       target_platform: (ad.target_platform as AdTargetPlatform) ?? "all",
       placement: (ad.placement as AdPlacement) ?? "web_home_top",
       priority: ad.priority ?? 1,
-      start_at: "",
-      end_at: "",
+      start_at: fromISOToLocalInput(ad.start_at),
+      end_at: fromISOToLocalInput(ad.end_at),
       status: ad.status ?? "paused",
       show_after_n_items: ad.show_after_n_items?.toString() ?? "",
       frequency_per_session: ad.frequency_per_session?.toString() ?? "",
@@ -387,6 +402,20 @@ export default function AdminAds() {
                   </div>
 
                   <div className="space-y-2">
+                    <Label>Ad Type</Label>
+                    <Select value={form.ad_type} onValueChange={(v) => setForm((p) => ({ ...p, ad_type: v as any }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="image">Image</SelectItem>
+                        <SelectItem value="html">HTML (no scripts)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[11px] text-muted-foreground">HTML ads are sanitized (script/iframe blocked).</p>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label>Platform Target</Label>
                     <Select
                       value={form.target_platform}
@@ -438,6 +467,19 @@ export default function AdminAds() {
                     />
                   </div>
 
+                  {form.ad_type === "html" ? (
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="code">HTML Code</Label>
+                      <Textarea
+                        id="code"
+                        value={form.ad_code}
+                        onChange={(e) => setForm((p) => ({ ...p, ad_code: e.target.value }))}
+                        placeholder="Paste HTML here (scripts/iframes will not render)"
+                        className="min-h-32"
+                      />
+                    </div>
+                  ) : null}
+
                   <div className="space-y-2">
                     <Label htmlFor="priority">Priority</Label>
                     <Input
@@ -481,16 +523,20 @@ export default function AdminAds() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="img">Image</Label>
-                    <Input
-                      id="img"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setForm((p) => ({ ...p, imageFile: e.target.files?.[0] ?? null }))}
-                    />
-                    <p className="text-[11px] text-muted-foreground">Upload a square image for best results.</p>
-                  </div>
+                  {form.ad_type === "image" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="img">Image</Label>
+                      <Input
+                        id="img"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setForm((p) => ({ ...p, imageFile: e.target.files?.[0] ?? null }))}
+                      />
+                      <p className="text-[11px] text-muted-foreground">Upload a square image for best results.</p>
+                    </div>
+                  ) : (
+                    <div className="hidden md:block" />
+                  )}
 
                   <div className="space-y-2">
                     <Label>Rules</Label>
@@ -536,7 +582,10 @@ export default function AdminAds() {
                   <Button variant="outline" onClick={() => setDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={() => saveAd.mutate()} disabled={!form.title.trim()}>
+                  <Button
+                    onClick={() => saveAd.mutate()}
+                    disabled={!form.title.trim() || (form.ad_type === "html" && !form.ad_code.trim())}
+                  >
                     Save
                   </Button>
                 </DialogFooter>
@@ -553,6 +602,7 @@ export default function AdminAds() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Title</TableHead>
+                      <TableHead>Type</TableHead>
                     <TableHead>Platform</TableHead>
                     <TableHead>Placement</TableHead>
                     <TableHead>Status</TableHead>
@@ -563,6 +613,7 @@ export default function AdminAds() {
                   {ads.map((ad) => (
                     <TableRow key={ad.id}>
                       <TableCell className="font-medium">{ad.title}</TableCell>
+                        <TableCell>{ad.ad_type}</TableCell>
                       <TableCell>{ad.target_platform}</TableCell>
                       <TableCell>{ad.placement}</TableCell>
                       <TableCell>{ad.status}</TableCell>
@@ -578,7 +629,7 @@ export default function AdminAds() {
                   ))}
                   {ads.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-sm text-muted-foreground">
+                        <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
                         No ads yet.
                       </TableCell>
                     </TableRow>
